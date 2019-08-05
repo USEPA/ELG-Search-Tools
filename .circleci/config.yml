@@ -1,0 +1,110 @@
+version: 2
+jobs:
+  develop-branch:
+    docker:
+      - image: circleci/node:dubnium-stretch
+    environment:
+      HEROKU_APP_NAME: elg-dev
+    steps:
+      - checkout
+      - run:
+          name: Install Sonarqube scanner
+          command: |
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
+            unzip sonar-scanner-cli-3.3.0.1492-linux.zip
+      - run:
+          name: Run Sonarqube scanner
+          command: |
+            ./sonar-scanner-3.3.0.1492-linux/bin/sonar-scanner -Dsonar.projectKey=ELG -Dsonar.host.url=$SONARQUBE_URL -Dsonar.login=$SONARQUBE_TOKEN
+      - run:
+          name: Update npm
+          command: |
+            sudo npm install -g npm
+      - restore_cache: # special step to restore the dependency cache
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Build npm dependencies
+          command: |
+            npm install
+      - run:
+          name: Run eslint
+          command: |
+            npm run lint -- --max-warnings=0
+      - run:
+          name: Run automated tests
+          command: |
+            npm test
+      - run:
+          name: Deploy $HEROKU_APP_NAME to Heroku
+          command: |
+            git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
+
+  stage-branch:
+    docker:
+      - image: circleci/node:dubnium-stretch
+    environment:
+      HEROKU_APP_NAME: elg-stage
+    steps:
+      - checkout
+      - run:
+          name: Install Sonarqube scanner
+          command: |
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
+            unzip sonar-scanner-cli-3.3.0.1492-linux.zip
+      - run:
+          name: Run Sonarqube scanner
+          command: |
+            ./sonar-scanner-3.3.0.1492-linux/bin/sonar-scanner -Dsonar.projectKey=ELG -Dsonar.host.url=$SONARQUBE_URL -Dsonar.login=$SONARQUBE_TOKEN
+      - run:
+          name: Update npm
+          command: |
+            sudo npm install -g npm
+      - restore_cache: # special step to restore the dependency cache
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Build npm dependencies
+          command: |
+            npm install
+      - run:
+          name: Run eslint
+          command: |
+            npm run lint -- --max-warnings=0
+      - run:
+          name: Run automated tests
+          command: |
+            npm test
+      - run:
+          name: Deploy $HEROKU_APP_NAME to Heroku
+          command: |
+            git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
+
+  master-branch:
+    docker:
+      - image: buildpack-deps:trusty
+    environment:
+      HEROKU_APP_NAME: elg
+    steps:
+      - checkout
+      - run:
+          name: Deploy $HEROKU_APP_NAME to Heroku
+          command: |
+            git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - develop-branch:
+          filters:
+            branches:
+              only: develop
+      - stage-branch:
+          filters:
+            branches:
+              only: staging
+      - master-branch:
+          filters:
+            branches:
+              only: master

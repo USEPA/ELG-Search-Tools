@@ -1,0 +1,81 @@
+@import 'variables';
+
+// set app content to take up full page height
+html, body {
+  height: 100%;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: $blue;
+}
+
+// style overrides
+html {
+  overflow-y: auto !important;
+}
+
+.table td, .table th {
+  vertical-align: middle !important;
+}
+
+.section {
+  padding: 2rem 1.5rem;
+}
+
+.main-section {
+  .title, .subtitle, .label {
+    color: #FFF;
+  }
+  .label {
+    font-weight: normal;
+  }
+}
+
+.fa {
+  margin-right: 0.2em;
+}
+
+.button.is-text {
+  text-decoration: none !important;
+}
+
+// form style overrides
+.select {
+  width: 100%;
+
+    select:invalid {
+      color: hsla(0, 0%, 48%, 0.7);
+    }
+
+    select option {
+      color: #363636;
+    }
+}
+
+// Import bulma and plugins
+@import '../../node_modules/bulma/bulma';
+@import '../../node_modules/bulma-checkradio/dist/css/bulma-checkradio.min.css';
+
+// Override bulma checkradio plugin styles
+.is-checkradio[type="radio"].is-info:checked + label::after {
+  border-color: $lightBlue !important;
+  background-color: $lightBlue !important;
+}
+
+.is-checkradio[type="checkbox"].is-info:checked + label::after {
+  border-width: 3px;
+  top: 0.45rem;
+  left: 0.6rem;
+}
+
+// Import font-awesome
+@import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
