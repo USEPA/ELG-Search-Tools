@@ -1,162 +1,57 @@
 <template>
   <div>
-    <Alert v-if="addError !== null" :message="addError" type="error"></Alert>
     <div class="columns">
-      <div class="column">
-        <h1 class="title is-size-2">Dashboard</h1>
-      </div>
-      <div class="column has-text-right">
-        <Button
-          class="is-size-5"
-          label="Add QAPP"
-          type="success"
-          @click.native="() => (shouldShowAdd = true)"
-          :shouldShowIcon="true"
-          icon="plus"
-        />
+      <div class="column is-11 container">
+        <h1 class="title is-size-2 has-text-weight-light">
+          Effluent Limitations Guidelines and Standards (ELG) Database
+        </h1>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <SearchBar />
       </div>
     </div>
-    <Table
-      :columns="columns"
-      :rows="rows"
-      :shouldHaveActionsCol="true"
-      noDataMessage="No QAPPs available. Add a QAPP to continue."
-      @onEdit="editQapp"
-      @onDelete="onDeleteQapp"
-    />
-    <SideNav
-      v-if="shouldShowAdd"
-      :handleShown="clearName"
-      :handleClose="() => (shouldShowAdd = false)"
-      title="Add QAPP"
-    >
-      <!-- #deafult="props" gives us access to SideNav's props from inside this template tag -->
-      <template #default="props">
-        <form id="addQappForm" @submit.prevent="handleSubmit">
-          <div class="field">
-            <label class="label" for="title">QAPP Title</label>
-            <input
-              id="title"
-              class="input"
-              type="text"
-              required
-              placeholder="Enter a title"
-              v-model="title"
-              maxlength="255"
-            />
-          </div>
-          <hr />
-          <div class="field is-grouped">
-            <div class="control">
-              <Button label="Add" type="info" submit />
-            </div>
-            <div class="control">
-              <Button label="Cancel" type="cancel" :preventEvent="true" @click.native="props.close" />
-            </div>
-          </div>
-        </form>
-      </template>
-    </SideNav>
-    <DeleteWarning
-      v-if="shouldShowDelete"
-      title="Delete QAPP"
-      :itemLabel="selectedQapp.title"
-      @close="() => (shouldShowDelete = false)"
-      @onDelete="handleDeleteQapp"
-    />
+    <div class="colunns">
+      <div class="column is-2 is-offset-10 adv-search">
+        <a class="has-text-white is-link">Advanced Search</a>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
-import SideNav from '@/components/shared/SideNav';
-import Button from '@/components/shared/Button';
-import Table from '@/components/shared/Table';
-import DeleteWarning from '@/components/shared/DeleteWarning';
-import Alert from '@/components/shared/Alert';
+import SearchBar from '@/components/shared/SearchBar';
 
 export default {
-  components: { SideNav, Button, Table, DeleteWarning, Alert },
-  async mounted() {
-    // 241 - handle the "no qapp found" error gracefully
-    if (this.$route.params.notFound === '1') this.addError = 'The requested QAPP was not found.';
-    this.$store.commit('qapp/CLEAR_CURRENT_QAPP');
-    this.getQapps();
-    this.getSections();
-  },
-  methods: {
-    ...mapActions('qapps', ['getQapps']),
-    ...mapActions('structure', ['getSections']),
-    async onDeleteQapp(qapp) {
-      this.shouldShowAdd = false;
-      this.shouldShowDelete = true;
-      this.selectedQapp = qapp;
-    },
-    clearName() {
-      this.title = '';
-    },
-    async handleSubmit() {
-      this.addError = null;
-      await this.$store
-        .dispatch('qapps/add', {
-          userId: this.$auth.user().id,
-          questionId: 1,
-          value: this.title,
-          archived: false,
-        })
-        .catch((error) => {
-          this.addError = error.response.data.error;
-        });
-      if (this.addError === null) this.$router.push({ name: 'navigate', params: { id: this.$store.state.qapp.id } });
-    },
-    editQapp(qapp) {
-      this.$store.commit('qapp/SET_CURRENT_QAPP', qapp);
-      this.$router.push({ name: 'navigate', params: { id: qapp.id } });
-    },
-    async handleDeleteQapp() {
-      await this.$store.dispatch('qapps/delete', this.selectedQapp.id);
-      this.$store.commit('qapp/CLEAR_CURRENT_QAPP');
-      this.shouldShowDelete = false;
-    },
+  beforeCreate() {
+    document.body.className = 'search';
   },
   data() {
-    return {
-      shouldShowAdd: false,
-      shouldShowDelete: false,
-      columns: [
-        {
-          key: 'title',
-          label: 'Title',
-        },
-        {
-          key: 'updatedAt',
-          label: 'Date Updated',
-        },
-        {
-          key: 'progress',
-          label: 'Progress',
-        },
-      ],
-      title: '',
-      selectedQapp: null,
-      addError: null,
-    };
+    return {};
   },
-  computed: {
-    ...mapState('structure', ['sections']),
-    qapps() {
-      return this.$store.state.qapps.data;
-    },
-    rows() {
-      return this.qapps.map((qapp) => {
-        return {
-          id: qapp.id,
-          title: qapp.data.find((d) => d.questionId === 1) ? qapp.data.find((d) => d.questionId === 1).value : '',
-          updatedAt: qapp.updatedAt.substring(0, 10),
-          progress: `${Math.round((qapp.completedSections.length / this.sections.length) * 100)}%`,
-        };
-      });
-    },
+  components: {
+    SearchBar,
   },
 };
 </script>
+
+<style lang="scss" scoped>
+h1 {
+  margin-left: 20px;
+}
+
+p {
+  margin-top: 5em;
+  margin-bottom: 5em;
+  text-align: center;
+  font-size: 18px;
+}
+
+.adv-search {
+  padding-left: 23px;
+}
+</style>

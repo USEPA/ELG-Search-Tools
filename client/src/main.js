@@ -2,7 +2,6 @@ import Vue from 'vue';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
 import '../static/app.scss';
-// import './registerServiceWorker';
 import router from './router';
 import store from './store/index';
 import App from './App';
@@ -11,18 +10,11 @@ Vue.config.productionTip = false;
 
 Vue.use(VueAxios, axios);
 Vue.axios.defaults.baseURL = process.env.NODE_ENV === 'production' ? window.location.origin : 'http://localhost:3000';
-Vue.router = router;
+// Need to set these headers to no-cache to fix IE11 issue where new requests are not sent
+Vue.axios.defaults.headers.common['Cache-Control'] = 'no-cache';
+Vue.axios.defaults.headers.common.Pragma = 'no-cache';
 
-Vue.use(require('@websanova/vue-auth'), {
-  auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
-  http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
-  router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
-  registerData: {
-    redirect: '/search',
-  },
-  refreshData: { enabled: false },
-  notFoundRedirect: { path: '/search' },
-});
+Vue.router = router;
 
 new Vue({
   router,

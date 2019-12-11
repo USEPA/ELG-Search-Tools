@@ -1,17 +1,9 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Search from '@/views/Search';
-import PageNotFound from '@/views/PageNotFound';
+import Results from '@/views/Results';
 
 Vue.use(Router);
-
-function guard(to, from, next) {
-  if (Vue.auth.check()) {
-    next();
-  } else {
-    next({ path: '/', query: { redirected: true } });
-  }
-}
 
 const router = new Router({
   routes: [
@@ -19,18 +11,11 @@ const router = new Router({
       path: '/',
       name: 'root',
       component: Search,
-      meta: { auth: false },
     },
     {
-      path: '/search',
-      name: 'search',
-      component: Search,
-      beforeEnter: guard,
-    },
-    {
-      path: '*',
-      name: 'pageNotFound',
-      component: PageNotFound,
+      path: '/results',
+      name: 'results',
+      component: Results,
     },
   ],
   mode: 'history',

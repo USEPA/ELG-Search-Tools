@@ -1,9 +1,9 @@
 <template>
   <div class="modal is-active">
     <div class="modal-background" @click="$emit('close')"></div>
-    <div class="modal-content">
+    <div class="modal-content" @keydown.native.esc="close" role="dialog" aria-modal="true">
       <div class="box">
-        <button type="button" class="button is-text" @click="$emit('close')">
+        <button type="button" class="button is-text" @click="$emit('close')" aria-label="Close">
           <span class="fa fa-times"></span>
         </button>
         <slot />
