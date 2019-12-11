@@ -1,9 +1,19 @@
 <template>
   <section class="is-12 aq-tabs-container">
-    <div class="tabs aq-tabs is-boxed">
+    <div class="columns label-container">
+      <div class="column direct-discharge-container is-2">
+        <p class="has-text-black">Direct Discharge Requirements</p>
+        <div class="is-divider direct"></div>
+      </div>
+      <div class="column indirect-discharge-container is-2">
+        <p class="has-text-black">Indirect Discharge Requirements</p>
+        <div class="is-divider indirect"></div>
+      </div>
+    </div>
+    <div class="tabs aq-tabs is-toggle">
       <ul>
         <li v-for="tab in tabs" :key="tab.id" :class="tab.id === activeTabId ? 'is-active' : ''">
-          <a @click="activeTabId = tab.id">{{ tab.name }}</a>
+          <button @click="activeTabId = tab.id">{{ tab.name }}</button>
         </li>
       </ul>
     </div>
@@ -37,25 +47,32 @@ export default {
     margin-bottom: 0;
 
     ul {
-      border-bottom: 8px solid $lightBlue;
-
       li {
-        min-width: 5em;
+        min-width: 96px;
 
-        a {
+        button {
+          align-items: center;
+          background-color: $gray;
           border: none;
-          color: #fff;
-          background-color: $darkBlue;
+          color: black;
+          cursor: pointer;
+          display: flex;
+          font-size: 1rem;
+          height: unset;
+          justify-content: center;
           margin-right: 0.2em;
           margin-bottom: 0;
+          padding: 0.6em 1.5em;
+          vertical-align: top;
+          width: 90px;
 
           &:hover {
-            background-color: darken($darkBlue, 10);
+            background-color: darken($lightBlue, 10);
           }
         }
 
-        &.is-active a {
-          background-color: $lightBlue;
+        &.is-active button {
+          background-color: #d6e3eb;
           font-weight: bold;
 
           &:hover {
@@ -65,5 +82,40 @@ export default {
       }
     }
   }
+}
+
+.is-divider.direct {
+  border: solid 2px #93b4ca;
+  margin-bottom: 3px;
+}
+
+.is-divider.indirect {
+  border: solid 2px #b7cfa2;
+  margin-bottom: 3px;
+}
+
+.label-container {
+  margin-bottom: 0 !important;
+  padding-left: 12px;
+}
+
+.direct-discharge-container,
+.indirect-discharge-container {
+  padding-bottom: 0;
+  padding-right: 0;
+  padding-left: 0;
+  p {
+    font-size: 12px;
+    margin-bottom: 2px;
+    text-align: center;
+  }
+}
+
+.direct-discharge-container {
+  padding-left: 0;
+}
+
+.indirect-discharge-container {
+  margin-left: 4px;
 }
 </style>

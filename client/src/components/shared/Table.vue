@@ -2,25 +2,37 @@
   <div>
     <div class="columns">
       <div class="column table-container">
-        <table class="table is-fullwidth is-striped">
+        <table class="table is-fullwidth is-bordered">
           <thead>
             <tr>
               <th v-for="column in columns" :key="column.key">
                 {{ column.label }}
               </th>
-              <th v-if="shouldHaveActionsCol">
+              <th v-if="shouldHaveActionsCol || shouldHaveSingleAction">
                 Actions
+              </th>
+              <th>
+                Zero Discharge
+              </th>
+              <th>
+                BMPS
+              </th>
+              <th>
+                Voluntary Requirement
+              </th>
+              <th>
+                Go to Limitations
               </th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="isFetching">
-              <td :colspan="columns.length + (shouldHaveActionsCol ? 1 : 0)">
+              <td :colspan="columns.length">
                 <LoadingIndicator message="Loading..." class="dark" />
               </td>
             </tr>
             <tr v-else-if="rows.length === 0">
-              <td :colspan="columns.length + (shouldHaveActionsCol ? 1 : 0)">
+              <td :colspan="columns.length">
                 {{ noDataMessage }}
               </td>
             </tr>
@@ -28,27 +40,41 @@
               <td v-for="column in columns" :key="column.key">
                 {{ row[column.key] }}
               </td>
-              <td v-if="shouldHaveActionsCol">
-                <div class="field is-grouped">
-                  <div class="control">
-                    <Button
-                      label="Edit"
-                      type="primary"
-                      icon="edit"
-                      :shouldShowIcon="true"
-                      @click.native="$emit('onEdit', row)"
-                    />
-                  </div>
-                  <div class="control">
-                    <Button
-                      label="Delete"
-                      type="danger"
-                      icon="trash-alt"
-                      :shouldShowIcon="true"
-                      @click.native="$emit('onDelete', row)"
-                    />
-                  </div>
-                </div>
+              <td v-if="row.zeroDischargeCheckbox">
+                <input
+                  class="is-checkradio is-info has-background-color"
+                  id="1"
+                  type="checkbox"
+                  value="BMP"
+                  :checked="false"
+                /><label></label>
+              </td>
+              <td v-if="row.bmpsCheckbox">
+                <input
+                  class="is-checkradio is-info has-background-color"
+                  id="2"
+                  type="checkbox"
+                  value="BMP"
+                  :checked="true"
+                /><label></label>
+              </td>
+              <td v-if="row.voluntaryCheckbox">
+                <input
+                  class="is-checkradio is-info has-background-color"
+                  id="3"
+                  type="checkbox"
+                  value="BMP"
+                  :checked="false"
+                /><label></label>
+              </td>
+              <td v-if="row.limitationsCheckbox">
+                <input
+                  class="is-checkradio is-info has-background-color"
+                  id="4"
+                  type="checkbox"
+                  value="BMP"
+                  :checked="false"
+                /><label></label>
               </td>
             </tr>
           </tbody>
@@ -63,7 +89,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import Button from './Button';
 import LoadingIndicator from '@/components/shared/LoadingIndicator';
 
@@ -90,10 +115,17 @@ export default {
       type: Boolean,
       required: false,
     },
+    shouldHaveSingleAction: {
+      type: String,
+      required: false,
+    },
   },
   components: { Button, LoadingIndicator },
-  computed: {
-    ...mapState('qapps', ['isFetching']),
+  computed: {},
+  data() {
+    return {
+      isFetching: false,
+    };
   },
 };
 </script>
@@ -102,5 +134,13 @@ export default {
 .btn-container .button {
   margin-left: 1em;
   width: 6em;
+}
+
+.is-checkradio {
+  margin-left: 10px !important;
+}
+
+label {
+  padding-left: 0 !important;
 }
 </style>

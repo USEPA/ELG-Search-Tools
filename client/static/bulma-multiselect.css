@@ -117,7 +117,7 @@ fieldset[disabled] .multiselect {
   margin-right: 10px;
   color: white;
   line-height: 1;
-  background: #23d160;
+  background: #3AA02B;
   white-space: nowrap;
   overflow: hidden;
   max-width: 100%;
@@ -555,11 +555,11 @@ fieldset[disabled] .multiselect {
 }
 
 .multiselect.is-success .multiselect__select:before {
-  border-color: #23d160;
+  border-color: #3AA02B;
 }
 
 .multiselect.is-success .multiselect__tags,.multiselect.is-success:hover .multiselect__tags {
-  border-color: #23d160;
+  border-color: #3AA02B;
 }
 
 .multiselect.is-success.multiselect--active .multiselect__tags,.multiselect.is-success.multiselect--active:hover .multiselect__tags {
