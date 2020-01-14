@@ -68,13 +68,7 @@
                 /><label></label>
               </td>
               <td v-if="row.limitationsCheckbox">
-                <input
-                  class="is-checkradio is-info has-background-color"
-                  id="4"
-                  type="checkbox"
-                  value="BMP"
-                  :checked="false"
-                /><label></label>
+                <span class="fas fa-share-square limitation-link"></span>
               </td>
             </tr>
           </tbody>
@@ -130,7 +124,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '../../../static/variables';
+
 .btn-container .button {
   margin-left: 1em;
   width: 6em;
@@ -142,5 +138,14 @@ export default {
 
 label {
   padding-left: 0 !important;
+}
+
+.limitation-link {
+  color: $lightBlue;
+  font-size: 25px;
+}
+
+th {
+  text-align: center !important;
 }
 </style>

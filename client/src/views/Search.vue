@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <section class="section">
     <div class="columns">
-      <div class="column is-11 container">
-        <h1 class="title is-size-2 has-text-weight-light">
+      <div class="column">
+        <h1 class="title is-size-2 has-text-black">
           Effluent Limitations Guidelines and Standards (ELG) Database
         </h1>
-        <p>
+        <p class="has-text-black">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
           magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
           consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
@@ -17,10 +17,10 @@
     </div>
     <div class="colunns">
       <div class="column is-2 is-offset-10 adv-search">
-        <a class="has-text-white is-link">Advanced Search</a>
+        <a class="has-text-black is-link">Advanced Search</a>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>
