@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Search from '@/views/Search';
 import Results from '@/views/Results';
+import CustomSearch from '@/views/CustomSearch';
 
 Vue.use(Router);
 
@@ -13,18 +14,17 @@ const router = new Router({
       component: Search,
     },
     {
+      path: '/customSearch',
+      name: 'customSearch',
+      component: CustomSearch,
+    },
+    {
       path: '/results',
       name: 'results',
       component: Results,
     },
   ],
   mode: 'history',
-});
-
-router.afterEach((to) => {
-  // Set Google Analytics event for navigating pages without browser reload
-  gtag('config', 'UA-37504877-5', { page_path: to.path });
-  gtag('event', 'page_view');
 });
 
 export default router;

@@ -6,14 +6,6 @@ body {
   height: 100%;
 }
 
-body.search {
-  background-color: $blue;
-}
-
-body.results {
-  background-color: white;
-}
-
 #app {
   display: flex;
   flex-direction: column;
@@ -41,7 +33,7 @@ html {
 }
 
 .section {
-  padding: 2rem 1.5rem;
+  padding: 2rem 0 2rem 0 !important;
 }
 
 .main-section {
@@ -68,8 +60,8 @@ html {
   padding-left: 1px !important;
 }
 
-h1 {
-  font-family: Palatino, URW Palladio L, serif;
+h1.title {
+  font-size: 28px !important;
 }
 
 .is-link {

@@ -1,11 +1,11 @@
 <template>
   <section class="is-12 aq-tabs-container">
     <div class="columns label-container">
-      <div class="column direct-discharge-container is-2">
+      <div class="column direct-discharge-container is-3">
         <p class="has-text-black">Direct Discharge Requirements</p>
         <div class="is-divider direct"></div>
       </div>
-      <div class="column indirect-discharge-container is-2">
+      <div class="column indirect-discharge-container is-3">
         <p class="has-text-black">Indirect Discharge Requirements</p>
         <div class="is-divider indirect"></div>
       </div>
@@ -48,7 +48,7 @@ export default {
 
     ul {
       li {
-        min-width: 96px;
+        min-width: 100px;
 
         button {
           align-items: center;
@@ -64,7 +64,7 @@ export default {
           margin-bottom: 0;
           padding: 0.6em 1.5em;
           vertical-align: top;
-          width: 90px;
+          width: 117px;
 
           &:hover {
             background-color: darken($lightBlue, 10);
@@ -105,9 +105,10 @@ export default {
   padding-right: 0;
   padding-left: 0;
   p {
-    font-size: 12px;
+    font-size: 15px;
     margin-bottom: 2px;
     text-align: center;
+    padding-bottom: 0;
   }
 }
 
@@ -117,5 +118,9 @@ export default {
 
 .indirect-discharge-container {
   margin-left: 4px;
+}
+
+ul {
+  padding-left: 0 !important;
 }
 </style>
