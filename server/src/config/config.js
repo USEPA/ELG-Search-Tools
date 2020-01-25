@@ -1,9 +1,9 @@
 module.exports = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 3001,
   db: {
-    database: process.env.DB_NAME || 'elg',
+    database: process.env.DB_NAME || 'elg_search',
     user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASS || 'admin',
+    password: process.env.DB_PASS || 'postgres',
     options: {
       dialect: process.env.DIALECT || 'postgres',
       host: process.env.HOST || 'localhost',
