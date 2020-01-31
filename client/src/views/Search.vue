@@ -17,7 +17,7 @@
     </div>
     <div class="colunns">
       <div class="column is-2 is-offset-10 adv-search">
-        <a class="has-text-black is-link">Advanced Search</a>
+        <a class="has-text-black is-link" @click="onNavigate">Advanced Search</a>
       </div>
     </div>
   </section>
@@ -35,6 +35,11 @@ export default {
   },
   components: {
     SearchBar,
+  },
+  methods: {
+    onNavigate() {
+      this.$router.push('customSearch');
+    },
   },
 };
 </script>
