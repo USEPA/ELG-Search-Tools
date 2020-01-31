@@ -14,17 +14,15 @@
         </h1>
       </div>
       <div class="column">
-        <button class="button has-text-white is-pulled-right">
+        <button class="button has-text-white is-pulled-right" @click="onNavigate">
           <span class="fa fa-reply has-text-white"></span>Back to Search
         </button>
       </div>
     </div>
     <h1 class="is-size-3 has-text-black has-text-weight-light">
-      40 CFR 430: Pulp, Paper, and Paperboard Category
+      {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
-    <h1 class="is-size-5 has-text-black has-text-weight-light">
-      Subpart B - Bleached Papergrade Kraft and Soda
-    </h1>
+    <h1 class="is-size-5 has-text-black has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
     <div class="field is-grouped help-icons">
       <div class="field is-grouped">
         <span class="fas fa-book has-text-grey-dark help-icon"></span>
@@ -35,18 +33,24 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <Tabs :tabs="tabs">
-      <template v-for="tab in tabs" v-slot:[tab.id]>
-        <div :key="tab.id" class="columns tab-content">
+    <Tabs :tabs="subcategory.controlTechnologies" :directLength="directLength" :indirectLength="indirectLength">
+      <template v-for="controlTechnology in subcategory.controlTechnologies" v-slot:[controlTechnology.id]>
+        <div :key="controlTechnology.id" class="columns tab-content">
           <div class="column">
             <div class="field is-grouped">
               <div class="control is-expanded">
                 <h1 class="is-size-6 has-text-black has-text-weight-semibold">
-                  Best Practicable Control Technology Currently Available (BPT) at a Glance
+                  {{ controlTechnology.controlTechnologyDescription }} ({{ controlTechnology.controlTechnologyCode }})
+                  at a Glance
                 </h1>
               </div>
               <div class="control">
-                <a class="is-link">Level of Control Notes</a>
+                <a
+                  class="is-link"
+                  v-if="controlTechnology.notes"
+                  @click="shouldDisplayNotesModal(controlTechnology.notes)"
+                  >Level of Control Notes</a
+                >
               </div>
             </div>
             <div class="field is-grouped">
@@ -76,26 +80,54 @@
         </div>
       </template>
     </Tabs>
+    <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
+      <p>{{ notes }}</p>
+    </Modal>
   </section>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import Tabs from '@/components/shared/Tabs';
 import Table from '@/components/shared/Table';
+import Modal from '@/components/shared/Modal';
 
 export default {
   beforeCreate() {
     document.body.className = 'results';
   },
-  components: { Tabs, Table },
+  mounted() {
+    if (this.subcategory.controlTechnologies.length === 6) {
+      this.directLength = '472px';
+    } else {
+      this.directLength = `${118 *
+        this.subcategory.controlTechnologies.filter(
+          (c) =>
+            c.controlTechnologyCode === 'BPT' ||
+            c.controlTechnologyCode === 'BCT' ||
+            c.controlTechnologyCode === 'BAT' ||
+            c.controlTechnologyCode === 'NSPS'
+        ).length}px`;
+      this.indirectLength = `${116 *
+        this.subcategory.controlTechnologies.filter(
+          (c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS'
+        ).length}px`;
+    }
+    this.subcategory.controlTechnologies.push({
+      id: 'about',
+      controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
+    });
+  },
+  components: { Tabs, Table, Modal },
+  computed: {
+    ...mapState('search', ['category', 'subcategory']),
+  },
   data() {
     return {
-      tabs: [
-        { id: 1, name: 'BPT' },
-        { id: 2, name: 'BCT' },
-        { id: 3, name: 'PSES' },
-        { id: 4, name: 'PSNS' },
-      ],
+      directLength: null,
+      indirectLength: null,
+      shouldDisplayNotes: false,
+      notes: null,
       columns: [
         {
           key: 'CFRSection',
@@ -140,6 +172,18 @@ export default {
         },
       ],
     };
+  },
+  methods: {
+    onNavigate() {
+      this.$router.push('/');
+    },
+    shouldDisplayNotesModal(notes) {
+      this.notes = null;
+      if (notes) {
+        this.shouldDisplayNotes = true;
+        this.notes = notes;
+      }
+    },
   },
 };
 </script>

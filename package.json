@@ -8,7 +8,7 @@
     "lint": "eslint . --ext .js,.vue",
     "migrate": "sequelize db:migrate:undo:all && sequelize db:migrate",
     "seed": "sequelize db:seed:all",
-    "server": "nodemon --ignore 'client/*' server/src/server.js",
+    "server": "nodemon --ignore 'client/*' --inspect server/src/server.js",
     "client": "vue-cli-service serve",
     "start": "concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
     "test": "vue-cli-service test:unit"
@@ -29,6 +29,7 @@
     "exceljs": "^3.6.0",
     "express": "^4.16.4",
     "express-basic-auth": "^1.2.0",
+    "fibers": "^4.0.2",
     "jsdom": "latest",
     "log4js": "^6.1.0",
     "nodemon": "^1.18.9",
@@ -56,15 +57,15 @@
     "babel-eslint": "^10.0.1",
     "babel-jest": "^25.0.0",
     "concurrently": "^4.1.0",
+    "copy-webpack-plugin": "^5.1.1",
     "eslint": "^5.8.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-vue": "^5.0.0",
-    "fibers": "^3.1.1",
     "prettier": "^1.16.4",
     "request-promise": "^4.2.5",
     "sass": "^1.17.2",
-    "sass-loader": "^7.1.0",
+    "sass-loader": "^8.0.2",
     "vue-template-compiler": "^2.5.21"
   }
 }

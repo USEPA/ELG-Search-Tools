@@ -12,39 +12,12 @@ function sanitizeError(error) {
 }
 
 module.exports = {
-  /**
-   * @param {
-   *          {searchTerm:string}
-   * } req.query
-   */
   list(req, res) {
-    // check for required query attributes and replace with defaults if missing
     try {
-      let pointSourceCategoryCode = 0;
-      let pointSourceCategoryName = '%%';
-
-      let searchTerm = req.query.searchTerm;
-
-      if (searchTerm) {
-        pointSourceCategoryName = '%' + searchTerm + '%';
-
-        if (!isNaN(searchTerm)) {
-          pointSourceCategoryCode = req.query.searchTerm;
-        }
-      }
-
       return PointSourceCategory.findAll({
         attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName'],
         where: {
-          [Op.and]: [
-            {
-              [Op.or]: [
-                { pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode } },
-                { pointSourceCategoryName: { [Op.iLike]: pointSourceCategoryName } },
-              ],
-            },
-          ],
-          includeInSearchTool: { [Op.eq]: true }
+          includeInSearchTool: { [Op.eq]: true },
         },
         order: ['pointSourceCategoryCode'],
       })
@@ -69,8 +42,9 @@ module.exports = {
       return PointSourceCategory.findAll({
         attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName'],
         where: {
-          pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
-        }})
+          pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
+        },
+      })
         .then((pointSourceCategory) => {
           let result = new Map();
           result['pointSourceCategoryCode'] = pointSourceCategory[0].pointSourceCategoryCode;
@@ -88,7 +62,7 @@ module.exports = {
 
               res.status(200).send(result);
             })
-            .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)))
+            .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
         })
         .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
     } catch (err) {
