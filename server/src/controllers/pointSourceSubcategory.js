@@ -1,5 +1,7 @@
 const PointSourceSubcategory = require('../models').PointSourceSubcategory;
 const ControlTechnology = require('../models').ControlTechnology;
+const ControlTechnologyNotes = require('../models').ControlTechnologyNotes;
+const WastestreamProcess = require('../models').WastestreamProcess;
 const Op = require('sequelize').Op;
 
 const createDOMPurify = require('dompurify');
@@ -9,6 +11,47 @@ const DOMPurify = createDOMPurify(window);
 
 function sanitizeError(error) {
   return DOMPurify.sanitize(error);
+}
+
+function fillControlTechnology(controlTechnology) {
+  return new Promise( function(resolve, reject) {
+    let ct = {
+      'id': controlTechnology.id,
+      'controlTechnologyCode': controlTechnology.controlTechnologyCode,
+      'controlTechnologyDescription': controlTechnology.controlTechnologyDescription,
+      'notes': [],
+      'technologyNames': '',
+      'pollutants': '',
+      'includesBmp': (controlTechnology.includesBmps !== '0'),
+      'wastestreamProcesses': []
+    };
+
+    ControlTechnologyNotes.findAll({
+      attributes: ['cfrSection', 'notes'],
+      where: {
+        controlTechnologyCode: { [Op.eq]: controlTechnology.controlTechnologyCode },
+        cfrSection: { [Op.iLike]: controlTechnology.cfrSection + '%' }
+      },
+      order: ['cfrSection']
+    }).then(controlTechnologyNotes => {
+      ct['notes'] = controlTechnologyNotes;
+
+      WastestreamProcess.findAll({
+        where: {
+          controlTechnologyId: { [Op.eq]: controlTechnology.id }
+        },
+        order: ['displayOrder']
+      }).then(wastestreamProcesses => {
+        wastestreamProcesses.forEach((process) => {
+          process.zeroDischarge = (process.zeroDischarge !== '0');
+          process.includesBmps = (process.includesBmps !== '0');
+          process.noLimitations = (process.noLimitations !== '0');
+        });
+        ct['wastestreamProcesses'] = wastestreamProcesses;
+        resolve(ct)
+      });
+    })
+  })
 }
 
 module.exports = {
@@ -23,7 +66,12 @@ module.exports = {
       let pointSourceCategoryCode = req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode : 0;
 
       return PointSourceSubcategory.findAll({
-        attributes: ['id', 'pointSourceSubcategoryCode', 'pointSourceSubcategoryTitle', 'comboSubcategory'],
+        attributes: [
+          'id',
+          'pointSourceSubcategoryCode',
+          'pointSourceSubcategoryTitle',
+          'comboSubcategory'
+        ],
         where: {
           pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
         },
@@ -47,7 +95,12 @@ module.exports = {
     let id = req.params.id ? req.params.id : 0;
 
     return PointSourceSubcategory.findAll({
-      attributes: ['id', 'pointSourceSubcategoryCode', 'pointSourceSubcategoryTitle', 'comboSubcategory'],
+      attributes: [
+        'id',
+        'pointSourceSubcategoryCode',
+        'pointSourceSubcategoryTitle',
+        'comboSubcategory'
+      ],
       where: {
         id: { [Op.eq]: id }
       }})
@@ -58,9 +111,10 @@ module.exports = {
         result['pointSourceSubcategoryCode'] = pointSourceSubcategory[0].pointSourceSubcategoryCode;
         result['pointSourceSubcategoryTitle'] = pointSourceSubcategory[0].pointSourceSubcategoryTitle;
         result['comboSubcategory'] = pointSourceSubcategory[0].comboSubcategory;
+        result['controlTechnologies'] = [];
 
         ControlTechnology.findAll({
-          attributes: ['id', 'controlTechnologyCode', 'controlTechnologyDescription', 'notes'],
+          attributes: ['id', 'controlTechnologyCode', 'controlTechnologyDescription', 'cfrSection', 'includesBmps'],
           where: {
             pointSourceSubcategoryId: { [Op.eq]: id },
             controlTechnologyCode: {[Op.in]: ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS']}
@@ -68,11 +122,59 @@ module.exports = {
           order: ['displayOrder'],
         })
           .then((controlTechnologies) => {
-            result['controlTechnologies'] = controlTechnologies;
 
-            res.status(200).send(result);
+            let notesPromises = [];
+
+            controlTechnologies.forEach(function(controlTechnology) {
+              notesPromises.push(
+                fillControlTechnology(controlTechnology)
+              )
+            });
+
+            Promise.all(notesPromises).then((cts) => {
+              result['controlTechnologies'] = cts;
+              res.status(200).send(result)
+            });
           })
           .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)))
+      })
+      .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
+  },
+  /**
+   * @param {
+   *          {id:number},
+   * } req.params
+   */
+  controlTechnology(req, res) {
+    // check for required query attributes and replace with defaults if missing
+    let id = req.params.id ? req.params.id : 0;
+
+    ControlTechnology.findAll({
+      attributes: [
+        'id',
+        'controlTechnologyCode',
+        'controlTechnologyDescription',
+        'cfrSection',
+        'includesBmps'
+      ],
+      where: {
+        id: { [Op.eq]: id }
+      }
+    })
+      .then((controlTechnologies) => {
+        let result = [];
+        let notesPromises = [];
+
+        controlTechnologies.forEach(function(controlTechnology) {
+          notesPromises.push(
+            fillControlTechnology(controlTechnology)
+          )
+        });
+
+        Promise.all(notesPromises).then((cts) => {
+          result = cts;
+          res.status(200).send(result)
+        });
       })
       .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
   }

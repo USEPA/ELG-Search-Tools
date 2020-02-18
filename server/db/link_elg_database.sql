@@ -50,7 +50,7 @@ end ;
 
 $$;
 
---create views for tables with unicode values
+--create views for tables with unicode values or other formatting needs
  create view elg_database.view_n2_subcategory as
 select
 	psc_code,
@@ -70,11 +70,31 @@ from
 	elg_database.n2_subcategory;
 
 
- create view elg_database.view_n4a_control_technology_notes as
+create view elg_database.view_n3a_control_technology_notes as
 select
-	loc,
-	ct_cfr_section,
-	replace(ct_notes, U&'\00A7', '\u00A7') as ct_notes
+    loc,
+    ct_cfr_section,
+    replace(ct_notes, U&'\00A7', '\u00A7') as ct_notes
 from
-	elg_database.n3a_control_technology_notes;
+    elg_database.n3a_control_technology_notes;
+
+
+create view elg_database.view_n4_wastestream_process as
+select
+    processop_id,
+    ct_id,
+    processop_title,
+    cfr_sect,
+    TRIM(COALESCE (processop_constraint1, '') || ' ' || COALESCE (processop_andor1, '') || ' ' ||
+    COALESCE (processop_constraint2, '') || ' ' || COALESCE (processop_andor2, '') || ' ' ||
+    COALESCE (processop_constraint3, '') || ' ' || COALESCE (processop_andor3, '') || ' ' ||
+    COALESCE (processop_constraint4, '')) as secondary,
+    replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
+    zero_discharge,
+    no_limits,
+    includes_bmps,
+    source_id,
+    sortorder
+from
+    elg_database.n4_wastestream_process;
 

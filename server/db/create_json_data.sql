@@ -1,4 +1,5 @@
 select 'PointSourceCategory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from n1_cfr as tablename union all
 select 'PointSourceSubcategory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from view_n2_subcategory as tablename union all
 select 'ControlTechnology' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from n3_control_technology as tablename union all
-select 'ControlTechnologyNotes' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from view_n4a_control_technology_notes as tablename;
+select 'ControlTechnologyNotes' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from view_n3a_control_technology_notes as tablename union all
+select 'WastestreamProcess' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from view_n4_wastestream_process as tablename;
