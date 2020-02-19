@@ -101,6 +101,11 @@ h1.title {
   border: solid 1px black !important;
 }
 
+.is-checkradio[type='checkbox'].is-info:hover:not([disabled]) + label::before,
+.is-checkradio[type='checkbox'].is-info:hover:not([disabled]) + label:before {
+  border-color: black !important;
+}
+
 .is-checkradio[type='checkbox'].is-info:checked + label::after {
   border-width: 3px;
 }
