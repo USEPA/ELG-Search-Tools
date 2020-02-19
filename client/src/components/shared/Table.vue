@@ -32,43 +32,43 @@
               </td>
             </tr>
             <tr v-else-if="rows.length === 0">
-              <td :colspan="columns.length">
+              <td :colspan="7">
                 {{ noDataMessage }}
               </td>
             </tr>
             <tr v-for="(row, index) in rows" :key="index">
               <td v-for="column in columns" :key="column.key">
                 {{ row[column.key] }}
+                <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
+                  ><span class="fa fa-info-circle"></span
+                ></a>
               </td>
-              <td v-if="row.zeroDischargeCheckbox">
+              <td v-if="row.cfrSection">
                 <input
                   class="is-checkradio is-info has-background-color"
-                  id="1"
                   type="checkbox"
-                  value="BMP"
+                  :checked="row.zeroDischarge"
+                  @click="stopTheEvent($event)"
+                /><label></label>
+              </td>
+              <td v-if="row.cfrSection">
+                <input
+                  class="is-checkradio is-info has-background-color"
+                  type="checkbox"
+                  :checked="row.includesBmps"
+                  @click="stopTheEvent($event)"
+                /><label></label>
+              </td>
+              <td v-if="row.cfrSection">
+                <input
+                  class="is-checkradio is-info has-background-color"
+                  type="checkbox"
                   :checked="false"
+                  @click="stopTheEvent($event)"
                 /><label></label>
               </td>
-              <td v-if="row.bmpsCheckbox">
-                <input
-                  class="is-checkradio is-info has-background-color"
-                  id="2"
-                  type="checkbox"
-                  value="BMP"
-                  :checked="true"
-                /><label></label>
-              </td>
-              <td v-if="row.voluntaryCheckbox">
-                <input
-                  class="is-checkradio is-info has-background-color"
-                  id="3"
-                  type="checkbox"
-                  value="BMP"
-                  :checked="false"
-                /><label></label>
-              </td>
-              <td v-if="row.limitationsCheckbox">
-                <span class="fas fa-share-square limitation-link"></span>
+              <td v-if="row.cfrSection">
+                <span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span>
               </td>
             </tr>
           </tbody>
@@ -99,7 +99,7 @@ export default {
     noDataMessage: {
       type: String,
       required: false,
-      default: 'No data available. Add data to continue.',
+      default: 'No data available.',
     },
     shouldHaveActionsCol: {
       type: Boolean,
@@ -115,7 +115,12 @@ export default {
     },
   },
   components: { Button, LoadingIndicator },
-  computed: {},
+  methods: {
+    stopTheEvent(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    },
+  },
   data() {
     return {
       isFetching: false,
@@ -141,11 +146,19 @@ label {
 }
 
 .limitation-link {
-  color: $lightBlue;
+  color: $blue;
   font-size: 25px;
+}
+
+.fa-info-circle {
+  color: $blue;
 }
 
 th {
   text-align: center !important;
+}
+
+.is-checkradio[type='checkbox'] + label {
+  cursor: auto;
 }
 </style>

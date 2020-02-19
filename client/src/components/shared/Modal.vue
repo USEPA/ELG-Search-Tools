@@ -3,7 +3,7 @@
     <div class="modal-background" @click="$emit('close')"></div>
     <div class="modal-content" @keydown.native.esc="close" role="dialog" aria-modal="true">
       <div class="box">
-        <button type="button" class="button is-text" @click="$emit('close')" aria-label="Close">
+        <button type="button" class="button is-text modal" @click="$emit('close')" aria-label="Close">
           <span class="fa fa-times"></span>
         </button>
         <slot />
@@ -17,10 +17,11 @@
   z-index: 9999;
 }
 
-.button.is-text {
+.button.is-text.modal {
   display: block;
-  margin-left: auto;
-  margin-top: -1em;
+  margin: 0 0 0 auto;
   padding: 0;
+  height: 1em;
+  position: relative;
 }
 </style>

@@ -10,7 +10,7 @@
     "seed": "sequelize db:seed:all",
     "server": "nodemon --ignore 'client/*' --inspect server/src/server.js",
     "client": "vue-cli-service serve",
-    "start": "concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
+    "start": "set NODE_ENV=local && concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
     "test": "vue-cli-service test:unit"
   },
   "engines": {
@@ -41,7 +41,8 @@
     "vue-axios": "^2.1.4",
     "vue-multiselect": "^2.1.6",
     "vue-router": "^3.0.2",
-    "vuex": "^3.1.0"
+    "vuex": "^3.1.0",
+    "vuex-persistedstate": "^2.7.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.4.3",

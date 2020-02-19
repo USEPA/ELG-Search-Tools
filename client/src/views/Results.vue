@@ -63,25 +63,37 @@
             </div>
             <div class="field">
               <input
-                class="is-checkradio is-info is-rtl has-background-color"
+                class="is-checkradio is-info is-rtl has-background-color is-static"
                 id="BMP"
                 type="checkbox"
-                value="BMP"
-                :checked="true"
+                :checked="controlTechnology.includesBmp"
+                @click="stopTheEvent($event)"
               />
               <label class="has-text-black" for="BMP"
                 >Level of Control includes Best Management Practice (BMP) Requirements?</label
               >
             </div>
             <div class="field">
-              <Table :columns="columns" :rows="rows" />
+              <Table
+                :columns="columns"
+                :rows="controlTechnology.wastestreamProcesses"
+                @onDisplayInfoModal="displayInfoModal"
+              />
             </div>
           </div>
         </div>
       </template>
     </Tabs>
     <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
-      <p>{{ notes }}</p>
+      <div class="control-notes" v-for="(note, index) in notes" :key="index">
+        <h3><strong>CFR Section:</strong> {{ note.cfrSection }}</h3>
+        <p><strong>Notes:</strong> {{ note.notes }}</p>
+      </div>
+    </Modal>
+    <Modal v-if="shouldDisplayInfoModal" @close="closeInfoModal">
+      <div class="info-modal">
+        <p><strong>Description:</strong> {{ currentRow.description }}</p>
+      </div>
     </Modal>
   </section>
 </template>
@@ -128,47 +140,20 @@ export default {
       indirectLength: null,
       shouldDisplayNotes: false,
       notes: null,
+      currentRow: null,
+      shouldDisplayInfoModal: false,
       columns: [
         {
-          key: 'CFRSection',
+          key: 'cfrSection',
           label: 'CFR Section',
         },
         {
-          key: 'ProcessWasteream',
+          key: 'title',
           label: 'Process Wasteream',
         },
         {
-          key: 'SecondaryWasteream',
+          key: 'secondary',
           label: 'Secondary Wasteream',
-        },
-      ],
-      rows: [
-        {
-          CFRSection: '430.22.a',
-          ProcessWasteream: 'Bleached kraft facilities',
-          SecondaryWasteream: 'Market pulp',
-          zeroDischargeCheckbox: true,
-          bmpsCheckbox: true,
-          voluntaryCheckbox: true,
-          limitationsCheckbox: true,
-        },
-        {
-          CFRSection: '430.22.a',
-          ProcessWasteream: 'Bleached kraft facilities',
-          SecondaryWasteream: 'Market pulp',
-          zeroDischargeCheckbox: true,
-          bmpsCheckbox: true,
-          voluntaryCheckbox: true,
-          limitationsCheckbox: true,
-        },
-        {
-          CFRSection: '430.22.a',
-          ProcessWasteream: 'Bleached kraft facilities',
-          SecondaryWasteream: 'Market pulp',
-          zeroDischargeCheckbox: true,
-          bmpsCheckbox: true,
-          voluntaryCheckbox: true,
-          limitationsCheckbox: true,
         },
       ],
     };
@@ -183,6 +168,18 @@ export default {
         this.shouldDisplayNotes = true;
         this.notes = notes;
       }
+    },
+    stopTheEvent(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    closeInfoModal() {
+      this.currentRow = null;
+      this.shouldDisplayInfoModal = false;
+    },
+    displayInfoModal(row) {
+      this.shouldDisplayInfoModal = true;
+      this.currentRow = row;
     },
   },
 };
@@ -218,5 +215,9 @@ label {
 
 section p {
   padding-bottom: 0 !important;
+}
+
+.is-checkradio[type='checkbox'] + label {
+  cursor: auto;
 }
 </style>
