@@ -37,7 +37,10 @@ where
 	'5_Pollutant_Limitations',
 	'5B_Pollutant_LTAs',
 	'5C_Weight_Factors',
-	'5C_Weight_Factors_Pollutants'))
+	'5C_Weight_Factors_Pollutants',
+	'REF_POLLUTANT',
+	'REF_LIMIT_DURATION',
+	'REF_LIMIT_UNITS'))
 select
 	string_agg( replace(replace(replace(regexp_replace(elg_search.ogr_fdw_sql_table(conn, tb.table_name), 'CREATE SERVER (.*);(.*)CREATE FOREIGN TABLE ([a-z0-9\_]+)', E'DROP FOREIGN TABLE IF EXISTS elg_database.\\3;CREATE FOREIGN TABLE elg_database.\\3'), 'myserver', 'elg_database_odbc'), 'fid bigint,', ''), 'geom Geometry(Geometry),', ''), E'\n') as sql
 from
@@ -90,6 +93,8 @@ select
     COALESCE (processop_constraint3, '') || ' ' || COALESCE (processop_andor3, '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
     replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
+    replace(lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc,
+    replace(replace(replace(processop_notes, U&'\0097', '\u0097'), U&'\0085', '\u0085'), U&'\00A7', '\00A7') as processop_notes,
     zero_discharge,
     no_limits,
     includes_bmps,

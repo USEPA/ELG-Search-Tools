@@ -33,6 +33,16 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'processop_description'
       },
+      notes: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'processop_notes'
+      },
+      limitCalculationDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'lim_calc_desc'
+      },
       displayOrder: {
         type: DataTypes.INTEGER,
         allowNull: false,

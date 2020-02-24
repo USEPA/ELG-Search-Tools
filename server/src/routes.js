@@ -14,7 +14,7 @@ module.exports = (app) => {
 
   app.get('/api/pointSourceSubcategory/:id', controllers.pointSourceSubcategory.read);
 
-  app.get('/api/controlTechnology/:id', controllers.pointSourceSubcategory.controlTechnology);
+  app.get('/api/wastestreamProcess/:id', controllers.wastestreamProcess.read);
 
   // serve up built Vue files from express server
   app.use(express.static(path.resolve(__dirname, '../../client/dist/')));

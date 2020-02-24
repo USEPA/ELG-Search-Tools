@@ -2,6 +2,10 @@ const PointSourceSubcategory = require('../models').PointSourceSubcategory;
 const ControlTechnology = require('../models').ControlTechnology;
 const ControlTechnologyNotes = require('../models').ControlTechnologyNotes;
 const WastestreamProcess = require('../models').WastestreamProcess;
+const WastestreamProcessTreatmentTechnology = require('../models').WastestreamProcessTreatmentTechnology;
+const TreatmentTechnology = require('../models').TreatmentTechnology;
+const WastestreamProcessTreatmentTechnologyPollutant = require('../models').WastestreamProcessTreatmentTechnologyPollutant;
+const Pollutant  = require('../models').Pollutant ;
 const Op = require('sequelize').Op;
 
 const createDOMPurify = require('dompurify');
@@ -34,21 +38,53 @@ function fillControlTechnology(controlTechnology) {
       },
       order: ['cfrSection']
     }).then(controlTechnologyNotes => {
-      ct['notes'] = controlTechnologyNotes;
-
       WastestreamProcess.findAll({
         where: {
           controlTechnologyId: { [Op.eq]: controlTechnology.id }
         },
         order: ['displayOrder']
       }).then(wastestreamProcesses => {
-        wastestreamProcesses.forEach((process) => {
-          process.zeroDischarge = (process.zeroDischarge !== '0');
-          process.includesBmps = (process.includesBmps !== '0');
-          process.noLimitations = (process.noLimitations !== '0');
+        WastestreamProcessTreatmentTechnology.findAll({
+          attributes: ['treatmentId'],
+          where: {
+            wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) }
+          }
+        }).then(wastestreamProcessTreatmentTechnologies => {
+          TreatmentTechnology.findAll({
+            attributes: ['codes'],
+            where: {
+              id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
+            }
+          }).then(treatmentTechnologies => {
+            WastestreamProcessTreatmentTechnologyPollutant.findAll({
+              attributes: ['pollutantId'],
+              where: {
+                wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
+                treatmentId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
+              }
+            }).then(wastestreamProcessTreatmentTechnologyPollutants => {
+              Pollutant.findAll({
+                attributes: ['description'],
+                where: {
+                  id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
+                }
+              }).then(pollutants => {
+                wastestreamProcesses.forEach((process) => {
+                  process.zeroDischarge = (process.zeroDischarge !== '0');
+                  process.includesBmps = (process.includesBmps !== '0');
+                  process.noLimitations = (process.noLimitations !== '0');
+                });
+
+                ct['notes'] = controlTechnologyNotes;
+                ct['technologyNames'] = treatmentTechnologies.map(a => a.codes).join('; ').split('; ').sort().filter(function (value, index, self) { return self.indexOf(value) === index; }).join('; ');
+                ct['pollutants'] = pollutants.map(a => a.description).join('; ').split('; ').sort().filter(function (value, index, self) { return self.indexOf(value) === index; }).join('; ');
+                ct['wastestreamProcesses'] = wastestreamProcesses;
+
+                resolve(ct);
+              });
+            });
+          })
         });
-        ct['wastestreamProcesses'] = wastestreamProcesses;
-        resolve(ct)
       });
     })
   })
@@ -137,44 +173,6 @@ module.exports = {
             });
           })
           .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)))
-      })
-      .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
-  },
-  /**
-   * @param {
-   *          {id:number},
-   * } req.params
-   */
-  controlTechnology(req, res) {
-    // check for required query attributes and replace with defaults if missing
-    let id = req.params.id ? req.params.id : 0;
-
-    ControlTechnology.findAll({
-      attributes: [
-        'id',
-        'controlTechnologyCode',
-        'controlTechnologyDescription',
-        'cfrSection',
-        'includesBmps'
-      ],
-      where: {
-        id: { [Op.eq]: id }
-      }
-    })
-      .then((controlTechnologies) => {
-        let result = [];
-        let notesPromises = [];
-
-        controlTechnologies.forEach(function(controlTechnology) {
-          notesPromises.push(
-            fillControlTechnology(controlTechnology)
-          )
-        });
-
-        Promise.all(notesPromises).then((cts) => {
-          result = cts;
-          res.status(200).send(result)
-        });
       })
       .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
   }

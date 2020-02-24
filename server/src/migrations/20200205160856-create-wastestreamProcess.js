@@ -33,6 +33,16 @@ module.exports = {
       allowNull: true,
       field: 'processop_description'
     },
+    notes: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'processop_notes'
+    },
+    limitCalculationDescription: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'lim_calc_desc'
+    },
     displayOrder: {
       type: Sequelize.INTEGER,
       allowNull: false,
