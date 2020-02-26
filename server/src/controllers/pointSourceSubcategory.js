@@ -1,3 +1,5 @@
+const utilities = require('./utilities');
+
 const PointSourceSubcategory = require('../models').PointSourceSubcategory;
 const ControlTechnology = require('../models').ControlTechnology;
 const ControlTechnologyNotes = require('../models').ControlTechnologyNotes;
@@ -5,25 +7,17 @@ const WastestreamProcess = require('../models').WastestreamProcess;
 const WastestreamProcessTreatmentTechnology = require('../models').WastestreamProcessTreatmentTechnology;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
 const WastestreamProcessTreatmentTechnologyPollutant = require('../models').WastestreamProcessTreatmentTechnologyPollutant;
-const Pollutant  = require('../models').Pollutant ;
-const Limitation  = require('../models').Limitation ;
+const Pollutant  = require('../models').Pollutant;
+const ViewLimitation  = require('../models').ViewLimitation;
 const Op = require('sequelize').Op;
-
-const createDOMPurify = require('dompurify');
-const { JSDOM } = require('jsdom');
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
-
-function sanitizeError(error) {
-  return DOMPurify.sanitize(error);
-}
+const Sequelize = require("sequelize");
 
 function fillControlTechnology(controlTechnology) {
   return new Promise( function(resolve, reject) {
     let ct = {
       'id': controlTechnology.id,
       'controlTechnologyCode': controlTechnology.controlTechnologyCode,
-      'controlTechnologyDescription': controlTechnology.controlTechnologyDescription,
+      'controlTechnologyDescription': utilities.getControlTechnologyDescription(controlTechnology.controlTechnologyCode),
       'notes': [],
       'technologyNames': '',
       'pollutants': '',
@@ -95,26 +89,21 @@ function fillControlTechnology(controlTechnology) {
           } else {
             // no treatment technologies are linked to this process
             // use limitations to get pollutants
-            Limitation.findAll( {
-              attributes: ['id', 'pollutantId'],
+            ViewLimitation.findAll( {
+              attributes: [
+                [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
+                [Sequelize.col('pollutant_desc'), 'pollutantDescription']
+              ],
               where: {
                 wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
               }
             })
-              .then(limitations => {
-                Pollutant.findAll({
-                  attributes: ['description'],
-                  where: {
-                    id: { [Op.in]: limitations.map(a => a.pollutantId) }
-                  }
-                })
-                  .then(pollutants => {
-                    ct['pollutants'] = pollutants.map(a => a.description).join('; ').split('; ').sort().filter(function(value, index, self) {
-                      return self.indexOf(value) === index;
-                    }).join('; ');
+              .then(pollutants => {
+                ct['pollutants'] = pollutants.map(a => a.pollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
+                  return self.indexOf(value) === index;
+                }).join('; ');
 
-                    resolve(ct);
-                  })
+                resolve(ct);
               })
           }
         });
@@ -149,9 +138,9 @@ module.exports = {
         .then((pointSourceSubcategories) => {
           res.status(200).send(pointSourceSubcategories);
         })
-        .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
     } catch (err) {
-      return res.status(400).send('Error !' + sanitizeError(err.toString()) + typeof req.query.keyword);
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
   /**
@@ -161,52 +150,59 @@ module.exports = {
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
-    let id = req.params.id ? req.params.id : 0;
+    let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
 
-    return PointSourceSubcategory.findAll({
+    if (id === null) {
+      return res.status(400).send('Invalid value passed for id')
+    }
+
+    return PointSourceSubcategory.findByPk(id, {
       attributes: [
         'id',
         'pointSourceSubcategoryCode',
         'pointSourceSubcategoryTitle',
         'comboSubcategory'
-      ],
-      where: {
-        id: { [Op.eq]: id }
-      }})
+      ]
+    })
       .then((pointSourceSubcategory) => {
         let result = new Map();
 
-        result['id'] = pointSourceSubcategory[0].id;
-        result['pointSourceSubcategoryCode'] = pointSourceSubcategory[0].pointSourceSubcategoryCode;
-        result['pointSourceSubcategoryTitle'] = pointSourceSubcategory[0].pointSourceSubcategoryTitle;
-        result['comboSubcategory'] = pointSourceSubcategory[0].comboSubcategory;
-        result['controlTechnologies'] = [];
+        if(pointSourceSubcategory) {
+          result['id'] = pointSourceSubcategory.id;
+          result['pointSourceSubcategoryCode'] = pointSourceSubcategory.pointSourceSubcategoryCode;
+          result['pointSourceSubcategoryTitle'] = pointSourceSubcategory.pointSourceSubcategoryTitle;
+          result['comboSubcategory'] = pointSourceSubcategory.comboSubcategory;
+          result['controlTechnologies'] = [];
 
-        ControlTechnology.findAll({
-          attributes: ['id', 'controlTechnologyCode', 'controlTechnologyDescription', 'cfrSection', 'includesBmps'],
-          where: {
-            pointSourceSubcategoryId: { [Op.eq]: id },
-            controlTechnologyCode: {[Op.in]: ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS']}
-          },
-          order: ['displayOrder'],
-        })
-          .then((controlTechnologies) => {
-
-            let notesPromises = [];
-
-            controlTechnologies.forEach(function(controlTechnology) {
-              notesPromises.push(
-                fillControlTechnology(controlTechnology)
-              )
-            });
-
-            Promise.all(notesPromises).then((cts) => {
-              result['controlTechnologies'] = cts;
-              res.status(200).send(result)
-            });
+          ControlTechnology.findAll({
+            attributes: ['id', 'controlTechnologyCode', 'cfrSection', 'includesBmps'],
+            where: {
+              pointSourceSubcategoryId: { [Op.eq]: id },
+              controlTechnologyCode: { [Op.in]: ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS'] }
+            },
+            order: ['displayOrder'],
           })
-          .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)))
+            .then((controlTechnologies) => {
+
+              let notesPromises = [];
+
+              controlTechnologies.forEach(function(controlTechnology) {
+                notesPromises.push(
+                  fillControlTechnology(controlTechnology)
+                )
+              });
+
+              Promise.all(notesPromises).then((cts) => {
+                result['controlTechnologies'] = cts;
+                res.status(200).send(result)
+              });
+            })
+            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        }
+        else {
+          res.status(200).send(result);
+        }
       })
-      .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
+      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
   }
 };

@@ -18,27 +18,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'ct_code'
       },
-      controlTechnologyDescription: {
-        type: DataTypes.VIRTUAL,
-        get() {
-          switch (this.controlTechnologyCode) {
-            case 'BPT':
-              return 'Best Practicable Control Technology Currently Available';
-            case 'BCT':
-              return 'Best Conventional Pollutant Control Technology';
-            case 'BAT':
-              return 'Best Available Technology Economically Achievable';
-            case 'NSPS':
-              return 'New Source Performance Standards';
-            case 'PSES':
-              return 'Pretreatment Standards for Existing Sources';
-            case 'PSNS':
-              return 'Pretreatment Standards for New Sources';
-            default:
-              return this.controlTechnologyCode;
-          }
-        }
-      },
       displayOrder: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -80,6 +59,6 @@ module.exports = (sequelize, DataTypes) => {
         field: 'includesbmps'
       }
     },
-    { timestamps: false, schema: 'elg_search', tableName: 'ControlTechnology' }
-  );
+    { timestamps: false, schema: 'elg_search', tableName: 'ControlTechnology'}
+  )
 };

@@ -1,61 +1,25 @@
-const Limitation = require('../models').Limitation;
-const Pollutant = require('../models').Pollutant;
-const LimitationDuration = require('../models').LimitationDuration;
-const LimitationUnit = require('../models').LimitationUnit;
+const utilities = require('./utilities');
+
 const WastestreamProcess = require('../models').WastestreamProcess;
 const ControlTechnology = require('../models').ControlTechnology;
+const ViewLimitation = require('../models').ViewLimitation;
 const Op = require('sequelize').Op;
-
-const createDOMPurify = require('dompurify');
-const { JSDOM } = require('jsdom');
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
-
-function sanitizeError(error) {
-  return DOMPurify.sanitize(error);
-}
 
 function fillLimitation(limitation) {
   return new Promise( function(resolve, reject) {
     let lim = {
-      'id': limitation.id,
-      'pollutant': '',
-      'duration': '',
+      'limitationId': limitation.limitationId,
+      'pollutantDescription': limitation.pollutantDescription,
+      'limitationDurationDescription': limitation.limitationDurationDescription,
       'dischargeFrequency': limitation.dischargeFrequency,
       'limitationValue': limitation.limitationValue,
-      'units': '',
+      'limitationUnitCode': limitation.limitationUnitCode,
       'minimumValue': limitation.minimumValue,
       'maximumValue': limitation.maximumValue,
       'zeroDischarge': (limitation.includesBmps !== '0')
     };
 
-    Pollutant.findAll({
-      attributes: ['description'],
-      where: {
-        id: { [Op.eq]: limitation.pollutantId}
-      }
-    }).then(pollutants => {
-      LimitationDuration.findAll({
-        attributes: ['description'],
-        where: {
-          id: { [Op.eq]: limitation.limitationDurationId}
-        }
-      }).then(limitationDurations => {
-        LimitationUnit.findAll({
-          attributes: ['code'],
-          where: {
-            id: { [Op.eq]: limitation.limitationUnitId}
-          }
-        }).then(limitationUnits => {
-          lim.pollutant = pollutants[0].description;
-          lim.duration = limitationDurations[0].description;
-          if (limitationUnits.length > 0) {
-            lim.units = limitationUnits[0].code;
-          }
-          resolve(lim);
-        });
-      });
-    });
+    resolve(lim);
   });
 }
 
@@ -68,48 +32,59 @@ module.exports = {
   read(req, res) {
     try {
       // check for required query attributes and replace with defaults if missing
-      let id = req.params.id ? req.params.id : 0;
+      let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+
+      if (id === null) {
+        return res.status(400).send('Invalid value passed for id')
+      }
 
       return WastestreamProcess.findByPk(id)
         .then(wastestreamProcess => {
-          ControlTechnology.findByPk(wastestreamProcess.controlTechnologyId)
-            .then(controlTechnology => {
+          let result = new Map();
 
-              Limitation.findAll({
-                attributes: ['id', 'pollutantId', 'limitationDurationId', 'dischargeFrequency', 'limitationValue', 'limitationUnitId', 'minimumValue', 'maximumValue', 'zeroDischarge'],
-                where: {
-                  wastestreamProcessId: { [Op.eq]: wastestreamProcess.id },
-                }
-              })
-                .then((limitations) => {
-                  let limitationPromises = [];
+          if(wastestreamProcess) {
+            ControlTechnology.findByPk(wastestreamProcess.controlTechnologyId)
+              .then(controlTechnology => {
 
-                  limitations.forEach(function(limitation) {
-                    limitationPromises.push(
-                      fillLimitation(limitation)
-                    )
-                  });
-
-                  Promise.all(limitationPromises).then((limits) => {
-                    let result = new Map();
-                    result.id = wastestreamProcess.id;
-                    result.controlTechnologyId = wastestreamProcess.controlTechnologyId;
-                    result.controlTechnologyCode = controlTechnology.controlTechnologyCode;
-                    result.cfrSection = wastestreamProcess.cfrSection;
-                    result.title = wastestreamProcess.title;
-                    result.secondary = wastestreamProcess.secondary;
-                    result.limitations = limits.sort((a,b) => (a.pollutant.toLowerCase() > b.pollutant.toLowerCase()) ? 1 : (a.pollutant.toLowerCase() === b.pollutant.toLowerCase()) ? ((a.duration.toLowerCase() > b.duration.toLowerCase()) ? 1 : -1) : -1);
-
-                    res.status(200).send(result)
-                  });
+                ViewLimitation.findAll({
+                  attributes: ['limitationId', 'pollutantId', 'pollutantDescription', 'limitationDurationId', 'limitationDurationDescription', 'dischargeFrequency', 'limitationValue', 'limitationUnitId', 'minimumValue', 'maximumValue', 'zeroDischarge'],
+                  where: {
+                    wastestreamProcessId: { [Op.eq]: wastestreamProcess.id },
+                  }
                 })
-                .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
-            })
-            .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
+                  .then((limitations) => {
+                    let limitationPromises = [];
+
+                    limitations.forEach(function(limitation) {
+                      limitationPromises.push(
+                        fillLimitation(limitation)
+                      )
+                    });
+
+                    Promise.all(limitationPromises).then((limits) => {
+                      let result = new Map();
+                      result.id = wastestreamProcess.id;
+                      result.controlTechnologyId = wastestreamProcess.controlTechnologyId;
+                      result.controlTechnologyCode = controlTechnology.controlTechnologyCode;
+                      result.cfrSection = wastestreamProcess.cfrSection;
+                      result.title = wastestreamProcess.title;
+                      result.secondary = wastestreamProcess.secondary;
+                      result.limitations = limits.sort((a, b) => (a.pollutantDescription.toLowerCase() > b.pollutantDescription.toLowerCase()) ? 1 : (a.pollutantDescription.toLowerCase() === b.pollutantDescription.toLowerCase()) ? ((a.limitationDurationDescription.toLowerCase() > b.limitationDurationDescription.toLowerCase()) ? 1 : -1) : -1);
+
+                      res.status(200).send(result)
+                    });
+                  })
+                  .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+              })
+              .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+          }
+          else {
+            res.status(200).send(result)
+          }
         })
-        .catch((error) => res.status(400).send('Error! ' + sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
     } catch (err) {
-      return res.status(400).send('Error !' + sanitizeError(err.toString()));
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   }
 };

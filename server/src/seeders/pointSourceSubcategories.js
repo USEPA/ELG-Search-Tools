@@ -6543,4 +6543,4 @@ module.exports = {
     return queryInterface.bulkInsert({schema: "elg_search", tableName: 'PointSourceSubcategory'}, records);
   },
   down: (queryInterface) => queryInterface.bulkDelete({schema: "elg_search", tableName: 'PointSourceSubcategory'}, null, {}),
-}
+};

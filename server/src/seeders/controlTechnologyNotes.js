@@ -484,4 +484,4 @@ module.exports = {
     return queryInterface.bulkInsert({schema: "elg_search", tableName: 'ControlTechnologyNotes'}, records);
   },
   down: (queryInterface) => queryInterface.bulkDelete({schema: "elg_search", tableName: 'ControlTechnologyNotes'}, null, {}),
-}
+};
