@@ -9,7 +9,7 @@
                 {{ column.label }}
               </th>
               <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
-                Zero Discharge<a @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
+                Zero Discharge<a v-if="shouldHaveResultsCols" @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
@@ -50,8 +50,8 @@
             <tr v-for="(row, index) in rows" :key="index">
               <td v-for="column in columns" :key="column.key">
                 {{
-                  column.key === 'limitationValue' && row['limitationValue']
-                    ? row['limitationValue'] + ' ' + row['units']
+                  column.key === 'limitationValue' && row['limitationUnitCode']
+                    ? row['limitationValue'] + ' ' + row['limitationUnitCode']
                     : column.key === 'limitationValue' && !row['limitationValue']
                     ? '--'
                     : row[column.key]

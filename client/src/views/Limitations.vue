@@ -60,11 +60,11 @@ export default {
     return {
       columns: [
         {
-          key: 'pollutant',
+          key: 'pollutantDescription',
           label: 'Pollutant',
         },
         {
-          key: 'duration',
+          key: 'limitationDurationDescription',
           label: 'Type of Limitation',
         },
         {
