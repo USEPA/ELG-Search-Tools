@@ -47,19 +47,34 @@
               <div class="control">
                 <a
                   class="is-link"
-                  v-if="controlTechnology.notes"
+                  v-if="controlTechnology.notes.length > 0"
                   @click="shouldDisplayNotesModal(controlTechnology.notes)"
                   >Level of Control Notes</a
                 >
               </div>
             </div>
             <div class="field is-grouped">
-              <p class="has-text-black"><b>Technology Name(s):</b> Chemical Precipitation,</p>
-              <a class="is-link more">more</a>
+              <p class="has-text-black" v-if="controlTechnology.technologyNames">
+                <b>Technology Name(s):</b> {{ abbrvList(controlTechnology.technologyNames) }}
+
+                <a
+                  class="is-link more"
+                  v-if="controlTechnology.technologyNames.split(';').length > 2"
+                  @click="shouldDisplayTechnologiesModal(controlTechnology.technologyNames)"
+                  >more</a
+                >
+              </p>
             </div>
-            <div class="field is-grouped">
-              <p class="has-text-black"><b>Pollutant(s):</b> BOD5, pH, TSS,</p>
-              <a class="is-link more">more</a>
+            <div class="field is-grouped" v-if="controlTechnology.pollutants">
+              <p class="has-text-black">
+                <b>Pollutant(s):</b> {{ abbrvList(controlTechnology.pollutants) }}
+                <a
+                  class="is-link more"
+                  v-if="controlTechnology.pollutants.split(';').length > 2"
+                  @click="shouldDisplayPollutantsModal(controlTechnology.pollutants)"
+                  >more</a
+                >
+              </p>
             </div>
             <div class="field">
               <input
@@ -78,6 +93,10 @@
                 :columns="columns"
                 :rows="controlTechnology.wastestreamProcesses"
                 @onDisplayInfoModal="displayInfoModal"
+                :shouldHaveResultsCols="true"
+                @onNavigateToLimitations="navigateToLimitations"
+                @onDisplayCheckboxInfo="displayCheckboxInfo"
+                @onDisplayCFRModal="displayCFRModal"
               />
             </div>
           </div>
@@ -92,8 +111,30 @@
     </Modal>
     <Modal v-if="shouldDisplayInfoModal" @close="closeInfoModal">
       <div class="info-modal">
-        <p><strong>Description:</strong> {{ currentRow.description }}</p>
+        <h3><strong>Description</strong></h3>
+        <p>{{ currentRow.description }}</p>
+        <hr v-if="currentRow.limitCalculationDescription" />
+        <h3 v-if="currentRow.limitCalculationDescription"><strong>Limit Calculation Description</strong></h3>
+        <p>{{ currentRow.limitCalculationDescription }}</p>
       </div>
+    </Modal>
+    <Modal v-if="shouldDisplayCFRModal" @close="() => (shouldDisplayCFRModal = false)">
+      <div class="info-modal">
+        <h3 v-if="currentRow.limitCalculationDescription"><strong>Limit Calculation Description</strong></h3>
+        <p>{{ currentRow.limitCalculationDescription }}</p>
+        <hr v-if="currentRow.notes" />
+        <h3 v-if="currentRow.notes"><strong>Notes</strong></h3>
+        <p>{{ currentRow.notes }}</p>
+      </div>
+    </Modal>
+    <Modal v-if="shouldDisplayTechnologies" @close="() => (shouldDisplayTechnologies = false)">
+      <p><strong>Technologies:</strong> {{ technologies }}</p>
+    </Modal>
+    <Modal v-if="shouldDisplayPollutants" @close="() => (shouldDisplayPollutants = false)">
+      <p><strong>Pollutants:</strong> {{ pollutants }}</p>
+    </Modal>
+    <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
+      {{ currentCheckboxInfo }}
     </Modal>
   </section>
 </template>
@@ -125,10 +166,12 @@ export default {
           (c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS'
         ).length}px`;
     }
-    this.subcategory.controlTechnologies.push({
-      id: 'about',
-      controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
-    });
+    if (!this.subcategory.controlTechnologies.find((c) => c.id === 'about')) {
+      this.subcategory.controlTechnologies.push({
+        id: 'about',
+        controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
+      });
+    }
   },
   components: { Tabs, Table, Modal },
   computed: {
@@ -142,6 +185,13 @@ export default {
       notes: null,
       currentRow: null,
       shouldDisplayInfoModal: false,
+      pollutants: null,
+      technologies: null,
+      shouldDisplayPollutants: false,
+      shouldDisplayTechnologies: false,
+      currentCheckboxInfo: null,
+      shouldDisplayCheckboxModal: false,
+      shouldDisplayCFRModal: false,
       columns: [
         {
           key: 'cfrSection',
@@ -149,11 +199,11 @@ export default {
         },
         {
           key: 'title',
-          label: 'Process Wasteream',
+          label: 'Process Operation/Wastestream',
         },
         {
           key: 'secondary',
-          label: 'Secondary Wasteream',
+          label: 'Other Process/Wastestream Detail(s)',
         },
       ],
     };
@@ -178,8 +228,70 @@ export default {
       this.shouldDisplayInfoModal = false;
     },
     displayInfoModal(row) {
+      this.currentRow = null;
       this.shouldDisplayInfoModal = true;
       this.currentRow = row;
+    },
+    displayCFRModal(row) {
+      this.currentRow = null;
+      this.shouldDisplayCFRModal = true;
+      this.currentRow = row;
+    },
+    displayCheckboxInfo(checkbox) {
+      this.shouldDisplayCheckboxModal = false;
+      this.currentCheckboxInfo = null;
+      switch (checkbox) {
+        case 'zeroDischarge':
+          this.currentCheckboxInfo =
+            'There will be no discharge from the process operation or no discharge of the wastestream.';
+          this.shouldDisplayCheckboxModal = true;
+          break;
+        case 'bmps':
+          this.currentCheckboxInfo =
+            'Best Management Practices are included in the effluent limitations guidelines and standards for this process operation/wastestream.';
+          this.shouldDisplayCheckboxModal = true;
+          break;
+        case 'alternativeReq':
+          this.currentCheckboxInfo =
+            'Indicates that a facility has more than one option to meet the effluent limitations guidelines and standards.';
+          this.shouldDisplayCheckboxModal = true;
+          break;
+        case 'noLimitations':
+          this.currentCheckboxInfo = 'EPA did not promulgate numeric or narrative pollutant limitations.';
+          this.shouldDisplayCheckboxModal = true;
+          break;
+        default:
+          break;
+      }
+    },
+    abbrvList(value) {
+      let abbrv = '';
+      const shortList = value.split(';');
+      if (shortList.length >= 2) {
+        abbrv = `${shortList[0]}; ${shortList[1]}`;
+      } else if (shortList.length === 1) {
+        const [one] = shortList[0];
+        return one;
+      }
+      return abbrv;
+    },
+    shouldDisplayTechnologiesModal(list) {
+      this.technologies = null;
+      if (list) {
+        this.shouldDisplayTechnologies = true;
+        this.technologies = list;
+      }
+    },
+    shouldDisplayPollutantsModal(list) {
+      this.pollutants = null;
+      if (list) {
+        this.shouldDisplayPollutants = true;
+        this.pollutants = list;
+      }
+    },
+    async navigateToLimitations(row) {
+      await this.$store.dispatch('limitations/getLimitationData', row.id);
+      await this.$router.push('limitations');
     },
   },
 };
