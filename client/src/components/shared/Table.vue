@@ -8,20 +8,31 @@
               <th v-for="column in columns" :key="column.key">
                 {{ column.label }}
               </th>
-              <th v-if="shouldHaveActionsCol || shouldHaveSingleAction">
-                Actions
+              <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
+                Zero Discharge<a @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
+                  ><span class="fa fa-info-circle checkbox-info"></span
+                ></a>
               </th>
-              <th>
-                Zero Discharge
+              <th v-if="shouldHaveResultsCols">
+                BMPS<a @click="$emit('onDisplayCheckboxInfo', 'bmps')"
+                  ><span class="fa fa-info-circle checkbox-info"></span
+                ></a>
               </th>
-              <th>
-                BMPS
+              <th v-if="shouldHaveResultsCols">
+                Alternative Requirement<a @click="$emit('onDisplayCheckboxInfo', 'alternativeReq')"
+                  ><span class="fa fa-info-circle checkbox-info"></span
+                ></a>
               </th>
-              <th>
-                Voluntary Requirement
+              <th v-if="shouldHaveResultsCols">
+                No Limitations<a @click="$emit('onDisplayCheckboxInfo', 'noLimitations')"
+                  ><span class="fa fa-info-circle checkbox-info"></span
+                ></a>
               </th>
-              <th>
+              <th v-if="shouldHaveResultsCols">
                 Go to Limitations
+              </th>
+              <th v-if="shouldHaveLimitationCols">
+                More Details
               </th>
             </tr>
           </thead>
@@ -38,12 +49,23 @@
             </tr>
             <tr v-for="(row, index) in rows" :key="index">
               <td v-for="column in columns" :key="column.key">
-                {{ row[column.key] }}
+                {{
+                  column.key === 'limitationValue' && row['limitationValue']
+                    ? row['limitationValue'] + ' ' + row['units']
+                    : column.key === 'limitationValue' && !row['limitationValue']
+                    ? '--'
+                    : row[column.key]
+                }}
                 <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
                   ><span class="fa fa-info-circle"></span
                 ></a>
+                <a
+                  v-if="column.key === 'cfrSection' && (row.notes || row.limitCalculationDescription)"
+                  @click="$emit('onDisplayCFRModal', row)"
+                  ><span class="fa fa-info-circle"></span
+                ></a>
               </td>
-              <td v-if="row.cfrSection">
+              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
                 <input
                   class="is-checkradio is-info has-background-color"
                   type="checkbox"
@@ -51,7 +73,7 @@
                   @click="stopTheEvent($event)"
                 /><label></label>
               </td>
-              <td v-if="row.cfrSection">
+              <td v-if="shouldHaveResultsCols">
                 <input
                   class="is-checkradio is-info has-background-color"
                   type="checkbox"
@@ -59,7 +81,7 @@
                   @click="stopTheEvent($event)"
                 /><label></label>
               </td>
-              <td v-if="row.cfrSection">
+              <td v-if="shouldHaveResultsCols">
                 <input
                   class="is-checkradio is-info has-background-color"
                   type="checkbox"
@@ -67,23 +89,32 @@
                   @click="stopTheEvent($event)"
                 /><label></label>
               </td>
-              <td v-if="row.cfrSection">
-                <span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span>
+              <td v-if="shouldHaveResultsCols">
+                <input
+                  class="is-checkradio is-info has-background-color"
+                  type="checkbox"
+                  :checked="row.noLimitations"
+                  @click="stopTheEvent($event)"
+                /><label></label>
+              </td>
+              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
+                <a v-if="shouldHaveResultsCols" @click="$emit('onNavigateToLimitations', row)"
+                  ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
+                ></a>
+                <a v-if="shouldHaveLimitationCols"
+                  ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
+                ></a>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    <div v-if="shouldHaveGlobalActions" class="has-text-right btn-container">
-      <Button label="Add" type="success" @click.native="$emit('onAdd')" />
-      <Button label="Delete All" type="danger" @click.native="$emit('onDelete')" :disabled="!rows.length" />
-    </div>
   </div>
 </template>
 
 <script>
-import Button from './Button';
+import groupBy from 'lodash/groupBy';
 import LoadingIndicator from '@/components/shared/LoadingIndicator';
 
 export default {
@@ -101,20 +132,21 @@ export default {
       required: false,
       default: 'No data available.',
     },
-    shouldHaveActionsCol: {
+    shouldHaveResultsCols: {
       type: Boolean,
       required: false,
     },
-    shouldHaveGlobalActions: {
+    shouldHaveLimitationCols: {
       type: Boolean,
-      required: false,
-    },
-    shouldHaveSingleAction: {
-      type: String,
       required: false,
     },
   },
-  components: { Button, LoadingIndicator },
+  components: { LoadingIndicator },
+  computed: {
+    rowSpanValue() {
+      return groupBy(this.rows, 'pollutant');
+    },
+  },
   methods: {
     stopTheEvent(e) {
       e.preventDefault();
@@ -160,5 +192,9 @@ th {
 
 .is-checkradio[type='checkbox'] + label {
   cursor: auto;
+}
+
+.checkbox-info {
+  color: gray;
 }
 </style>
