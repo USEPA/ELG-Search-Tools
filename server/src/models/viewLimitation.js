@@ -8,6 +8,41 @@ module.exports = (sequelize, DataTypes) => {
         field: 'lim_id',
         primaryKey: true
       },
+      dischargeFrequency: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'discharge_frequency'
+      },
+      limitationValue: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'lim_value'
+      },
+      minimumValue: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'lim_value_min'
+      },
+      maximumValue: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'lim_value_max'
+      },
+      zeroDischarge: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        field: 'zero_discharge'
+      },
+      alternateLimitFlag: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'alt_lim_flag'
+      },
+      alternateLimitDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'alt_lim'
+      },
       wastestreamProcessId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -28,6 +63,36 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'sortorder'
       },
+      wastestreamProcessCfrSection: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'wp_cfr_sect'
+      },
+      wastestreamProcessDescription: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'processop_description'
+      },
+      wastestreamProcessNotes: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'processop_notes'
+      },
+      wastestreamProcessLimitCalculationDescription: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'lim_calc_desc'
+      },
+      wastestreamProcessAlternativeRequirement: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'alternative_requirement'
+      },
+      wastestreamProcessAdditionalDetails: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'process_addtdetail'
+      },
       pollutantId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -41,22 +106,17 @@ module.exports = (sequelize, DataTypes) => {
       limitationDurationId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'lim_duration_code'
+        field: 'limit_duration_code'
       },
       limitationDurationDescription: {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'limit_duration_description'
       },
-      dischargeFrequency: {
+      limitationDurationBaseType: {
         type: DataTypes.STRING,
-        allowNull: true,
-        field: 'discharge_frequency'
-      },
-      limitationValue: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lim_value'
+        allowNull: false,
+        field: 'stat_base_type'
       },
       limitationUnitId: {
         type: DataTypes.INTEGER,
@@ -68,20 +128,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'unit'
       },
-      minimumValue: {
+      limitationUnitDescription: {
         type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lim_value_min'
+        allowNull: false,
+        field: 'unit_desc'
       },
-      maximumValue: {
+      limitationUnitBasis: {
         type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lim_value_max'
-      },
-      zeroDischarge: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'zero_discharge'
+        allowNull: false,
+        field: 'unit_basis'
       },
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,
@@ -93,20 +148,65 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'psc_name'
       },
-      comboSubcategory: {
+      pointSourceCategoryCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'combo_subcat'
+        field: 'psc_cfr_part'
+      },
+      pointSourceCategoryNotes: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'psc_cfr_notes'
       },
       pointSourceSubcategoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: 'subcat_id'
       },
+      comboSubcategory: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'combo_subcat'
+      },
+      pointSourceSubcategoryTitle: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'subcat_title'
+      },
+      pointSourceSubcategoryCfrSection: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'subcat_cfr_section'
+      },
+      pointSourceSubcategoryApplicability: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'subcat_applicability'
+      },
+      pointSourceSubcategoryNotes: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'subcat_notes'
+      },
+      controlTechnologyId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'ct_id'
+      },
       controlTechnologyCode: {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'ct_code'
+      },
+      controlTechnologyDisplayOrder: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'ct_order'
+      },
+      controlTechnologyCfrSection: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'ct_cfr_section'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ViewLimitation' }

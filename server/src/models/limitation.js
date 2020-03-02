@@ -52,6 +52,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'zero_discharge'
+      },
+      alternateLimitFlag: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'alt_lim_flag'
+      },
+      alternateLimitDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'alt_lim'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'Limitation' }

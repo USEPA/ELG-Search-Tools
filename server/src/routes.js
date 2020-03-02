@@ -12,7 +12,7 @@ module.exports = (app) => {
 
   app.get('/api/pointSourceSubcategory/:id', controllers.pointSourceSubcategory.read);
 
-  app.get('/api/wastestreamProcess/:id', controllers.wastestreamProcess.read);
+  app.get('/api/wastestreamProcessLimitations/:id', controllers.wastestreamProcess.limitations);
 
   app.get('/api/pollutants', controllers.pollutant.list);
   app.get('/api/pollutant/:id', controllers.pollutant.read);

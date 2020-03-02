@@ -24,7 +24,7 @@ module.exports = {
       field: 'processop_title'
     },
     secondary: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'secondary'
     },
@@ -54,19 +54,29 @@ module.exports = {
       field: 'source_id'
     },
     zeroDischarge: {
-      type: Sequelize.STRING,
+      type: Sequelize.BOOLEAN,
       allowNull: false,
       field: 'zero_discharge'
     },
     includesBmps: {
-      type: Sequelize.STRING,
+      type: Sequelize.BOOLEAN,
       allowNull: false,
       field: 'includes_bmps'
     },
     noLimitations: {
-      type: Sequelize.STRING,
+      type: Sequelize.BOOLEAN,
       allowNull: false,
       field: 'no_limits'
+    },
+    alternativeRequirement: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      field: 'alternative_requirement'
+    },
+    additionalDetail: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      field: 'process_addtdetail'
     }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'WastestreamProcess'})

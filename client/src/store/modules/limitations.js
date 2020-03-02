@@ -25,7 +25,7 @@ const actions = {
     commit('SET_LIMITATION_DATA', null);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/wastestreamProcess/${id}`);
+    const res = await axios.get(`api/wastestreamProcessLimitations/${id}`);
     commit('SET_LIMITATION_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },

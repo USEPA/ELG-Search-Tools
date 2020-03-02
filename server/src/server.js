@@ -21,6 +21,8 @@ let isLocal = false;
 let isDevelopment = false;
 let isStaging = false;
 
+console.log('server.js - ' + process.env.NODE_ENV);
+
 if (process.env.NODE_ENV) {
   isLocal = "local" === process.env.NODE_ENV.toLowerCase();
   isDevelopment = "development" === process.env.NODE_ENV.toLowerCase();
@@ -31,7 +33,7 @@ if (isLocal) log.info("Environment = local");
 if (isDevelopment) log.info("Environment = development");
 if (isStaging) log.info("Environment = staging");
 if (!isLocal && !isDevelopment && !isStaging)
-  log.info("Environment = staging or production");
+  log.info('server.js - ' + "Environment = staging or production");
 
 /****************************************************************
  Setup basic auth for non-staging and non-production

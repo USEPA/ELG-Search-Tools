@@ -88,18 +88,51 @@ select
     ct_id,
     processop_title,
     cfr_sect,
-    TRIM(COALESCE (processop_constraint1, '') || ' ' || COALESCE (processop_andor1, '') || ' ' ||
-    COALESCE (processop_constraint2, '') || ' ' || COALESCE (processop_andor2, '') || ' ' ||
-    COALESCE (processop_constraint3, '') || ' ' || COALESCE (processop_andor3, '') || ' ' ||
+    TRIM(COALESCE (processop_constraint1, '') || ' ' || COALESCE ('<strong><u>' || processop_andor1 || '</u></strong>', '') || ' ' ||
+    COALESCE (processop_constraint2, '') || ' ' || COALESCE ('<strong><u>' || processop_andor2 || '</u></strong>', '') || ' ' ||
+    COALESCE (processop_constraint3, '') || ' ' || COALESCE ('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
     replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
     replace(lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc,
     replace(replace(replace(processop_notes, U&'\0097', '\u0097'), U&'\0085', '\u0085'), U&'\00A7', '\00A7') as processop_notes,
-    zero_discharge,
-    no_limits,
-    includes_bmps,
+    case when zero_discharge = '1' then true else false end as zero_discharge,
+    case when no_limits = '1' then true else false end as no_limits,
+    case when includes_bmps = '1' then true else false end as includes_bmps,
     source_id,
-    sortorder
+    sortorder,
+    --TODO: use value from source data when it is available case when alternative_requirement = '1' then true else false end as alternative_requirement, 
+    false as alternative_requirement,
+    case when process_addtdetail = '1' then true else false end as process_addtdetail
 from
     elg_database.n4_wastestream_process;
 
+
+create view elg_database.view_n5_pollutant_limitations as
+SELECT 
+	processop_id, 
+	lim_id, 
+	pollutant_code, 
+	lim_value, 
+	lim_value_min, 
+	lim_value_max, 
+	alt_lim_flag, 
+	case when lim_id = 6799 then 'As referenced in 423.16(e)' else alt_lim end as alt_lim, --odd character in source data 
+	lim_duration_code, 
+	discharge_frequency, 
+	unit_code, 
+	analytical_method_id, 
+	wf_id, 
+	fn_id, 
+	question_desc,
+	mdl, 
+	ml, 
+	lim_calc_desc, 
+	source_id, 
+	qc_flag, 
+	qc_notes, 
+	zero_discharge, 
+	pollutant_notes, 
+	dataentry_psc_code, 
+	qc_initials, 
+	treatment_id
+FROM elg_database.n5_pollutant_limitations;

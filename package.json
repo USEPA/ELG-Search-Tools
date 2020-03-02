@@ -8,9 +8,9 @@
     "lint": "eslint . --ext .js,.vue",
     "migrate": "sequelize db:migrate:undo:all && sequelize db:migrate",
     "seed": "sequelize db:seed:all",
-    "server": "nodemon --ignore 'client/*' --inspect server/src/server.js",
+    "server": "nodemon --ignore 'client/*' --inspect server/src/server.js NODE_ENV=local",
     "client": "vue-cli-service serve",
-    "start": "set NODE_ENV=local && concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
+    "start": "concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
     "test": "vue-cli-service test:unit"
   },
   "engines": {

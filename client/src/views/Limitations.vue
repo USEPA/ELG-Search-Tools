@@ -32,7 +32,8 @@
             <strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}
           </p>
           <p class="has-text-black info-box">
-            <strong>Secondary Wastestream/Process Operation(s):</strong> {{ limitationData.secondary || '--' }}
+            <strong>Secondary Wastestream/Process Operation(s):</strong>
+            <span v-html="limitationData.secondary"></span>
           </p>
         </div>
         <div class="column">
@@ -42,22 +43,35 @@
         </div>
       </div>
     </div>
-    <Table :columns="columns" :rows="limitationData.limitations" :shouldHaveLimitationCols="true" />
+    <Table
+      :columns="columns"
+      :rows="limitationData.limitations"
+      :shouldHaveLimitationCols="true"
+      @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+    />
+    <Modal v-if="shouldDisplayUnitDescriptionModal" @close="() => (shouldDisplayUnitDescriptionModal = false)">
+      <div class="info-modal">
+        <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
+        <p>{{ currentRow.limitationUnitDescription }}</p>
+      </div>
+    </Modal>
   </section>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import Table from '@/components/shared/Table';
+import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Table },
+  components: { Table, Modal },
   computed: {
     ...mapState('search', ['category', 'subcategory']),
     ...mapState('limitations', ['limitationData']),
   },
   data() {
     return {
+      shouldDisplayUnitDescriptionModal: false,
       columns: [
         {
           key: 'pollutantDescription',
@@ -72,13 +86,27 @@ export default {
           label: 'Frequency',
         },
         {
+          key: 'alternateLimitFlag',
+          label: 'Flag',
+        },
+        {
           key: 'limitationValue',
           label: 'Value',
         },
         {
+          key: 'limitationUnitBasis',
+          label: 'Limitation Basis',
+        },
+        /*
+        {
           key: 'minimumValue',
           label: 'Minimum Level',
         },
+        {
+          key: 'maximumValue',
+          label: 'Maximum Level',
+        },
+        */
       ],
     };
   },
@@ -89,6 +117,11 @@ export default {
     stopTheEvent(e) {
       e.preventDefault();
       e.stopPropagation();
+    },
+    displayUnitDescriptionModal(row) {
+      this.currentRow = null;
+      this.shouldDisplayUnitDescriptionModal = true;
+      this.currentRow = row;
     },
   },
 };
