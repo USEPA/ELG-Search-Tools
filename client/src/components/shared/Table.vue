@@ -5,6 +5,9 @@
         <table class="table is-fullwidth is-bordered">
           <thead>
             <tr>
+              <th v-if="shouldHavePollCols">
+                Select PSC
+              </th>
               <th v-for="column in columns" :key="column.key">
                 {{ column.label }}
               </th>
@@ -28,7 +31,7 @@
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
-              <th v-if="shouldHaveResultsCols">
+              <th v-if="shouldHaveResultsCols || shouldHavePollCols">
                 Go to Limitations
               </th>
               <th v-if="shouldHaveLimitationCols">
@@ -48,6 +51,15 @@
               </td>
             </tr>
             <tr v-for="(row, index) in rows" :key="index">
+              <td v-if="shouldHavePollCols">
+                <input
+                  class="is-checkradio is-info has-background-color psc"
+                  type="checkbox"
+                  :id="row.pointSourceCategoryCode"
+                  :value="row.pointSourceCategoryCode"
+                  @click="$emit('updatePollutantList', row.pointSourceCategoryCode)"
+                /><label :for="row.pointSourceCategoryCode"></label>
+              </td>
               <td v-for="column in columns" :key="column.key">
                 {{
                   column.key === 'limitationValue' && row['limitationUnitCode']
@@ -67,7 +79,7 @@
               </td>
               <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="row.zeroDischarge"
                   @click="stopTheEvent($event)"
@@ -75,7 +87,7 @@
               </td>
               <td v-if="shouldHaveResultsCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="row.includesBmps"
                   @click="stopTheEvent($event)"
@@ -83,7 +95,7 @@
               </td>
               <td v-if="shouldHaveResultsCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="false"
                   @click="stopTheEvent($event)"
@@ -91,19 +103,17 @@
               </td>
               <td v-if="shouldHaveResultsCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="row.noLimitations"
                   @click="stopTheEvent($event)"
                 /><label></label>
               </td>
-              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
-                <a v-if="shouldHaveResultsCols" @click="$emit('onNavigateToLimitations', row)"
+              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollCols">
+                <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
                   ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
                 ></a>
-                <a v-if="shouldHaveLimitationCols"
-                  ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
-                ></a>
+                <a v-if="shouldHaveLimitationCols"><span class="fas fa-share-square limitation-link"></span></a>
               </td>
             </tr>
           </tbody>
@@ -137,6 +147,10 @@ export default {
       required: false,
     },
     shouldHaveLimitationCols: {
+      type: Boolean,
+      required: false,
+    },
+    shouldHavePollCols: {
       type: Boolean,
       required: false,
     },
@@ -190,8 +204,12 @@ th {
   text-align: center !important;
 }
 
-.is-checkradio[type='checkbox'] + label {
+.is-checkradio.static[type='checkbox'] + label {
   cursor: auto;
+}
+
+.is-checkradio.psc[type='checkbox'] + label {
+  margin-left: -10px;
 }
 
 .checkbox-info {

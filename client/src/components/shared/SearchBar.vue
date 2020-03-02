@@ -23,16 +23,24 @@
       <p class="control is-expanded">
         <Multiselect
           v-model="category"
-          :options="categoryList"
+          :options="list"
           :placeholder="option && `Select ${option}`"
-          :custom-label="customLabel"
+          :custom-label="
+            (option === 'Point Source Category' && customLabel) ||
+              (option === 'Pollutant' && customLabelPoll) ||
+              (() => {})
+          "
           @select="getSubCategories"
-          :track-by="categoryCode"
-          :loading="isLoadingCategories"
+          :track-by="code"
+          :loading="isLoading"
         ></Multiselect>
       </p>
       <p class="control">
-        <button class="button is-medium" @click="onSubmit" :disabled="!subcategory">
+        <button
+          class="button is-medium"
+          @click="onSubmit"
+          :disabled="!subcategory && option === 'Point Source Category'"
+        >
           <span class="fa fas fa-search has-text-white"></span>
         </button>
       </p>
@@ -40,7 +48,7 @@
     <div class="columns subcategory-select">
       <div class="column">
         <Multiselect
-          v-if="category"
+          v-if="category && option === 'Point Source Category'"
           v-model="subcategory"
           :options="subcategoryList"
           placeholder="Select Subcategory"
@@ -64,33 +72,39 @@ export default {
     return {
       option: '',
       category: null,
-      categoryList: [],
+      list: [],
       subcategory: null,
       subcategoryList: [],
-      isLoadingCategories: false,
+      isLoading: false,
       isLoadingSubcategories: false,
-      categoryCode: null,
+      code: null,
       subcategoryCode: null,
+      pollutantId: null,
     };
   },
   computed: {
-    ...mapGetters('search', ['categories', 'subcategories']),
+    ...mapGetters('search', ['categories', 'subcategories', 'pollutants']),
   },
   methods: {
     async onChangeCategory(e) {
-      this.categoryList = [];
+      this.list = [];
       this.category = null;
-      this.isLoadingCategories = true;
-      this.categoryCode = null;
+      this.isLoading = true;
+      this.code = null;
       this.subcategory = null;
       const option = e.target.value;
       if (option === 'Point Source Category') {
-        await this.$store.dispatch('search/get_PointSourceCategories');
-        this.categoryList = this.categories;
-        this.categoryCode = 'pointSourceCategoryCode';
-        this.isLoadingCategories = false;
+        await this.$store.dispatch('search/getPointSourceCategories');
+        this.list = this.categories;
+        this.code = 'pointSourceCategoryCode';
+        this.isLoading = false;
+      } else if (option === 'Pollutant') {
+        await this.$store.dispatch('search/getPollutants');
+        this.list = this.pollutants;
+        this.code = 'pollutantId';
+        this.isLoading = false;
       } else {
-        this.isLoadingCategories = false;
+        this.isLoading = false;
       }
     },
     async getSubCategories(value) {
@@ -99,19 +113,27 @@ export default {
       this.isLoadingSubcategories = true;
       this.subcategoryCode = null;
       if (this.option === 'Point Source Category') {
-        await this.$store.dispatch('search/get_PointSourceSubcategories', value.pointSourceCategoryCode);
+        await this.$store.dispatch('search/getPointSourceSubcategories', value.pointSourceCategoryCode);
         this.$store.commit('search/SET_CATEGORY', value);
         this.subcategoryList = this.subcategories;
         this.subcategoryCode = 'pointSourceSubcategoryCode';
         this.isLoadingSubcategories = false;
+      } else if (this.option === 'Pollutant') {
+        this.pollutantId = value.pollutantId;
       }
     },
     customLabel({ pointSourceCategoryCode, pointSourceCategoryName }) {
-      if (this.categories.length) return `${pointSourceCategoryCode}: ${pointSourceCategoryName}`;
-      return this.categories;
+      return `${pointSourceCategoryCode}: ${pointSourceCategoryName}`;
+    },
+    customLabelPoll({ pollutantDescription }) {
+      return pollutantDescription;
     },
     async onSubmit() {
-      await this.$store.dispatch('search/getSubcategory', this.subcategory.id);
+      if (this.option === 'Point Source Category') {
+        await this.$store.dispatch('search/getSubcategory', this.subcategory.id);
+      } else if (this.option === 'Pollutant') {
+        await this.$store.dispatch('search/getPollutant', this.pollutantId);
+      }
       await this.$router.push('results');
     },
   },

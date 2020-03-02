@@ -5,6 +5,8 @@ const state = {
   category: null,
   subcategories: [],
   subcategory: null,
+  pollutants: [],
+  pollutantData: null,
   isFetching: false,
 };
 
@@ -17,6 +19,9 @@ const getters = {
   },
   subcategoryData(state) {
     return state.subcategory;
+  },
+  pollutants(state) {
+    return state.pollutants;
   },
 };
 
@@ -33,13 +38,19 @@ const mutations = {
   SET_SUBCATEGORY(state, value) {
     state.subcategory = value;
   },
+  SET_POLLUTANTS(state, payload) {
+    state.pollutants = payload;
+  },
+  SET_POLLUTANT(state, value) {
+    state.pollutantData = value;
+  },
   SET_IS_FETCHING(state, value) {
     state.isFetching = value;
   },
 };
 
 const actions = {
-  async get_PointSourceCategories({ commit }) {
+  async getPointSourceCategories({ commit }) {
     commit('SET_CATEGORIES', []);
     commit('SET_IS_FETCHING', true);
 
@@ -47,7 +58,7 @@ const actions = {
     commit('SET_CATEGORIES', res.data);
     commit('SET_IS_FETCHING', false);
   },
-  async get_PointSourceSubcategories({ commit }, id) {
+  async getPointSourceSubcategories({ commit }, id) {
     commit('SET_SUBCATEGORIES', []);
     commit('SET_IS_FETCHING', true);
 
@@ -61,6 +72,23 @@ const actions = {
 
     const res = await axios.get(`api/pointSourceSubcategory/${id}`);
     commit('SET_SUBCATEGORY', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getPollutants({ commit }) {
+    commit('SET_POLLUTANTS', []);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/pollutants');
+    commit('SET_POLLUTANTS', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getPollutant({ commit }, id) {
+    commit('SET_SUBCATEGORY', null);
+    commit('SET_POLLUTANT', null);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get(`api/pollutant/${id}`);
+    commit('SET_POLLUTANT', res.data);
     commit('SET_IS_FETCHING', false);
   },
 };

@@ -29,6 +29,19 @@ const actions = {
     commit('SET_LIMITATION_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
+  async getPollLimitationData({ commit }, { pollutantId, pointSourceCategoryCode }) {
+    commit('SET_LIMITATION_DATA', null);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/pollutantLimitations', {
+      params: {
+        pollutantId,
+        pointSourceCategoryCode,
+      },
+    });
+    commit('SET_LIMITATION_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
 };
 
 export default {
