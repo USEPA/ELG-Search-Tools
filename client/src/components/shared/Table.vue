@@ -11,8 +11,10 @@
               <th v-for="column in columns" :key="column.key">
                 {{ column.label }}
               </th>
-              <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
-                Zero Discharge<a v-if="shouldHaveResultsCols" @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
+              <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
+                Zero Discharge<a
+                  v-if="shouldHaveResultsCols || shouldHavePollLimitCols"
+                  @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
@@ -33,6 +35,9 @@
               </th>
               <th v-if="shouldHaveResultsCols || shouldHavePollCols">
                 Go to Limitations
+              </th>
+              <th v-if="shouldHavePollLimitCols">
+                Go to LTA
               </th>
               <th v-if="shouldHaveLimitationCols">
                 More Details
@@ -77,7 +82,7 @@
                   ><span class="fa fa-info-circle"></span
                 ></a>
               </td>
-              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
+              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
                 <input
                   class="is-checkradio is-info has-background-color static"
                   type="checkbox"
@@ -109,11 +114,17 @@
                   @click="stopTheEvent($event)"
                 /><label></label>
               </td>
-              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollCols">
+              <td
+                v-if="
+                  shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollCols || shouldHavePollLimitCols
+                "
+              >
                 <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
                   ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
                 ></a>
-                <a v-if="shouldHaveLimitationCols"><span class="fas fa-share-square limitation-link"></span></a>
+                <a v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
+                  ><span class="fas fa-share-square limitation-link"></span
+                ></a>
               </td>
             </tr>
           </tbody>
@@ -151,6 +162,10 @@ export default {
       required: false,
     },
     shouldHavePollCols: {
+      type: Boolean,
+      required: false,
+    },
+    shouldHavePollLimitCols: {
       type: Boolean,
       required: false,
     },
