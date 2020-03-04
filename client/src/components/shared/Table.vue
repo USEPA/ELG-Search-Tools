@@ -51,7 +51,7 @@
               </td>
             </tr>
             <tr v-else-if="rows.length === 0">
-              <td :colspan="8">
+              <td :colspan="colsLength">
                 {{ noDataMessage }}
               </td>
             </tr>
@@ -232,6 +232,11 @@ export default {
     shouldHavePollLimitCols: {
       type: Boolean,
       required: false,
+    },
+    colsLength: {
+      type: Number,
+      required: false,
+      default: 8,
     },
   },
   components: { LoadingIndicator },

@@ -65,12 +65,7 @@
       :shouldHaveLimitationCols="true"
       @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
     />
-    <Tabs
-      v-if="!subcategory && limitationData"
-      :tabs="uniqueTabs"
-      :directLength="directLength"
-      :indirectLength="indirectLength"
-    >
+    <Tabs v-if="!subcategory && limitationData" :tabs="uniqueTabs" :isPollutant="true" :isPSC="false">
       <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
         <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
           <div class="column poll-limitation-container">
@@ -85,6 +80,7 @@
                 :shouldHavePollLimitCols="true"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
                 @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+                :colsLength="10"
               />
             </div>
           </div>
@@ -112,30 +108,37 @@ import Modal from '@/components/shared/Modal';
 export default {
   beforeMount() {
     if (!this.subcategory && this.limitationData) {
-      this.uniqueTabs = null;
-      this.uniqueTabs = [...new Set(this.limitationData.map((item) => item.controlTechnologyCode))];
-      this.uniqueTabs = this.uniqueTabs.map((u) => {
-        const obj = {};
-        obj.controlTechnologyCode = u;
-        obj.id = this.uniqueTabs.indexOf(u);
-        obj.limitations = this.limitationData.filter((l) => l.controlTechnologyCode === u);
-        return obj;
+      this.uniqueTabs = [
+        {
+          id: 0,
+          controlTechnologyCode: 'BPT',
+        },
+        {
+          id: 1,
+          controlTechnologyCode: 'BAT',
+        },
+        {
+          id: 2,
+          controlTechnologyCode: 'BCT',
+        },
+        {
+          id: 3,
+          controlTechnologyCode: 'NSPS',
+        },
+        {
+          id: 4,
+          controlTechnologyCode: 'PSES',
+        },
+        {
+          id: 5,
+          controlTechnologyCode: 'PSNS',
+        },
+      ];
+
+      this.uniqueTabs.map((tab) => {
+        tab.limitations = this.limitationData.filter((l) => l.controlTechnologyCode === tab.controlTechnologyCode);
+        return tab;
       });
-      if (this.uniqueTabs.length === 6) {
-        this.directLength = '472px';
-      } else {
-        this.directLength = `${118 *
-          this.uniqueTabs.filter(
-            (c) =>
-              c.controlTechnologyCode === 'BPT' ||
-              c.controlTechnologyCode === 'BCT' ||
-              c.controlTechnologyCode === 'BAT' ||
-              c.controlTechnologyCode === 'NSPS'
-          ).length}px`;
-        this.indirectLength = `${118 *
-          this.uniqueTabs.filter((c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS')
-            .length}px`;
-      }
     }
   },
   components: { Table, Tabs, Modal },

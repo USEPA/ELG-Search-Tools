@@ -41,7 +41,7 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <Tabs v-if="subcategory" :tabs="createTabs" :directLength="directLength" :indirectLength="indirectLength">
+    <Tabs v-if="subcategory" :tabs="createTabs" :isPSC="true" :isPollutant="false">
       <template v-for="controlTechnology in subcategory.controlTechnologies" v-slot:[controlTechnology.id]>
         <div :key="controlTechnology.id" class="columns tab-content">
           <div class="column">
@@ -109,6 +109,7 @@
       :shouldHavePollCols="true"
       @onNavigateToLimitations="navigateToLimitations"
       @shouldDisplayMoreModal="displayMoreModal"
+      :colsLength="6"
     />
     <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
       <div class="control-notes" v-for="(note, index) in notes" :key="index">
@@ -159,32 +160,26 @@ export default {
         {
           id: 5,
           controlTechnologyCode: 'BPT',
-          wastestreamProcesses: [],
         },
         {
           id: 6,
           controlTechnologyCode: 'BAT',
-          wastestreamProcesses: [],
         },
         {
           id: 7,
           controlTechnologyCode: 'BCT',
-          wastestreamProcesses: [],
         },
         {
           id: 8,
           controlTechnologyCode: 'NSPS',
-          wastestreamProcesses: [],
         },
         {
           id: 9,
           controlTechnologyCode: 'PSES',
-          wastestreamProcesses: [],
         },
         {
           id: 10,
           controlTechnologyCode: 'PSNS',
-          wastestreamProcesses: [],
         },
         {
           id: 11,

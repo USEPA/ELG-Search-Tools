@@ -13,11 +13,7 @@
     <div class="tabs aq-tabs is-toggle">
       <ul>
         <li v-for="tab in tabs" :key="tab.id" :class="tab.id === activeTabId ? 'is-active' : ''">
-          <button
-            @click="activeTabId = tab.id"
-            :style="tab.id !== 11 && !tab.wastestreamProcesses.length && { cursor: 'not-allowed' }"
-            :disabled="tab.id !== 11 && !tab.wastestreamProcesses.length"
-          >
+          <button @click="activeTabId = tab.id">
             {{ tab.controlTechnologyCode }}
           </button>
         </li>
