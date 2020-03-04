@@ -26,7 +26,7 @@ if (isLocal) {
     console.log("Using VCAP_SERVICES Information to connect to Postgres.");
     vcap_services = JSON.parse(process.env.VCAP_SERVICES);
     db = {
-      database: "elg_search",
+      database: "postgres",
       user: vcap_services["aws-rds"][0].credentials.username,
       password: vcap_services["aws-rds"][0].credentials.password,
       options: {

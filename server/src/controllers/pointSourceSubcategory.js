@@ -18,6 +18,7 @@ function fillControlTechnology(controlTechnology) {
       'id': controlTechnology.id,
       'controlTechnologyCode': controlTechnology.controlTechnologyCode,
       'controlTechnologyDescription': utilities.getControlTechnologyDescription(controlTechnology.controlTechnologyCode),
+      'atAGlance': controlTechnology.notes,
       'notes': [],
       'technologyNames': '',
       'pollutants': '',
@@ -33,7 +34,7 @@ function fillControlTechnology(controlTechnology) {
       },
       order: ['cfrSection']
     }).then(controlTechnologyNotes => {
-      ct['notes'] = controlTechnologyNotes;
+      ct['notes'] = []; //controlTechnologyNotes; TODO: update to only load this if/when the source database indicates to do so.
 
       WastestreamProcess.findAll({
         where: {
@@ -169,7 +170,7 @@ module.exports = {
           result['controlTechnologies'] = [];
 
           ControlTechnology.findAll({
-            attributes: ['id', 'controlTechnologyCode', 'cfrSection', 'includesBmps'],
+            attributes: ['id', 'controlTechnologyCode', 'cfrSection', 'includesBmps', 'notes'],
             where: {
               pointSourceSubcategoryId: { [Op.eq]: id },
               controlTechnologyCode: { [Op.in]: ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS'] }
