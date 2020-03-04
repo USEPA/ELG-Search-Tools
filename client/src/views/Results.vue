@@ -41,12 +41,7 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <Tabs
-      v-if="subcategory"
-      :tabs="subcategory.controlTechnologies"
-      :directLength="directLength"
-      :indirectLength="indirectLength"
-    >
+    <Tabs v-if="subcategory" :tabs="createTabs" :directLength="directLength" :indirectLength="indirectLength">
       <template v-for="controlTechnology in subcategory.controlTechnologies" v-slot:[controlTechnology.id]>
         <div :key="controlTechnology.id" class="columns tab-content">
           <div class="column">
@@ -66,9 +61,12 @@
                 >
               </div>
             </div>
+            <div class="field" v-if="controlTechnology.atAGlance">
+              <h1 class="is-size-6 has-text-black">{{ controlTechnology.atAGlance }}</h1>
+            </div>
             <div class="field is-grouped">
               <p class="has-text-black" v-if="controlTechnology.technologyNames">
-                <b>Technology Name(s):</b> {{ abbrvList(controlTechnology.technologyNames) }}
+                <b>Treatment Technology(ies):</b> {{ abbrvList(controlTechnology.technologyNames) }}
 
                 <a
                   class="is-link more"
@@ -90,18 +88,6 @@
               </p>
             </div>
             <div class="field">
-              <input
-                class="is-checkradio is-info is-rtl has-background-color is-static"
-                id="BMP"
-                type="checkbox"
-                :checked="controlTechnology.includesBmp"
-                @click="stopTheEvent($event)"
-              />
-              <label class="has-text-black" for="BMP"
-                >Level of Control includes Best Management Practice (BMP) Requirements?</label
-              >
-            </div>
-            <div class="field">
               <Table
                 v-if="controlTechnology.wastestreamProcesses"
                 :columns="pscColumns"
@@ -110,7 +96,6 @@
                 :shouldHaveResultsCols="true"
                 @onNavigateToLimitations="navigateToLimitations"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
-                @onDisplayCFRModal="displayCFRModal"
               />
             </div>
           </div>
@@ -135,10 +120,7 @@
       <div class="info-modal">
         <h3><strong>Description</strong></h3>
         <p>{{ currentRow.description }}</p>
-      </div>
-    </Modal>
-    <Modal v-if="shouldDisplayCFRModal" @close="() => (shouldDisplayCFRModal = false)">
-      <div class="info-modal">
+        <hr v-if="currentRow.limitCalculationDescription" />
         <h3 v-if="currentRow.limitCalculationDescription"><strong>Limit Calculation Description</strong></h3>
         <p>{{ currentRow.limitCalculationDescription }}</p>
         <hr v-if="currentRow.notes" />
@@ -168,38 +150,56 @@ import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  beforeCreate() {
-    document.body.className = 'results';
-  },
-  mounted() {
-    if (this.subcategory) {
-      if (this.subcategory.controlTechnologies.length === 6) {
-        this.directLength = '472px';
-      } else {
-        this.directLength = `${118 *
-          this.subcategory.controlTechnologies.filter(
-            (c) =>
-              c.controlTechnologyCode === 'BPT' ||
-              c.controlTechnologyCode === 'BCT' ||
-              c.controlTechnologyCode === 'BAT' ||
-              c.controlTechnologyCode === 'NSPS'
-          ).length}px`;
-        this.indirectLength = `${116 *
-          this.subcategory.controlTechnologies.filter(
-            (c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS'
-          ).length}px`;
-      }
-      if (!this.subcategory.controlTechnologies.find((c) => c.id === 'about')) {
-        this.subcategory.controlTechnologies.push({
-          id: 'about',
-          controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
-        });
-      }
-    }
-  },
+  beforeMount() {},
   components: { Tabs, Table, Modal },
   computed: {
     ...mapState('search', ['category', 'subcategory', 'pollutantData']),
+    createTabs() {
+      const tabs = [
+        {
+          id: 5,
+          controlTechnologyCode: 'BPT',
+          wastestreamProcesses: [],
+        },
+        {
+          id: 6,
+          controlTechnologyCode: 'BAT',
+          wastestreamProcesses: [],
+        },
+        {
+          id: 7,
+          controlTechnologyCode: 'BCT',
+          wastestreamProcesses: [],
+        },
+        {
+          id: 8,
+          controlTechnologyCode: 'NSPS',
+          wastestreamProcesses: [],
+        },
+        {
+          id: 9,
+          controlTechnologyCode: 'PSES',
+          wastestreamProcesses: [],
+        },
+        {
+          id: 10,
+          controlTechnologyCode: 'PSNS',
+          wastestreamProcesses: [],
+        },
+        {
+          id: 11,
+          controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
+        },
+      ];
+      if (this.subcategory) {
+        return tabs.map(
+          (tab) =>
+            this.subcategory.controlTechnologies.find((c) => c.controlTechnologyCode === tab.controlTechnologyCode) ||
+            tab
+        );
+      }
+      return tabs;
+    },
   },
   data() {
     return {
@@ -215,7 +215,6 @@ export default {
       shouldDisplayTechnologies: false,
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
-      shouldDisplayCFRModal: false,
       currentMoreInfo: null,
       shouldDisplayMoreModal: false,
       pscColumns: [
@@ -274,11 +273,6 @@ export default {
     displayInfoModal(row) {
       this.currentRow = null;
       this.shouldDisplayInfoModal = true;
-      this.currentRow = row;
-    },
-    displayCFRModal(row) {
-      this.currentRow = null;
-      this.shouldDisplayCFRModal = true;
       this.currentRow = row;
     },
     displayCheckboxInfo(checkbox) {

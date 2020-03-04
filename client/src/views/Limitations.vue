@@ -7,7 +7,7 @@
         </h1>
       </div>
     </div>
-    <div class="columns">
+    <div class="columns" v-if="!subcategory && limitationData">
       <div class="column">
         <button class="button has-text-white is-pulled-right" @click="onNavigate">
           <span class="fa fa-reply has-text-white"></span>Back to Results

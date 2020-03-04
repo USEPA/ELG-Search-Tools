@@ -13,7 +13,7 @@
             v-model="option"
             @change="onChangeCategory($event)"
           >
-            <option value="">Select Category</option>
+            <option value="">Select Search Criteria</option>
             <option>Point Source Category</option>
             <option>Pollutant</option>
             <option>Treatment Technology</option>
