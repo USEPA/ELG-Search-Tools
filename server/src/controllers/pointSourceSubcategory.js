@@ -34,7 +34,7 @@ function fillControlTechnology(controlTechnology) {
       },
       order: ['cfrSection']
     }).then(controlTechnologyNotes => {
-      ct['notes'] = controlTechnologyNotes;
+      ct['notes'] = []; //controlTechnologyNotes; TODO: update to only load this if/when the source database indicates to do so.
 
       WastestreamProcess.findAll({
         where: {
