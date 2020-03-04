@@ -69,12 +69,6 @@ function fillControlTechnology(controlTechnology) {
                     id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
                   }
                 }).then(pollutants => {
-                  wastestreamProcesses.forEach((process) => {
-                    process.zeroDischarge = (process.zeroDischarge !== '0');
-                    process.includesBmps = (process.includesBmps !== '0');
-                    process.noLimitations = (process.noLimitations !== '0');
-                  });
-
                   ct['technologyNames'] = treatmentTechnologies.map(a => a.codes).join('; ').split('; ').sort().filter(function(value, index, self) {
                     return self.indexOf(value) === index;
                   }).join('; ');

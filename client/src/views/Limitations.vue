@@ -40,7 +40,8 @@
             <strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}
           </p>
           <p class="has-text-black info-box">
-            <strong>Secondary Wastestream/Process Operation(s):</strong> {{ limitationData.secondary || '--' }}
+            <strong>Secondary Wastestream/Process Operation(s):</strong>
+            <span v-html="limitationData.secondary"></span>
           </p>
         </div>
         <div class="column">
@@ -51,38 +52,45 @@
       </div>
     </div>
     <Table
-      v-if="subcategory"
-      :columns="pscColumns"
+        v-if="subcategory"
+        :columns="pscColumns"
       :rows="limitationData.limitations"
       :shouldHaveLimitationCols="true"
+      @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
     />
-    <Tabs
-      v-if="!subcategory && limitationData"
-      :tabs="limitationData.controlTechnologies"
-      :directLength="directLength"
-      :indirectLength="indirectLength"
-    >
-      <template v-for="controlTechnology in limitationData.controlTechnologies" v-slot:[controlTechnology.id]>
-        <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
-          <div class="column poll-limitation-container">
-            <div class="field is-grouped download-icon-container">
-              <span class="fas fa-download has-text-grey-dark help-icon"></span>
-              <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
-            </div>
-            <div class="field">
-              <Table
-                :columns="pollLimitationCols"
-                :rows="controlTechnology.limitations"
-                :shouldHavePollLimitCols="true"
-                @onDisplayCheckboxInfo="displayCheckboxInfo"
-              />
-            </div>
-          </div>
-        </div>
-      </template>
-    </Tabs>
-    <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
-      {{ currentCheckboxInfo }}
+      <Tabs
+              v-if="!subcategory && limitationData"
+              :tabs="limitationData.controlTechnologies"
+              :directLength="directLength"
+              :indirectLength="indirectLength"
+      >
+          <template v-for="controlTechnology in limitationData.controlTechnologies" v-slot:[controlTechnology.id]>
+              <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
+                  <div class="column poll-limitation-container">
+                      <div class="field is-grouped download-icon-container">
+                          <span class="fas fa-download has-text-grey-dark help-icon"></span>
+                          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
+                      </div>
+                      <div class="field">
+                          <Table
+                                  :columns="pollLimitationCols"
+                                  :rows="controlTechnology.limitations"
+                                  :shouldHavePollLimitCols="true"
+                                  @onDisplayCheckboxInfo="displayCheckboxInfo"
+                          />
+                      </div>
+                  </div>
+              </div>
+          </template>
+      </Tabs>
+      <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
+          {{ currentCheckboxInfo }}
+      </Modal>
+    <Modal v-if="shouldDisplayUnitDescriptionModal" @close="() => (shouldDisplayUnitDescriptionModal = false)">
+      <div class="info-modal">
+        <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
+        <p>{{ currentRow.limitationUnitDescription }}</p>
+      </div>
     </Modal>
   </section>
 </template>
@@ -121,6 +129,7 @@ export default {
   },
   data() {
     return {
+      shouldDisplayUnitDescriptionModal: false,
       directLength: null,
       indirectLength: null,
       currentCheckboxInfo: null,
@@ -139,13 +148,27 @@ export default {
           label: 'Frequency',
         },
         {
+          key: 'alternateLimitFlag',
+          label: 'Flag',
+        },
+        {
           key: 'limitationValue',
           label: 'Value',
         },
         {
+          key: 'limitationUnitBasis',
+          label: 'Limitation Basis',
+        },
+        /*
+        {
           key: 'minimumValue',
           label: 'Minimum Level',
         },
+        {
+          key: 'maximumValue',
+          label: 'Maximum Level',
+        },
+        */
       ],
       pollLimitationCols: [
         {
@@ -199,6 +222,11 @@ export default {
         default:
           break;
       }
+    },
+    displayUnitDescriptionModal(row) {
+      this.currentRow = null;
+      this.shouldDisplayUnitDescriptionModal = true;
+      this.currentRow = row;
     },
   },
 };

@@ -115,9 +115,9 @@
         }
       }
     },
-    "/api/wastestreamProcess/{id}": {
+    "/api/wastestreamProcessLimitations/{id}": {
       "get": {
-        "summary": "wastestreamProcess id",
+        "summary": "wastestreamProcessLimitations id",
         "description": "Placeholder",
         "parameters": [
           {
@@ -243,7 +243,7 @@
       },
       "required": ["Dummy"]
     },
-    "wastestreamProcess.read": {
+    "wastestreamProcess.limitations": {
       "type": "object",
       "description": "Placeholder",
       "properties": {

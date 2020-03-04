@@ -1,4 +1,5 @@
 const utilities = require('./utilities');
+const limitation = require('./limitation');
 
 const ViewLimitation = require('../models').ViewLimitation;
 const ControlTechnology = require('../models').ControlTechnology;
@@ -117,7 +118,13 @@ module.exports = {
         return res.status(400).send('Invalid value passed for pointSourceCategoryCode')
       }
 
-      let result = new Map();
+      limitation.pollutantLimitations(pollutantId, pointSourceCategoryCode)
+        .then(limitations => {
+          res.status(200).send(limitations)
+        })
+        .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+
+      /*let result = new Map();
 
       return ViewLimitation.findOne({
         group: [
@@ -180,7 +187,7 @@ module.exports = {
             res.status(200).send(result)
           }
         })
-        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));*/
     } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }

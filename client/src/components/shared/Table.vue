@@ -66,21 +66,69 @@
                 /><label :for="row.pointSourceCategoryCode"></label>
               </td>
               <td v-for="column in columns" :key="column.key">
-                {{
-                  column.key === 'limitationValue' && row['limitationUnitCode']
-                    ? row['limitationValue'] + ' ' + row['limitationUnitCode']
-                    : column.key === 'limitationValue' && !row['limitationValue']
-                    ? '--'
-                    : row[column.key]
-                }}
-                <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
-                  ><span class="fa fa-info-circle"></span
-                ></a>
-                <a
-                  v-if="column.key === 'cfrSection' && (row.notes || row.limitCalculationDescription)"
-                  @click="$emit('onDisplayCFRModal', row)"
-                  ><span class="fa fa-info-circle"></span
-                ></a>
+                <span v-if="column.key === 'secondary'" v-html="row[column.key]"></span>
+                <span v-else-if="column.key === 'limitationValue'">
+                  {{
+                    row[column.key]
+                      ? row['limitationUnitCode']
+                        ? row[column.key] + ' ' + row['limitationUnitCode']
+                        : row[column.key]
+                      : '--'
+                  }}
+                  <a
+                    v-if="row.limitationValue && row.limitationUnitCode && row.limitationUnitDescription"
+                    @click="$emit('onDisplayUnitDescriptionModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
+                <span v-else-if="column.key === 'minimumValue'">
+                  {{
+                    row[column.key]
+                      ? row['limitationUnitCode']
+                        ? row[column.key] + ' ' + row['limitationUnitCode']
+                        : row[column.key]
+                      : '--'
+                  }}
+                  <a
+                    v-if="row.minimumValue && row.limitationUnitCode && row.limitationUnitDescription"
+                    @click="$emit('onDisplayUnitDescriptionModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
+                <span v-else-if="column.key === 'maximumValue'">
+                  {{
+                    row[column.key]
+                      ? row['limitationUnitCode']
+                        ? row[column.key] + ' ' + row['limitationUnitCode']
+                        : row[column.key]
+                      : '--'
+                  }}
+                  <a
+                    v-if="row.maximumValue && row.limitationUnitCode && row.limitationUnitDescription"
+                    @click="$emit('onDisplayUnitDescriptionModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
+                <span v-else-if="column.key === 'alternateLimitFlag'">
+                  {{
+                    row[column.key]
+                      ? row['alternateLimitDescription']
+                        ? row[column.key] + ' ' + row['alternateLimitDescription']
+                        : row[column.key]
+                      : '--'
+                  }}
+                </span>
+                <span v-else>
+                  {{ row[column.key] ? row[column.key] : '--' }}
+                  <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                  <a
+                    v-if="column.key === 'cfrSection' && (row.notes || row.limitCalculationDescription)"
+                    @click="$emit('onDisplayCFRModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
               </td>
               <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
                 <input
