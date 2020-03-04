@@ -19,11 +19,19 @@
         </button>
       </div>
     </div>
-    <h1 class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory" class="is-size-3 has-text-black has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
-    <h1 class="is-size-5 has-text-black has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
+    <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
+      Subpart {{ subcategory.comboSubcategory }}
+    </h1>
+    <h1 v-if="pollutantData" class="is-size-3 has-text-black has-text-weight-light">
+      {{ pollutantData[0].pollutantDescription }}
+    </h1>
     <div class="field is-grouped help-icons">
+      <div v-if="pollutantData" class="field is-grouped psc-icon">
+        <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
+      </div>
       <div class="field is-grouped">
         <span class="fas fa-book has-text-grey-dark help-icon"></span>
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
@@ -33,7 +41,12 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <Tabs :tabs="subcategory.controlTechnologies" :directLength="directLength" :indirectLength="indirectLength">
+    <Tabs
+      v-if="subcategory"
+      :tabs="subcategory.controlTechnologies"
+      :directLength="directLength"
+      :indirectLength="indirectLength"
+    >
       <template v-for="controlTechnology in subcategory.controlTechnologies" v-slot:[controlTechnology.id]>
         <div :key="controlTechnology.id" class="columns tab-content">
           <div class="column">
@@ -47,7 +60,7 @@
               <div class="control">
                 <a
                   class="is-link"
-                  v-if="controlTechnology.notes.length > 0"
+                  v-if="controlTechnology.notes && controlTechnology.notes.length > 0"
                   @click="shouldDisplayNotesModal(controlTechnology.notes)"
                   >Level of Control Notes</a
                 >
@@ -90,7 +103,8 @@
             </div>
             <div class="field">
               <Table
-                :columns="columns"
+                v-if="controlTechnology.wastestreamProcesses"
+                :columns="pscColumns"
                 :rows="controlTechnology.wastestreamProcesses"
                 @onDisplayInfoModal="displayInfoModal"
                 :shouldHaveResultsCols="true"
@@ -103,6 +117,14 @@
         </div>
       </template>
     </Tabs>
+    <Table
+      v-if="pollutantData"
+      :columns="pollColumns"
+      :rows="pollutantData"
+      :shouldHavePollCols="true"
+      @onNavigateToLimitations="navigateToLimitations"
+      @shouldDisplayMoreModal="displayMoreModal"
+    />
     <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
       <div class="control-notes" v-for="(note, index) in notes" :key="index">
         <h3><strong>CFR Section:</strong> {{ note.cfrSection }}</h3>
@@ -113,9 +135,6 @@
       <div class="info-modal">
         <h3><strong>Description</strong></h3>
         <p>{{ currentRow.description }}</p>
-        <hr v-if="currentRow.limitCalculationDescription" />
-        <h3 v-if="currentRow.limitCalculationDescription"><strong>Limit Calculation Description</strong></h3>
-        <p>{{ currentRow.limitCalculationDescription }}</p>
       </div>
     </Modal>
     <Modal v-if="shouldDisplayCFRModal" @close="() => (shouldDisplayCFRModal = false)">
@@ -136,6 +155,9 @@
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
     </Modal>
+    <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
+      {{ currentMoreInfo }}
+    </Modal>
   </section>
 </template>
 
@@ -150,32 +172,34 @@ export default {
     document.body.className = 'results';
   },
   mounted() {
-    if (this.subcategory.controlTechnologies.length === 6) {
-      this.directLength = '472px';
-    } else {
-      this.directLength = `${118 *
-        this.subcategory.controlTechnologies.filter(
-          (c) =>
-            c.controlTechnologyCode === 'BPT' ||
-            c.controlTechnologyCode === 'BCT' ||
-            c.controlTechnologyCode === 'BAT' ||
-            c.controlTechnologyCode === 'NSPS'
-        ).length}px`;
-      this.indirectLength = `${116 *
-        this.subcategory.controlTechnologies.filter(
-          (c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS'
-        ).length}px`;
-    }
-    if (!this.subcategory.controlTechnologies.find((c) => c.id === 'about')) {
-      this.subcategory.controlTechnologies.push({
-        id: 'about',
-        controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
-      });
+    if (this.subcategory) {
+      if (this.subcategory.controlTechnologies.length === 6) {
+        this.directLength = '472px';
+      } else {
+        this.directLength = `${118 *
+          this.subcategory.controlTechnologies.filter(
+            (c) =>
+              c.controlTechnologyCode === 'BPT' ||
+              c.controlTechnologyCode === 'BCT' ||
+              c.controlTechnologyCode === 'BAT' ||
+              c.controlTechnologyCode === 'NSPS'
+          ).length}px`;
+        this.indirectLength = `${116 *
+          this.subcategory.controlTechnologies.filter(
+            (c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS'
+          ).length}px`;
+      }
+      if (!this.subcategory.controlTechnologies.find((c) => c.id === 'about')) {
+        this.subcategory.controlTechnologies.push({
+          id: 'about',
+          controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
+        });
+      }
     }
   },
   components: { Tabs, Table, Modal },
   computed: {
-    ...mapState('search', ['category', 'subcategory']),
+    ...mapState('search', ['category', 'subcategory', 'pollutantData']),
   },
   data() {
     return {
@@ -192,7 +216,9 @@ export default {
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
       shouldDisplayCFRModal: false,
-      columns: [
+      currentMoreInfo: null,
+      shouldDisplayMoreModal: false,
+      pscColumns: [
         {
           key: 'cfrSection',
           label: 'CFR Section',
@@ -204,6 +230,24 @@ export default {
         {
           key: 'secondary',
           label: 'Other Process/Wastestream Detail(s)',
+        },
+      ],
+      pollColumns: [
+        {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
+        {
+          key: 'pointSourceSubcategories',
+          label: 'Subcategories',
+        },
+        {
+          key: 'wastestreamProcesses',
+          label: 'Process Operation/Wastestream(s)',
         },
       ],
     };
@@ -290,8 +334,25 @@ export default {
       }
     },
     async navigateToLimitations(row) {
-      await this.$store.dispatch('limitations/getLimitationData', row.id);
+      if (row.id) {
+        await this.$store.dispatch('limitations/getLimitationData', row.id);
+      } else if (row.pollutantId) {
+        await this.$store.dispatch('limitations/getPollLimitationData', {
+          pollutantId: row.pollutantId,
+          pointSourceCategoryCode: row.pointSourceCategoryCode,
+        });
+        await this.$store.dispatch('limitations/getPollutantInfo', {
+          pointSourceCategoryCode: row.pointSourceCategoryCode,
+          pointSourceCategoryName: row.pointSourceCategoryName,
+          pollutantDescription: row.pollutantDescription,
+        });
+      }
       await this.$router.push('limitations');
+    },
+    displayMoreModal(value) {
+      this.currentMoreInfo = null;
+      this.currentMoreInfo = value;
+      this.shouldDisplayMoreModal = true;
     },
   },
 };
@@ -331,5 +392,10 @@ section p {
 
 .is-checkradio[type='checkbox'] + label {
   cursor: auto;
+}
+
+.psc-icon {
+  position: absolute;
+  left: 0;
 }
 </style>

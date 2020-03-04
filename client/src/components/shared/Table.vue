@@ -5,11 +5,16 @@
         <table class="table is-fullwidth is-bordered">
           <thead>
             <tr>
+              <th v-if="shouldHavePollCols">
+                Select PSC
+              </th>
               <th v-for="column in columns" :key="column.key">
                 {{ column.label }}
               </th>
-              <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
-                Zero Discharge<a v-if="shouldHaveResultsCols" @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
+              <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
+                Zero Discharge<a
+                  v-if="shouldHaveResultsCols || shouldHavePollLimitCols"
+                  @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
@@ -28,8 +33,11 @@
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
-              <th v-if="shouldHaveResultsCols">
+              <th v-if="shouldHaveResultsCols || shouldHavePollCols">
                 Go to Limitations
+              </th>
+              <th v-if="shouldHavePollLimitCols">
+                Go to LTA
               </th>
               <th v-if="shouldHaveLimitationCols">
                 More Details
@@ -43,12 +51,42 @@
               </td>
             </tr>
             <tr v-else-if="rows.length === 0">
-              <td :colspan="7">
+              <td :colspan="8">
                 {{ noDataMessage }}
               </td>
             </tr>
             <tr v-for="(row, index) in rows" :key="index">
+              <td v-if="shouldHavePollCols">
+                <input
+                  class="is-checkradio is-info has-background-color psc"
+                  type="checkbox"
+                  :id="row.pointSourceCategoryCode"
+                  :value="row.pointSourceCategoryCode"
+                  @click="$emit('updatePollutantList', row.pointSourceCategoryCode)"
+                /><label :for="row.pointSourceCategoryCode"></label>
+              </td>
               <td v-for="column in columns" :key="column.key">
+                <span v-if="column.key === 'pointSourceSubcategories' && shouldHavePollCols"
+                  >{{ abbrvList(row[column.key]) + ' ' }}
+                  <a
+                    class="is-link more"
+                    v-if="row[column.key].split(',').length > 2"
+                    @click="$emit('shouldDisplayMoreModal', row[column.key])"
+                    >more</a
+                  >
+                </span>
+                <span v-if="column.key === 'wastestreamProcesses' && shouldHavePollCols"
+                  >{{ abbrvList(row[column.key]) + ' ' }}
+                  <a
+                    class="is-link more"
+                    v-if="row[column.key].replace(/;/g, ',').split(',').length > 2"
+                    @click="$emit('shouldDisplayMoreModal', row[column.key])"
+                    >more</a
+                  >
+                </span>
+                <span v-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
+                  {{ row['wastestreamProcessCfrSection'] + ' ' + row[column.key] }}
+                </span>
                 <span v-if="column.key === 'secondary'" v-html="row[column.key]"></span>
                 <span v-else-if="column.key === 'limitationValue'">
                   {{
@@ -101,7 +139,7 @@
                       : '--'
                   }}
                 </span>
-                <span v-else>
+                <span v-else-if="column.key !== 'wastestreamProcesses' && column.key !== 'pointSourceSubcategories'">
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
                     ><span class="fa fa-info-circle"></span
@@ -113,9 +151,9 @@
                   ></a>
                 </span>
               </td>
-              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
+              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="row.zeroDischarge"
                   @click="stopTheEvent($event)"
@@ -123,7 +161,7 @@
               </td>
               <td v-if="shouldHaveResultsCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="row.includesBmps"
                   @click="stopTheEvent($event)"
@@ -131,7 +169,7 @@
               </td>
               <td v-if="shouldHaveResultsCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="false"
                   @click="stopTheEvent($event)"
@@ -139,18 +177,22 @@
               </td>
               <td v-if="shouldHaveResultsCols">
                 <input
-                  class="is-checkradio is-info has-background-color"
+                  class="is-checkradio is-info has-background-color static"
                   type="checkbox"
                   :checked="row.noLimitations"
                   @click="stopTheEvent($event)"
                 /><label></label>
               </td>
-              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols">
-                <a v-if="shouldHaveResultsCols" @click="$emit('onNavigateToLimitations', row)"
+              <td
+                v-if="
+                  shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollCols || shouldHavePollLimitCols
+                "
+              >
+                <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
                   ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
                 ></a>
-                <a v-if="shouldHaveLimitationCols"
-                  ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
+                <a v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
+                  ><span class="fas fa-share-square limitation-link"></span
                 ></a>
               </td>
             </tr>
@@ -188,6 +230,14 @@ export default {
       type: Boolean,
       required: false,
     },
+    shouldHavePollCols: {
+      type: Boolean,
+      required: false,
+    },
+    shouldHavePollLimitCols: {
+      type: Boolean,
+      required: false,
+    },
   },
   components: { LoadingIndicator },
   computed: {
@@ -199,6 +249,17 @@ export default {
     stopTheEvent(e) {
       e.preventDefault();
       e.stopPropagation();
+    },
+    abbrvList(value) {
+      let abbrv = '';
+      value.replace(/;/g, ',');
+      const shortList = value.split(',');
+      if (shortList.length >= 2) {
+        abbrv = `${shortList[0]}, ${shortList[1]}`;
+      } else if (shortList.length === 1) {
+        return value;
+      }
+      return abbrv;
     },
   },
   data() {
@@ -238,8 +299,12 @@ th {
   text-align: center !important;
 }
 
-.is-checkradio[type='checkbox'] + label {
+.is-checkradio.static[type='checkbox'] + label {
   cursor: auto;
+}
+
+.is-checkradio.psc[type='checkbox'] + label {
+  margin-left: -10px;
 }
 
 .checkbox-info {
