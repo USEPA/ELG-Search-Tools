@@ -1,13 +1,11 @@
 <template>
   <section class="aq-tabs-container">
     <div class="columns label-container">
-      <div class="direct-discharge-container" :style="{ width: directLength }" v-if="directLength !== '0px'">
-        <p class="has-text-black" v-if="directLength !== '236px'">Direct Discharge Requirements</p>
-        <p class="has-text-black" v-if="directLength === '236px'">Direct</p>
-        <p class="has-text-black" v-if="directLength === '236px'">Discharge Requirements</p>
+      <div class="direct-discharge-container">
+        <p class="has-text-black">Direct Discharge Requirements</p>
         <div class="is-divider direct"></div>
       </div>
-      <div class="indirect-discharge-container" :style="{ width: indirectLength }" v-if="indirectLength !== '0px'">
+      <div class="indirect-discharge-container">
         <p class="has-text-black">Indirect Discharge Requirements</p>
         <div class="is-divider indirect"></div>
       </div>
@@ -15,7 +13,11 @@
     <div class="tabs aq-tabs is-toggle">
       <ul>
         <li v-for="tab in tabs" :key="tab.id" :class="tab.id === activeTabId ? 'is-active' : ''">
-          <button @click="activeTabId = tab.id" :style="tab.id === 'about' && { width: '213px' }">
+          <button
+            @click="activeTabId = tab.id"
+            :style="tab.id !== 11 && !tab.wastestreamProcesses.length && { cursor: 'not-allowed' }"
+            :disabled="tab.id !== 11 && !tab.wastestreamProcesses.length"
+          >
             {{ tab.controlTechnologyCode }}
           </button>
         </li>
@@ -31,14 +33,6 @@ export default {
     tabs: {
       type: Array,
       required: true,
-    },
-    directLength: {
-      type: String,
-      required: false,
-    },
-    indirectLength: {
-      type: String,
-      required: false,
     },
   },
   data() {
@@ -123,12 +117,13 @@ export default {
 }
 
 .direct-discharge-container {
+  width: 472px;
   padding-right: 1px;
 }
 
 .indirect-discharge-container {
   padding-left: 2px;
-  width: 235px;
+  width: 237px;
 }
 
 ul {

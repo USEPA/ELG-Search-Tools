@@ -6,11 +6,23 @@
           Effluent Limitations Guidelines and Standards (ELG) Database
         </h1>
         <p class="has-text-black">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-          est laborum.
+          The goal of the ELG Database Web Application is to provide the Agency and other interested parties easy access
+          to information relevant to the effluent limitations guidelines and standards (ELGs) program. The ELG Database
+          includes the ELGs as promulgated in the Code of Federal Regulations (CFR); CFR citation history (links the
+          dates and federal register notices (FRN) to the corresponding CFR section); and readily available technology
+          bases/pollutant long-term averages for the regulations.
+        </p>
+        <p class="has-text-black">
+          <span class="underline-text">Note to EPA Testers</span>:
+          <i>
+            &nbsp; We are currently in the process of populating and performing quality control checks on data in the
+            ELG Database before translating to the web application program. Therefore, the information included in this
+            web application is incomplete. ERG plans on continuing to add and update content in the database and in the
+            web application as EPA conducts reviews on the web application development.</i
+          >
+        </p>
+        <p class="has-text-black">
+          Please select one of the following search criteria: point source category, pollutant, or treatment technology.
         </p>
         <SearchBar />
       </div>
@@ -50,13 +62,15 @@ h1 {
 }
 
 p {
-  margin-top: 5em;
-  margin-bottom: 5em;
   text-align: center;
   font-size: 18px;
 }
 
 .adv-search {
   padding-left: 23px;
+}
+
+.underline-text {
+  text-decoration: underline;
 }
 </style>

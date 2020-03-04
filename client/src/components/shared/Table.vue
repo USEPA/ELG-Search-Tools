@@ -19,7 +19,7 @@
                 ></a>
               </th>
               <th v-if="shouldHaveResultsCols">
-                BMPS<a @click="$emit('onDisplayCheckboxInfo', 'bmps')"
+                BMPs<a @click="$emit('onDisplayCheckboxInfo', 'bmps')"
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
@@ -142,11 +142,6 @@
                 <span v-else-if="column.key !== 'wastestreamProcesses' && column.key !== 'pointSourceSubcategories'">
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
-                    ><span class="fa fa-info-circle"></span
-                  ></a>
-                  <a
-                    v-if="column.key === 'cfrSection' && (row.notes || row.limitCalculationDescription)"
-                    @click="$emit('onDisplayCFRModal', row)"
                     ><span class="fa fa-info-circle"></span
                   ></a>
                 </span>
