@@ -1,6 +1,9 @@
 import axios from 'axios';
 
 const state = {
+  pointSourceCategoryCode: null,
+  pointSourceCategoryName: null,
+  pollutantDescription: null,
   limitationData: null,
   isFetching: false,
 };
@@ -17,6 +20,13 @@ const mutations = {
   },
   SET_IS_FETCHING(state, value) {
     state.isFetching = value;
+  },
+  SET_PSC(state, payload) {
+    if (payload) {
+      state.pointSourceCategoryCode = payload.pointSourceCategoryCode;
+      state.pointSourceCategoryName = payload.pointSourceCategoryName;
+      state.pollutantDescription = payload.pollutantDescription;
+    }
   },
 };
 
@@ -41,6 +51,10 @@ const actions = {
     });
     commit('SET_LIMITATION_DATA', res.data);
     commit('SET_IS_FETCHING', false);
+  },
+  async getPollutantInfo({ commit }, payload) {
+    commit('SET_PSC', null);
+    commit('SET_PSC', payload);
   },
 };
 

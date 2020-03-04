@@ -51,7 +51,7 @@
               </td>
             </tr>
             <tr v-else-if="rows.length === 0">
-              <td :colspan="7">
+              <td :colspan="8">
                 {{ noDataMessage }}
               </td>
             </tr>
@@ -66,6 +66,27 @@
                 /><label :for="row.pointSourceCategoryCode"></label>
               </td>
               <td v-for="column in columns" :key="column.key">
+                <span v-if="column.key === 'pointSourceSubcategories' && shouldHavePollCols"
+                  >{{ abbrvList(row[column.key]) + ' ' }}
+                  <a
+                    class="is-link more"
+                    v-if="row[column.key].split(',').length > 2"
+                    @click="$emit('shouldDisplayMoreModal', row[column.key])"
+                    >more</a
+                  >
+                </span>
+                <span v-if="column.key === 'wastestreamProcesses' && shouldHavePollCols"
+                  >{{ abbrvList(row[column.key]) + ' ' }}
+                  <a
+                    class="is-link more"
+                    v-if="row[column.key].replace(/;/g, ',').split(',').length > 2"
+                    @click="$emit('shouldDisplayMoreModal', row[column.key])"
+                    >more</a
+                  >
+                </span>
+                <span v-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
+                  {{ row['wastestreamProcessCfrSection'] + ' ' + row[column.key] }}
+                </span>
                 <span v-if="column.key === 'secondary'" v-html="row[column.key]"></span>
                 <span v-else-if="column.key === 'limitationValue'">
                   {{
@@ -118,7 +139,7 @@
                       : '--'
                   }}
                 </span>
-                <span v-else>
+                <span v-else-if="column.key !== 'wastestreamProcesses' && column.key !== 'pointSourceSubcategories'">
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
                     ><span class="fa fa-info-circle"></span
@@ -228,6 +249,17 @@ export default {
     stopTheEvent(e) {
       e.preventDefault();
       e.stopPropagation();
+    },
+    abbrvList(value) {
+      let abbrv = '';
+      value.replace(/;/g, ',');
+      const shortList = value.split(',');
+      if (shortList.length >= 2) {
+        abbrv = `${shortList[0]}, ${shortList[1]}`;
+      } else if (shortList.length === 1) {
+        return value;
+      }
+      return abbrv;
     },
   },
   data() {

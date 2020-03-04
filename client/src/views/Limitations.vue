@@ -7,14 +7,21 @@
         </h1>
       </div>
     </div>
+    <div class="columns">
+      <div class="column">
+        <button class="button has-text-white is-pulled-right" @click="onNavigate">
+          <span class="fa fa-reply has-text-white"></span>Back to Results
+        </button>
+      </div>
+    </div>
     <h1 v-if="subcategory" class="is-size-3 has-text-black has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
     <h1 v-if="!subcategory && limitationData" class="is-size-3 has-text-black has-text-weight-light">
-      {{ limitationData.pollutantDescription }}
+      {{ pollutantDescription }}
     </h1>
     <h1 v-if="!subcategory && limitationData" class="is-size-5 has-text-black has-text-weight-light">
-      {{ limitationData.pointSourceCategoryCode }}: {{ limitationData.pointSourceCategoryName }}
+      {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
     </h1>
     <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
       Subpart {{ subcategory.comboSubcategory }}
@@ -52,40 +59,41 @@
       </div>
     </div>
     <Table
-        v-if="subcategory"
-        :columns="pscColumns"
+      v-if="subcategory"
+      :columns="pscColumns"
       :rows="limitationData.limitations"
       :shouldHaveLimitationCols="true"
       @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
     />
-      <Tabs
-              v-if="!subcategory && limitationData"
-              :tabs="limitationData.controlTechnologies"
-              :directLength="directLength"
-              :indirectLength="indirectLength"
-      >
-          <template v-for="controlTechnology in limitationData.controlTechnologies" v-slot:[controlTechnology.id]>
-              <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
-                  <div class="column poll-limitation-container">
-                      <div class="field is-grouped download-icon-container">
-                          <span class="fas fa-download has-text-grey-dark help-icon"></span>
-                          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
-                      </div>
-                      <div class="field">
-                          <Table
-                                  :columns="pollLimitationCols"
-                                  :rows="controlTechnology.limitations"
-                                  :shouldHavePollLimitCols="true"
-                                  @onDisplayCheckboxInfo="displayCheckboxInfo"
-                          />
-                      </div>
-                  </div>
-              </div>
-          </template>
-      </Tabs>
-      <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
-          {{ currentCheckboxInfo }}
-      </Modal>
+    <Tabs
+      v-if="!subcategory && limitationData"
+      :tabs="uniqueTabs"
+      :directLength="directLength"
+      :indirectLength="indirectLength"
+    >
+      <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
+        <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
+          <div class="column poll-limitation-container">
+            <div class="field is-grouped download-icon-container">
+              <span class="fas fa-download has-text-grey-dark help-icon"></span>
+              <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
+            </div>
+            <div class="field">
+              <Table
+                :columns="pollLimitationCols"
+                :rows="controlTechnology.limitations"
+                :shouldHavePollLimitCols="true"
+                @onDisplayCheckboxInfo="displayCheckboxInfo"
+                @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+              />
+            </div>
+          </div>
+        </div>
+      </template>
+    </Tabs>
+    <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
+      {{ currentCheckboxInfo }}
+    </Modal>
     <Modal v-if="shouldDisplayUnitDescriptionModal" @close="() => (shouldDisplayUnitDescriptionModal = false)">
       <div class="info-modal">
         <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
@@ -102,13 +110,22 @@ import Tabs from '@/components/shared/Tabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  mounted() {
+  beforeMount() {
     if (!this.subcategory && this.limitationData) {
-      if (this.limitationData.controlTechnologies.length === 6) {
+      this.uniqueTabs = null;
+      this.uniqueTabs = [...new Set(this.limitationData.map((item) => item.controlTechnologyCode))];
+      this.uniqueTabs = this.uniqueTabs.map((u) => {
+        const obj = {};
+        obj.controlTechnologyCode = u;
+        obj.id = this.uniqueTabs.indexOf(u);
+        obj.limitations = this.limitationData.filter((l) => l.controlTechnologyCode === u);
+        return obj;
+      });
+      if (this.uniqueTabs.length === 6) {
         this.directLength = '472px';
       } else {
         this.directLength = `${118 *
-          this.limitationData.controlTechnologies.filter(
+          this.uniqueTabs.filter(
             (c) =>
               c.controlTechnologyCode === 'BPT' ||
               c.controlTechnologyCode === 'BCT' ||
@@ -116,16 +133,20 @@ export default {
               c.controlTechnologyCode === 'NSPS'
           ).length}px`;
         this.indirectLength = `${118 *
-          this.limitationData.controlTechnologies.filter(
-            (c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS'
-          ).length}px`;
+          this.uniqueTabs.filter((c) => c.controlTechnologyCode === 'PSES' || c.controlTechnologyCode === 'PSNS')
+            .length}px`;
       }
     }
   },
   components: { Table, Tabs, Modal },
   computed: {
     ...mapState('search', ['category', 'subcategory']),
-    ...mapState('limitations', ['limitationData']),
+    ...mapState('limitations', [
+      'limitationData',
+      'pointSourceCategoryCode',
+      'pointSourceCategoryName',
+      'pollutantDescription',
+    ]),
   },
   data() {
     return {
@@ -134,6 +155,7 @@ export default {
       indirectLength: null,
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
+      uniqueTabs: null,
       pscColumns: [
         {
           key: 'pollutantDescription',
@@ -172,6 +194,10 @@ export default {
       ],
       pollLimitationCols: [
         {
+          key: 'comboSubcategory',
+          label: 'Subpart',
+        },
+        {
           key: 'wastestreamProcessTitle',
           label: 'Process Operation/Wastestream',
         },
@@ -188,7 +214,7 @@ export default {
           label: 'Frequency',
         },
         {
-          key: 'flag',
+          key: 'alternativeLimitFlag',
           label: 'Flag',
         },
         {
@@ -196,7 +222,7 @@ export default {
           label: 'Value',
         },
         {
-          key: 'basis',
+          key: 'limitationUnitBasis',
           label: 'Basis',
         },
       ],

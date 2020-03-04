@@ -68,6 +68,7 @@ const actions = {
   },
   async getSubcategory({ commit }, id) {
     commit('SET_SUBCATEGORY', null);
+    commit('SET_POLLUTANT', null);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/pointSourceSubcategory/${id}`);

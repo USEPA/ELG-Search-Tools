@@ -25,8 +25,11 @@
     <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
       Subpart {{ subcategory.comboSubcategory }}
     </h1>
+    <h1 v-if="pollutantData" class="is-size-3 has-text-black has-text-weight-light">
+      {{ pollutantData[0].pollutantDescription }}
+    </h1>
     <div class="field is-grouped help-icons">
-      <div class="field is-grouped psc-icon">
+      <div v-if="pollutantData" class="field is-grouped psc-icon">
         <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
       </div>
       <div class="field is-grouped">
@@ -57,7 +60,7 @@
               <div class="control">
                 <a
                   class="is-link"
-                  v-if="controlTechnology.notes.length > 0"
+                  v-if="controlTechnology.notes && controlTechnology.notes.length > 0"
                   @click="shouldDisplayNotesModal(controlTechnology.notes)"
                   >Level of Control Notes</a
                 >
@@ -100,6 +103,7 @@
             </div>
             <div class="field">
               <Table
+                v-if="controlTechnology.wastestreamProcesses"
                 :columns="pscColumns"
                 :rows="controlTechnology.wastestreamProcesses"
                 @onDisplayInfoModal="displayInfoModal"
@@ -114,10 +118,12 @@
       </template>
     </Tabs>
     <Table
+      v-if="pollutantData"
       :columns="pollColumns"
       :rows="pollutantData"
       :shouldHavePollCols="true"
       @onNavigateToLimitations="navigateToLimitations"
+      @shouldDisplayMoreModal="displayMoreModal"
     />
     <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
       <div class="control-notes" v-for="(note, index) in notes" :key="index">
@@ -148,6 +154,9 @@
     </Modal>
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
+    </Modal>
+    <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
+      {{ currentMoreInfo }}
     </Modal>
   </section>
 </template>
@@ -207,6 +216,8 @@ export default {
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
       shouldDisplayCFRModal: false,
+      currentMoreInfo: null,
+      shouldDisplayMoreModal: false,
       pscColumns: [
         {
           key: 'cfrSection',
@@ -326,13 +337,22 @@ export default {
       if (row.id) {
         await this.$store.dispatch('limitations/getLimitationData', row.id);
       } else if (row.pollutantId) {
-        console.log(row);
         await this.$store.dispatch('limitations/getPollLimitationData', {
           pollutantId: row.pollutantId,
           pointSourceCategoryCode: row.pointSourceCategoryCode,
         });
+        await this.$store.dispatch('limitations/getPollutantInfo', {
+          pointSourceCategoryCode: row.pointSourceCategoryCode,
+          pointSourceCategoryName: row.pointSourceCategoryName,
+          pollutantDescription: row.pollutantDescription,
+        });
       }
       await this.$router.push('limitations');
+    },
+    displayMoreModal(value) {
+      this.currentMoreInfo = null;
+      this.currentMoreInfo = value;
+      this.shouldDisplayMoreModal = true;
     },
   },
 };
