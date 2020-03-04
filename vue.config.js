@@ -14,6 +14,7 @@ module.exports = {
   },
   devServer: {
     host: 'localhost',
+    port: 8081
   },
   chainWebpack: (config) => {
     config.plugin('html').tap((args) => {

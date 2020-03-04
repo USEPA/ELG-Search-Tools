@@ -18,6 +18,8 @@ module.exports = (app) => {
   app.get('/api/pollutant/:id', controllers.pollutant.read);
   app.get('/api/pollutantLimitations', controllers.pollutant.limitations);
 
+  app.get('/api/limitation/:id', controllers.limitation.read);
+
   // serve up built Vue files from express server
   app.use(express.static(path.resolve(__dirname, '../../client/dist/')));
 };

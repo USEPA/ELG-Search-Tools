@@ -50,7 +50,10 @@ module.exports = {
         "stat_base_type":"Average"},
       {"limit_duration_code":1011,
         "limit_duration_description":"Instantaneous maximum",
-        "stat_base_type":"Maximum"}];
+        "stat_base_type":"Maximum"},
+      {"limit_duration_code":1012,
+        "limit_duration_description":"Weekly average",
+        "stat_base_type":"Average"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "LimitationDuration" }, records);
   },

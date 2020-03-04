@@ -1,5 +1,23 @@
 module.exports = {
   up(queryInterface) {
+    /*
+    -	407: Canned and Preserved Fruits and Vegetables
+    -	412: Concentrated Animal Feeding Operations
+    -	413: Electroplating
+    -	417: Soap and Detergent Mfr
+    -	423: Steam Electric Generating
+    -	427: Asbestos Mfr
+    -	432: Meat and Poultry Products
+    -	433: Metal Finishing
+    -	437: Centralized Waste Treatment
+    -	438: Metal Products and Machinery
+    -	439: Pharmaceutical
+    -	444: Waste Combustors
+    -	461: Battery Manufacturing
+    -	469: Electrical and Electronic Components
+     */
+    let showThese = [407, 417];
+
     let records = [{"psc_code":405,
       "cfr_part":"405",
       "psc_name":"Dairy products processing",
@@ -55,8 +73,7 @@ module.exports = {
         "cfr_notes":"Includes BMPs and additional measures for some subcategories.",
         "narrative_history":null,
         "source_id":27,
-        "initial_promulgation_date":1974,
-        "IncludeInSearchTool": true},
+        "initial_promulgation_date":1974},
       {"psc_code":413,
         "cfr_part":"413",
         "psc_name":"Electroplating",
@@ -126,8 +143,7 @@ module.exports = {
         "cfr_notes":null,
         "narrative_history":null,
         "source_id":1,
-        "initial_promulgation_date":1974,
-        "IncludeInSearchTool": true},
+        "initial_promulgation_date":1974},
       {"psc_code":424,
         "cfr_part":"424",
         "psc_name":"Ferroalloy manufacturing",
@@ -176,8 +192,7 @@ module.exports = {
         "cfr_notes":null,
         "narrative_history":null,
         "source_id":2,
-        "initial_promulgation_date":1974,
-        "IncludeInSearchTool": true},
+        "initial_promulgation_date":1974},
       {"psc_code":432,
         "cfr_part":"432",
         "psc_name":"Meat and Poultry Products",
@@ -219,8 +234,7 @@ module.exports = {
         "cfr_notes":null,
         "narrative_history":null,
         "source_id":null,
-        "initial_promulgation_date":2000,
-        "IncludeInSearchTool": true},
+        "initial_promulgation_date":2000},
       {"psc_code":438,
         "cfr_part":"438",
         "psc_name":"Metal Products and Machinery",
@@ -234,8 +248,7 @@ module.exports = {
         "cfr_notes":null,
         "narrative_history":null,
         "source_id":null,
-        "initial_promulgation_date":1976,
-        "IncludeInSearchTool": true},
+        "initial_promulgation_date":1976},
       {"psc_code":440,
         "cfr_part":"440",
         "psc_name":"Ore mining and dressing",
@@ -361,8 +374,7 @@ module.exports = {
         "cfr_notes":null,
         "narrative_history":null,
         "source_id":26,
-        "initial_promulgation_date":1984,
-        "IncludeInSearchTool": true},
+        "initial_promulgation_date":1984},
       {"psc_code":463,
         "cfr_part":"463",
         "psc_name":"Plastics molding and forming",
@@ -419,6 +431,10 @@ module.exports = {
         "narrative_history":null,
         "source_id":null,
         "initial_promulgation_date":1985}];
+
+    records.forEach(function(record) {
+      record.IncludeInSearchTool = showThese.includes(record.psc_code);
+    });
 
     return queryInterface.bulkInsert({schema: "elg_search", tableName: 'PointSourceCategory'}, records);
   },

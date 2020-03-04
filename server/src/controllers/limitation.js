@@ -1,4 +1,7 @@
+const utilities = require('./utilities');
+
 const ViewLimitation = require('../models').ViewLimitation;
+const ViewLongTermAverage = require('../models').ViewLongTermAverage;
 const Op = require('sequelize').Op;
 
 let attributes = [
@@ -74,5 +77,73 @@ function pollutantLimitations(pollutantId, pointSourceCategoryCode) {
 
 module.exports = {
   wastestreamProcessLimitations,
-  pollutantLimitations
+  pollutantLimitations,
+  /**
+   * @param {
+   *          {id:number}
+   * } req.params
+   */
+  read(req, res) {
+    // check for required query attributes and replace with defaults if missing
+    try {
+      let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+
+      if (id === null) {
+        return res.status(400).send('Invalid value passed for id')
+      }
+
+      return ViewLimitation.findByPk(id, {
+        attributes: [
+          'pollutantDescription',
+          'pointSourceCategoryCode',
+          'pointSourceCategoryName',
+          'comboSubcategory',
+          'controlTechnologyCode',
+          'controlTechnologyCfrSection',
+          'wastestreamProcessTitle',
+          'wastestreamProcessSecondary',
+          'wastestreamProcessCfrSection',
+        ]
+      })
+        .then((limitation) => {
+          let result = new Map();
+          result['pollutantDescription'] = limitation.pollutantDescription;
+          result['pointSourceCategoryCode'] = limitation.pointSourceCategoryCode;
+          result['pointSourceCategoryName'] = limitation.pointSourceCategoryName;
+          result['comboSubcategory'] = limitation.comboSubcategory;
+          result['controlTechnologyCode'] = limitation.controlTechnologyCode;
+          result['controlTechnologyCfrSection'] = limitation.controlTechnologyCfrSection;
+          result['wastestreamProcessTitle'] = limitation.wastestreamProcessTitle;
+          result['wastestreamProcessSecondary'] = limitation.wastestreamProcessSecondary;
+          result['wastestreamProcessCfrSection'] = limitation.wastestreamProcessCfrSection;
+          result['longTermAverages'] = [];
+
+          ViewLongTermAverage.findAll({
+            attributes: [
+              'treatmentTechnologyCodes',
+              'pollutantDescription',
+              'longTermAverageValue',
+              'longTermAverageUnitCode',
+              'longTermAverageUnitDescription',
+              'longTermAverageUnitBasis',
+              'longTermAverageNotes',
+              'longTermAverageSourceTitle'
+            ],
+            where: {
+              limitationId: { [Op.eq]: id }
+            },
+            order: ['treatmentTechnologyCodes', 'pollutantDescription']
+          })
+            .then((longTermAverages) => {
+              result['longTermAverages'] = longTermAverages;
+
+              res.status(200).send(result);
+            })
+            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        })
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+    } catch (err) {
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
+    }
+  },
 };
