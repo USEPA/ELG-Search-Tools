@@ -154,7 +154,7 @@ button {
 }
 
 .subcategory-select {
-  width: 451px !important;
+  width: 609px !important;
   margin-left: 392px;
 }
 
@@ -171,9 +171,5 @@ button {
 .multiselect__single {
   white-space: nowrap;
   overflow: hidden;
-}
-
-.multiselect {
-  max-width: 424px !important;
 }
 </style>

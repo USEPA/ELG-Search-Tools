@@ -58,9 +58,8 @@ export default {
 
 <style lang="scss" scoped>
 h1 {
-  margin-left: 20px;
+  text-align: center;
 }
-
 p {
   text-align: center;
   font-size: 18px;

@@ -23,6 +23,10 @@ html {
   overflow-y: auto !important;
 }
 
+#main-content {
+  max-width: 70em;
+}
+
 .table td,
 .table th {
   vertical-align: middle !important;

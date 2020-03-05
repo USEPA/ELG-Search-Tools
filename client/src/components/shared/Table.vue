@@ -186,7 +186,8 @@
                 <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
                   ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
                 ></a>
-                <a v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
+                <a v-if="shouldHaveLimitationCols"><span class="fas fa-share-square limitation-link"></span></a>
+                <a v-if="shouldHavePollLimitCols" @click="$emit('onShouldDisplayLTAData', row)"
                   ><span class="fas fa-share-square limitation-link"></span
                 ></a>
               </td>

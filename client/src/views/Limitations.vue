@@ -7,7 +7,7 @@
         </h1>
       </div>
     </div>
-    <div class="columns" v-if="!subcategory && limitationData">
+    <div class="columns" v-if="!subcategory && limitationData && !longTermAvgData">
       <div class="column">
         <button class="button has-text-white is-pulled-right" @click="onNavigate">
           <span class="fa fa-reply has-text-white"></span>Back to Results
@@ -17,10 +17,16 @@
     <h1 v-if="subcategory" class="is-size-3 has-text-black has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-3 has-text-black has-text-weight-light">
+    <h1
+      v-if="!subcategory && limitationData && !longTermAvgData"
+      class="is-size-3 has-text-black has-text-weight-light"
+    >
       {{ pollutantDescription }}
     </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-5 has-text-black has-text-weight-light">
+    <h1
+      v-if="!subcategory && limitationData && !longTermAvgData"
+      class="is-size-5 has-text-black has-text-weight-light"
+    >
       {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
     </h1>
     <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
@@ -65,7 +71,12 @@
       :shouldHaveLimitationCols="true"
       @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
     />
-    <Tabs v-if="!subcategory && limitationData" :tabs="uniqueTabs" :isPollutant="true" :isPSC="false">
+    <Tabs
+      v-if="!subcategory && !longTermAvgData && limitationData"
+      :tabs="uniqueTabs"
+      :isPollutant="true"
+      :isPSC="false"
+    >
       <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
         <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
           <div class="column poll-limitation-container">
@@ -80,6 +91,7 @@
                 :shouldHavePollLimitCols="true"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
                 @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+                @onShouldDisplayLTAData="shouldDisplayLTAData"
                 :colsLength="10"
               />
             </div>
@@ -87,6 +99,31 @@
         </div>
       </template>
     </Tabs>
+    <div v-if="longTermAvgData" class="content info-box-container">
+      <div class="columns">
+        <div class="column is-8">
+          <h1 class="has-text-black info-box">{{ longTermAvgData.pollutantDescription }}</h1>
+          <p class="has-text-black info-box">Control Technology: {{ longTermAvgData.controlTechnologyCode }}</p>
+          <p class="has-text-black info-box">
+            Part {{ longTermAvgData.pointSourceCategoryCode }}: {{ longTermAvgData.pointSourceCategoryName }}
+          </p>
+          <p class="has-text-black info-box">Subpart {{ longTermAvgData.comboSubcategory }}</p>
+          <p class="has-text-black info-box">
+            Process Operation/Wastestream: {{ longTermAvgData.wastestreamProcessCfrSection }}
+            {{ longTermAvgData.wastestreamProcessTitle }}
+          </p>
+          <p class="has-text-black info-box">
+            Other Process Operation/Wastestream Detail(s): {{ longTermAvgData.wastestreamProcessSecondary }}
+          </p>
+        </div>
+        <div class="column">
+          <button class="button has-text-white is-pulled-right" @click="onNavigateLimitations">
+            <span class="fa fa-reply has-text-white"></span>Back to Limitations
+          </button>
+        </div>
+      </div>
+    </div>
+    <Table v-if="longTermAvgData" :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages" />
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
     </Modal>
@@ -149,6 +186,7 @@ export default {
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
       'pollutantDescription',
+      'longTermAvgData',
     ]),
   },
   data() {
@@ -229,11 +267,40 @@ export default {
           label: 'Basis',
         },
       ],
+      longTermAvgCols: [
+        {
+          key: 'Treatment Train',
+          label: 'Treatment Train',
+        },
+        {
+          key: 'Pollutant',
+          label: 'Pollutant',
+        },
+        {
+          key: 'LTA Value',
+          label: 'LTA Value',
+        },
+        {
+          key: 'Basis',
+          label: 'Basis',
+        },
+        {
+          key: 'LTA Notes',
+          label: 'LTA Notes',
+        },
+        {
+          key: 'LTA Reference',
+          label: 'LTA Reference',
+        },
+      ],
     };
   },
   methods: {
     onNavigate() {
       this.$router.push('/results');
+    },
+    onNavigateLimitations() {
+      this.$store.commit('limitations/SET_LTA_DATA', null);
     },
     stopTheEvent(e) {
       e.preventDefault();
@@ -256,6 +323,9 @@ export default {
       this.currentRow = null;
       this.shouldDisplayUnitDescriptionModal = true;
       this.currentRow = row;
+    },
+    async shouldDisplayLTAData(row) {
+      await this.$store.dispatch('limitations/getLTAData', row.limitationId);
     },
   },
 };
