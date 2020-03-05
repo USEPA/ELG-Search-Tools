@@ -303,8 +303,7 @@ export default {
       if (shortList.length >= 2) {
         abbrv = `${shortList[0]}; ${shortList[1]}`;
       } else if (shortList.length === 1) {
-        const [one] = shortList[0];
-        return one;
+        return value;
       }
       return abbrv;
     },
