@@ -86,16 +86,16 @@ $$;
 select
 	psc_code,
 	subcat_id,
-	replace(replace(subcat_title, U&'\00A0', '\u00A0'), U&'\0097', '\u0097') as subcat_title,
+	replace(replace(subcat_title, U&'\00A0', ''), U&'\0097', '-') as subcat_title,
 	subcat_code,
 	subcat_cfr_section,
-	replace(replace(replace(replace(replace(replace(replace(subcat_applicability, U&'\00A0', '\u00A0'), U&'\0097', '\u0097'), U&'\00A7', '\u00A7'), U&'\0091', '\u0091'), U&'\0092', '\u0092'), U&'\0093', '\u0093'), U&'\0094', '\u0094') as subcat_applicability,
+	replace(replace(replace(replace(replace(replace(replace(subcat_applicability, U&'\00A0', ''), U&'\0097', '-'), U&'\00A7', '\u00A7'), U&'\0091', ''''), U&'\0092', ''''), U&'\0093', '"'), U&'\0094', '"') as subcat_applicability,
 	subcat_includes_bmps,
 	subcat_notes,
 	moredetail_flag,
 	source_id,
 	detail_desc,
-	replace(replace(combo_subcat, U&'\00A0', '\u00A0'), U&'\0097', '\u0097') as combo_subcat,
+	replace(replace(combo_subcat, U&'\00A0', ''), U&'\0097', '-') as combo_subcat,
 	reservedflag
 from
 	elg_database.n2_subcategory;
@@ -122,7 +122,7 @@ select
     COALESCE (processop_constraint4, '')) as secondary,
     replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
     replace(lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc,
-    replace(replace(replace(processop_notes, U&'\0097', '\u0097'), U&'\0085', '\u0085'), U&'\00A7', '\00A7') as processop_notes,
+    replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\00A7') as processop_notes,
     case when zero_discharge = '1' then true else false end as zero_discharge,
     case when no_limits = '1' then true else false end as no_limits,
     case when includes_bmps = '1' then true else false end as includes_bmps,
