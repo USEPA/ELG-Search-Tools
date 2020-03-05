@@ -167,4 +167,13 @@ button {
 .multiselect__tags {
   min-height: 45px !important;
 }
+
+.multiselect__single {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.multiselect {
+  max-width: 424px !important;
+}
 </style>
