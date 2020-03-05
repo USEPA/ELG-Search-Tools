@@ -1,0 +1,141 @@
+@import 'variables';
+
+// set app content to take up full page height
+html,
+body {
+  height: 100%;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+// style overrides
+html {
+  overflow-y: auto !important;
+}
+
+.table td,
+.table th {
+  vertical-align: middle !important;
+}
+
+.table td {
+  text-align: center !important;
+}
+
+.section {
+  padding: 2rem 0 2rem 0 !important;
+}
+
+.main-section {
+  position: relative;
+  .title,
+  .subtitle,
+  .label {
+    color: #fff;
+  }
+  .label {
+    font-weight: normal;
+  }
+}
+
+.fa {
+  margin-right: 0.2em;
+}
+
+.button.is-text {
+  text-decoration: none !important;
+}
+
+.menu.column {
+  padding-left: 1px !important;
+}
+
+h1.title {
+  font-size: 28px !important;
+}
+
+.is-link {
+  text-decoration: underline;
+}
+
+.tab-content {
+  margin-top: 10px !important;
+}
+
+// form style overrides
+.select {
+  width: 100%;
+
+  select:invalid {
+    color: hsla(0, 0%, 48%, 0.7);
+  }
+
+  select option {
+    color: #363636;
+  }
+}
+
+// Import bulma and plugins
+@import '../../node_modules/bulma/bulma';
+@import '../../node_modules/bulma-checkradio/dist/css/bulma-checkradio.min.css';
+
+// Override bulma checkradio plugin styles
+.is-checkradio[type='radio'].is-info:checked + label::after {
+  border-color: $lightBlue !important;
+  background-color: $lightBlue !important;
+}
+
+.is-checkradio[type='checkbox'].is-info.has-background-color + label::before,
+.is-checkradio[type='checkbox'].is-info.has-background-color + label:before {
+  background-color: white !important;
+  border: solid 1px black !important;
+}
+
+.is-checkradio[type='checkbox'].is-info:hover:not([disabled]) + label::before,
+.is-checkradio[type='checkbox'].is-info:hover:not([disabled]) + label:before {
+  border-color: black !important;
+}
+
+.is-checkradio[type='checkbox'].is-info:checked + label::after {
+  border-width: 3px;
+}
+
+// Makes sure that when checkboxes are in overflowed divs, whitespace won't appear at bottom of page
+.is-checkradio[type='checkbox'],
+.is-checkradio[type='radio'] {
+  opacity: 0;
+  width: 0;
+  position: fixed;
+}
+
+.is-checkradio[type='checkbox'].is-block,
+.is-checkradio[type='radio'].is-block {
+  display: block !important;
+}
+
+button,
+a,
+input,
+.switch .checkbox {
+  &:focus,
+  &:focus + .slider,
+  &:focus + label {
+    box-shadow: none !important;
+    outline: 2px dotted #aeb0b5 !important;
+  }
+}
+
+// Import font-awesome
+@import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
+// Import vue-multiselect
+@import '../../node_modules/vue-multiselect/dist/vue-multiselect.min.css';

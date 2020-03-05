@@ -1,0 +1,299 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "U.S. EPA ELG Search Tools",
+    "description": "placeholder",
+    "contact": {
+      "name": "US EPA, WaterSense"
+    },
+    "license": {
+      "name": "Creative Commons Zero Public Domain Dedication",
+      "url": "https://edg.epa.gov/EPA_Data_License.html"
+    },
+    "version": "0.0.0"
+  },
+  "host": "elg-search-tools-dev.app.cloud.gov",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "parameters": {
+    "id": {
+      "name": "id",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "integer",
+      "required": true
+    },
+    "pointSourceCategoryCode": {
+      "name": "pointSourceCategoryCode",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "integer",
+      "required": true
+    },
+    "pollutantId": {
+      "name": "pollutantId",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "integer",
+      "required": false
+    }
+  },
+  "paths": {
+    "/api/pointSourceCategories": {
+      "get": {
+        "summary": "pointSourceCategories",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["pointSourceCategory"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pointSourceCategory.list"
+            }
+          }
+        }
+      }
+    },
+    "/api/pointSourceCategory/{id}": {
+      "get": {
+        "summary": "pointSourceCategory id",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["pointSourceCategory"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pointSourceCategory.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/pointSourceSubcategory/{id}": {
+      "get": {
+        "summary": "pointSourceSubcategory id",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["pointSourceCategory"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pointSourceSubcategory.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/wastestreamProcessLimitations/{id}": {
+      "get": {
+        "summary": "wastestreamProcessLimitations id",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["pointSourceCategory"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/wastestreamProcess.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutants": {
+      "get": {
+        "summary": "pollutants",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["pointSourceCategory"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.list"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutant/{id}": {
+      "get": {
+        "summary": "pollutant id",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["pollutant"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutantLimitations": {
+      "get": {
+        "summary": "pollutantLimitations",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "$ref": "#/parameters/pollutantId"
+          },
+          {
+            "$ref": "#/parameters/pointSourceCategoryCode"
+          }
+        ],
+        "tags": ["pointSourceCategory"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.limitations"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "pointSourceCategory.list": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pointSourceCategory.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pointSourceSubcategory.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "wastestreamProcess.limitations": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.list": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.limitations": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    }
+  }
+}

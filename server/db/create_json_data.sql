@@ -1,0 +1,15 @@
+select 'PointSourceCategory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from n1_cfr as tablename union all
+select 'PointSourceSubcategory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from view_n2_subcategory as tablename union all
+select 'ControlTechnology' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from n3_control_technology as tablename union all
+select 'ControlTechnologyNotes' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from view_n3a_control_technology_notes as tablename union all
+select 'WastestreamProcess' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from view_n4_wastestream_process as tablename union all
+select 'TreatmentTechnology' as tablename, string_agg( cast(row_to_json((SELECT colName from (select treatment_id, treatment_description, treatment_codes) colName)) as text), E',\n') as json_data from n4b_technology_bases as tablename union all
+select 'WastestreamProcessTreatmentTechnology' as tablename, string_agg( cast(row_to_json((SELECT colName from (select processop_id, treatment_id) colName)) as text), E',\n') as json_data from n4c_technology_bases_ws as tablename union all
+select 'WastestreamProcessTreatmentTechnologyPollutant' as tablename, string_agg( cast(row_to_json((SELECT colName from (select processop_id, treatment_id, pollutant_code) colName)) as text), E',\n') as json_data from n4c_technology_bases_ws_pollutants as tablename union all 
+select 'Pollutant' as tablename, string_agg( cast(row_to_json((SELECT colName from (select pollutant_code, pollutant_desc) colName)) as text), E',\n') as json_data from ref_pollutant as tablename union all 
+select 'Limitation' as tablename, string_agg( cast(row_to_json((SELECT colName from (select processop_id, lim_id, pollutant_code, lim_duration_code, discharge_frequency, lim_value, unit_code, lim_value_min, lim_value_max, zero_discharge, alt_lim_flag, alt_lim) colName)) as text), E',\n') as json_data from view_n5_pollutant_limitations as tablename union all 
+select 'LimitationDuration' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from ref_limit_duration as tablename union all 
+select 'LimitationUnit' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from ref_limit_units as tablename union all 
+select 'LongTermAverage' as tablename, string_agg( cast(row_to_json((SELECT colName from (select ltaid, lim_id, treatment_id, lta_value, lta_units, lim_duration_code, discharge_frequency, tech_ref, notes) colName)) as text), E',\n') as json_data from n5b_pollutant_ltas as tablename union all 
+select 'ReferenceSource' as tablename, string_agg( cast(row_to_json((SELECT colName from (select source_id, source_title) colName)) as text), E',\n') as json_data from view_a_source_new as tablename; 
+
