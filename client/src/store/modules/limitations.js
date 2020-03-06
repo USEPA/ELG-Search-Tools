@@ -6,7 +6,8 @@ const state = {
   pollutantDescription: null,
   limitationData: null,
   isFetching: false,
-  longTermAvgData: null,
+  pscLongTermAvgData: null,
+  pollLongTermAvgData: null,
 };
 
 const getters = {
@@ -29,15 +30,18 @@ const mutations = {
       state.pollutantDescription = payload.pollutantDescription;
     }
   },
-  SET_LTA_DATA(state, payload) {
-    state.longTermAvgData = payload;
+  SET_POLL_LTA_DATA(state, payload) {
+    state.pollLongTermAvgData = payload;
+  },
+  SET_PSC_LTA_DATA(state, payload) {
+    state.pscLongTermAvgData = payload;
   },
 };
 
 const actions = {
   async getLimitationData({ commit }, id) {
     commit('SET_LIMITATION_DATA', null);
-    commit('SET_LTA_DATA', null);
+    commit('SET_POLL_LTA_DATA', null);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/wastestreamProcessLimitations/${id}`);
@@ -46,7 +50,7 @@ const actions = {
   },
   async getPollLimitationData({ commit }, { pollutantId, pointSourceCategoryCode }) {
     commit('SET_LIMITATION_DATA', null);
-    commit('SET_LTA_DATA', null);
+    commit('SET_POLL_LTA_DATA', null);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get('api/pollutantLimitations', {
@@ -62,12 +66,22 @@ const actions = {
     commit('SET_PSC', null);
     commit('SET_PSC', payload);
   },
-  async getLTAData({ commit }, id) {
-    commit('SET_LTA_DATA', null);
+  async getPollLongTermAvgData({ commit }, id) {
+    commit('SET_POLL_LTA_DATA', null);
+    commit('SET_PSC_LTA_DATA', null);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/limitation/${id}`);
-    commit('SET_LTA_DATA', res.data);
+    commit('SET_POLL_LTA_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getPSCLongTermAvgData({ commit }, id) {
+    commit('SET_PSC_LTA_DATA', null);
+    commit('SET_POLL_LTA_DATA', null);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get(`api/limitation/${id}`);
+    commit('SET_PSC_LTA_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
 };

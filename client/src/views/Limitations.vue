@@ -7,29 +7,29 @@
         </h1>
       </div>
     </div>
-    <div class="columns" v-if="!subcategory && limitationData && !longTermAvgData">
+    <div class="columns" v-if="!subcategory && limitationData && !currentLongTermAvgData">
       <div class="column">
         <button class="button has-text-white is-pulled-right" @click="onNavigate">
           <span class="fa fa-reply has-text-white"></span>Back to Results
         </button>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory && !currentLongTermAvgData" class="is-size-3 has-text-black has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
     <h1
-      v-if="!subcategory && limitationData && !longTermAvgData"
+      v-if="!subcategory && limitationData && !currentLongTermAvgData"
       class="is-size-3 has-text-black has-text-weight-light"
     >
       {{ pollutantDescription }}
     </h1>
     <h1
-      v-if="!subcategory && limitationData && !longTermAvgData"
+      v-if="!subcategory && limitationData && !currentLongTermAvgData"
       class="is-size-5 has-text-black has-text-weight-light"
     >
       {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
     </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory && !currentLongTermAvgData" class="is-size-5 has-text-black has-text-weight-light">
       Subpart {{ subcategory.comboSubcategory }}
     </h1>
     <div class="field is-grouped help-icons">
@@ -42,7 +42,7 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <div v-if="subcategory" class="content info-box-container">
+    <div v-if="subcategory && !currentLongTermAvgData" class="content info-box-container">
       <div class="columns">
         <div class="column is-9">
           <p class="has-text-black info-box"><strong>CRF Section:</strong> {{ limitationData.cfrSection }}</p>
@@ -65,14 +65,15 @@
       </div>
     </div>
     <Table
-      v-if="subcategory"
+      v-if="subcategory && !currentLongTermAvgData"
       :columns="pscColumns"
       :rows="limitationData.limitations"
       :shouldHaveLimitationCols="true"
       @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+      @onShouldDisplayPSCLongTermAvgData="shouldDisplayPSCLongTermAvgData"
     />
     <Tabs
-      v-if="!subcategory && !longTermAvgData && limitationData"
+      v-if="!subcategory && !currentLongTermAvgData && limitationData"
       :tabs="uniqueTabs"
       :isPollutant="true"
       :isPSC="false"
@@ -91,7 +92,7 @@
                 :shouldHavePollLimitCols="true"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
                 @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
-                @onShouldDisplayLTAData="shouldDisplayLTAData"
+                @onShouldDisplayPollLongTermAvgData="shouldDisplayPollLongTermAvgData"
                 :colsLength="10"
               />
             </div>
@@ -99,21 +100,22 @@
         </div>
       </template>
     </Tabs>
-    <div v-if="longTermAvgData" class="content info-box-container">
+    <div v-if="currentLongTermAvgData" class="content info-box-container">
       <div class="columns">
         <div class="column is-8">
-          <h1 class="has-text-black info-box">{{ longTermAvgData.pollutantDescription }}</h1>
-          <p class="has-text-black info-box">Control Technology: {{ longTermAvgData.controlTechnologyCode }}</p>
+          <h1 class="has-text-black info-box">{{ currentLongTermAvgData.pollutantDescription }}</h1>
+          <p class="has-text-black info-box">Control Technology: {{ currentLongTermAvgData.controlTechnologyCode }}</p>
           <p class="has-text-black info-box">
-            Part {{ longTermAvgData.pointSourceCategoryCode }}: {{ longTermAvgData.pointSourceCategoryName }}
+            Part {{ currentLongTermAvgData.pointSourceCategoryCode }}:
+            {{ currentLongTermAvgData.pointSourceCategoryName }}
           </p>
-          <p class="has-text-black info-box">Subpart {{ longTermAvgData.comboSubcategory }}</p>
+          <p class="has-text-black info-box">Subpart {{ currentLongTermAvgData.comboSubcategory }}</p>
           <p class="has-text-black info-box">
-            Process Operation/Wastestream: {{ longTermAvgData.wastestreamProcessCfrSection }}
-            {{ longTermAvgData.wastestreamProcessTitle }}
+            Process Operation/Wastestream: {{ currentLongTermAvgData.wastestreamProcessCfrSection }}
+            {{ currentLongTermAvgData.wastestreamProcessTitle }}
           </p>
           <p class="has-text-black info-box">
-            Other Process Operation/Wastestream Detail(s): {{ longTermAvgData.wastestreamProcessSecondary }}
+            Other Process Operation/Wastestream Detail(s): {{ currentLongTermAvgData.wastestreamProcessSecondary }}
           </p>
         </div>
         <div class="column">
@@ -123,7 +125,7 @@
         </div>
       </div>
     </div>
-    <Table v-if="longTermAvgData" :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages" />
+    <Table v-if="currentLongTermAvgData" :columns="longTermAvgCols" :rows="currentLongTermAvgData.longTermAverages" />
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
     </Modal>
@@ -186,7 +188,8 @@ export default {
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
       'pollutantDescription',
-      'longTermAvgData',
+      'pollLongTermAvgData',
+      'pscLongTermAvgData',
     ]),
   },
   data() {
@@ -197,6 +200,7 @@ export default {
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
       uniqueTabs: null,
+      currentLongTermAvgData: null,
       pscColumns: [
         {
           key: 'pollutantDescription',
@@ -300,7 +304,9 @@ export default {
       this.$router.push('/results');
     },
     onNavigateLimitations() {
-      this.$store.commit('limitations/SET_LTA_DATA', null);
+      this.$store.commit('limitations/SET_PSC_LTA_DATA', null);
+      this.$store.commit('limitations/SET_POLL_LTA_DATA', null);
+      this.currentLongTermAvgData = null;
     },
     stopTheEvent(e) {
       e.preventDefault();
@@ -324,8 +330,15 @@ export default {
       this.shouldDisplayUnitDescriptionModal = true;
       this.currentRow = row;
     },
-    async shouldDisplayLTAData(row) {
-      await this.$store.dispatch('limitations/getLTAData', row.limitationId);
+    async shouldDisplayPollLongTermAvgData(row) {
+      this.currentLongTermAvgData = null;
+      await this.$store.dispatch('limitations/getPollLongTermAvgData', row.limitationId);
+      this.currentLongTermAvgData = this.pollLongTermAvgData;
+    },
+    async shouldDisplayPSCLongTermAvgData(row) {
+      this.currentLongTermAvgData = null;
+      await this.$store.dispatch('limitations/getPSCLongTermAvgData', row.limitationId);
+      this.currentLongTermAvgData = this.pscLongTermAvgData;
     },
   },
 };
