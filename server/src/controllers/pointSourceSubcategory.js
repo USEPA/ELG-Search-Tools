@@ -178,18 +178,34 @@ module.exports = {
             order: ['displayOrder'],
           })
             .then((controlTechnologies) => {
-
-              let notesPromises = [];
+              let ctPromises = [];
 
               controlTechnologies.forEach(function(controlTechnology) {
-                notesPromises.push(
+                ctPromises.push(
                   fillControlTechnology(controlTechnology)
                 )
               });
 
-              Promise.all(notesPromises).then((cts) => {
+              Promise.all(ctPromises).then((cts) => {
                 result['controlTechnologies'] = cts;
-                res.status(200).send(result)
+
+                //add record for each LOC that is not relevant for this subcategory
+                ctPromises = [];
+
+                ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS'].forEach(function(ctCode) {
+                  console.log(ctCode);
+                  if (cts.filter(function(ct){ return ct.controlTechnologyCode === ctCode }).length === 0) {
+                    console.log(ctCode + ' missing');
+                    ctPromises.push(
+                      fillControlTechnology({id: null, controlTechnologyCode: ctCode, notes: null, includesBmps: '0'})
+                    );
+                  }
+                });
+
+                Promise.all(ctPromises).then((cts) => {
+                  result['controlTechnologies'] = result['controlTechnologies'].concat(cts);
+                  res.status(200).send(result);
+                });
               });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
