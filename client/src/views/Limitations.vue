@@ -2,7 +2,7 @@
   <section class="section">
     <div class="columns">
       <div class="column">
-        <h1 class="title is-size-3 has-text-black">
+        <h1 class="title is-size-3">
           Effluent Limitations Guidelines and Standards (ELG) Database
         </h1>
       </div>
@@ -14,22 +14,16 @@
         </button>
       </div>
     </div>
-    <h1 v-if="subcategory && !currentLongTermAvgData" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory && !currentLongTermAvgData" class="is-size-3 has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
-    <h1
-      v-if="!subcategory && limitationData && !currentLongTermAvgData"
-      class="is-size-3 has-text-black has-text-weight-light"
-    >
+    <h1 v-if="!subcategory && limitationData && !currentLongTermAvgData" class="is-size-3 has-text-weight-light">
       {{ pollutantDescription }}
     </h1>
-    <h1
-      v-if="!subcategory && limitationData && !currentLongTermAvgData"
-      class="is-size-5 has-text-black has-text-weight-light"
-    >
+    <h1 v-if="!subcategory && limitationData && !currentLongTermAvgData" class="is-size-5 has-text-weight-light">
       {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
     </h1>
-    <h1 v-if="subcategory && !currentLongTermAvgData" class="is-size-5 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory && !currentLongTermAvgData" class="is-size-5 has-text-weight-light">
       Subpart {{ subcategory.comboSubcategory }}
     </h1>
     <div class="field is-grouped help-icons">
@@ -45,14 +39,10 @@
     <div v-if="subcategory && !currentLongTermAvgData" class="content info-box-container">
       <div class="columns">
         <div class="column is-9">
-          <p class="has-text-black info-box"><strong>CRF Section:</strong> {{ limitationData.cfrSection }}</p>
-          <p class="has-text-black info-box">
-            <strong>Level of Control:</strong> {{ limitationData.controlTechnologyCode }}
-          </p>
-          <p class="has-text-black info-box">
-            <strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}
-          </p>
-          <p class="has-text-black info-box">
+          <p class="info-box"><strong>CRF Section:</strong> {{ limitationData.cfrSection }}</p>
+          <p class="info-box"><strong>Level of Control:</strong> {{ limitationData.controlTechnologyCode }}</p>
+          <p class="info-box"><strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}</p>
+          <p class="info-box">
             <strong>Secondary Wastestream/Process Operation(s):</strong>
             <span v-html="limitationData.secondary"></span>
           </p>
@@ -71,6 +61,7 @@
       :shouldHaveLimitationCols="true"
       @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
       @onShouldDisplayPSCLongTermAvgData="shouldDisplayPSCLongTermAvgData"
+      @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
     <Tabs
       v-if="!subcategory && !currentLongTermAvgData && limitationData"
@@ -103,18 +94,18 @@
     <div v-if="currentLongTermAvgData" class="content info-box-container">
       <div class="columns">
         <div class="column is-8">
-          <h1 class="has-text-black info-box">{{ currentLongTermAvgData.pollutantDescription }}</h1>
-          <p class="has-text-black info-box">Control Technology: {{ currentLongTermAvgData.controlTechnologyCode }}</p>
-          <p class="has-text-black info-box">
+          <h1 class="info-box">{{ currentLongTermAvgData.pollutantDescription }}</h1>
+          <p class="info-box">Control Technology: {{ currentLongTermAvgData.controlTechnologyCode }}</p>
+          <p class="info-box">
             Part {{ currentLongTermAvgData.pointSourceCategoryCode }}:
             {{ currentLongTermAvgData.pointSourceCategoryName }}
           </p>
-          <p class="has-text-black info-box">Subpart {{ currentLongTermAvgData.comboSubcategory }}</p>
-          <p class="has-text-black info-box">
+          <p class="info-box">Subpart {{ currentLongTermAvgData.comboSubcategory }}</p>
+          <p class="info-box">
             Process Operation/Wastestream: {{ currentLongTermAvgData.wastestreamProcessCfrSection }}
             {{ currentLongTermAvgData.wastestreamProcessTitle }}
           </p>
-          <p class="has-text-black info-box">
+          <p class="info-box">
             Other Process Operation/Wastestream Detail(s): {{ currentLongTermAvgData.wastestreamProcessSecondary }}
           </p>
         </div>
@@ -226,16 +217,6 @@ export default {
           key: 'limitationUnitBasis',
           label: 'Limitation Basis',
         },
-        /*
-        {
-          key: 'minimumValue',
-          label: 'Minimum Level',
-        },
-        {
-          key: 'maximumValue',
-          label: 'Maximum Level',
-        },
-        */
       ],
       pollLimitationCols: [
         {
@@ -315,14 +296,10 @@ export default {
     displayCheckboxInfo(checkbox) {
       this.shouldDisplayCheckboxModal = false;
       this.currentCheckboxInfo = null;
-      switch (checkbox) {
-        case 'zeroDischarge':
-          this.currentCheckboxInfo =
-            'There will be no discharge from the process operation or no discharge of the wastestream.';
-          this.shouldDisplayCheckboxModal = true;
-          break;
-        default:
-          break;
+      if (checkbox === 'zeroDischarge') {
+        this.currentCheckboxInfo =
+          'There will be no discharge from the process operation or no discharge of the wastestream.';
+        this.shouldDisplayCheckboxModal = true;
       }
     },
     displayUnitDescriptionModal(row) {

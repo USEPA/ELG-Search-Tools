@@ -13,7 +13,7 @@
               </th>
               <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
                 Zero Discharge<a
-                  v-if="shouldHaveResultsCols || shouldHavePollLimitCols"
+                  v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols"
                   @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
@@ -309,5 +309,6 @@ th {
 
 .checkbox-info {
   color: gray;
+  display: block;
 }
 </style>

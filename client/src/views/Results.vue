@@ -2,14 +2,14 @@
   <section class="section">
     <div class="columns">
       <div class="column">
-        <h1 class="title is-size-3 has-text-black">
+        <h1 class="title is-size-3">
           Effluent Limitations Guidelines and Standards (ELG) Database
         </h1>
       </div>
     </div>
     <div class="columns">
       <div class="column">
-        <h1 class="is-size-4 has-text-black">
+        <h1 class="is-size-4">
           Search Results
         </h1>
       </div>
@@ -19,13 +19,11 @@
         </button>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory" class="is-size-3 has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
-      Subpart {{ subcategory.comboSubcategory }}
-    </h1>
-    <h1 v-if="pollutantData" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory" class="is-size-5 has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
+    <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
       {{ pollutantData[0].pollutantDescription }}
     </h1>
     <div class="field is-grouped help-icons">
@@ -47,7 +45,7 @@
           <div class="column">
             <div class="field is-grouped">
               <div class="control is-expanded">
-                <h1 class="is-size-6 has-text-black has-text-weight-semibold">
+                <h1 class="is-size-6  has-text-weight-semibold">
                   {{ controlTechnology.controlTechnologyDescription }} ({{ controlTechnology.controlTechnologyCode }})
                   at a Glance
                 </h1>
@@ -62,10 +60,10 @@
               </div>
             </div>
             <div class="field" v-if="controlTechnology.atAGlance">
-              <h1 class="is-size-6 has-text-black">{{ controlTechnology.atAGlance }}</h1>
+              <h1 class="is-size-6">{{ controlTechnology.atAGlance }}</h1>
             </div>
             <div class="field is-grouped">
-              <p class="has-text-black" v-if="controlTechnology.technologyNames">
+              <p v-if="controlTechnology.technologyNames">
                 <b>Treatment Technology(ies):</b> {{ abbrvList(controlTechnology.technologyNames) }}
 
                 <a
@@ -77,7 +75,7 @@
               </p>
             </div>
             <div class="field is-grouped" v-if="controlTechnology.pollutants">
-              <p class="has-text-black">
+              <p>
                 <b>Pollutant(s):</b> {{ abbrvList(controlTechnology.pollutants) }}
                 <a
                   class="is-link more"
@@ -151,7 +149,6 @@ import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  beforeMount() {},
   components: { Tabs, Table, Modal },
   computed: {
     ...mapState('search', ['category', 'subcategory', 'pollutantData']),
