@@ -16,7 +16,10 @@ module.exports = {
     -	461: Battery Manufacturing
     -	469: Electrical and Electronic Components
      */
-    let showThese = [407, 417];
+    let showThese = [407, 417]; //staging and production
+    if (process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development') {
+      showThese = [407, 412, 413, 417, 423, 427, 432, 433, 437, 438, 439, 444, 461, 469]; //dev and local
+    }
 
     let records = [{"psc_code":405,
       "cfr_part":"405",

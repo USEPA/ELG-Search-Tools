@@ -21444,7 +21444,7 @@ module.exports = {
         "ct_code":"PSNS",
         "ct_order":2,
         "ct_cfr_section":"441.40",
-        "ct_notes":"Equal to PSES",
+        "ct_notes":null,
         "source_id":null,
         "reservedflag":"0",
         "qc_flag":"1",

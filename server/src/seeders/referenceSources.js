@@ -110,8 +110,8 @@ module.exports = {
       {"source_id":116,"source_title":"Development Document for Effluent Limitations Guidelines and Standards for the Nonferrous Metals Manufacturing Point Source Category Volume X Primary and Secondary Germanium and Gallium Primary Rare Earth Metals Secondary Indium Index"},
       {"source_id":117,"source_title":"Development Document for Proposed Effluent Limitations Guidelines and New Source Performance Standards for the Secondary Aluminum Smelting Subcategory of the Aluminum Segment of the Nonferrous Metals Manufacturing Point Source Category"},
       {"source_id":118,"source_title":"PART 410-TEXTILE MILLS POINT SOURCE CATEGORY"},
-      {"source_id":119,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Textile Mills Point Source Category"},
-      {"source_id":120,"source_title":"Development Document for Effluent Limitations Guidelines and Standards for the Textile Mills Point Source Category"},
+      {"source_id":119,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Textile Mills Point Source Category (1974)"},
+      {"source_id":120,"source_title":"Development Document for Effluent Limitations Guidelines and Standards for the Textile Mills Point Source Category (1982)"},
       {"source_id":121,"source_title":"Development Document for Effluent Limitations Guidelines and Standards for the Coal Mining Point Source Category"},
       {"source_id":122,"source_title":"Coal Remining - Best Management Practices Guidance Manual"},
       {"source_id":123,"source_title":"Development Document for Final Effluent Limitations Guidelines and Standards for the Western Alkaline Coal Mining Subcategory"},
@@ -148,7 +148,7 @@ module.exports = {
       {"source_id":154,"source_title":"Development Document for Effluent Limitations Guidelines and Standards for the Plastics Molding and Forming Point Source Category"},
       {"source_id":155,"source_title":"Technical Development Document for the Final Effluent Limitations Guidelines and New Source Performance Standards for the Airport Deicing Category"},
       {"source_id":156,"source_title":"Technical Development Document for the Final Effluent Limitations Guidelines and New Source Performance Standards for the Concentrated Aquatic Animal Production Point Source Category (Revised August 2004)"},
-      {"source_id":157,"source_title":"PART 450-CONSTRUCTION AND DEVELOPMENT POINT SOURCE CATEGORY"},
+      {"source_id":157,"source_title":"Part 450-Construction and Development Point Source Category (eCFR)"},
       {"source_id":158,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Petroleum Refining Point Source Category"},
       {"source_id":159,"source_title":"Petroleum Refining Point Source Category; Effluent Limitations Guidelines"},
       {"source_id":160,"source_title":"Development Document for Effluent Limitations Guidelines and Standards for the Petroleum Refining Point Source Category"},
@@ -194,7 +194,9 @@ module.exports = {
       {"source_id":200,"source_title":"PART 407- CANNED AND PRESERVED FRUITS AND VEGETABLE PROCESSING POINT SOURCE CATEGORY Revocation of Fecal Coliform Effluent Limitations"},
       {"source_id":201,"source_title":"Canned and Preserved Fruits Point Source Subcategory; Amendment of Promulgated Effluent Limitations Regulation"},
       {"source_id":202,"source_title":"PART 407- CANNED AND PRESERVED FRUITS AND VEGETABLES PROCESSING POINT SOURCE CATEGORY"},
-      {"source_id":203,"source_title":"PART 407-[AMENDED]"}];
+      {"source_id":203,"source_title":"PART 407-[AMENDED]"},
+      {"source_id":204,"source_title":"Development Document for Interim Final Effluent Limitations, Guidelines and Proposed New Source Performance Standards for the Gum and Wood Chemical Manufacturing Point Source Category"},
+      {"source_id":205,"source_title":"Development Document for Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards for the Pesticide Chemicals Manufacturing Point Source Category"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "ReferenceSource" }, records);
   },

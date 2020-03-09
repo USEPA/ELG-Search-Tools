@@ -185,7 +185,7 @@ select
 	code, 
 	category, 
 	variations, 
-	replace(description, chr(150), '-') as description
+	replace(replace(replace(description, chr(150), '-'), chr(147), '"'), chr(148), '"') as description
 from elg_database.key_ttcodes;
 
 create view elg_database.view_a_cfr_citation_history as
