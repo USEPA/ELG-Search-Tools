@@ -236,12 +236,10 @@ module.exports = {
                 //add record for each LOC that is not relevant for this subcategory
                 ctPromises = [];
 
-                ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS'].forEach(function(ctCode) {
-                  console.log(ctCode);
+                ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS'].forEach(function(ctCode, index ) {
                   if (cts.filter(function(ct){ return ct.controlTechnologyCode === ctCode }).length === 0) {
-                    console.log(ctCode + ' missing');
                     ctPromises.push(
-                      fillControlTechnology({id: null, controlTechnologyCode: ctCode, notes: null, includesBmps: '0'})
+                      fillControlTechnology({id: (index * -1), controlTechnologyCode: ctCode, notes: null, includesBmps: '0'})
                     );
                   }
                 });
