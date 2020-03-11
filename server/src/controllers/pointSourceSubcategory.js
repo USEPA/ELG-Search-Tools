@@ -78,28 +78,15 @@ function fillControlTechnology(controlTechnology) {
                 id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
               }
             }).then(treatmentTechnologies => {
-              let tts = treatmentTechnologies;
-
               TreatmentTechnologyCode.findAll({
-                attributes: [
-                  'code',
-                  'name'
-                ],
+                attributes: ['name'],
                 where: {
-                  code: { [Op.in]: tts.map(a => a.codes).join('; ').split('; ').sort().filter(function(value, index, self) {
-                      return self.indexOf(value) === index;
-                    }) }
-                }
+                  code: { [Op.in]: treatmentTechnologies.map(a => a.codes).join('; ').split('; ') }
+                },
+                group: ['name'],
+                order: ['name']
               })
                 .then((treatmentTechnologyCodes) => {
-                  tts.forEach(function(tt) {
-                    let ttCodes = tt.codes.split('; ');
-
-                    tt.technologyNames = treatmentTechnologyCodes.filter(function (ttc) {
-                      return ttCodes.includes(ttc.code)
-                    }).map(a => a.name);
-                  });
-
                   WastestreamProcessTreatmentTechnologyPollutant.findAll({
                     attributes: ['pollutantId'],
                     where: {
@@ -111,14 +98,12 @@ function fillControlTechnology(controlTechnology) {
                       attributes: ['description'],
                       where: {
                         id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
-                      }
+                      },
+                      group: ['description'],
+                      order: ['description']
                     }).then(pollutants => {
-                      ct['technologyNames'] = tts.map(a => a.technologyNames).join('; ').split('; ').sort().filter(function(value, index, self) {
-                        return self.indexOf(value) === index;
-                      }).join('; ');
-                      ct['pollutants'] = pollutants.map(a => a.description).join('; ').split('; ').sort().filter(function(value, index, self) {
-                        return self.indexOf(value) === index;
-                      }).join('; ');
+                      ct['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join(', ');
+                      ct['pollutants'] = pollutants.map(a => a.description).join(', ');
 
                       resolve(ct);
                     });
