@@ -9,6 +9,7 @@ let attributes = [
   'controlTechnologyCode',
   'controlTechnologyCfrSection',
   'comboSubcategory',
+  'wastestreamProcessId',
   'wastestreamProcessTitle',
   'wastestreamProcessSecondary',
   'wastestreamProcessCfrSection',
@@ -28,6 +29,7 @@ let attributes = [
 ];
 
 let order = [
+  'comboSubcategory',
   'controlTechnologyDisplayOrder',
   'wastestreamProcessDisplayOrder',
   'pollutantDescription',
