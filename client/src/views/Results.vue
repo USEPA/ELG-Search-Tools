@@ -137,7 +137,7 @@
       {{ currentCheckboxInfo }}
     </Modal>
     <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
-      {{ currentMoreInfo }}
+      <span v-html="currentMoreInfo"></span>
     </Modal>
   </section>
 </template>

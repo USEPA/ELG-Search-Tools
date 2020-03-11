@@ -64,19 +64,21 @@
               </td>
               <td v-for="column in columns" :key="column.key">
                 <span v-if="column.key === 'pointSourceSubcategories' && shouldHavePollCols"
-                  >{{ abbrvList(row[column.key]) + ' ' }}
+                  ><span v-html="abbrvList(row[column.key]) + ' '"></span>
+                  <br />
                   <a
                     class="is-link more"
-                    v-if="row[column.key].split(',').length > 2"
+                    v-if="row[column.key].split('<br/>').length > 2"
                     @click="$emit('shouldDisplayMoreModal', row[column.key])"
                     >more</a
                   >
                 </span>
                 <span v-if="column.key === 'wastestreamProcesses' && shouldHavePollCols"
-                  >{{ abbrvList(row[column.key]) + ' ' }}
+                  ><span v-html="abbrvList(row[column.key]) + ' '"></span>
+                  <br />
                   <a
                     class="is-link more"
-                    v-if="row[column.key].replace(/;/g, ',').split(',').length > 2"
+                    v-if="row[column.key].split('<br/>').length > 2"
                     @click="$emit('shouldDisplayMoreModal', row[column.key])"
                     >more</a
                   >
@@ -252,10 +254,9 @@ export default {
     },
     abbrvList(value) {
       let abbrv = '';
-      value.replace(/;/g, ',');
-      const shortList = value.split(',');
+      const shortList = value.split('<br/>');
       if (shortList.length >= 2) {
-        abbrv = `${shortList[0]}, ${shortList[1]}`;
+        abbrv = `${shortList[0]}<br/> ${shortList[1]}`;
       } else if (shortList.length === 1) {
         return value;
       }
