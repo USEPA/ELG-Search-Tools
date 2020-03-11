@@ -85,6 +85,7 @@
                   {{ row['wastestreamProcessCfrSection'] + ' ' + row[column.key] }}
                 </span>
                 <span v-if="column.key === 'secondary'" v-html="row[column.key]"></span>
+                <span v-if="column.key === 'wastestreamProcessSecondary'" v-html="row[column.key]"></span>
                 <span v-else-if="column.key === 'limitationValue'">
                   {{
                     row[column.key]
@@ -136,7 +137,13 @@
                       : '--'
                   }}
                 </span>
-                <span v-else-if="column.key !== 'wastestreamProcesses' && column.key !== 'pointSourceSubcategories'">
+                <span
+                  v-else-if="
+                    column.key !== 'wastestreamProcesses' &&
+                      column.key !== 'pointSourceSubcategories' &&
+                      column.key !== 'wastestreamProcessTitle'
+                  "
+                >
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
                     ><span class="fa fa-info-circle"></span
@@ -183,10 +190,9 @@
                 <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
                   ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
                 ></a>
-                <a v-if="shouldHaveLimitationCols" @click="$emit('onShouldDisplayPSCLongTermAvgData', row)"
-                  ><span class="fas fa-share-square limitation-link"></span
-                ></a>
-                <a v-if="shouldHavePollLimitCols" @click="$emit('onShouldDisplayPollLongTermAvgData', row)"
+                <a
+                  v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
+                  @click="$emit('onShouldDisplayLongTermAvgData', row)"
                   ><span class="fas fa-share-square limitation-link"></span
                 ></a>
               </td>
