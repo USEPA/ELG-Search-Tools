@@ -68,7 +68,7 @@
 
                 <a
                   class="is-link more"
-                  v-if="controlTechnology.technologyNames.split(';').length > 2"
+                  v-if="controlTechnology.technologyNames.split(', ').length > 2"
                   @click="shouldDisplayTechnologiesModal(controlTechnology.technologyNames)"
                   >more</a
                 >
@@ -79,7 +79,7 @@
                 <b>Pollutant(s):</b> {{ abbrvList(controlTechnology.pollutants) }}
                 <a
                   class="is-link more"
-                  v-if="controlTechnology.pollutants.split(';').length > 2"
+                  v-if="controlTechnology.pollutants.split(', ').length > 2"
                   @click="shouldDisplayPollutantsModal(controlTechnology.pollutants)"
                   >more</a
                 >
@@ -296,9 +296,9 @@ export default {
     },
     abbrvList(value) {
       let abbrv = '';
-      const shortList = value.split(';');
+      const shortList = value.split(', ');
       if (shortList.length >= 2) {
-        abbrv = `${shortList[0]}; ${shortList[1]}`;
+        abbrv = `${shortList[0]}, ${shortList[1]}`;
       } else if (shortList.length === 1) {
         return value;
       }
