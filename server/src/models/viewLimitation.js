@@ -79,9 +79,9 @@ module.exports = (sequelize, DataTypes) => {
         field: 'processop_notes'
       },
       wastestreamProcessLimitCalculationDescription: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'lim_calc_desc'
+        field: 'wp_lim_calc_desc'
       },
       wastestreamProcessAlternativeRequirement: {
         type: DataTypes.BOOLEAN,
@@ -132,6 +132,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'unit_desc'
+      },
+      limitationPollutantNotes: {
+        type: DataTypes.STRING(4000),
+        allowNull: false,
+        field: 'lim_pollutant_notes'
+      },
+      limitationLimitCalculationDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: false,
+        field: 'lim_lim_calc_desc'
       },
       limitationUnitBasis: {
         type: DataTypes.STRING,

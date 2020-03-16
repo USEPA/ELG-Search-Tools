@@ -88,6 +88,19 @@
                 </span>
                 <span v-if="column.key === 'secondary'" v-html="row[column.key]"></span>
                 <span v-if="column.key === 'wastestreamProcessSecondary'" v-html="row[column.key]"></span>
+                <span v-else-if="column.key === 'limitationDurationDescription'">
+                  {{ row[column.key] ? row[column.key] : '--' }}
+                  <a
+                    v-if="
+                      row.limitationDurationDescription &&
+                        (row.wastestreamProcessLimitCalculationDescription ||
+                          row.limitLimitCalculationDescription ||
+                          row.limitationPollutantNotes)
+                    "
+                    @click="$emit('onDisplayTypeOfLimitationModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
                 <span v-else-if="column.key === 'limitationValue'">
                   {{
                     row[column.key]

@@ -13,6 +13,7 @@ let attributes = [
   'wastestreamProcessTitle',
   'wastestreamProcessSecondary',
   'wastestreamProcessCfrSection',
+  'wastestreamProcessLimitCalculationDescription',
   'pollutantDescription',
   'dischargeFrequency',
   'limitationValue',
@@ -25,7 +26,9 @@ let attributes = [
   'limitationUnitDescription',
   'limitationUnitBasis',
   'alternateLimitFlag',
-  'alternateLimitDescription'
+  'alternateLimitDescription',
+  'limitationLimitCalculationDescription',
+  'limitationPollutantNotes'
 ];
 
 let order = [

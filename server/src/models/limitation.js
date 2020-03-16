@@ -62,6 +62,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(4000),
         allowNull: true,
         field: 'alt_lim'
+      },
+      limitCalculationDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'lim_calc_desc'
+      },
+      pollutantNotes: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'pollutant_notes'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'Limitation' }

@@ -58,6 +58,7 @@
       :rows="limitationData.limitations"
       :shouldHaveLimitationCols="true"
       @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+      @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
       @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
       @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
@@ -76,6 +77,7 @@
                 :shouldHavePollLimitCols="true"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
                 @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+                @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
                 @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
                 :colsLength="10"
               />
@@ -91,6 +93,22 @@
       <div class="info-modal">
         <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
         <p>{{ currentRow.limitationUnitDescription }}</p>
+      </div>
+    </Modal>
+    <Modal v-if="shouldDisplayTypeOfLimitationModal" @close="() => (shouldDisplayTypeOfLimitationModal = false)">
+      <div class="info-modal">
+        <h3 v-if="currentRow.wastestreamProcessLimitCalculationDescription">
+          <strong>Limitation Calculation Description</strong>
+        </h3>
+        <p>{{ currentRow.wastestreamProcessLimitCalculationDescription }}</p>
+        <h3 v-if="currentRow.limitationLimitCalculationDescription">
+          <strong>Limitation Requirement Description</strong>
+        </h3>
+        <p>{{ currentRow.limitationLimitCalculationDescription }}</p>
+        <h3 v-if="currentRow.limitationPollutantNotes">
+          <strong>Notes</strong>
+        </h3>
+        <p>{{ currentRow.limitationPollutantNotes }}</p>
       </div>
     </Modal>
   </section>
@@ -151,6 +169,7 @@ export default {
   data() {
     return {
       shouldDisplayUnitDescriptionModal: false,
+      shouldDisplayTypeOfLimitationModal: false,
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
       uniqueTabs: null,
@@ -236,6 +255,11 @@ export default {
     displayUnitDescriptionModal(row) {
       this.currentRow = null;
       this.shouldDisplayUnitDescriptionModal = true;
+      this.currentRow = row;
+    },
+    displayTypeOfLimitationModal(row) {
+      this.currentRow = null;
+      this.shouldDisplayTypeOfLimitationModal = true;
       this.currentRow = row;
     },
     async shouldDisplayLongTermAvgData(row) {
