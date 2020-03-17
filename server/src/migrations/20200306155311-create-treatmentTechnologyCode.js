@@ -2,10 +2,11 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.createTable({schema: 'elg_search', tableName: 'TreatmentTechnologyCode'}, {
-    code: {
+    id: {
       type: Sequelize.STRING,
       allowNull: false,
-      field: 'code'
+      field: 'code',
+      primaryKey: true
     },
     name: {
       type: Sequelize.STRING,

@@ -168,12 +168,12 @@ SELECT
 	question_desc,
 	mdl, 
 	ml, 
-	lim_calc_desc, 
+	replace(lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc, 
 	source_id, 
 	qc_flag, 
 	qc_notes, 
 	zero_discharge, 
-	replace(replace(replace(replace(pollutant_notes, U&'\00A7', '\00A7'), chr(147), '"'), chr(148), '"'), 'µ', 'u') as pollutant_notes, 
+	replace(replace(replace(replace(replace(pollutant_notes, U&'\00A7', '\00A7'), chr(147), '"'), chr(148), '"'), 'µ', 'u'), U&'\00A0', ' ') as pollutant_notes, 
 	dataentry_psc_code, 
 	qc_initials, 
 	treatment_id
@@ -246,3 +246,11 @@ select
 	replace(replace(rin, chr(150), '-'), chr(151), '-') as rin,
 	substantial_update_
 from elg_database.a_source_new;
+
+create view elg_database.view_n4c_technology_bases_ws as
+select 
+	processop_id, 
+	treatment_id, 
+	tech_ref, 
+	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes
+from elg_database.n4c_technology_bases_ws;

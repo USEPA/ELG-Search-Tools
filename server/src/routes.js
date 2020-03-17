@@ -20,6 +20,12 @@ module.exports = (app) => {
 
   app.get('/api/limitation/:id', controllers.limitation.read);
 
+  app.get('/api/treatmentTechnologies', controllers.treatmentTechnology.list);
+  app.get('/api/treatmentTechnology/:id', controllers.treatmentTechnology.read);
+  app.get('/api/treatmentTrain/:id', controllers.treatmentTechnology.treatmentTrain);
+  app.get('/api/technologyBases', controllers.treatmentTechnology.technologyBases);
+
+
   // serve up built Vue files from express server
   app.use(express.static(path.resolve(__dirname, '../../client/dist/')));
 };

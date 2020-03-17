@@ -2,10 +2,11 @@ module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
     'TreatmentTechnologyCode',
     {
-      code: {
+      id: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'code'
+        field: 'code',
+        primaryKey: true
       },
       name: {
         type: DataTypes.STRING,

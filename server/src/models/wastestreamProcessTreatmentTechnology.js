@@ -11,7 +11,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: 'treatment_id'
-      }
+      },
+      technicalReferenceId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'tech_ref'
+      },
+      notes: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'tech_notes'
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology' }
   );
