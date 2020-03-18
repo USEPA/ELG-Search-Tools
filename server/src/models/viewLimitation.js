@@ -108,6 +108,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'pollutant_desc'
       },
+      elgPollutantDescription: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'elg_pollutant_description'
+      },
       limitationDurationId: {
         type: DataTypes.INTEGER,
         allowNull: false,

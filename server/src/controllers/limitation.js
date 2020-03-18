@@ -14,7 +14,7 @@ let attributes = [
   'wastestreamProcessSecondary',
   'wastestreamProcessCfrSection',
   'wastestreamProcessLimitCalculationDescription',
-  'pollutantDescription',
+  ['elg_pollutant_description', 'pollutantDescription'],
   'dischargeFrequency',
   'limitationValue',
   'minimumValue',
@@ -92,7 +92,7 @@ module.exports = {
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+      let id = utilities.parseIdAsInteger(req.params.id);
 
       if (id === null) {
         return res.status(400).send('Invalid value passed for id')
@@ -100,7 +100,7 @@ module.exports = {
 
       return ViewLimitation.findByPk(id, {
         attributes: [
-          'pollutantDescription',
+          'elgPollutantDescription',
           'pointSourceCategoryCode',
           'pointSourceCategoryName',
           'comboSubcategory',
@@ -113,7 +113,7 @@ module.exports = {
       })
         .then((limitation) => {
           let result = new Map();
-          result['pollutantDescription'] = limitation.pollutantDescription;
+          result['pollutantDescription'] = limitation.elgPollutantDescription;
           result['pointSourceCategoryCode'] = limitation.pointSourceCategoryCode;
           result['pointSourceCategoryName'] = limitation.pointSourceCategoryName;
           result['comboSubcategory'] = limitation.comboSubcategory;
@@ -127,7 +127,7 @@ module.exports = {
           ViewLongTermAverage.findAll({
             attributes: [
               'treatmentTechnologyCodes',
-              'pollutantDescription',
+              ['elg_pollutant_description', 'pollutantDescription'],
               'longTermAverageValue',
               'longTermAverageUnitCode',
               'longTermAverageUnitDescription',

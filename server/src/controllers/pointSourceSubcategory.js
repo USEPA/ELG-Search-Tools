@@ -95,15 +95,15 @@ function fillControlTechnology(controlTechnology) {
                     }
                   }).then(wastestreamProcessTreatmentTechnologyPollutants => {
                     Pollutant.findAll({
-                      attributes: ['description'],
+                      attributes: ['elgDescription'],
                       where: {
                         id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
                       },
-                      group: ['description'],
-                      order: ['description']
+                      group: ['elgDescription'],
+                      order: ['elgDescription']
                     }).then(pollutants => {
                       ct['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join(', ');
-                      ct['pollutants'] = pollutants.map(a => a.description).join(', ');
+                      ct['pollutants'] = pollutants.map(a => a.elgDescription).join(', ');
 
                       resolve(ct);
                     });
@@ -116,14 +116,14 @@ function fillControlTechnology(controlTechnology) {
             ViewLimitation.findAll( {
               attributes: [
                 [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
-                [Sequelize.col('pollutant_desc'), 'pollutantDescription']
+                [Sequelize.col('elg_pollutant_description'), 'elgPollutantDescription']
               ],
               where: {
                 wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
               }
             })
               .then(pollutants => {
-                ct['pollutants'] = pollutants.map(a => a.pollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
+                ct['pollutants'] = pollutants.map(a => a.elgPollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
                   return self.indexOf(value) === index;
                 }).join('; ');
 
@@ -174,7 +174,7 @@ module.exports = {
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
-    let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+    let id = utilities.parseIdAsInteger(req.params.id);
 
     if (id === null) {
       return res.status(400).send('Invalid value passed for id')
