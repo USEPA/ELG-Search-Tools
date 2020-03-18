@@ -26,6 +26,9 @@
     <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
       {{ pollutantData[0].pollutantDescription }}
     </h1>
+    <h1 v-if="treatmentTechnology" class="is-size-3 has-text-weight-light">
+      {{ treatmentTechnology.name }}
+    </h1>
     <div class="field is-grouped help-icons">
       <div v-if="pollutantData" class="field is-grouped psc-icon">
         <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
@@ -109,6 +112,49 @@
       @shouldDisplayMoreModal="displayMoreModal"
       :colsLength="6"
     />
+    <div v-if="treatmentTechnology">
+      <div class="columns treatment-info-box">
+        <div class="column is-gray-background is-7 technology-description">
+          <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnology.description }}</p>
+        </div>
+        <div class="column is-gray-background is-5">
+          <p><strong>Treatment Train(s):</strong></p>
+          <div v-for="train in getTreatmentTrains" :key="train.id">
+            <p>{{ train.names }}</p>
+          </div>
+          <a
+            class="is-link more"
+            v-if="treatmentTechnology.treatmentTrains.length > 3"
+            @click="() => (shouldDisplayTrains = true)"
+            >more</a
+          >
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-10">
+          <select v-model="selectedTrain" @change="getTreatmentTrainData($event)">
+            <option v-for="train in treatmentTechnology.treatmentTrains" :key="train.id" :value="train.id">{{
+              train.names
+            }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div v-if="treatmentTechnology" class="field is-grouped psc-icon">
+            <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
+          </div>
+        </div>
+      </div>
+      <Table
+        v-if="treatmentTrain"
+        :columns="techColumns"
+        :rows="treatmentTrain"
+        :colsLength="7"
+        :shouldHaveTreatmentTechCols="true"
+      />
+    </div>
+
     <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
       <div class="control-notes" v-for="(note, index) in notes" :key="index">
         <h3><strong>CFR Section:</strong> {{ note.cfrSection }}</h3>
@@ -139,6 +185,11 @@
     <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
       <span v-html="currentMoreInfo"></span>
     </Modal>
+    <Modal v-if="shouldDisplayTrains" @close="() => (shouldDisplayTrains = false)">
+      <div v-for="train in treatmentTechnology.treatmentTrains" :key="train.id">
+        <p>{{ train.names }}</p>
+      </div>
+    </Modal>
   </section>
 </template>
 
@@ -151,7 +202,7 @@ import Modal from '@/components/shared/Modal';
 export default {
   components: { Tabs, Table, Modal },
   computed: {
-    ...mapState('search', ['category', 'subcategory', 'pollutantData']),
+    ...mapState('search', ['category', 'subcategory', 'pollutantData', 'treatmentTechnology', 'treatmentTrain']),
     createTabs() {
       const tabs = [
         {
@@ -192,6 +243,12 @@ export default {
       }
       return tabs;
     },
+    getTreatmentTrains() {
+      if (this.treatmentTechnology.treatmentTrains.length > 3) {
+        return this.treatmentTechnology.treatmentTrains.slice(0, 3);
+      }
+      return this.treatmentTechnology.treatmentTrains;
+    },
   },
   data() {
     return {
@@ -209,6 +266,8 @@ export default {
       shouldDisplayCheckboxModal: false,
       currentMoreInfo: null,
       shouldDisplayMoreModal: false,
+      selectedTrain: null,
+      shouldDisplayTrains: false,
       pscColumns: [
         {
           key: 'cfrSection',
@@ -241,11 +300,36 @@ export default {
           label: 'Process Operation/Wastestream(s)',
         },
       ],
+      techColumns: [
+        {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
+        {
+          key: 'pointSourceSubcategories',
+          label: 'Subcategories',
+        },
+        {
+          key: 'wastestreamProcesses',
+          label: 'Process Operation/Wastestream(s)',
+        },
+        {
+          key: 'pollutants',
+          label: 'Pollutants',
+        },
+      ],
     };
   },
   methods: {
     onNavigate() {
       this.$router.push('/');
+      if (this.treatmentTrain) {
+        this.$store.commit('search/SET_TREATMENT_TRAIN', null);
+      }
     },
     shouldDisplayNotesModal(notes) {
       this.notes = null;
@@ -339,6 +423,9 @@ export default {
       this.currentMoreInfo = value;
       this.shouldDisplayMoreModal = true;
     },
+    async getTreatmentTrainData(e) {
+      await this.$store.dispatch('search/getTreatmentTrain', e.target.value);
+    },
   },
 };
 </script>
@@ -382,5 +469,22 @@ section p {
 .psc-icon {
   position: absolute;
   left: 0;
+}
+
+select {
+  width: 54em;
+}
+
+.treatment-info-box {
+  padding-left: 10px;
+  margin-top: 10px;
+}
+
+.technology-description {
+  margin-right: 5px;
+}
+
+.is-gray-background {
+  background-color: $gray;
 }
 </style>

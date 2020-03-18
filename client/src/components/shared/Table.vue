@@ -5,7 +5,7 @@
         <table class="table is-fullwidth is-bordered">
           <thead>
             <tr>
-              <th v-if="shouldHavePollCols">
+              <th v-if="shouldHavePollCols || shouldHaveTreatmentTechCols">
                 Select PSC
               </th>
               <th v-for="column in columns" :key="column.key">
@@ -39,6 +39,9 @@
               <th v-if="shouldHavePollLimitCols || shouldHaveLimitationCols">
                 Go to LTA
               </th>
+              <th v-if="shouldHaveTreatmentTechCols">
+                Go to Technology Basis
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -53,7 +56,7 @@
               </td>
             </tr>
             <tr v-for="(row, index) in rows" :key="index">
-              <td v-if="shouldHavePollCols">
+              <td v-if="shouldHavePollCols || shouldHaveTreatmentTechCols">
                 <input
                   class="is-checkradio is-info has-background-color psc"
                   type="checkbox"
@@ -63,7 +66,10 @@
                 /><label :for="row.pointSourceCategoryCode"></label>
               </td>
               <td v-for="column in columns" :key="column.key">
-                <span v-if="column.key === 'pointSourceSubcategories' && shouldHavePollCols"
+                <span
+                  v-if="
+                    column.key === 'pointSourceSubcategories' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
+                  "
                   ><span v-html="abbrvList(row[column.key]) + ' '"></span>
                   <br />
                   <a
@@ -73,7 +79,10 @@
                     >more</a
                   >
                 </span>
-                <span v-if="column.key === 'wastestreamProcesses' && shouldHavePollCols"
+                <span
+                  v-else-if="
+                    column.key === 'wastestreamProcesses' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
+                  "
                   ><span v-html="abbrvList(row[column.key]) + ' '"></span>
                   <br />
                   <a
@@ -83,11 +92,11 @@
                     >more</a
                   >
                 </span>
-                <span v-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
+                <span v-else-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
                   {{ row['wastestreamProcessCfrSection'] + ' ' + row[column.key] }}
                 </span>
-                <span v-if="column.key === 'secondary'" v-html="row[column.key]"></span>
-                <span v-if="column.key === 'wastestreamProcessSecondary'" v-html="row[column.key]"></span>
+                <span v-else-if="column.key === 'secondary'" v-html="row[column.key]"></span>
+                <span v-else-if="column.key === 'wastestreamProcessSecondary'" v-html="row[column.key]"></span>
                 <span v-else-if="column.key === 'limitationDurationDescription'">
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a
@@ -152,13 +161,7 @@
                       : '--'
                   }}
                 </span>
-                <span
-                  v-else-if="
-                    column.key !== 'wastestreamProcesses' &&
-                      column.key !== 'pointSourceSubcategories' &&
-                      column.key !== 'wastestreamProcessTitle'
-                  "
-                >
+                <span v-else>
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
                     ><span class="fa fa-info-circle"></span
@@ -199,7 +202,11 @@
               </td>
               <td
                 v-if="
-                  shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollCols || shouldHavePollLimitCols
+                  shouldHaveResultsCols ||
+                    shouldHaveLimitationCols ||
+                    shouldHavePollCols ||
+                    shouldHavePollLimitCols ||
+                    shouldHaveTreatmentTechCols
                 "
               >
                 <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
@@ -210,6 +217,7 @@
                   @click="$emit('onShouldDisplayLongTermAvgData', row)"
                   ><span class="fas fa-share-square limitation-link"></span
                 ></a>
+                <a v-if="shouldHaveTreatmentTechCols"><span class="fas fa-share-square limitation-link"></span></a>
               </td>
             </tr>
           </tbody>
@@ -251,6 +259,10 @@ export default {
       required: false,
     },
     shouldHavePollLimitCols: {
+      type: Boolean,
+      required: false,
+    },
+    shouldHaveTreatmentTechCols: {
       type: Boolean,
       required: false,
     },
