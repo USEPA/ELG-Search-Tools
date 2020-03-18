@@ -4,6 +4,7 @@ const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
 function sanitizeError(error) {
+  // noinspection JSUnresolvedFunction
   return DOMPurify.sanitize(error);
 }
 
@@ -26,7 +27,12 @@ function getControlTechnologyDescription(controlTechnologyCode)  {
   }
 }
 
+function parseIdAsInteger(id) {
+  return isNaN(id) ? null : (Number.isInteger(Number(id)) ? Number(id) : null);
+}
+
 module.exports = {
   sanitizeError,
-  getControlTechnologyDescription
+  getControlTechnologyDescription,
+  parseIdAsInteger
 };

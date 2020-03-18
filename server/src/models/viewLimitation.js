@@ -38,10 +38,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'alt_lim_flag'
       },
-      alternateLimitDescription: {
+      limitRequirementDescription: {
         type: DataTypes.STRING(4000),
         allowNull: true,
         field: 'alt_lim'
+      },
+      alternateLimitDescription: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'alt_lim_description'
       },
       wastestreamProcessId: {
         type: DataTypes.INTEGER,
@@ -102,6 +107,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'pollutant_desc'
+      },
+      elgPollutantDescription: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'elg_pollutant_description'
       },
       limitationDurationId: {
         type: DataTypes.INTEGER,

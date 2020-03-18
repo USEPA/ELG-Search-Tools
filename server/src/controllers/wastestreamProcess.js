@@ -10,7 +10,7 @@ module.exports = {
   limitations(req, res) {
     try {
       // check for required query attributes and replace with defaults if missing
-      let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+      let id = utilities.parseIdAsInteger(req.params.id);
 
       if (id === null) {
         return res.status(400).send('Invalid value passed for id')

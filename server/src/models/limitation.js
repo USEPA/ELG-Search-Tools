@@ -58,10 +58,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'alt_lim_flag'
       },
-      alternateLimitDescription: {
+      limitRequirementDescription: {
         type: DataTypes.STRING(4000),
         allowNull: true,
         field: 'alt_lim'
+      },
+      alternateLimitDescription: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'alt_lim_description'
       },
       limitCalculationDescription: {
         type: DataTypes.STRING(4000),

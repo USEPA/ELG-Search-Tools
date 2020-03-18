@@ -32,7 +32,8 @@
             {{ longTermAvgData.wastestreamProcessTitle }}
           </p>
           <p class="info-box">
-            Other Process Operation/Wastestream Detail(s): {{ longTermAvgData.wastestreamProcessSecondary }}
+            Other Process Operation/Wastestream Detail(s):
+            <span v-html="longTermAvgData.wastestreamProcessSecondary"></span>
           </p>
         </div>
         <div class="column">
@@ -59,27 +60,27 @@ export default {
     return {
       longTermAvgCols: [
         {
-          key: 'Treatment Train',
+          key: 'treatmentTechnologyCodes',
           label: 'Treatment Train',
         },
         {
-          key: 'Pollutant',
+          key: 'pollutantDescription',
           label: 'Pollutant',
         },
         {
-          key: 'LTA Value',
+          key: 'longTermAverageValue',
           label: 'LTA Value',
         },
         {
-          key: 'Basis',
+          key: 'longTermAverageUnitBasis',
           label: 'Basis',
         },
         {
-          key: 'LTA Notes',
+          key: 'longTermAverageNotes',
           label: 'LTA Notes',
         },
         {
-          key: 'LTA Reference',
+          key: 'longTermAverageSourceTitle',
           label: 'LTA Reference',
         },
       ],

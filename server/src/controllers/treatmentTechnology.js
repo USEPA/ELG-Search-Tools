@@ -115,7 +115,7 @@ module.exports = {
    * } req.params
    */
   treatmentTrain(req, res) {
-    let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+    let id = utilities.parseIdAsInteger(req.params.id);
 
     if (id === null) {
       return res.status(400).send("Invalid value passed for id");
@@ -149,7 +149,7 @@ module.exports = {
             "pointSourceCategoryName",
             [Sequelize.literal("string_agg(distinct combo_subcat, ', ' order by combo_subcat)"), "pointSourceSubcategories"],
             [Sequelize.literal("string_agg(distinct processop_title, ', ' order by processop_title)"), "wastestreamProcesses"],
-            [Sequelize.literal("string_agg(distinct pollutant_desc, ', ' order by pollutant_desc)"), "pollutants"]
+            [Sequelize.literal("string_agg(distinct elg_pollutant_description, ', ' order by elg_pollutant_description)"), "pollutants"]
           ],
           where: {
             [Op.or]: whereClauseList
@@ -171,8 +171,8 @@ module.exports = {
   technologyBases(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let treatmentId = isNaN(req.query.treatmentId) ? null : (Number.isInteger(Number(req.query.treatmentId)) ? Number(req.query.treatmentId) : null);
-      let pointSourceCategoryCode = isNaN(req.query.pointSourceCategoryCode) ? null : (Number.isInteger(Number(req.query.pointSourceCategoryCode)) ? Number(req.query.pointSourceCategoryCode) : null);
+      let treatmentId = utilities.parseIdAsInteger(req.query.treatmentId);
+      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.query.pointSourceCategoryCode);
 
       if (treatmentId === null) {
         return res.status(400).send("Invalid value passed for treatmentId");
@@ -192,7 +192,7 @@ module.exports = {
                   'pointSourceCategoryName',
                   'pointSourceCategoryCfrSection',
                   'controlTechnologyCode',
-                  [Sequelize.literal("CASE WHEN ct_includes_bmps = '1' THEN true ELSE false END"), 'controlTechnologyIncludesBmps'],
+                  'controlTechnologyIncludesBmps',
                   'comboSubcategory',
                   'wastestreamProcessId',
                   'wastestreamProcessTitle',

@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(4000),
         allowNull: false,
         field: 'ct_notes'
+      },
+      display: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'loc_display'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ControlTechnologyNotes' }

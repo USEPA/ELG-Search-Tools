@@ -196,7 +196,10 @@ module.exports = {
       {"source_id":202,"source_title":"PART 407- CANNED AND PRESERVED FRUITS AND VEGETABLES PROCESSING POINT SOURCE CATEGORY"},
       {"source_id":203,"source_title":"PART 407-[AMENDED]"},
       {"source_id":204,"source_title":"Development Document for Interim Final Effluent Limitations, Guidelines and Proposed New Source Performance Standards for the Gum and Wood Chemical Manufacturing Point Source Category"},
-      {"source_id":205,"source_title":"Development Document for Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards for the Pesticide Chemicals Manufacturing Point Source Category"}];
+      {"source_id":205,"source_title":"Development Document for Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards for the Pesticide Chemicals Manufacturing Point Source Category"},
+      {"source_id":206,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Ore Mining and Dressing Point Source Category Volume II - Sections VII-XIV"},
+      {"source_id":207,"source_title":"Development Document for Final Effluent Limitations Guidelines and New Source Performance Standards for the Ore Mining and Dressing Point Source Category"},
+      {"source_id":208,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Ore Mining and Dressing Point Source Category Gold Placer Mine Subcategory"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "ReferenceSource" }, records);
   },

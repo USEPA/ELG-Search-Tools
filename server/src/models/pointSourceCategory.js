@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'IncludeInSearchTool',
         defaultValue: false
+      },
+      mostRecentRevisionDate: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'most_recent_revision_date'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'PointSourceCategory' }

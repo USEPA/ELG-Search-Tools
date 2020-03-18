@@ -58,10 +58,15 @@ module.exports = {
       allowNull: true,
       field: 'alt_lim_flag'
     },
-    alternateLimitDescription: {
+    limitRequirementDescription: {
       type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'alt_lim'
+    },
+    alternateLimitDescription: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      field: 'alt_lim_description'
     },
     limitCalculationDescription: {
       type: Sequelize.STRING(4000),

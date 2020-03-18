@@ -101,10 +101,10 @@
           <strong>Limitation Calculation Description</strong>
         </h3>
         <p>{{ currentRow.wastestreamProcessLimitCalculationDescription }}</p>
-        <h3 v-if="currentRow.limitationLimitCalculationDescription">
+        <h3 v-if="currentRow.limitRequirementDescription">
           <strong>Limitation Requirement Description</strong>
         </h3>
-        <p>{{ currentRow.limitationLimitCalculationDescription }}</p>
+        <p>{{ currentRow.limitRequirementDescription }}</p>
         <h3 v-if="currentRow.limitationPollutantNotes">
           <strong>Notes</strong>
         </h3>

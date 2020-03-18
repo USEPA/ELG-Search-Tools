@@ -45,6 +45,11 @@ module.exports = {
           allowNull: true,
           field: "IncludeInSearchTool",
           defaultValue: false
+        },
+        mostRecentRevisionDate: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          field: 'most_recent_revision_date'
         }
       });
     }),

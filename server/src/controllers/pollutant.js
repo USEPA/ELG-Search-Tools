@@ -2,6 +2,7 @@ const utilities = require("./utilities");
 const limitation = require("./limitation");
 
 const ViewLimitation = require("../models").ViewLimitation;
+const Pollutant = require("../models").Pollutant;
 const Op = require("sequelize").Op;
 const Sequelize = require("sequelize");
 
@@ -16,7 +17,20 @@ module.exports = {
         order: ["pollutant_desc"]
       })
         .then(pollutants => {
-          res.status(200).send(pollutants);
+          Pollutant.findAll({
+            attributes: [
+              ['elg_pollutant_description', 'pollutantDescription'],
+              [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+            ],
+            where: {
+              id: { [Op.in]: pollutants.map(a => a.pollutantId) }
+            },
+            group: ['elg_pollutant_description']
+          })
+            .then(polls => {
+              res.status(200).send(polls);
+            })
+            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
         })
         .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
     } catch (err) {
@@ -25,35 +39,35 @@ module.exports = {
   },
   /**
    * @param {
-   *          {id:number}
+   *          {id:string}
    * } req.params
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+      let id = req.params.id ? req.params.id.split('|') : '';
 
-      if (id === null) {
+      if (id === '') {
         return res.status(400).send("Invalid value passed for id");
       }
 
       return ViewLimitation.findAll({
         group: [
           "pollutantId",
-          "pollutantDescription",
+          ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName"
         ],
         attributes: [
           "pollutantId",
-          "pollutantDescription",
+          ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
           [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
           [Sequelize.literal("string_agg(distinct processop_title, '<br/>' order by processop_title)"), "wastestreamProcesses"]
         ],
         where: {
-          pollutantId: { [Op.eq]: id }
+          pollutantDescription: { [Op.in]: id }
         }
       })
         .then(limitations => {
@@ -73,8 +87,8 @@ module.exports = {
   limitations(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let pollutantId = isNaN(req.query.pollutantId) ? null : (Number.isInteger(Number(req.query.pollutantId)) ? Number(req.query.pollutantId) : null);
-      let pointSourceCategoryCode = isNaN(req.query.pointSourceCategoryCode) ? null : (Number.isInteger(Number(req.query.pointSourceCategoryCode)) ? Number(req.query.pointSourceCategoryCode) : null);
+      let pollutantId = utilities.parseIdAsInteger(req.query.pollutantId);
+      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.query.pointSourceCategoryCode);
 
       if (pollutantId === null) {
         return res.status(400).send("Invalid value passed for pollutantId");

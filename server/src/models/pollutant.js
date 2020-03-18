@@ -10,8 +10,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       description: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
         field: 'pollutant_desc'
+      },
+      elgDescription: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'elg_pollutant_description'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'Pollutant' }
