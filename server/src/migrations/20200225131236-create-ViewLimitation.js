@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.query('CREATE VIEW elg_search."ViewLimitation" as ' +
-    'select l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, ' +
+    'select l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, l.alt_lim_description, ' +
     "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END as zero_discharge, " +
     'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect as wp_cfr_sect, ' +
     'wp.processop_description, wp.processop_notes, wp.lim_calc_desc as wp_lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +

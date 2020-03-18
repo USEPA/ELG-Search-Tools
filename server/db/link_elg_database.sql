@@ -68,7 +68,8 @@ where
 	'A_CFR_Citation_History',
 	'A_Definition',
 	'A_GeneralProvisions',
-	'A_Source_New'))
+	'A_Source_New',
+	'KEY_Alt_Lim_Flag'))
 select
 	string_agg( replace(replace(replace(regexp_replace(elg_database.ogr_fdw_sql_table(conn, tb.table_name), 'CREATE SERVER (.*);(.*)CREATE FOREIGN TABLE ([a-z0-9\_]+)', E'DROP FOREIGN TABLE IF EXISTS elg_database.\\3;CREATE FOREIGN TABLE elg_database.\\3'), 'myserver', 'elg_database_odbc'), 'fid bigint,', ''), 'geom Geometry(Geometry),', ''), E'\n') as sql
 from
@@ -105,7 +106,8 @@ create view elg_database.view_n3a_control_technology_notes as
 select
     loc,
     ct_cfr_section,
-    replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as ct_notes
+    replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as ct_notes,
+    case when loc_display = '1' then true else false end as loc_display
 from
     elg_database.n3a_control_technology_notes;
 
@@ -137,47 +139,48 @@ from
 
 create view elg_database.view_n5_pollutant_limitations as
 SELECT 
-	processop_id, 
-	lim_id, 
-	pollutant_code, 
+	pl.processop_id, 
+	pl.lim_id, 
+	pl.pollutant_code, 
 	case 
-		when  lim_id = 17175	THEN	'0.17 + (8 X (no. of hides)/kg RM)'
-	 	when  lim_id = 17176	THEN	'0.21 + (11 X (no. of hides)/kg RM)'
-		when  lim_id = 17178	THEN	'0.34 + (8 X (no. of hides)/kg RM)'
-		when  lim_id = 17179	THEN	'0.42 + (11 X (no. of hides)/kg RM)'
-		when  lim_id = 17204	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
-		when  lim_id = 17205	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
-		when  lim_id = 17206	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
-		when  lim_id = 17207	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
-		when  lim_id = 17220	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
-		when  lim_id = 17221	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
-		when  lim_id = 17222	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
-		when  lim_id = 17223	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
-		else lim_value 
-	end as lim_value, 
-	lim_value_min, 
-	lim_value_max, 
-	alt_lim_flag, 
-	case when lim_id = 6799 then 'As referenced in 423.16(e)' else alt_lim end as alt_lim, --odd character in source data 
-	lim_duration_code, 
-	discharge_frequency, 
-	unit_code, 
-	analytical_method_id, 
-	wf_id, 
-	fn_id, 
-	question_desc,
-	mdl, 
-	ml, 
-	replace(lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc, 
-	source_id, 
-	qc_flag, 
-	qc_notes, 
-	zero_discharge, 
-	replace(replace(replace(replace(replace(pollutant_notes, U&'\00A7', '\00A7'), chr(147), '"'), chr(148), '"'), 'µ', 'u'), U&'\00A0', ' ') as pollutant_notes, 
-	dataentry_psc_code, 
-	qc_initials, 
-	treatment_id
-FROM elg_database.n5_pollutant_limitations;
+		when  pl.lim_id = 17175	THEN	'0.17 + (8 X (no. of hides)/kg RM)'
+	 	when  pl.lim_id = 17176	THEN	'0.21 + (11 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17178	THEN	'0.34 + (8 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17179	THEN	'0.42 + (11 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17204	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17205	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17206	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17207	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17220	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17221	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17222	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 17223	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
+		else pl.lim_value 
+	end as lim_value, --TODO: check these values in the latest data!
+	pl.lim_value_min, 
+	pl.lim_value_max, 
+	pl.alt_lim_flag, 
+	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else pl.alt_lim end as alt_lim, --odd character in source data 
+	pl.lim_duration_code, 
+	pl.discharge_frequency, 
+	pl.unit_code, 
+	pl.analytical_method_id, 
+	pl.wf_id, 
+	pl.fn_id, 
+	pl.question_desc,
+	pl.mdl, 
+	pl.ml, 
+	replace(pl.lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc, 
+	pl.source_id, 
+	pl.qc_flag, 
+	pl.qc_notes, 
+	pl.zero_discharge, 
+	replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\00A7'), chr(147), '"'), chr(148), '"'), 'µ', 'u'), U&'\00A0', ' ') as pollutant_notes, 
+	pl.dataentry_psc_code, 
+	pl.qc_initials, 
+	pl.treatment_id,
+	alf.description as alt_lim_description
+FROM elg_database.n5_pollutant_limitations pl left outer join elg_database.key_alt_lim_flag alf on pl.alt_lim_flag = alf.flag;
 
 create view elg_database.view_key_ttcodes as
 select

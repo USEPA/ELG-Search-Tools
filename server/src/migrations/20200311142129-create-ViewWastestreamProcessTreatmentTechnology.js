@@ -8,7 +8,7 @@ module.exports = {
     'wptt.tech_ref as wptt_tech_ref, wptt.tech_notes as wptt_tech_notes, ' +
     'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, ' +
     'pss.subcat_id, pss.combo_subcat, pss.subcat_title, pss.subcat_cfr_section, pss.subcat_applicability, pss.subcat_notes, ' +
-    'ct.ct_id, ct.ct_code, ct.ct_order, ct.ct_cfr_section, ct.includesbmps as ct_includes_bmps ' +
+    "ct.ct_id, ct.ct_code, ct.ct_order, ct.ct_cfr_section, CASE WHEN ct.includesbmps = '1' THEN true ELSE false END as ct_includes_bmps " +
     'from elg_search."WastestreamProcessTreatmentTechnologyPollutant" wpttp ' +
     'inner join elg_search."WastestreamProcessTreatmentTechnology" wptt on wpttp.processop_id = wptt.processop_id and wpttp.treatment_id = wptt.treatment_id ' +
     'inner join elg_search."TreatmentTechnology" tt on wpttp.treatment_id = tt.treatment_id ' +

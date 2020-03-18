@@ -34,12 +34,12 @@ function fillControlTechnology(controlTechnology) {
       ],
       where: {
         controlTechnologyCode: { [Op.eq]: controlTechnology.controlTechnologyCode },
-        cfrSection: { [Op.iLike]: controlTechnology.cfrSection + '%' }
+        cfrSection: { [Op.iLike]: controlTechnology.cfrSection + '%' },
+        display: { [Op.eq] : true }
       },
       order: ['cfrSection']
     }).then(controlTechnologyNotes => {
       ct['notes'] = controlTechnologyNotes;
-      ct['notes'] = []; //controlTechnologyNotes; TODO: update to only load notes if/when the source database indicates to do so.
 
       WastestreamProcess.findAll({
         attributes: [

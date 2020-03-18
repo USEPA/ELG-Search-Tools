@@ -113,6 +113,7 @@
       <div class="control-notes" v-for="(note, index) in notes" :key="index">
         <h3><strong>CFR Section:</strong> {{ note.cfrSection }}</h3>
         <p><strong>Notes:</strong> {{ note.notes }}</p>
+        <br />
       </div>
     </Modal>
     <Modal v-if="shouldDisplayInfoModal" @close="closeInfoModal">

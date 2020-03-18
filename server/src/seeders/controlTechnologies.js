@@ -11716,7 +11716,7 @@ module.exports = {
         "qc_notes":null,
         "includesbmps":"0"},
       {"subcat_id":222,
-        "ct_id":8199, //manually set to avoid duplicate primary key
+        "ct_id":8199, //TODO: update data in Access - manually set here to avoid duplicate primary key
         "ct_code":"N/A",
         "ct_order":6,
         "ct_cfr_section":"420.27",
@@ -15842,7 +15842,7 @@ module.exports = {
         "includesbmps":"0"},
       {"subcat_id":290,
         "ct_id":7353,
-        "ct_code":"PSNS",
+        "ct_code":"NSPS",
         "ct_order":4,
         "ct_cfr_section":"426.25",
         "ct_notes":null,

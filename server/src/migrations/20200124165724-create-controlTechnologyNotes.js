@@ -17,6 +17,11 @@ module.exports = {
       allowNull: false,
       field: 'ct_notes'
     },
+    display: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      field: 'loc_display'
+    }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'ControlTechnologyNotes'})
 };

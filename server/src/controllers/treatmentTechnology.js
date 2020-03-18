@@ -192,7 +192,7 @@ module.exports = {
                   'pointSourceCategoryName',
                   'pointSourceCategoryCfrSection',
                   'controlTechnologyCode',
-                  [Sequelize.literal("CASE WHEN ct_includes_bmps = '1' THEN true ELSE false END"), 'controlTechnologyIncludesBmps'],
+                  'controlTechnologyIncludesBmps',
                   'comboSubcategory',
                   'wastestreamProcessId',
                   'wastestreamProcessTitle',

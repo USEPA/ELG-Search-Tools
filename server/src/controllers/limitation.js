@@ -27,6 +27,7 @@ let attributes = [
   'limitationUnitBasis',
   'alternateLimitFlag',
   'alternateLimitDescription',
+  'limitRequirementDescription',
   'limitationLimitCalculationDescription',
   'limitationPollutantNotes'
 ];
