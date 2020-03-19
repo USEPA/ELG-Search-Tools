@@ -132,7 +132,8 @@
       </div>
       <div class="columns">
         <div class="column is-10">
-          <select v-model="selectedTrain" @change="getTreatmentTrainData($event)">
+          <strong><label for="treatmentTrains">Treatment Train:</label></strong>
+          <select v-model="selectedTrain" @change="getTreatmentTrainData($event)" id="treatmentTrains">
             <option v-for="train in treatmentTechnology.treatmentTrains" :key="train.id" :value="train.id">{{
               train.names
             }}</option>
@@ -152,6 +153,7 @@
         :rows="treatmentTrain"
         :colsLength="7"
         :shouldHaveTreatmentTechCols="true"
+        @shouldDisplayMoreModal="displayMoreModal"
       />
     </div>
 

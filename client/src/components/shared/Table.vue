@@ -92,6 +92,16 @@
                     >more</a
                   >
                 </span>
+                <span v-else-if="column.key === 'pollutants' && shouldHaveTreatmentTechCols"
+                  ><span v-html="abbrvList(row[column.key]) + ' '"></span>
+                  <br />
+                  <a
+                    class="is-link more"
+                    v-if="row[column.key].split('<br/>').length > 2"
+                    @click="$emit('shouldDisplayMoreModal', row[column.key])"
+                    >more</a
+                  >
+                </span>
                 <span v-else-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
                   {{ row['wastestreamProcessCfrSection'] + ' ' + row[column.key] }}
                 </span>

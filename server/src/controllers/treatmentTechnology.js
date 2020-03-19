@@ -13,24 +13,24 @@ function fillTreatmentTechnology(treatmentTechnology) {
   return new Promise(function(resolve, reject) {
     TreatmentTechnologyCode.findAll({
       where: {
-        [Op.and]: Sequelize.literal("code IN (SELECT codes FROM regexp_split_to_table('" + treatmentTechnology.codes + "', '; ') AS codes)")
+        [Op.and]: Sequelize.literal("code IN (SELECT codes FROM regexp_split_to_table('" + treatmentTechnology.treatmentCodes + "', '; ') AS codes)")
       }
     })
       .then(treatmentTechnologyCodes => {
-        let names = treatmentTechnology.codes.split("; ").map(code => treatmentTechnologyCodes.filter(treatmentTechnologyCode => treatmentTechnologyCode.id === code)[0].name).join(" + ");
+        let names = treatmentTechnology.treatmentCodes.split("; ").map(code => treatmentTechnologyCodes.filter(treatmentTechnologyCode => treatmentTechnologyCode.id === code)[0].name).join(" + ");
 
         resolve({
-          id: treatmentTechnology.id,
-          codes: treatmentTechnology.codes,
+          id: treatmentTechnology.treatmentId,
+          codes: treatmentTechnology.treatmentCodes,
           names: names
         });
       })
       .catch(err => {
         console.error("Failed to retrieve treatment technology names: " + err);
         resolve({
-          id: treatmentTechnology.id,
-          codes: treatmentTechnology.codes,
-          names: treatmentTechnology.codes
+          id: treatmentTechnology.treatmentId,
+          codes: treatmentTechnology.treatmentCodes,
+          names: treatmentTechnology.treatmentCodes
         });
       });
   });
@@ -39,16 +39,25 @@ function fillTreatmentTechnology(treatmentTechnology) {
 module.exports = {
   list(req, res) {
     try {
-      return TreatmentTechnologyCode.findAll({
-        attributes: [
-          "id",
-          "name"
-        ],
-        //TODO: limit to technology codes linked to PSCs that we are showing in the search tool
-        order: ["name"]
+      return ViewWastestreamProcessTreatmentTechnology.findAll({
+        attributes: ['treatmentCodes'],
+        group: ['treatmentCodes']
       })
-        .then(treatmentTechnologyCodes => {
-          res.status(200).send(treatmentTechnologyCodes);
+        .then(wastestreamProcessTreatmentTechnologies => {
+          TreatmentTechnologyCode.findAll({
+            attributes: [
+              "id",
+              "name"
+            ],
+            where: {
+              id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentCodes).join('; ').split('; ') }
+            },
+            order: ["name"]
+          })
+            .then(treatmentTechnologyCodes => {
+              res.status(200).send(treatmentTechnologyCodes);
+            })
+            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
         })
         .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
     } catch (err) {
@@ -82,12 +91,12 @@ module.exports = {
           result["category"] = treatmentTechnologyCode.category;
           result["variations"] = treatmentTechnologyCode.variations;
 
-          TreatmentTechnology.findAll({
-            attributes: ["id", "codes"],
+          ViewWastestreamProcessTreatmentTechnology.findAll({
+            attributes: ["treatmentId", "treatmentCodes", 'treatmentDescription'],
             where: {
               [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)")
-              //TODO: limit to treatment technologies linked to PSCs that we are showing in the search tool
-            }
+            },
+            group: ["treatmentId", "treatmentCodes", 'treatmentDescription']
           })
             .then(treatmentTechnologies => {
               let ttPromises = [];
@@ -98,7 +107,15 @@ module.exports = {
 
               Promise.all(ttPromises)
                 .then(tts => {
-                  result.treatmentTrains = tts;
+                  result.treatmentTrains = tts.sort(function(a, b) {
+                    if (a.names < b.names) {
+                      return -1;
+                    }
+                    if (a.names > b.names) {
+                      return 1;
+                    }
+                    return 0;
+                  });
                   res.status(200).send(result);
                 });
             })
@@ -147,9 +164,9 @@ module.exports = {
           attributes: [
             "pointSourceCategoryCode",
             "pointSourceCategoryName",
-            [Sequelize.literal("string_agg(distinct combo_subcat, ', ' order by combo_subcat)"), "pointSourceSubcategories"],
-            [Sequelize.literal("string_agg(distinct processop_title, ', ' order by processop_title)"), "wastestreamProcesses"],
-            [Sequelize.literal("string_agg(distinct elg_pollutant_description, ', ' order by elg_pollutant_description)"), "pollutants"]
+            [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
+            [Sequelize.literal("string_agg(distinct processop_title, '<br/>' order by processop_title)"), "wastestreamProcesses"],
+            [Sequelize.literal("string_agg(distinct elg_pollutant_description, '<br/>' order by elg_pollutant_description)"), "pollutants"]
           ],
           where: {
             [Op.or]: whereClauseList
