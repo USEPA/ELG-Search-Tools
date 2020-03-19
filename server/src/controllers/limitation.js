@@ -2,7 +2,9 @@ const utilities = require('./utilities');
 
 const ViewLimitation = require('../models').ViewLimitation;
 const ViewLongTermAverage = require('../models').ViewLongTermAverage;
+const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const Op = require('sequelize').Op;
+const Sequelize = require("sequelize");
 
 let attributes = [
   'limitationId',
@@ -81,6 +83,43 @@ function pollutantLimitations(pollutantId, pointSourceCategoryCode) {
   });
 }
 
+function fillLongTermAverage(longTermAverage) {
+  return new Promise(function(resolve, reject) {
+    TreatmentTechnologyCode.findAll({
+      where: {
+        [Op.and]: Sequelize.literal("code IN (SELECT codes FROM regexp_split_to_table('" + longTermAverage.treatmentTechnologyCodes + "', '; ') AS codes)")
+      }
+    })
+      .then(treatmentTechnologyCodes => {
+        let names = longTermAverage.treatmentTechnologyCodes.split("; ").map(code => treatmentTechnologyCodes.filter(treatmentTechnologyCode => treatmentTechnologyCode.id === code)[0].name).join(" + ");
+
+        resolve({
+          treatmentTechnologyNames: names,
+          pollutantDescription: longTermAverage.pollutantDescription,
+          longTermAverageValue: longTermAverage.longTermAverageValue,
+          longTermAverageUnitCode: longTermAverage.longTermAverageUnitCode,
+          longTermAverageUnitDescription: longTermAverage.longTermAverageUnitDescription,
+          longTermAverageUnitBasis: longTermAverage.longTermAverageUnitBasis,
+          longTermAverageNotes: longTermAverage.longTermAverageNotes,
+          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle
+        });
+      })
+      .catch(err => {
+        console.error("Failed to retrieve treatment technology names: " + err);
+        resolve({
+          treatmentTechnologyNames: longTermAverage.treatmentTechnologyCodes,
+          pollutantDescription: longTermAverage.pollutantDescription,
+          longTermAverageValue: longTermAverage.longTermAverageValue,
+          longTermAverageUnitCode: longTermAverage.longTermAverageUnitCode,
+          longTermAverageUnitDescription: longTermAverage.longTermAverageUnitDescription,
+          longTermAverageUnitBasis: longTermAverage.longTermAverageUnitBasis,
+          longTermAverageNotes: longTermAverage.longTermAverageNotes,
+          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle
+        });
+      });
+  });
+}
+
 module.exports = {
   wastestreamProcessLimitations,
   pollutantLimitations,
@@ -141,9 +180,25 @@ module.exports = {
             order: ['treatmentTechnologyCodes', 'pollutantDescription']
           })
             .then((longTermAverages) => {
-              result['longTermAverages'] = longTermAverages;
+              let ltaPromises = [];
 
-              res.status(200).send(result);
+              longTermAverages.forEach(function(lta) {
+                ltaPromises.push(fillLongTermAverage(lta));
+              });
+
+              Promise.all(ltaPromises)
+                .then(ltas => {
+                  result['longTermAverages'] = ltas.sort(function(a, b) {
+                    if (a.treatmentTechnologyNames < b.treatmentTechnologyNames) {
+                      return -1;
+                    }
+                    if (a.treatmentTechnologyNames > b.treatmentTechnologyNames) {
+                      return 1;
+                    }
+                    return 0;
+                  });
+                  res.status(200).send(result);
+                });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         })

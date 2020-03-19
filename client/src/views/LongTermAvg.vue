@@ -60,7 +60,7 @@ export default {
     return {
       longTermAvgCols: [
         {
-          key: 'treatmentTechnologyCodes',
+          key: 'treatmentTechnologyNames',
           label: 'Treatment Train',
         },
         {
