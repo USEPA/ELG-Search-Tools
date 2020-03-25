@@ -70,7 +70,7 @@
                   v-if="
                     column.key === 'pointSourceSubcategories' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
                   "
-                  ><span v-html="abbrvList(row[column.key]) + ' '"></span>
+                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
                   <br />
                   <a
                     class="is-link more"
@@ -83,7 +83,7 @@
                   v-else-if="
                     column.key === 'wastestreamProcesses' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
                   "
-                  ><span v-html="abbrvList(row[column.key]) + ' '"></span>
+                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
                   <br />
                   <a
                     class="is-link more"
@@ -93,7 +93,7 @@
                   >
                 </span>
                 <span v-else-if="column.key === 'pollutants' && shouldHaveTreatmentTechCols"
-                  ><span v-html="abbrvList(row[column.key]) + ' '"></span>
+                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
                   <br />
                   <a
                     class="is-link more"
@@ -225,7 +225,7 @@
                 <a
                   v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
                   @click="$emit('onShouldDisplayLongTermAvgData', row)"
-                  ><span class="fas fa-share-square limitation-link"></span
+                  ><span v-if="row.longTermAverageCount > 0" class="fas fa-share-square limitation-link"></span
                 ></a>
                 <a v-if="shouldHaveTreatmentTechCols"><span class="fas fa-share-square limitation-link"></span></a>
               </td>
@@ -293,15 +293,18 @@ export default {
       e.preventDefault();
       e.stopPropagation();
     },
-    abbrvList(value) {
-      let abbrv = '';
+    abbreviatedList(value) {
       const shortList = value.split('<br/>');
+
       if (shortList.length >= 2) {
-        abbrv = `${shortList[0]}<br/> ${shortList[1]}`;
-      } else if (shortList.length === 1) {
+        return `${shortList[0]}<br/> ${shortList[1]}`;
+      }
+
+      if (shortList.length === 1) {
         return value;
       }
-      return abbrv;
+
+      return '';
     },
   },
   data() {

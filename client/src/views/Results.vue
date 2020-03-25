@@ -67,7 +67,7 @@
             </div>
             <div class="field is-grouped">
               <p v-if="controlTechnology.technologyNames">
-                <b>Treatment Technology(ies):</b> {{ abbrvList(controlTechnology.technologyNames) }}
+                <b>Treatment Technology(ies):</b> {{ abbreviatedList(controlTechnology.technologyNames) }}
 
                 <a
                   class="is-link more"
@@ -79,7 +79,7 @@
             </div>
             <div class="field is-grouped" v-if="controlTechnology.pollutants">
               <p>
-                <b>Pollutant(s):</b> {{ abbrvList(controlTechnology.pollutants) }}
+                <b>Pollutant(s):</b> {{ abbreviatedList(controlTechnology.pollutants) }}
                 <a
                   class="is-link more"
                   v-if="controlTechnology.pollutants.split(', ').length > 2"
@@ -381,15 +381,18 @@ export default {
           break;
       }
     },
-    abbrvList(value) {
-      let abbrv = '';
+    abbreviatedList(value) {
       const shortList = value.split(', ');
+
       if (shortList.length >= 2) {
-        abbrv = `${shortList[0]}, ${shortList[1]}`;
-      } else if (shortList.length === 1) {
+        return `${shortList[0]}, ${shortList[1]}`;
+      }
+
+      if (shortList.length === 1) {
         return value;
       }
-      return abbrv;
+
+      return '';
     },
     shouldDisplayTechnologiesModal(list) {
       this.technologies = null;

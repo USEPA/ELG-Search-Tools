@@ -227,7 +227,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'ct_cfr_section'
-      }
+      },
+      longTermAverageCount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'lta_count'
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ViewLimitation' }
   );

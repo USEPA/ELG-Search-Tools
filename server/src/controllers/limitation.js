@@ -31,7 +31,8 @@ let attributes = [
   'alternateLimitDescription',
   'limitRequirementDescription',
   'limitationLimitCalculationDescription',
-  'limitationPollutantNotes'
+  'limitationPollutantNotes',
+  'longTermAverageCount'
 ];
 
 let order = [
@@ -54,11 +55,18 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
       .then((limitations) => {
         let result = new Map();
 
-        result.cfrSection = limitations[0].wastestreamProcessCfrSection;
-        result.controlTechnologyCode = limitations[0].controlTechnologyCode;
-        result.title = limitations[0].wastestreamProcessTitle;
-        result.secondary = limitations[0].wastestreamProcessSecondary;
+        result.cfrSection = null;
+        result.controlTechnologyCode = null;
+        result.title = null;
+        result.secondary = null;
         result.limitations = limitations;
+
+        if (limitations.length > 0) {
+          result.cfrSection = limitations[0].wastestreamProcessCfrSection;
+          result.controlTechnologyCode = limitations[0].controlTechnologyCode;
+          result.title = limitations[0].wastestreamProcessTitle;
+          result.secondary = limitations[0].wastestreamProcessSecondary;
+        }
 
         resolve(result);
       })
