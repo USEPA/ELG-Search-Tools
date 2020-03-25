@@ -26,6 +26,7 @@
     <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
       {{ pollutantData[0].pollutantDescription }}
     </h1>
+    <h2 v-if="pollutantData">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</h2>
     <h1 v-if="treatmentTechnology" class="is-size-3 has-text-weight-light">
       {{ treatmentTechnology.name }}
     </h1>
