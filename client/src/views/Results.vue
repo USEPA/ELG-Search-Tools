@@ -299,8 +299,8 @@ export default {
           label: 'Subcategories',
         },
         {
-          key: 'wastestreamProcesses',
-          label: 'Process Operation/Wastestream(s)',
+          key: 'rangeOfPollutantLimitations',
+          label: 'Range of Pollutant Limitations',
         },
       ],
       techColumns: [

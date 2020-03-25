@@ -51,6 +51,7 @@ module.exports = {
         return res.status(400).send("Invalid value passed for id");
       }
 
+      //get ranges of limitations, then group by PSC
       return ViewLimitation.findAll({
         group: [
           "pollutantId",
@@ -64,14 +65,60 @@ module.exports = {
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
           [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
-          [Sequelize.literal("string_agg(distinct processop_title, '<br/>' order by processop_title)"), "wastestreamProcesses"]
+          [Sequelize.literal("string_agg(distinct limit_duration_description || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit, '<br/>' order by limit_duration_description || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit)"), "rangeOfPollutantLimitations"]
         ],
         where: {
           pollutantDescription: { [Op.in]: id }
-        }
+        },
+        order: ['pointSourceCategoryCode'],
+        raw: true
       })
-        .then(limitations => {
-          res.status(200).send(limitations);
+        .then(pointSourceCategories => {
+          let pscPromises = [];
+
+          pointSourceCategories.forEach(function(psc) {
+            pscPromises.push(new Promise(function(resolve, reject) {
+              let rangeOfPollutantLimitations = '';
+
+              if(psc.rangeOfPollutantLimitations !== null) {
+                let limitationValues = [];
+                psc.rangeOfPollutantLimitations.split('<br/>').forEach(function(lim) {
+                  let limDetails = lim.split(': ');
+
+                  limitationValues.push({ type: limDetails[0].replace('()', ''), value: limDetails[1] });
+                });
+
+                let groupedLimitationValues = [];
+                limitationValues.forEach(function(limValue) {
+                  let filteredGroupedLimitationValues = groupedLimitationValues.filter(groupedLimitationValue => groupedLimitationValue.type === limValue.type);
+                  if (filteredGroupedLimitationValues.length === 0) {
+                    groupedLimitationValues.push({ type: limValue.type, values: [limValue.value] })
+                  } else {
+                    groupedLimitationValues[0].values.push(limValue.value)
+                  }
+                });
+
+                groupedLimitationValues.forEach(function(groupedLimitationValue) {
+                  let range = groupedLimitationValue.type + ': ' + groupedLimitationValue.values[0] + ' to ' + groupedLimitationValue.values[groupedLimitationValue.values.length - 1];
+                  if (rangeOfPollutantLimitations === '') {
+                    rangeOfPollutantLimitations = range;
+                  } else {
+                    rangeOfPollutantLimitations = rangeOfPollutantLimitations + '<br/>' + range;
+                  }
+                });
+              }
+
+              psc.rangeOfPollutantLimitations = rangeOfPollutantLimitations;
+
+              resolve(psc);
+            }));
+          });
+
+          Promise.all(pscPromises)
+            .then(pscs => {
+              res.status(200).send(pscs);
+            })
+            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
         })
         .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
     } catch (err) {

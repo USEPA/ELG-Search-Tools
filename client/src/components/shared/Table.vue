@@ -81,16 +81,9 @@
                 </span>
                 <span
                   v-else-if="
-                    column.key === 'wastestreamProcesses' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
+                    column.key === 'rangeOfPollutantLimitations' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
                   "
-                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
-                  <br />
-                  <a
-                    class="is-link more"
-                    v-if="row[column.key].split('<br/>').length > 2"
-                    @click="$emit('shouldDisplayMoreModal', row[column.key])"
-                    >more</a
-                  >
+                  ><span v-html="row[column.key]"></span>
                 </span>
                 <span v-else-if="column.key === 'pollutants' && shouldHaveTreatmentTechCols"
                   ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
