@@ -71,12 +71,12 @@ export default {
           white-space: unset;
           line-height: unset;
           &:hover {
-            background-color: darken($lightBlue, 10);
+            background-color: #d6e3eb;
           }
         }
 
         &.is-active button {
-          background-color: #d6e3eb;
+          background-color: darken($lightBlue, 10);
           font-weight: bold;
 
           &:hover {
