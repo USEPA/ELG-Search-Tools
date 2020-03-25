@@ -37,7 +37,7 @@
     <div v-if="subcategory" class="content info-box-container">
       <div class="columns">
         <div class="column is-9">
-          <p class="info-box"><strong>CRF Section:</strong> {{ limitationData.cfrSection }}</p>
+          <p class="info-box"><strong>CFR Section:</strong> {{ limitationData.cfrSection }}</p>
           <p class="info-box"><strong>Level of Control:</strong> {{ limitationData.controlTechnologyCode }}</p>
           <p class="info-box"><strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}</p>
           <p class="info-box">
