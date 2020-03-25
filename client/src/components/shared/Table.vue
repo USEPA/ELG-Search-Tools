@@ -113,7 +113,7 @@
                     v-if="
                       row.limitationDurationDescription &&
                         (row.wastestreamProcessLimitCalculationDescription ||
-                          row.limitLimitCalculationDescription ||
+                          row.limitRequirementDescription ||
                           row.limitationPollutantNotes)
                     "
                     @click="$emit('onDisplayTypeOfLimitationModal', row)"
@@ -179,36 +179,16 @@
                 </span>
               </td>
               <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="row.zeroDischarge"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+                <span>{{ row.zeroDischarge ? 'YES' : 'NO' }}</span>
               </td>
               <td v-if="shouldHaveResultsCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="row.includesBmps"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+                <span>{{ row.includesBmps ? 'YES' : 'NO' }}</span>
               </td>
               <td v-if="shouldHaveResultsCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="false"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+                <span>{{ 'NO' }}</span>
               </td>
               <td v-if="shouldHaveResultsCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="row.noLimitations"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+                <span>{{ row.noLimitations ? 'YES' : 'NO' }}</span>
               </td>
               <td
                 v-if="
