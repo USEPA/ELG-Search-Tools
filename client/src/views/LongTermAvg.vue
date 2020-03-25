@@ -43,21 +43,41 @@
         </div>
       </div>
     </div>
-    <Table :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages" />
+    <Table
+      :columns="longTermAvgCols"
+      :rows="longTermAvgData.longTermAverages"
+      @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+      @onDisplayLtaUnitDescriptionModal="displayLtaUnitDescriptionModal"
+    />
+    <Modal v-if="shouldDisplayUnitDescriptionModal" @close="() => (shouldDisplayUnitDescriptionModal = false)">
+      <div class="info-modal">
+        <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
+        <p>{{ currentRow.limitationUnitDescription }}</p>
+      </div>
+    </Modal>
+    <Modal v-if="shouldDisplayLtaUnitDescriptionModal" @close="() => (shouldDisplayLtaUnitDescriptionModal = false)">
+      <div class="info-modal">
+        <h3 v-if="currentRow.longTermAverageUnitDescription"><strong>LTA Unit Description</strong></h3>
+        <p>{{ currentRow.longTermAverageUnitDescription }}</p>
+      </div>
+    </Modal>
   </section>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import Table from '@/components/shared/Table';
+import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Table },
+  components: { Table, Modal },
   computed: {
     ...mapState('limitations', ['longTermAvgData']),
   },
   data() {
     return {
+      shouldDisplayUnitDescriptionModal: false,
+      shouldDisplayLtaUnitDescriptionModal: false,
       longTermAvgCols: [
         {
           key: 'treatmentTechnologyNames',
@@ -72,8 +92,16 @@ export default {
           label: 'LTA Value',
         },
         {
-          key: 'longTermAverageUnitBasis',
-          label: 'Basis',
+          key: 'alternateLimitFlag',
+          label: 'Limitation Flag',
+        },
+        {
+          key: 'limitationValue',
+          label: 'Limitation Value',
+        },
+        {
+          key: 'limitationUnitBasis',
+          label: 'Limitation Basis',
         },
         {
           key: 'longTermAverageNotes',
@@ -90,6 +118,16 @@ export default {
     onNavigateLimitations() {
       this.$store.commit('limitations/SET_LTA_DATA', null);
       this.$router.push('/limitations');
+    },
+    displayUnitDescriptionModal(row) {
+      this.currentRow = null;
+      this.shouldDisplayUnitDescriptionModal = true;
+      this.currentRow = row;
+    },
+    displayLtaUnitDescriptionModal(row) {
+      this.currentRow = null;
+      this.shouldDisplayLtaUnitDescriptionModal = true;
+      this.currentRow = row;
     },
   },
 };

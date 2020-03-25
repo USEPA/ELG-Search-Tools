@@ -109,7 +109,12 @@ function fillLongTermAverage(longTermAverage) {
           longTermAverageUnitDescription: longTermAverage.longTermAverageUnitDescription,
           longTermAverageUnitBasis: longTermAverage.longTermAverageUnitBasis,
           longTermAverageNotes: longTermAverage.longTermAverageNotes,
-          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle
+          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle,
+          alternateLimitFlag: longTermAverage.alternateLimitFlag,
+          limitationValue: longTermAverage.limitationValue,
+          limitationUnitCode: longTermAverage.limitationUnitCode,
+          limitationUnitDescription: longTermAverage.limitationUnitDescription,
+          limitationUnitBasis: longTermAverage.limitationUnitBasis
         });
       })
       .catch(err => {
@@ -122,7 +127,12 @@ function fillLongTermAverage(longTermAverage) {
           longTermAverageUnitDescription: longTermAverage.longTermAverageUnitDescription,
           longTermAverageUnitBasis: longTermAverage.longTermAverageUnitBasis,
           longTermAverageNotes: longTermAverage.longTermAverageNotes,
-          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle
+          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle,
+          alternateLimitFlag: longTermAverage.alternateLimitFlag,
+          limitationValue: longTermAverage.limitationValue,
+          limitationUnitCode: longTermAverage.limitationUnitCode,
+          limitationUnitDescription: longTermAverage.limitationUnitDescription,
+          limitationUnitBasis: longTermAverage.limitationUnitBasis
         });
       });
   });
@@ -180,7 +190,12 @@ module.exports = {
               'longTermAverageUnitDescription',
               'longTermAverageUnitBasis',
               'longTermAverageNotes',
-              'longTermAverageSourceTitle'
+              'longTermAverageSourceTitle',
+              'alternateLimitFlag',
+              'limitationValue',
+              'limitationUnitCode',
+              'limitationUnitDescription',
+              'limitationUnitBasis'
             ],
             where: {
               limitationId: { [Op.eq]: id }

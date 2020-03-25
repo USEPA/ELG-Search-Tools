@@ -183,10 +183,6 @@ export default {
           label: 'Type of Limitation',
         },
         {
-          key: 'dischargeFrequency',
-          label: 'Frequency',
-        },
-        {
           key: 'alternateLimitFlag',
           label: 'Flag',
         },
@@ -215,10 +211,6 @@ export default {
         {
           key: 'limitationDurationDescription',
           label: 'Type of Limitation',
-        },
-        {
-          key: 'dischargeFrequency',
-          label: 'Frequency',
         },
         {
           key: 'alternativeLimitFlag',

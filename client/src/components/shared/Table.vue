@@ -11,10 +11,8 @@
               <th v-for="column in columns" :key="column.key">
                 {{ column.label }}
               </th>
-              <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
-                Zero Discharge<a
-                  v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols"
-                  @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
+              <th v-if="shouldHaveResultsCols">
+                Zero Discharge<a v-if="shouldHaveResultsCols" @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
@@ -96,7 +94,7 @@
                   >
                 </span>
                 <span v-else-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
-                  {{ row['wastestreamProcessCfrSection'] + ' ' + row[column.key] }}
+                  {{ row[column.key] }}
                 </span>
                 <span v-else-if="column.key === 'secondary'" v-html="row[column.key]"></span>
                 <span v-else-if="column.key === 'wastestreamProcessSecondary'" v-html="row[column.key]"></span>
@@ -124,6 +122,20 @@
                   <a
                     v-if="row.limitationValue && row.limitationUnitCode && row.limitationUnitDescription"
                     @click="$emit('onDisplayUnitDescriptionModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
+                <span v-else-if="column.key === 'longTermAverageValue'">
+                  {{
+                    row[column.key]
+                      ? row['longTermAverageUnitCode']
+                        ? row[column.key] + ' ' + row['longTermAverageUnitCode']
+                        : row[column.key]
+                      : '--'
+                  }}
+                  <a
+                    v-if="row.longTermAverageValue && row.longTermAverageUnitCode && row.longTermAverageUnitDescription"
+                    @click="$emit('onDisplayLtaUnitDescriptionModal', row)"
                     ><span class="fa fa-info-circle"></span
                   ></a>
                 </span>
@@ -171,7 +183,7 @@
                   ></a>
                 </span>
               </td>
-              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
+              <td v-if="shouldHaveResultsCols">
                 <span>{{ row.zeroDischarge ? 'YES' : 'NO' }}</span>
               </td>
               <td v-if="shouldHaveResultsCols">
