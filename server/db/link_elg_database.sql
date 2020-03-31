@@ -257,3 +257,20 @@ select
 	tech_ref, 
 	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes
 from elg_database.n4c_technology_bases_ws;
+
+create view elg_database.view_ref_limit_units as
+SELECT 
+	unit_code, 
+	unit, 
+	replace(replace(replace(unit_desc, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as unit_desc, 
+	unit_basis
+FROM elg_database.ref_limit_units;
+
+create view elg_database.view_ref_pollutant as
+SELECT 
+	pollutant_code, 
+	pollutant_desc, 
+	coalesce(elg_pollutant_description, pollutant_desc) as elg_pollutant_description
+FROM elg_database.ref_pollutant;
+
+	

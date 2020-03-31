@@ -14,7 +14,7 @@ module.exports = {
       field: 'unit'
     },
     description: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'unit_desc'
     },

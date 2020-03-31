@@ -199,7 +199,8 @@ module.exports = {
       {"source_id":205,"source_title":"Development Document for Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards for the Pesticide Chemicals Manufacturing Point Source Category"},
       {"source_id":206,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Ore Mining and Dressing Point Source Category Volume II - Sections VII-XIV"},
       {"source_id":207,"source_title":"Development Document for Final Effluent Limitations Guidelines and New Source Performance Standards for the Ore Mining and Dressing Point Source Category"},
-      {"source_id":208,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Ore Mining and Dressing Point Source Category Gold Placer Mine Subcategory"}];
+      {"source_id":208,"source_title":"Development Document for Effluent Limitations Guidelines and New Source Performance Standards for the Ore Mining and Dressing Point Source Category Gold Placer Mine Subcategory"},
+      {"source_id":209,"source_title":"Pesticide Chemicals Category, Formulating, Packaging and Repackaging Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "ReferenceSource" }, records);
   },

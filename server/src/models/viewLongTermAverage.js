@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         field: 'lta_unit'
       },
       longTermAverageUnitDescription: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(4000),
         allowNull: false,
         field: 'lta_unit_desc'
       },
@@ -168,7 +168,7 @@ module.exports = (sequelize, DataTypes) => {
         field: 'unit'
       },
       limitationUnitDescription: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(4000),
         allowNull: false,
         field: 'unit_desc'
       },

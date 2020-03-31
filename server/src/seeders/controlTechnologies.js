@@ -11716,7 +11716,7 @@ module.exports = {
         "qc_notes":null,
         "includesbmps":"0"},
       {"subcat_id":222,
-        "ct_id":8199, //TODO: update data in Access - manually set here to avoid duplicate primary key
+        "ct_id":8199, //TODO: update data in Access - manually set here to avoid duplicate primary key (was 6978)
         "ct_code":"N/A",
         "ct_order":6,
         "ct_cfr_section":"420.27",

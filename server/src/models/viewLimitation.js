@@ -139,7 +139,7 @@ module.exports = (sequelize, DataTypes) => {
         field: 'unit'
       },
       limitationUnitDescription: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(4000),
         allowNull: false,
         field: 'unit_desc'
       },
