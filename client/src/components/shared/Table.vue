@@ -5,16 +5,14 @@
         <table class="table is-fullwidth is-bordered">
           <thead>
             <tr>
-              <th v-if="shouldHavePollCols">
+              <th v-if="shouldHavePollCols || shouldHaveTreatmentTechCols">
                 Select PSC
               </th>
               <th v-for="column in columns" :key="column.key">
                 {{ column.label }}
               </th>
-              <th v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
-                Zero Discharge<a
-                  v-if="shouldHaveResultsCols || shouldHavePollLimitCols"
-                  @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
+              <th v-if="shouldHaveResultsCols">
+                Zero Discharge<a v-if="shouldHaveResultsCols" @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
@@ -36,11 +34,11 @@
               <th v-if="shouldHaveResultsCols || shouldHavePollCols">
                 Go to Limitations
               </th>
-              <th v-if="shouldHavePollLimitCols">
+              <th v-if="shouldHavePollLimitCols || shouldHaveLimitationCols">
                 Go to LTA
               </th>
-              <th v-if="shouldHaveLimitationCols">
-                More Details
+              <th v-if="shouldHaveTreatmentTechCols">
+                Go to Technology Basis
               </th>
             </tr>
           </thead>
@@ -56,7 +54,7 @@
               </td>
             </tr>
             <tr v-for="(row, index) in rows" :key="index">
-              <td v-if="shouldHavePollCols">
+              <td v-if="shouldHavePollCols || shouldHaveTreatmentTechCols">
                 <input
                   class="is-checkradio is-info has-background-color psc"
                   type="checkbox"
@@ -66,28 +64,53 @@
                 /><label :for="row.pointSourceCategoryCode"></label>
               </td>
               <td v-for="column in columns" :key="column.key">
-                <span v-if="column.key === 'pointSourceSubcategories' && shouldHavePollCols"
-                  >{{ abbrvList(row[column.key]) + ' ' }}
+                <span
+                  v-if="
+                    column.key === 'pointSourceSubcategories' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
+                  "
+                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
+                  <br />
                   <a
                     class="is-link more"
-                    v-if="row[column.key].split(',').length > 2"
+                    v-if="row[column.key].split('<br/>').length > 2"
                     @click="$emit('shouldDisplayMoreModal', row[column.key])"
                     >more</a
                   >
                 </span>
-                <span v-if="column.key === 'wastestreamProcesses' && shouldHavePollCols"
-                  >{{ abbrvList(row[column.key]) + ' ' }}
+                <span
+                  v-else-if="
+                    column.key === 'rangeOfPollutantLimitations' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
+                  "
+                  ><span v-html="row[column.key]"></span>
+                </span>
+                <span v-else-if="column.key === 'pollutants' && shouldHaveTreatmentTechCols"
+                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
+                  <br />
                   <a
                     class="is-link more"
-                    v-if="row[column.key].replace(/;/g, ',').split(',').length > 2"
+                    v-if="row[column.key].split('<br/>').length > 2"
                     @click="$emit('shouldDisplayMoreModal', row[column.key])"
                     >more</a
                   >
                 </span>
-                <span v-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
-                  {{ row['wastestreamProcessCfrSection'] + ' ' + row[column.key] }}
+                <span v-else-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
+                  {{ row[column.key] }}
                 </span>
-                <span v-if="column.key === 'secondary'" v-html="row[column.key]"></span>
+                <span v-else-if="column.key === 'secondary'" v-html="row[column.key]"></span>
+                <span v-else-if="column.key === 'wastestreamProcessSecondary'" v-html="row[column.key]"></span>
+                <span v-else-if="column.key === 'limitationDurationDescription'">
+                  {{ row[column.key] ? row[column.key] : '--' }}
+                  <a
+                    v-if="
+                      row.limitationDurationDescription &&
+                        (row.wastestreamProcessLimitCalculationDescription ||
+                          row.limitRequirementDescription ||
+                          row.limitationPollutantNotes)
+                    "
+                    @click="$emit('onDisplayTypeOfLimitationModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
                 <span v-else-if="column.key === 'limitationValue'">
                   {{
                     row[column.key]
@@ -99,6 +122,20 @@
                   <a
                     v-if="row.limitationValue && row.limitationUnitCode && row.limitationUnitDescription"
                     @click="$emit('onDisplayUnitDescriptionModal', row)"
+                    ><span class="fa fa-info-circle"></span
+                  ></a>
+                </span>
+                <span v-else-if="column.key === 'longTermAverageValue'">
+                  {{
+                    row[column.key]
+                      ? row['longTermAverageUnitCode']
+                        ? row[column.key] + ' ' + row['longTermAverageUnitCode']
+                        : row[column.key]
+                      : '--'
+                  }}
+                  <a
+                    v-if="row.longTermAverageValue && row.longTermAverageUnitCode && row.longTermAverageUnitDescription"
+                    @click="$emit('onDisplayLtaUnitDescriptionModal', row)"
                     ><span class="fa fa-info-circle"></span
                   ></a>
                 </span>
@@ -139,56 +176,43 @@
                       : '--'
                   }}
                 </span>
-                <span v-else-if="column.key !== 'wastestreamProcesses' && column.key !== 'pointSourceSubcategories'">
+                <span v-else>
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
                     ><span class="fa fa-info-circle"></span
                   ></a>
                 </span>
               </td>
-              <td v-if="shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollLimitCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="row.zeroDischarge"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+              <td v-if="shouldHaveResultsCols">
+                <span>{{ row.zeroDischarge ? 'YES' : 'NO' }}</span>
               </td>
               <td v-if="shouldHaveResultsCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="row.includesBmps"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+                <span>{{ row.includesBmps ? 'YES' : 'NO' }}</span>
               </td>
               <td v-if="shouldHaveResultsCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="false"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+                <span>{{ 'NO' }}</span>
               </td>
               <td v-if="shouldHaveResultsCols">
-                <input
-                  class="is-checkradio is-info has-background-color static"
-                  type="checkbox"
-                  :checked="row.noLimitations"
-                  @click="stopTheEvent($event)"
-                /><label></label>
+                <span>{{ row.noLimitations ? 'YES' : 'NO' }}</span>
               </td>
               <td
                 v-if="
-                  shouldHaveResultsCols || shouldHaveLimitationCols || shouldHavePollCols || shouldHavePollLimitCols
+                  shouldHaveResultsCols ||
+                    shouldHaveLimitationCols ||
+                    shouldHavePollCols ||
+                    shouldHavePollLimitCols ||
+                    shouldHaveTreatmentTechCols
                 "
               >
                 <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
                   ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
                 ></a>
-                <a v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
-                  ><span class="fas fa-share-square limitation-link"></span
+                <a
+                  v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
+                  @click="$emit('onShouldDisplayLongTermAvgData', row)"
+                  ><span v-if="row.longTermAverageCount > 0" class="fas fa-share-square limitation-link"></span
                 ></a>
+                <a v-if="shouldHaveTreatmentTechCols"><span class="fas fa-share-square limitation-link"></span></a>
               </td>
             </tr>
           </tbody>
@@ -233,6 +257,10 @@ export default {
       type: Boolean,
       required: false,
     },
+    shouldHaveTreatmentTechCols: {
+      type: Boolean,
+      required: false,
+    },
     colsLength: {
       type: Number,
       required: false,
@@ -250,16 +278,18 @@ export default {
       e.preventDefault();
       e.stopPropagation();
     },
-    abbrvList(value) {
-      let abbrv = '';
-      value.replace(/;/g, ',');
-      const shortList = value.split(',');
+    abbreviatedList(value) {
+      const shortList = value.split('<br/>');
+
       if (shortList.length >= 2) {
-        abbrv = `${shortList[0]}, ${shortList[1]}`;
-      } else if (shortList.length === 1) {
+        return `${shortList[0]}<br/> ${shortList[1]}`;
+      }
+
+      if (shortList.length === 1) {
         return value;
       }
-      return abbrv;
+
+      return '';
     },
   },
   data() {
@@ -309,5 +339,6 @@ th {
 
 .checkbox-info {
   color: gray;
+  display: block;
 }
 </style>

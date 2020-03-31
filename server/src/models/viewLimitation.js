@@ -38,10 +38,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'alt_lim_flag'
       },
-      alternateLimitDescription: {
+      limitRequirementDescription: {
         type: DataTypes.STRING(4000),
         allowNull: true,
         field: 'alt_lim'
+      },
+      alternateLimitDescription: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'alt_lim_description'
       },
       wastestreamProcessId: {
         type: DataTypes.INTEGER,
@@ -79,9 +84,9 @@ module.exports = (sequelize, DataTypes) => {
         field: 'processop_notes'
       },
       wastestreamProcessLimitCalculationDescription: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'lim_calc_desc'
+        field: 'wp_lim_calc_desc'
       },
       wastestreamProcessAlternativeRequirement: {
         type: DataTypes.BOOLEAN,
@@ -102,6 +107,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'pollutant_desc'
+      },
+      elgPollutantDescription: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'elg_pollutant_description'
       },
       limitationDurationId: {
         type: DataTypes.INTEGER,
@@ -129,9 +139,19 @@ module.exports = (sequelize, DataTypes) => {
         field: 'unit'
       },
       limitationUnitDescription: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(4000),
         allowNull: false,
         field: 'unit_desc'
+      },
+      limitationPollutantNotes: {
+        type: DataTypes.STRING(4000),
+        allowNull: false,
+        field: 'lim_pollutant_notes'
+      },
+      limitationLimitCalculationDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: false,
+        field: 'lim_lim_calc_desc'
       },
       limitationUnitBasis: {
         type: DataTypes.STRING,
@@ -207,7 +227,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'ct_cfr_section'
-      }
+      },
+      longTermAverageCount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'lta_count'
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ViewLimitation' }
   );

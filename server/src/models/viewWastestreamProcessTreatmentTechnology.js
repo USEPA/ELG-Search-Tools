@@ -1,81 +1,21 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
-    'ViewLongTermAverage',
+    'ViewWastestreamProcessTreatmentTechnology',
     {
-      longTermAverageValue: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lta_value'
-      },
-      longTermAverageUnitCode: {
-        type: DataTypes.STRING,
+      treatmentId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'lta_unit'
+        field: 'treatment_id'
       },
-      longTermAverageUnitDescription: {
-        type: DataTypes.STRING(4000),
-        allowNull: false,
-        field: 'lta_unit_desc'
-      },
-      longTermAverageUnitBasis: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        field: 'lta_unit_basis'
-      },
-      longTermAverageNotes: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lta_notes'
-      },
-      longTermAverageSourceTitle: {
-        type: DataTypes.STRING(4000),
-        allowNull: false,
-        field: 'lta_source_title'
-      },
-      treatmentTechnologyCodes: {
+      treatmentCodes: {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'treatment_codes'
       },
-      limitationId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        field: 'lim_id'
-      },
-      dischargeFrequency: {
+      treatmentDescription: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'discharge_frequency'
-      },
-      limitationValue: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lim_value'
-      },
-      minimumValue: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lim_value_min'
-      },
-      maximumValue: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'lim_value_max'
-      },
-      zeroDischarge: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true,
-        field: 'zero_discharge'
-      },
-      alternateLimitFlag: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'alt_lim_flag'
-      },
-      alternateLimitDescription: {
-        type: DataTypes.STRING(4000),
-        allowNull: true,
-        field: 'alt_lim'
+        field: 'treatment_description'
       },
       wastestreamProcessId: {
         type: DataTypes.INTEGER,
@@ -113,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
         field: 'processop_notes'
       },
       wastestreamProcessLimitCalculationDescription: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(4000),
         allowNull: false,
         field: 'lim_calc_desc'
       },
@@ -127,55 +67,20 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'process_addtdetail'
       },
-      pollutantId: {
+      wastestreamProcessZeroDischarge: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'wp_zero_discharge'
+      },
+      wastestreamProcessTreatmentTechnologyTechnicalReferenceId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'pollutant_code'
+        field: 'wptt_tech_ref'
       },
-      pollutantDescription: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'pollutant_desc'
-      },
-      elgPollutantDescription: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        field: 'elg_pollutant_description'
-      },
-      limitationDurationId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        field: 'limit_duration_code'
-      },
-      limitationDurationDescription: {
+      wastestreamProcessTreatmentTechnologyNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'limit_duration_description'
-      },
-      limitationDurationBaseType: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        field: 'stat_base_type'
-      },
-      limitationUnitId: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        field: 'unit_code'
-      },
-      limitationUnitCode: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        field: 'unit'
-      },
-      limitationUnitDescription: {
-        type: DataTypes.STRING(4000),
-        allowNull: false,
-        field: 'unit_desc'
-      },
-      limitationUnitBasis: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        field: 'unit_basis'
+        field: 'wptt_tech_notes'
       },
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,
@@ -246,8 +151,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'ct_cfr_section'
+      },
+      controlTechnologyIncludesBmps: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'ct_includes_bmps'
       }
     },
-    { timestamps: false, schema: 'elg_search', tableName: 'ViewLongTermAverage' }
+    { timestamps: false, schema: 'elg_search', tableName: 'ViewWastestreamProcessTreatmentTechnology' }
   );
 };

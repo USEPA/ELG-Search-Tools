@@ -2,14 +2,14 @@
   <section class="section">
     <div class="columns">
       <div class="column">
-        <h1 class="title is-size-2 has-text-black">
+        <h1 class="title is-size-2">
           Effluent Limitations Guidelines and Standards (ELG) Database
         </h1>
       </div>
     </div>
     <div class="columns">
       <div class="column">
-        <h1 class="is-size-3 has-text-black">
+        <h1 class="is-size-3">
           Custom Search
         </h1>
       </div>

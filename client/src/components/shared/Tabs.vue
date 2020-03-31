@@ -2,18 +2,18 @@
   <section class="aq-tabs-container">
     <div class="columns label-container">
       <div class="direct-discharge-container">
-        <p class="has-text-black">Direct Discharge Requirements</p>
+        <p>Direct Discharge Requirements</p>
         <div class="is-divider direct"></div>
       </div>
       <div class="indirect-discharge-container">
-        <p class="has-text-black">Indirect Discharge Requirements</p>
+        <p>Indirect Discharge Requirements</p>
         <div class="is-divider indirect"></div>
       </div>
     </div>
     <div class="tabs aq-tabs is-toggle">
       <ul>
         <li v-for="tab in tabs" :key="tab.id" :class="tab.id === activeTabId ? 'is-active' : ''">
-          <button @click="activeTabId = tab.id">
+          <button @click="activeTabId = tab.id" :style="tab.id === 11 && { width: '100%' }">
             {{ tab.controlTechnologyCode }}
           </button>
         </li>
@@ -71,12 +71,12 @@ export default {
           white-space: unset;
           line-height: unset;
           &:hover {
-            background-color: darken($lightBlue, 10);
+            background-color: #d6e3eb;
           }
         }
 
         &.is-active button {
-          background-color: #d6e3eb;
+          background-color: darken($lightBlue, 10);
           font-weight: bold;
 
           &:hover {

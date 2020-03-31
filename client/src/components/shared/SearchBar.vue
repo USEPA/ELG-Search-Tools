@@ -28,6 +28,7 @@
           :custom-label="
             (option === 'Point Source Category' && customLabel) ||
               (option === 'Pollutant' && customLabelPoll) ||
+              (option === 'Treatment Technology' && customLabelTech) ||
               (() => {})
           "
           @select="getSubCategories"
@@ -80,10 +81,11 @@ export default {
       code: null,
       subcategoryCode: null,
       pollutantId: null,
+      treatmentTechnologyId: null,
     };
   },
   computed: {
-    ...mapGetters('search', ['categories', 'subcategories', 'pollutants']),
+    ...mapGetters('search', ['categories', 'subcategories', 'pollutants', 'treatmentTechnologies']),
   },
   methods: {
     async onChangeCategory(e) {
@@ -103,7 +105,10 @@ export default {
         this.list = this.pollutants;
         this.code = 'pollutantId';
         this.isLoading = false;
-      } else {
+      } else if (option === 'Treatment Technology') {
+        await this.$store.dispatch('search/getTreatmentTechnologies');
+        this.list = this.treatmentTechnologies;
+        this.code = 'id';
         this.isLoading = false;
       }
     },
@@ -120,6 +125,8 @@ export default {
         this.isLoadingSubcategories = false;
       } else if (this.option === 'Pollutant') {
         this.pollutantId = value.pollutantId;
+      } else if (this.option === 'Treatment Technology') {
+        this.treatmentTechnologyId = value.id;
       }
     },
     customLabel({ pointSourceCategoryCode, pointSourceCategoryName }) {
@@ -128,11 +135,16 @@ export default {
     customLabelPoll({ pollutantDescription }) {
       return pollutantDescription;
     },
+    customLabelTech({ name }) {
+      return name;
+    },
     async onSubmit() {
       if (this.option === 'Point Source Category') {
         await this.$store.dispatch('search/getSubcategory', this.subcategory.id);
       } else if (this.option === 'Pollutant') {
         await this.$store.dispatch('search/getPollutant', this.pollutantId);
+      } else if (this.option === 'Treatment Technology') {
+        await this.$store.dispatch('search/getTreatmentTechnology', this.treatmentTechnologyId);
       }
       await this.$router.push('results');
     },
@@ -154,7 +166,7 @@ button {
 }
 
 .subcategory-select {
-  width: 451px !important;
+  width: 609px !important;
   margin-left: 392px;
 }
 
@@ -166,5 +178,10 @@ button {
 <style lang="scss">
 .multiselect__tags {
   min-height: 45px !important;
+}
+
+.multiselect__single {
+  white-space: nowrap;
+  overflow: hidden;
 }
 </style>

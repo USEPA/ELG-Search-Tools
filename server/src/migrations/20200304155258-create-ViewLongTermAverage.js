@@ -2,13 +2,13 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.query('CREATE VIEW elg_search."ViewLongTermAverage" as ' +
-    'select lta.lta_value, lu.unit as lta_unit, lu.unit_desc as lta_unit_desc, lu.unit_basis as lta_unit_basis, ' +
+    'select lta.lta_value, lu_lta.unit as lta_unit, lu_lta.unit_desc as lta_unit_desc, lu_lta.unit_basis as lta_unit_basis, ' +
     'lta.notes as lta_notes, lta.tech_ref as lta_tech_ref, rs.source_title as lta_source_title, tt.treatment_codes, ' +
     'l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, ' +
     "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END as zero_discharge, " +
     'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect as wp_cfr_sect, ' +
     'wp.processop_description, wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +
-    'p.pollutant_code, p.pollutant_desc, ' +
+    'p.pollutant_code, p.pollutant_desc, p.elg_pollutant_description, ' +
     'ld.limit_duration_code, ld.limit_duration_description, ld.stat_base_type, ' +
     'lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, ' +
     'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, ' +

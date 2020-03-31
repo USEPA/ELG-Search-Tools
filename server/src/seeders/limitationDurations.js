@@ -53,7 +53,13 @@ module.exports = {
         "stat_base_type":"Maximum"},
       {"limit_duration_code":1012,
         "limit_duration_description":"Weekly average",
-        "stat_base_type":"Average"}];
+        "stat_base_type":"Average"},
+      {"limit_duration_code":1013,
+        "limit_duration_description":"Minimum for any 1 day",
+        "stat_base_type":"Minimum"},
+      {"limit_duration_code":1014,
+        "limit_duration_description":"Minimum 96-hour LC50",
+        "stat_base_type":"Minimum"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "LimitationDuration" }, records);
   },

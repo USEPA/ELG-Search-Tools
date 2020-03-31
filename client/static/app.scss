@@ -23,6 +23,10 @@ html {
   overflow-y: auto !important;
 }
 
+#main-content {
+  max-width: 70em;
+}
+
 .table td,
 .table th {
   vertical-align: middle !important;
@@ -41,7 +45,7 @@ html {
   .title,
   .subtitle,
   .label {
-    color: #fff;
+    color: black;
   }
   .label {
     font-weight: normal;

@@ -2,14 +2,14 @@
   <section class="section">
     <div class="columns">
       <div class="column">
-        <h1 class="title is-size-3 has-text-black">
+        <h1 class="title is-size-3">
           Effluent Limitations Guidelines and Standards (ELG) Database
         </h1>
       </div>
     </div>
     <div class="columns">
       <div class="column">
-        <h1 class="is-size-4 has-text-black">
+        <h1 class="is-size-4">
           Search Results
         </h1>
       </div>
@@ -19,14 +19,16 @@
         </button>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory" class="is-size-3 has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
-      Subpart {{ subcategory.comboSubcategory }}
-    </h1>
-    <h1 v-if="pollutantData" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory" class="is-size-5 has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
+    <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
       {{ pollutantData[0].pollutantDescription }}
+    </h1>
+    <h2 v-if="pollutantData">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</h2>
+    <h1 v-if="treatmentTechnology" class="is-size-3 has-text-weight-light">
+      {{ treatmentTechnology.name }}
     </h1>
     <div class="field is-grouped help-icons">
       <div v-if="pollutantData" class="field is-grouped psc-icon">
@@ -47,7 +49,7 @@
           <div class="column">
             <div class="field is-grouped">
               <div class="control is-expanded">
-                <h1 class="is-size-6 has-text-black has-text-weight-semibold">
+                <h1 class="is-size-6  has-text-weight-semibold">
                   {{ controlTechnology.controlTechnologyDescription }} ({{ controlTechnology.controlTechnologyCode }})
                   at a Glance
                 </h1>
@@ -62,26 +64,26 @@
               </div>
             </div>
             <div class="field" v-if="controlTechnology.atAGlance">
-              <h1 class="is-size-6 has-text-black">{{ controlTechnology.atAGlance }}</h1>
+              <h1 class="is-size-6">{{ controlTechnology.atAGlance }}</h1>
             </div>
             <div class="field is-grouped">
-              <p class="has-text-black" v-if="controlTechnology.technologyNames">
-                <b>Treatment Technology(ies):</b> {{ abbrvList(controlTechnology.technologyNames) }}
+              <p v-if="controlTechnology.technologyNames">
+                <b>Treatment Technology(ies):</b> {{ abbreviatedList(controlTechnology.technologyNames) }}
 
                 <a
                   class="is-link more"
-                  v-if="controlTechnology.technologyNames.split(';').length > 2"
+                  v-if="controlTechnology.technologyNames.split(', ').length > 2"
                   @click="shouldDisplayTechnologiesModal(controlTechnology.technologyNames)"
                   >more</a
                 >
               </p>
             </div>
             <div class="field is-grouped" v-if="controlTechnology.pollutants">
-              <p class="has-text-black">
-                <b>Pollutant(s):</b> {{ abbrvList(controlTechnology.pollutants) }}
+              <p>
+                <b>Pollutant(s):</b> {{ abbreviatedList(controlTechnology.pollutants) }}
                 <a
                   class="is-link more"
-                  v-if="controlTechnology.pollutants.split(';').length > 2"
+                  v-if="controlTechnology.pollutants.split(', ').length > 2"
                   @click="shouldDisplayPollutantsModal(controlTechnology.pollutants)"
                   >more</a
                 >
@@ -111,10 +113,56 @@
       @shouldDisplayMoreModal="displayMoreModal"
       :colsLength="6"
     />
+    <div v-if="treatmentTechnology">
+      <div class="columns treatment-info-box">
+        <div class="column is-gray-background is-7 technology-description">
+          <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnology.description }}</p>
+        </div>
+        <div class="column is-gray-background is-5">
+          <p><strong>Treatment Train(s):</strong></p>
+          <div v-for="train in getTreatmentTrains" :key="train.id">
+            <p>{{ train.names }}</p>
+          </div>
+          <a
+            class="is-link more"
+            v-if="treatmentTechnology.treatmentTrains.length > 3"
+            @click="() => (shouldDisplayTrains = true)"
+            >more</a
+          >
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-10">
+          <strong><label for="treatmentTrains">Treatment Train:</label></strong>
+          <select v-model="selectedTrain" @change="getTreatmentTrainData($event)" id="treatmentTrains">
+            <option v-for="train in treatmentTechnology.treatmentTrains" :key="train.id" :value="train.id">{{
+              train.names
+            }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div v-if="treatmentTechnology" class="field is-grouped psc-icon">
+            <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
+          </div>
+        </div>
+      </div>
+      <Table
+        v-if="treatmentTrain"
+        :columns="techColumns"
+        :rows="treatmentTrain"
+        :colsLength="7"
+        :shouldHaveTreatmentTechCols="true"
+        @shouldDisplayMoreModal="displayMoreModal"
+      />
+    </div>
+
     <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
       <div class="control-notes" v-for="(note, index) in notes" :key="index">
         <h3><strong>CFR Section:</strong> {{ note.cfrSection }}</h3>
         <p><strong>Notes:</strong> {{ note.notes }}</p>
+        <br />
       </div>
     </Modal>
     <Modal v-if="shouldDisplayInfoModal" @close="closeInfoModal">
@@ -139,7 +187,12 @@
       {{ currentCheckboxInfo }}
     </Modal>
     <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
-      {{ currentMoreInfo }}
+      <span v-html="currentMoreInfo"></span>
+    </Modal>
+    <Modal v-if="shouldDisplayTrains" @close="() => (shouldDisplayTrains = false)">
+      <div v-for="train in treatmentTechnology.treatmentTrains" :key="train.id">
+        <p>{{ train.names }}</p>
+      </div>
     </Modal>
   </section>
 </template>
@@ -151,10 +204,9 @@ import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  beforeMount() {},
   components: { Tabs, Table, Modal },
   computed: {
-    ...mapState('search', ['category', 'subcategory', 'pollutantData']),
+    ...mapState('search', ['category', 'subcategory', 'pollutantData', 'treatmentTechnology', 'treatmentTrain']),
     createTabs() {
       const tabs = [
         {
@@ -195,6 +247,12 @@ export default {
       }
       return tabs;
     },
+    getTreatmentTrains() {
+      if (this.treatmentTechnology.treatmentTrains.length > 3) {
+        return this.treatmentTechnology.treatmentTrains.slice(0, 3);
+      }
+      return this.treatmentTechnology.treatmentTrains;
+    },
   },
   data() {
     return {
@@ -212,6 +270,8 @@ export default {
       shouldDisplayCheckboxModal: false,
       currentMoreInfo: null,
       shouldDisplayMoreModal: false,
+      selectedTrain: null,
+      shouldDisplayTrains: false,
       pscColumns: [
         {
           key: 'cfrSection',
@@ -240,8 +300,30 @@ export default {
           label: 'Subcategories',
         },
         {
+          key: 'rangeOfPollutantLimitations',
+          label: 'Range of Pollutant Limitations',
+        },
+      ],
+      techColumns: [
+        {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
+        {
+          key: 'pointSourceSubcategories',
+          label: 'Subcategories',
+        },
+        {
           key: 'wastestreamProcesses',
           label: 'Process Operation/Wastestream(s)',
+        },
+        {
+          key: 'pollutants',
+          label: 'Pollutants',
         },
       ],
     };
@@ -249,6 +331,9 @@ export default {
   methods: {
     onNavigate() {
       this.$router.push('/');
+      if (this.treatmentTrain) {
+        this.$store.commit('search/SET_TREATMENT_TRAIN', null);
+      }
     },
     shouldDisplayNotesModal(notes) {
       this.notes = null;
@@ -297,16 +382,18 @@ export default {
           break;
       }
     },
-    abbrvList(value) {
-      let abbrv = '';
-      const shortList = value.split(';');
+    abbreviatedList(value) {
+      const shortList = value.split(', ');
+
       if (shortList.length >= 2) {
-        abbrv = `${shortList[0]}; ${shortList[1]}`;
-      } else if (shortList.length === 1) {
-        const [one] = shortList[0];
-        return one;
+        return `${shortList[0]}, ${shortList[1]}`;
       }
-      return abbrv;
+
+      if (shortList.length === 1) {
+        return value;
+      }
+
+      return '';
     },
     shouldDisplayTechnologiesModal(list) {
       this.technologies = null;
@@ -342,6 +429,9 @@ export default {
       this.currentMoreInfo = null;
       this.currentMoreInfo = value;
       this.shouldDisplayMoreModal = true;
+    },
+    async getTreatmentTrainData(e) {
+      await this.$store.dispatch('search/getTreatmentTrain', e.target.value);
     },
   },
 };
@@ -386,5 +476,22 @@ section p {
 .psc-icon {
   position: absolute;
   left: 0;
+}
+
+select {
+  width: 54em;
+}
+
+.treatment-info-box {
+  padding-left: 10px;
+  margin-top: 10px;
+}
+
+.technology-description {
+  margin-right: 5px;
+}
+
+.is-gray-background {
+  background-color: $gray;
 }
 </style>

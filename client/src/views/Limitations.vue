@@ -2,7 +2,7 @@
   <section class="section">
     <div class="columns">
       <div class="column">
-        <h1 class="title is-size-3 has-text-black">
+        <h1 class="title is-size-3">
           Effluent Limitations Guidelines and Standards (ELG) Database
         </h1>
       </div>
@@ -14,18 +14,16 @@
         </button>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="subcategory" class="is-size-3 has-text-weight-light">
       {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
     </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-3 has-text-black has-text-weight-light">
+    <h1 v-if="!subcategory && limitationData" class="is-size-3 has-text-weight-light">
       {{ pollutantDescription }}
     </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-5 has-text-black has-text-weight-light">
+    <h1 v-if="!subcategory && limitationData" class="is-size-5 has-text-weight-light">
       {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
     </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-black has-text-weight-light">
-      Subpart {{ subcategory.comboSubcategory }}
-    </h1>
+    <h1 v-if="subcategory" class="is-size-5 has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
     <div class="field is-grouped help-icons">
       <div class="field is-grouped">
         <span class="fas fa-book has-text-grey-dark help-icon"></span>
@@ -39,14 +37,10 @@
     <div v-if="subcategory" class="content info-box-container">
       <div class="columns">
         <div class="column is-9">
-          <p class="has-text-black info-box"><strong>CRF Section:</strong> {{ limitationData.cfrSection }}</p>
-          <p class="has-text-black info-box">
-            <strong>Level of Control:</strong> {{ limitationData.controlTechnologyCode }}
-          </p>
-          <p class="has-text-black info-box">
-            <strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}
-          </p>
-          <p class="has-text-black info-box">
+          <p class="info-box"><strong>CFR Section:</strong> {{ limitationData.cfrSection }}</p>
+          <p class="info-box"><strong>Level of Control:</strong> {{ limitationData.controlTechnologyCode }}</p>
+          <p class="info-box"><strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}</p>
+          <p class="info-box">
             <strong>Secondary Wastestream/Process Operation(s):</strong>
             <span v-html="limitationData.secondary"></span>
           </p>
@@ -64,6 +58,9 @@
       :rows="limitationData.limitations"
       :shouldHaveLimitationCols="true"
       @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+      @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
+      @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
+      @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
     <Tabs v-if="!subcategory && limitationData" :tabs="uniqueTabs" :isPollutant="true" :isPSC="false">
       <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
@@ -80,6 +77,8 @@
                 :shouldHavePollLimitCols="true"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
                 @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
+                @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
+                @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
                 :colsLength="10"
               />
             </div>
@@ -94,6 +93,22 @@
       <div class="info-modal">
         <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
         <p>{{ currentRow.limitationUnitDescription }}</p>
+      </div>
+    </Modal>
+    <Modal v-if="shouldDisplayTypeOfLimitationModal" @close="() => (shouldDisplayTypeOfLimitationModal = false)">
+      <div class="info-modal">
+        <h3 v-if="currentRow.wastestreamProcessLimitCalculationDescription">
+          <strong>Limitation Calculation Description</strong>
+        </h3>
+        <p>{{ currentRow.wastestreamProcessLimitCalculationDescription }}</p>
+        <h3 v-if="currentRow.limitRequirementDescription">
+          <strong>Limitation Requirement Description</strong>
+        </h3>
+        <p>{{ currentRow.limitRequirementDescription }}</p>
+        <h3 v-if="currentRow.limitationPollutantNotes">
+          <strong>Notes</strong>
+        </h3>
+        <p>{{ currentRow.limitationPollutantNotes }}</p>
       </div>
     </Modal>
   </section>
@@ -154,8 +169,7 @@ export default {
   data() {
     return {
       shouldDisplayUnitDescriptionModal: false,
-      directLength: null,
-      indirectLength: null,
+      shouldDisplayTypeOfLimitationModal: false,
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
       uniqueTabs: null,
@@ -169,10 +183,6 @@ export default {
           label: 'Type of Limitation',
         },
         {
-          key: 'dischargeFrequency',
-          label: 'Frequency',
-        },
-        {
           key: 'alternateLimitFlag',
           label: 'Flag',
         },
@@ -184,16 +194,6 @@ export default {
           key: 'limitationUnitBasis',
           label: 'Limitation Basis',
         },
-        /*
-        {
-          key: 'minimumValue',
-          label: 'Minimum Level',
-        },
-        {
-          key: 'maximumValue',
-          label: 'Maximum Level',
-        },
-        */
       ],
       pollLimitationCols: [
         {
@@ -213,10 +213,6 @@ export default {
           label: 'Type of Limitation',
         },
         {
-          key: 'dischargeFrequency',
-          label: 'Frequency',
-        },
-        {
           key: 'alternativeLimitFlag',
           label: 'Flag',
         },
@@ -226,7 +222,7 @@ export default {
         },
         {
           key: 'limitationUnitBasis',
-          label: 'Basis',
+          label: 'Limitation Basis',
         },
       ],
     };
@@ -242,20 +238,25 @@ export default {
     displayCheckboxInfo(checkbox) {
       this.shouldDisplayCheckboxModal = false;
       this.currentCheckboxInfo = null;
-      switch (checkbox) {
-        case 'zeroDischarge':
-          this.currentCheckboxInfo =
-            'There will be no discharge from the process operation or no discharge of the wastestream.';
-          this.shouldDisplayCheckboxModal = true;
-          break;
-        default:
-          break;
+      if (checkbox === 'zeroDischarge') {
+        this.currentCheckboxInfo =
+          'There will be no discharge from the process operation or no discharge of the wastestream.';
+        this.shouldDisplayCheckboxModal = true;
       }
     },
     displayUnitDescriptionModal(row) {
       this.currentRow = null;
       this.shouldDisplayUnitDescriptionModal = true;
       this.currentRow = row;
+    },
+    displayTypeOfLimitationModal(row) {
+      this.currentRow = null;
+      this.shouldDisplayTypeOfLimitationModal = true;
+      this.currentRow = row;
+    },
+    async shouldDisplayLongTermAvgData(row) {
+      await this.$store.dispatch('limitations/getLongTermAvgData', row.limitationId);
+      await this.$router.push('/longTermAverage');
     },
   },
 };

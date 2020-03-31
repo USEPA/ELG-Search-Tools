@@ -58,10 +58,25 @@ module.exports = {
       allowNull: true,
       field: 'alt_lim_flag'
     },
-    alternateLimitDescription: {
+    limitRequirementDescription: {
       type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'alt_lim'
+    },
+    alternateLimitDescription: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      field: 'alt_lim_description'
+    },
+    limitCalculationDescription: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'lim_calc_desc'
+    },
+    pollutantNotes: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'pollutant_notes'
     }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'Limitation'})

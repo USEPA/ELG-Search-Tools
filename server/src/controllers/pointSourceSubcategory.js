@@ -6,6 +6,7 @@ const ControlTechnologyNotes = require('../models').ControlTechnologyNotes;
 const WastestreamProcess = require('../models').WastestreamProcess;
 const WastestreamProcessTreatmentTechnology = require('../models').WastestreamProcessTreatmentTechnology;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
+const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const WastestreamProcessTreatmentTechnologyPollutant = require('../models').WastestreamProcessTreatmentTechnologyPollutant;
 const Pollutant  = require('../models').Pollutant;
 const ViewLimitation  = require('../models').ViewLimitation;
@@ -27,16 +28,36 @@ function fillControlTechnology(controlTechnology) {
     };
 
     ControlTechnologyNotes.findAll({
-      attributes: ['cfrSection', 'notes'],
+      attributes: [
+        'cfrSection',
+        [Sequelize.literal("replace(ct_notes, '\\u00A7', U&'\\00A7')"), 'notes']
+      ],
       where: {
         controlTechnologyCode: { [Op.eq]: controlTechnology.controlTechnologyCode },
-        cfrSection: { [Op.iLike]: controlTechnology.cfrSection + '%' }
+        cfrSection: { [Op.iLike]: controlTechnology.cfrSection + '%' },
+        display: { [Op.eq] : true }
       },
       order: ['cfrSection']
     }).then(controlTechnologyNotes => {
-      ct['notes'] = []; //controlTechnologyNotes; TODO: update to only load this if/when the source database indicates to do so.
+      ct['notes'] = controlTechnologyNotes;
 
       WastestreamProcess.findAll({
+        attributes: [
+          'id',
+          'controlTechnologyId',
+          'cfrSection',
+          'title',
+          'secondary',
+          [Sequelize.literal("replace(processop_description, '\\u00A7', U&'\\00A7')"), 'description'],
+          [Sequelize.literal("replace(processop_notes, '\\u00A7', U&'\\00A7')"), 'notes'],
+          [Sequelize.literal("replace(lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitCalculationDescription'],
+          'sourceId',
+          'zeroDischarge',
+          'includesBmps',
+          'noLimitations',
+          'alternativeRequirement',
+          'additionalDetail'
+        ],
         where: {
           controlTechnologyId: { [Op.eq]: controlTechnology.id }
         },
@@ -57,29 +78,37 @@ function fillControlTechnology(controlTechnology) {
                 id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
               }
             }).then(treatmentTechnologies => {
-              WastestreamProcessTreatmentTechnologyPollutant.findAll({
-                attributes: ['pollutantId'],
+              TreatmentTechnologyCode.findAll({
+                attributes: ['name'],
                 where: {
-                  wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
-                  treatmentId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
-                }
-              }).then(wastestreamProcessTreatmentTechnologyPollutants => {
-                Pollutant.findAll({
-                  attributes: ['description'],
-                  where: {
-                    id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
-                  }
-                }).then(pollutants => {
-                  ct['technologyNames'] = treatmentTechnologies.map(a => a.codes).join('; ').split('; ').sort().filter(function(value, index, self) {
-                    return self.indexOf(value) === index;
-                  }).join('; ');
-                  ct['pollutants'] = pollutants.map(a => a.description).join('; ').split('; ').sort().filter(function(value, index, self) {
-                    return self.indexOf(value) === index;
-                  }).join('; ');
+                  code: { [Op.in]: treatmentTechnologies.map(a => a.codes).join('; ').split('; ') }
+                },
+                group: ['name'],
+                order: ['name']
+              })
+                .then((treatmentTechnologyCodes) => {
+                  WastestreamProcessTreatmentTechnologyPollutant.findAll({
+                    attributes: ['pollutantId'],
+                    where: {
+                      wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
+                      treatmentId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
+                    }
+                  }).then(wastestreamProcessTreatmentTechnologyPollutants => {
+                    Pollutant.findAll({
+                      attributes: ['elgDescription'],
+                      where: {
+                        id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
+                      },
+                      group: ['elgDescription'],
+                      order: ['elgDescription']
+                    }).then(pollutants => {
+                      ct['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join(', ');
+                      ct['pollutants'] = pollutants.map(a => a.elgDescription).join(', ');
 
-                  resolve(ct);
+                      resolve(ct);
+                    });
+                  });
                 });
-              });
             })
           } else {
             // no treatment technologies are linked to this process
@@ -87,14 +116,14 @@ function fillControlTechnology(controlTechnology) {
             ViewLimitation.findAll( {
               attributes: [
                 [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
-                [Sequelize.col('pollutant_desc'), 'pollutantDescription']
+                [Sequelize.col('elg_pollutant_description'), 'elgPollutantDescription']
               ],
               where: {
                 wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
               }
             })
               .then(pollutants => {
-                ct['pollutants'] = pollutants.map(a => a.pollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
+                ct['pollutants'] = pollutants.map(a => a.elgPollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
                   return self.indexOf(value) === index;
                 }).join('; ');
 
@@ -145,7 +174,7 @@ module.exports = {
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
-    let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+    let id = utilities.parseIdAsInteger(req.params.id);
 
     if (id === null) {
       return res.status(400).send('Invalid value passed for id')
@@ -178,18 +207,32 @@ module.exports = {
             order: ['displayOrder'],
           })
             .then((controlTechnologies) => {
-
-              let notesPromises = [];
+              let ctPromises = [];
 
               controlTechnologies.forEach(function(controlTechnology) {
-                notesPromises.push(
+                ctPromises.push(
                   fillControlTechnology(controlTechnology)
                 )
               });
 
-              Promise.all(notesPromises).then((cts) => {
+              Promise.all(ctPromises).then((cts) => {
                 result['controlTechnologies'] = cts;
-                res.status(200).send(result)
+
+                //add record for each LOC that is not relevant for this subcategory
+                ctPromises = [];
+
+                ['BPT', 'BCT', 'BAT', 'NSPS', 'PSES', 'PSNS'].forEach(function(ctCode, index ) {
+                  if (cts.filter(function(ct){ return ct.controlTechnologyCode === ctCode }).length === 0) {
+                    ctPromises.push(
+                      fillControlTechnology({id: (index * -1), controlTechnologyCode: ctCode, notes: null, includesBmps: '0'})
+                    );
+                  }
+                });
+
+                Promise.all(ctPromises).then((cts) => {
+                  result['controlTechnologies'] = result['controlTechnologies'].concat(cts);
+                  res.status(200).send(result);
+                });
               });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));

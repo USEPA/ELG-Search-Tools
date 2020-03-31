@@ -2,17 +2,21 @@ const utilities = require('./utilities');
 
 const ViewLimitation = require('../models').ViewLimitation;
 const ViewLongTermAverage = require('../models').ViewLongTermAverage;
+const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const Op = require('sequelize').Op;
+const Sequelize = require("sequelize");
 
 let attributes = [
   'limitationId',
   'controlTechnologyCode',
   'controlTechnologyCfrSection',
   'comboSubcategory',
+  'wastestreamProcessId',
   'wastestreamProcessTitle',
   'wastestreamProcessSecondary',
   'wastestreamProcessCfrSection',
-  'pollutantDescription',
+  'wastestreamProcessLimitCalculationDescription',
+  ['elg_pollutant_description', 'pollutantDescription'],
   'dischargeFrequency',
   'limitationValue',
   'minimumValue',
@@ -21,13 +25,18 @@ let attributes = [
   'limitationDurationDescription',
   'limitationDurationBaseType',
   'limitationUnitCode',
-  'limitationUnitDescription',
+  [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
   'limitationUnitBasis',
   'alternateLimitFlag',
-  'alternateLimitDescription'
+  'alternateLimitDescription',
+  'limitRequirementDescription',
+  'limitationLimitCalculationDescription',
+  'limitationPollutantNotes',
+  'longTermAverageCount'
 ];
 
 let order = [
+  'comboSubcategory',
   'controlTechnologyDisplayOrder',
   'wastestreamProcessDisplayOrder',
   'pollutantDescription',
@@ -46,11 +55,18 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
       .then((limitations) => {
         let result = new Map();
 
-        result.cfrSection = limitations[0].wastestreamProcessCfrSection;
-        result.controlTechnologyCode = limitations[0].controlTechnologyCode;
-        result.title = limitations[0].wastestreamProcessTitle;
-        result.secondary = limitations[0].wastestreamProcessSecondary;
+        result.cfrSection = null;
+        result.controlTechnologyCode = null;
+        result.title = null;
+        result.secondary = null;
         result.limitations = limitations;
+
+        if (limitations.length > 0) {
+          result.cfrSection = limitations[0].wastestreamProcessCfrSection;
+          result.controlTechnologyCode = limitations[0].controlTechnologyCode;
+          result.title = limitations[0].wastestreamProcessTitle;
+          result.secondary = limitations[0].wastestreamProcessSecondary;
+        }
 
         resolve(result);
       })
@@ -75,6 +91,53 @@ function pollutantLimitations(pollutantId, pointSourceCategoryCode) {
   });
 }
 
+function fillLongTermAverage(longTermAverage) {
+  return new Promise(function(resolve, reject) {
+    TreatmentTechnologyCode.findAll({
+      where: {
+        [Op.and]: Sequelize.literal("code IN (SELECT codes FROM regexp_split_to_table('" + longTermAverage.treatmentTechnologyCodes + "', '; ') AS codes)")
+      }
+    })
+      .then(treatmentTechnologyCodes => {
+        let names = longTermAverage.treatmentTechnologyCodes.split("; ").map(code => treatmentTechnologyCodes.filter(treatmentTechnologyCode => treatmentTechnologyCode.id === code)[0].name).join(" + ");
+
+        resolve({
+          treatmentTechnologyNames: names,
+          pollutantDescription: longTermAverage.pollutantDescription,
+          longTermAverageValue: longTermAverage.longTermAverageValue,
+          longTermAverageUnitCode: longTermAverage.longTermAverageUnitCode,
+          longTermAverageUnitDescription: longTermAverage.longTermAverageUnitDescription,
+          longTermAverageUnitBasis: longTermAverage.longTermAverageUnitBasis,
+          longTermAverageNotes: longTermAverage.longTermAverageNotes,
+          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle,
+          alternateLimitFlag: longTermAverage.alternateLimitFlag,
+          limitationValue: longTermAverage.limitationValue,
+          limitationUnitCode: longTermAverage.limitationUnitCode,
+          limitationUnitDescription: longTermAverage.limitationUnitDescription,
+          limitationUnitBasis: longTermAverage.limitationUnitBasis
+        });
+      })
+      .catch(err => {
+        console.error("Failed to retrieve treatment technology names: " + err);
+        resolve({
+          treatmentTechnologyNames: longTermAverage.treatmentTechnologyCodes,
+          pollutantDescription: longTermAverage.pollutantDescription,
+          longTermAverageValue: longTermAverage.longTermAverageValue,
+          longTermAverageUnitCode: longTermAverage.longTermAverageUnitCode,
+          longTermAverageUnitDescription: longTermAverage.longTermAverageUnitDescription,
+          longTermAverageUnitBasis: longTermAverage.longTermAverageUnitBasis,
+          longTermAverageNotes: longTermAverage.longTermAverageNotes,
+          longTermAverageSourceTitle: longTermAverage.longTermAverageSourceTitle,
+          alternateLimitFlag: longTermAverage.alternateLimitFlag,
+          limitationValue: longTermAverage.limitationValue,
+          limitationUnitCode: longTermAverage.limitationUnitCode,
+          limitationUnitDescription: longTermAverage.limitationUnitDescription,
+          limitationUnitBasis: longTermAverage.limitationUnitBasis
+        });
+      });
+  });
+}
+
 module.exports = {
   wastestreamProcessLimitations,
   pollutantLimitations,
@@ -86,7 +149,7 @@ module.exports = {
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = isNaN(req.params.id) ? null : (Number.isInteger(Number(req.params.id)) ? Number(req.params.id) : null);
+      let id = utilities.parseIdAsInteger(req.params.id);
 
       if (id === null) {
         return res.status(400).send('Invalid value passed for id')
@@ -94,7 +157,7 @@ module.exports = {
 
       return ViewLimitation.findByPk(id, {
         attributes: [
-          'pollutantDescription',
+          'elgPollutantDescription',
           'pointSourceCategoryCode',
           'pointSourceCategoryName',
           'comboSubcategory',
@@ -107,7 +170,7 @@ module.exports = {
       })
         .then((limitation) => {
           let result = new Map();
-          result['pollutantDescription'] = limitation.pollutantDescription;
+          result['pollutantDescription'] = limitation.elgPollutantDescription;
           result['pointSourceCategoryCode'] = limitation.pointSourceCategoryCode;
           result['pointSourceCategoryName'] = limitation.pointSourceCategoryName;
           result['comboSubcategory'] = limitation.comboSubcategory;
@@ -121,13 +184,18 @@ module.exports = {
           ViewLongTermAverage.findAll({
             attributes: [
               'treatmentTechnologyCodes',
-              'pollutantDescription',
+              ['elg_pollutant_description', 'pollutantDescription'],
               'longTermAverageValue',
               'longTermAverageUnitCode',
-              'longTermAverageUnitDescription',
+              [Sequelize.literal("replace(lta_unit_desc, '\\u00A7', U&'\\00A7')"), 'longTermAverageUnitDescription'],
               'longTermAverageUnitBasis',
               'longTermAverageNotes',
-              'longTermAverageSourceTitle'
+              'longTermAverageSourceTitle',
+              'alternateLimitFlag',
+              'limitationValue',
+              'limitationUnitCode',
+              [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
+              'limitationUnitBasis'
             ],
             where: {
               limitationId: { [Op.eq]: id }
@@ -135,9 +203,25 @@ module.exports = {
             order: ['treatmentTechnologyCodes', 'pollutantDescription']
           })
             .then((longTermAverages) => {
-              result['longTermAverages'] = longTermAverages;
+              let ltaPromises = [];
 
-              res.status(200).send(result);
+              longTermAverages.forEach(function(lta) {
+                ltaPromises.push(fillLongTermAverage(lta));
+              });
+
+              Promise.all(ltaPromises)
+                .then(ltas => {
+                  result['longTermAverages'] = ltas.sort(function(a, b) {
+                    if (a.treatmentTechnologyNames < b.treatmentTechnologyNames) {
+                      return -1;
+                    }
+                    if (a.treatmentTechnologyNames > b.treatmentTechnologyNames) {
+                      return 1;
+                    }
+                    return 0;
+                  });
+                  res.status(200).send(result);
+                });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         })

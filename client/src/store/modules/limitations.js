@@ -6,6 +6,7 @@ const state = {
   pollutantDescription: null,
   limitationData: null,
   isFetching: false,
+  longTermAvgData: null,
 };
 
 const getters = {
@@ -27,6 +28,9 @@ const mutations = {
       state.pointSourceCategoryName = payload.pointSourceCategoryName;
       state.pollutantDescription = payload.pollutantDescription;
     }
+  },
+  SET_LTA_DATA(state, payload) {
+    state.longTermAvgData = payload;
   },
 };
 
@@ -55,6 +59,14 @@ const actions = {
   async getPollutantInfo({ commit }, payload) {
     commit('SET_PSC', null);
     commit('SET_PSC', payload);
+  },
+  async getLongTermAvgData({ commit }, id) {
+    commit('SET_LTA_DATA', null);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get(`api/limitation/${id}`);
+    commit('SET_LTA_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
   },
 };
 
