@@ -31,7 +31,7 @@
                   ><span class="fa fa-info-circle checkbox-info"></span
                 ></a>
               </th>
-              <th v-if="shouldHaveResultsCols || shouldHavePollCols">
+              <th v-if="shouldHaveResultsCols || shouldHavePollCols || shouldHaveTechBasisCols">
                 Go to Limitations
               </th>
               <th v-if="shouldHavePollLimitCols || shouldHaveLimitationCols">
@@ -64,11 +64,8 @@
                 /><label :for="row.pointSourceCategoryCode"></label>
               </td>
               <td v-for="column in columns" :key="column.key">
-                <span
-                  v-if="
-                    column.key === 'pointSourceSubcategories' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
-                  "
-                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
+                <span v-if="column.isAbbreviatedList">
+                  <span v-html="abbreviatedList(row[column.key]) + ' '"></span>
                   <br />
                   <a
                     class="is-link more"
@@ -77,21 +74,8 @@
                     >more</a
                   >
                 </span>
-                <span
-                  v-else-if="
-                    column.key === 'rangeOfPollutantLimitations' && (shouldHavePollCols || shouldHaveTreatmentTechCols)
-                  "
-                  ><span v-html="row[column.key]"></span>
-                </span>
-                <span v-else-if="column.key === 'pollutants' && shouldHaveTreatmentTechCols"
-                  ><span v-html="abbreviatedList(row[column.key]) + ' '"></span>
-                  <br />
-                  <a
-                    class="is-link more"
-                    v-if="row[column.key].split('<br/>').length > 2"
-                    @click="$emit('shouldDisplayMoreModal', row[column.key])"
-                    >more</a
-                  >
+                <span v-else-if="column.key === 'rangeOfPollutantLimitations' && shouldHavePollCols">
+                  <span v-html="row[column.key]"></span>
                 </span>
                 <span v-else-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
                   {{ row[column.key] }}
@@ -176,6 +160,9 @@
                       : '--'
                   }}
                 </span>
+                <span v-else-if="column.key === 'wastestreamProcessZeroDischarge'">
+                  {{ row[column.key] ? 'YES' : 'NO' }}
+                </span>
                 <span v-else>
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
@@ -201,18 +188,24 @@
                     shouldHaveLimitationCols ||
                     shouldHavePollCols ||
                     shouldHavePollLimitCols ||
-                    shouldHaveTreatmentTechCols
+                    shouldHaveTreatmentTechCols ||
+                    shouldHaveTechBasisCols
                 "
               >
-                <a v-if="shouldHaveResultsCols || shouldHavePollCols" @click="$emit('onNavigateToLimitations', row)"
-                  ><span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span
-                ></a>
+                <a
+                  v-if="shouldHaveResultsCols || shouldHavePollCols || shouldHaveTechBasisCols"
+                  @click="$emit('onNavigateToLimitations', row)"
+                >
+                  <span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span>
+                </a>
                 <a
                   v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
                   @click="$emit('onShouldDisplayLongTermAvgData', row)"
                   ><span v-if="row.longTermAverageCount > 0" class="fas fa-share-square limitation-link"></span
                 ></a>
-                <a v-if="shouldHaveTreatmentTechCols"><span class="fas fa-share-square limitation-link"></span></a>
+                <a v-if="shouldHaveTreatmentTechCols" @click="$emit('onShouldDisplayTechnologyBasisData', row)">
+                  <span class="fas fa-share-square limitation-link"></span>
+                </a>
               </td>
             </tr>
           </tbody>
@@ -261,6 +254,10 @@ export default {
       type: Boolean,
       required: false,
     },
+    shouldHaveTechBasisCols: {
+      type: Boolean,
+      required: false,
+    },
     colsLength: {
       type: Number,
       required: false,
@@ -282,7 +279,7 @@ export default {
       const shortList = value.split('<br/>');
 
       if (shortList.length >= 2) {
-        return `${shortList[0]}<br/> ${shortList[1]}`;
+        return `${shortList[0]}<br/>${shortList[1]}`;
       }
 
       if (shortList.length === 1) {

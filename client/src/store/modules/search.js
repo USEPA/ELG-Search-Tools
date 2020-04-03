@@ -10,6 +10,7 @@ const state = {
   treatmentTechnologies: [],
   treatmentTechnology: null,
   treatmentTrain: null,
+  technologyBasisData: null,
   isFetching: false,
 };
 
@@ -28,6 +29,9 @@ const getters = {
   },
   treatmentTechnologies(state) {
     return state.treatmentTechnologies;
+  },
+  technologyBasisData(state) {
+    return state.technologyBasisData;
   },
 };
 
@@ -58,6 +62,9 @@ const mutations = {
   },
   SET_TREATMENT_TRAIN(state, value) {
     state.treatmentTrain = value;
+  },
+  SET_TECHNOLOGY_BASIS(state, value) {
+    state.technologyBasisData = value;
   },
   SET_IS_FETCHING(state, value) {
     state.isFetching = value;
@@ -133,6 +140,19 @@ const actions = {
 
     const train = await axios.get(`api/treatmentTrain/${id}`);
     commit('SET_TREATMENT_TRAIN', train.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getTechnologyBasisData({ commit }, { treatmentId, pointSourceCategoryCode }) {
+    commit('SET_TECHNOLOGY_BASIS', null);
+    commit('SET_IS_FETCHING', true);
+
+    const train = await axios.get(`api/technologyBases`, {
+      params: {
+        treatmentId,
+        pointSourceCategoryCode,
+      },
+    });
+    commit('SET_TECHNOLOGY_BASIS', train.data);
     commit('SET_IS_FETCHING', false);
   },
 };

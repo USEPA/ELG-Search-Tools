@@ -27,6 +27,7 @@ const mutations = {
       state.pointSourceCategoryCode = payload.pointSourceCategoryCode;
       state.pointSourceCategoryName = payload.pointSourceCategoryName;
       state.pollutantDescription = payload.pollutantDescription;
+      state.treatmentNames = payload.treatmentNames;
     }
   },
   SET_LTA_DATA(state, payload) {
@@ -50,6 +51,19 @@ const actions = {
     const res = await axios.get('api/pollutantLimitations', {
       params: {
         pollutantId,
+        pointSourceCategoryCode,
+      },
+    });
+    commit('SET_LIMITATION_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getTechnologyBasisLimitationData({ commit }, { treatmentId, pointSourceCategoryCode }) {
+    commit('SET_LIMITATION_DATA', null);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/technologyBasisLimitations', {
+      params: {
+        treatmentId,
         pointSourceCategoryCode,
       },
     });

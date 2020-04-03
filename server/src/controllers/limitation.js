@@ -3,6 +3,7 @@ const utilities = require('./utilities');
 const ViewLimitation = require('../models').ViewLimitation;
 const ViewLongTermAverage = require('../models').ViewLongTermAverage;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
+const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
 
@@ -91,6 +92,32 @@ function pollutantLimitations(pollutantId, pointSourceCategoryCode) {
   });
 }
 
+function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
+  return new Promise(function(resolve, reject) {
+    ViewWastestreamProcessTreatmentTechnology.findAll({
+      attributes: ['wastestreamProcessId'],
+      where: {
+        treatmentId: {[Op.eq]: treatmentId},
+        pointSourceCategoryCode: {[Op.eq]: pointSourceCategoryCode}
+      }
+    })
+      .then(wastestreamProcessTreatmentTechnologies => {
+        ViewLimitation.findAll({
+          attributes: attributes,
+          where: {
+            wastestreamProcessId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.wastestreamProcessId) }
+          },
+          order: order
+        })
+          .then((limitations) => {
+            resolve(limitations);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error));
+      })
+      .catch((error) => reject('Error retrieving limitations: ' + error));
+  });
+}
+
 function fillLongTermAverage(longTermAverage) {
   return new Promise(function(resolve, reject) {
     TreatmentTechnologyCode.findAll({
@@ -141,6 +168,7 @@ function fillLongTermAverage(longTermAverage) {
 module.exports = {
   wastestreamProcessLimitations,
   pollutantLimitations,
+  technologyBasisLimitations,
   /**
    * @param {
    *          {id:number}

@@ -134,10 +134,14 @@
       <div class="columns">
         <div class="column is-10">
           <strong><label for="treatmentTrains">Treatment Train:</label></strong>
-          <select v-model="selectedTrain" @change="getTreatmentTrainData($event)" id="treatmentTrains">
-            <option v-for="train in treatmentTechnology.treatmentTrains" :key="train.id" :value="train.id">{{
-              train.names
-            }}</option>
+          <select
+            v-model="treatmentTechnology.treatmentTrains[0].treatmentId"
+            @change="getTreatmentTrainData($event)"
+            id="treatmentTrains"
+          >
+            <option v-for="train in treatmentTechnology.treatmentTrains" :key="train.id" :value="train.id">
+              {{ train.names }}
+            </option>
           </select>
         </div>
       </div>
@@ -152,9 +156,9 @@
         v-if="treatmentTrain"
         :columns="techColumns"
         :rows="treatmentTrain"
-        :colsLength="7"
         :shouldHaveTreatmentTechCols="true"
         @shouldDisplayMoreModal="displayMoreModal"
+        @onShouldDisplayTechnologyBasisData="shouldDisplayTechnologyBasisData"
       />
     </div>
 
@@ -298,6 +302,7 @@ export default {
         {
           key: 'pointSourceSubcategories',
           label: 'Subcategories',
+          isAbbreviatedList: true,
         },
         {
           key: 'rangeOfPollutantLimitations',
@@ -316,14 +321,17 @@ export default {
         {
           key: 'pointSourceSubcategories',
           label: 'Subcategories',
+          isAbbreviatedList: true,
         },
         {
           key: 'wastestreamProcesses',
           label: 'Process Operation/Wastestream(s)',
+          isAbbreviatedList: true,
         },
         {
           key: 'pollutants',
           label: 'Pollutants',
+          isAbbreviatedList: true,
         },
       ],
     };
@@ -432,6 +440,13 @@ export default {
     },
     async getTreatmentTrainData(e) {
       await this.$store.dispatch('search/getTreatmentTrain', e.target.value);
+    },
+    async shouldDisplayTechnologyBasisData(row) {
+      await this.$store.dispatch('search/getTechnologyBasisData', {
+        treatmentId: row.treatmentId,
+        pointSourceCategoryCode: row.pointSourceCategoryCode,
+      });
+      await this.$router.push('/technologyBasis');
     },
   },
 };

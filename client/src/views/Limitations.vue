@@ -19,6 +19,7 @@
     </h1>
     <h1 v-if="!subcategory && limitationData" class="is-size-3 has-text-weight-light">
       {{ pollutantDescription }}
+      {{ treatmentNames }}
     </h1>
     <h1 v-if="!subcategory && limitationData" class="is-size-5 has-text-weight-light">
       {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
@@ -164,6 +165,7 @@ export default {
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
       'pollutantDescription',
+      'treatmentNames',
     ]),
   },
   data() {
