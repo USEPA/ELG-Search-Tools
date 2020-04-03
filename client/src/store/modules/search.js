@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { make } from 'vuex-pathify';
 
 const state = {
   categories: [],
@@ -14,54 +15,15 @@ const state = {
 };
 
 const getters = {
-  categories(state) {
-    return state.categories;
-  },
-  subcategories(state) {
-    return state.subcategories;
-  },
+  ...make.getters(state),
   subcategoryData(state) {
     return state.subcategory;
-  },
-  pollutants(state) {
-    return state.pollutants;
-  },
-  treatmentTechnologies(state) {
-    return state.treatmentTechnologies;
   },
 };
 
 const mutations = {
-  SET_CATEGORIES(state, payload) {
-    state.categories = payload;
-  },
-  SET_CATEGORY(state, payload) {
-    state.category = payload;
-  },
-  SET_SUBCATEGORIES(state, payload) {
-    state.subcategories = payload;
-  },
-  SET_SUBCATEGORY(state, value) {
-    state.subcategory = value;
-  },
-  SET_POLLUTANTS(state, payload) {
-    state.pollutants = payload;
-  },
-  SET_POLLUTANT(state, value) {
-    state.pollutantData = value;
-  },
-  SET_TREATMENT_TECHNOLOGIES(state, payload) {
-    state.treatmentTechnologies = payload;
-  },
-  SET_TREATMENT_TECHNOLOGY(state, value) {
-    state.treatmentTechnology = value;
-  },
-  SET_TREATMENT_TRAIN(state, value) {
-    state.treatmentTrain = value;
-  },
-  SET_IS_FETCHING(state, value) {
-    state.isFetching = value;
-  },
+  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_CATEGORIES"
+  ...make.mutations(state),
 };
 
 const actions = {
