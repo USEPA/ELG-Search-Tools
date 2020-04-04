@@ -156,9 +156,13 @@ export default {
     },
   },
   created() {
+    // Fetch lookup data for dropdown lists
     this.$store.dispatch('search/getPointSourceCategories');
     this.$store.dispatch('search/getPollutants');
     this.$store.dispatch('search/getTreatmentTechnologies');
+    // Clear treatment train data so it's not pre-selected if user returns to same results page
+    this.$store.commit('search/SET_SELECTED_TREATMENT_TRAIN', null);
+    this.$store.commit('search/SET_TREATMENT_TRAIN', null);
   },
 };
 </script>

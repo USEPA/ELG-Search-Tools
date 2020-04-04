@@ -14,11 +14,17 @@
         </h1>
       </div>
       <div class="column">
-        <button class="button has-text-white is-pulled-right" @click="onNavigate">
+        <router-link to="/" class="button has-text-white is-pulled-right">
           <span class="fa fa-reply has-text-white"></span>Back to Search
-        </button>
+        </router-link>
       </div>
     </div>
+    <Breadcrumbs
+      :pages="[
+        { title: 'Search', path: '/' },
+        { title: 'Results', isCurrent: true },
+      ]"
+    />
     <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
       {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
     </h1>
@@ -201,12 +207,13 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Tabs from '@/components/shared/Tabs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Tabs, Table, Modal },
+  components: { Breadcrumbs, Tabs, Table, Modal },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -338,12 +345,6 @@ export default {
     };
   },
   methods: {
-    onNavigate() {
-      this.$router.push('/');
-      if (this.treatmentTrain) {
-        this.$store.commit('search/SET_TREATMENT_TRAIN', null);
-      }
-    },
     shouldDisplayNotesModal(notes) {
       this.notes = null;
       if (notes) {
@@ -432,7 +433,7 @@ export default {
           pollutantDescription: row.pollutantDescription,
         });
       }
-      await this.$router.push('limitations');
+      await this.$router.push('/results/limitations');
     },
     displayMoreModal(value) {
       this.currentMoreInfo = null;
@@ -450,6 +451,10 @@ export default {
 @import '../../static/variables';
 button {
   background: $blue;
+}
+
+a.button {
+  margin: 0;
 }
 
 .is-link.more {
