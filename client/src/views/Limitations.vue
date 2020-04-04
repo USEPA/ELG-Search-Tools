@@ -7,23 +7,25 @@
         </h1>
       </div>
     </div>
-    <div class="columns" v-if="!subcategory && limitationData">
+    <div class="columns" v-if="!subcategoryData && limitationData">
       <div class="column">
         <button class="button has-text-white is-pulled-right" @click="onNavigate">
           <span class="fa fa-reply has-text-white"></span>Back to Results
         </button>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-weight-light">
-      {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
+    <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
+      {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
     </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-3 has-text-weight-light">
+    <h1 v-if="!subcategoryData && limitationData" class="is-size-3 has-text-weight-light">
       {{ pollutantDescription }}
     </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-5 has-text-weight-light">
+    <h1 v-if="!subcategoryData && limitationData" class="is-size-5 has-text-weight-light">
       {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
     </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
+    <h1 v-if="subcategoryData" class="is-size-5 has-text-weight-light">
+      Subpart {{ subcategoryData.comboSubcategory }}
+    </h1>
     <div class="field is-grouped help-icons">
       <div class="field is-grouped">
         <span class="fas fa-book has-text-grey-dark help-icon"></span>
@@ -34,7 +36,7 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <div v-if="subcategory" class="content info-box-container">
+    <div v-if="subcategoryData" class="content info-box-container">
       <div class="columns">
         <div class="column is-9">
           <p class="info-box"><strong>CFR Section:</strong> {{ limitationData.cfrSection }}</p>
@@ -53,7 +55,7 @@
       </div>
     </div>
     <Table
-      v-if="subcategory"
+      v-if="subcategoryData"
       :columns="pscColumns"
       :rows="limitationData.limitations"
       :shouldHaveLimitationCols="true"
@@ -62,7 +64,7 @@
       @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
       @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
-    <Tabs v-if="!subcategory && limitationData" :tabs="uniqueTabs" :isPollutant="true" :isPSC="false">
+    <Tabs v-if="!subcategoryData && limitationData" :tabs="uniqueTabs" :isPollutant="true" :isPSC="false">
       <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
         <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
           <div class="column poll-limitation-container">
@@ -122,7 +124,7 @@ import Modal from '@/components/shared/Modal';
 
 export default {
   beforeMount() {
-    if (!this.subcategory && this.limitationData) {
+    if (!this.subcategoryData && this.limitationData) {
       this.uniqueTabs = [
         {
           id: 0,
@@ -158,7 +160,7 @@ export default {
   },
   components: { Table, Tabs, Modal },
   computed: {
-    ...mapState('search', ['category', 'subcategory']),
+    ...mapState('search', ['selectedCategory', 'subcategoryData']),
     ...mapState('limitations', [
       'limitationData',
       'pointSourceCategoryCode',
