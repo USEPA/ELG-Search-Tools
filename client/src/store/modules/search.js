@@ -1,66 +1,38 @@
 import axios from 'axios';
+import { make } from 'vuex-pathify';
 
 const state = {
+  // lookups to feed dropdown lists
   categories: [],
-  category: null,
   subcategories: [],
-  subcategory: null,
   pollutants: [],
-  pollutantData: null,
   treatmentTechnologies: [],
-  treatmentTechnology: null,
+  // user-selected values
+  searchType: '',
+  selectedCategory: null,
+  selectedSubcategory: null,
+  selectedPollutant: null,
+  selectedTreatmentTechnology: null,
+  selectedTreatmentTrain: null,
+  // search results data
+  subcategoryData: null,
+  pollutantData: null,
+  treatmentTechnologyData: null,
   treatmentTrain: null,
   isFetching: false,
 };
 
 const getters = {
-  categories(state) {
-    return state.categories;
-  },
-  subcategories(state) {
-    return state.subcategories;
-  },
-  subcategoryData(state) {
-    return state.subcategory;
-  },
-  pollutants(state) {
-    return state.pollutants;
-  },
-  treatmentTechnologies(state) {
-    return state.treatmentTechnologies;
-  },
+  ...make.getters(state),
 };
 
 const mutations = {
-  SET_CATEGORIES(state, payload) {
-    state.categories = payload;
-  },
-  SET_CATEGORY(state, payload) {
-    state.category = payload;
-  },
-  SET_SUBCATEGORIES(state, payload) {
-    state.subcategories = payload;
-  },
-  SET_SUBCATEGORY(state, value) {
-    state.subcategory = value;
-  },
-  SET_POLLUTANTS(state, payload) {
-    state.pollutants = payload;
-  },
-  SET_POLLUTANT(state, value) {
-    state.pollutantData = value;
-  },
-  SET_TREATMENT_TECHNOLOGIES(state, payload) {
-    state.treatmentTechnologies = payload;
-  },
-  SET_TREATMENT_TECHNOLOGY(state, value) {
-    state.treatmentTechnology = value;
-  },
-  SET_TREATMENT_TRAIN(state, value) {
-    state.treatmentTrain = value;
-  },
-  SET_IS_FETCHING(state, value) {
-    state.isFetching = value;
+  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_CATEGORIES"
+  ...make.mutations(state),
+  CLEAR_DATA(state) {
+    state.subcategoryData = null;
+    state.pollutantData = null;
+    state.treatmentTechnologyData = null;
   },
 };
 
@@ -74,6 +46,7 @@ const actions = {
     commit('SET_IS_FETCHING', false);
   },
   async getPointSourceSubcategories({ commit }, id) {
+    commit('SET_SELECTED_SUBCATEGORY', null);
     commit('SET_SUBCATEGORIES', []);
     commit('SET_IS_FETCHING', true);
 
@@ -81,14 +54,12 @@ const actions = {
     commit('SET_SUBCATEGORIES', res.data.pointSourceSubcategories);
     commit('SET_IS_FETCHING', false);
   },
-  async getSubcategory({ commit }, id) {
-    commit('SET_SUBCATEGORY', null);
-    commit('SET_POLLUTANT', null);
-    commit('SET_TREATMENT_TECHNOLOGY', null);
+  async getSubcategoryData({ state, commit }) {
+    commit('CLEAR_DATA');
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/pointSourceSubcategory/${id}`);
-    commit('SET_SUBCATEGORY', res.data);
+    const res = await axios.get(`api/pointSourceSubcategory/${state.selectedSubcategory.id}`);
+    commit('SET_SUBCATEGORY_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
   async getPollutants({ commit }) {
@@ -99,14 +70,12 @@ const actions = {
     commit('SET_POLLUTANTS', res.data);
     commit('SET_IS_FETCHING', false);
   },
-  async getPollutant({ commit }, id) {
-    commit('SET_SUBCATEGORY', null);
-    commit('SET_POLLUTANT', null);
-    commit('SET_TREATMENT_TECHNOLOGY', null);
+  async getPollutantData({ state, commit }) {
+    commit('CLEAR_DATA');
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/pollutant/${id}`);
-    commit('SET_POLLUTANT', res.data);
+    const res = await axios.get(`api/pollutant/${state.selectedPollutant.pollutantId}`);
+    commit('SET_POLLUTANT_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
   async getTreatmentTechnologies({ commit }) {
@@ -117,14 +86,12 @@ const actions = {
     commit('SET_TREATMENT_TECHNOLOGIES', res.data);
     commit('SET_IS_FETCHING', false);
   },
-  async getTreatmentTechnology({ commit }, id) {
-    commit('SET_SUBCATEGORY', null);
-    commit('SET_POLLUTANT', null);
-    commit('SET_TREATMENT_TECHNOLOGY', null);
+  async getTreatmentTechnologyData({ state, commit }) {
+    commit('CLEAR_DATA');
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/treatmentTechnology/${id}`);
-    commit('SET_TREATMENT_TECHNOLOGY', res.data);
+    const res = await axios.get(`api/treatmentTechnology/${state.selectedTreatmentTechnology.id}`);
+    commit('SET_TREATMENT_TECHNOLOGY_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
   async getTreatmentTrain({ commit }, id) {
