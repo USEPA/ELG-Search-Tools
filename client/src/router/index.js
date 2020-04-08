@@ -5,6 +5,7 @@ import Results from '@/views/Results';
 import CustomSearch from '@/views/CustomSearch';
 import Limitations from '@/views/Limitations';
 import LongTermAvg from '@/views/LongTermAvg';
+import TechnologyBasis from '@/views/TechnologyBasis';
 
 Vue.use(Router);
 
@@ -34,6 +35,11 @@ const router = new Router({
       path: '/results/limitations/longTermAverage',
       name: 'longTermAverage',
       component: LongTermAvg,
+    },
+    {
+      path: '/technologyBasis',
+      name: 'technologyBasis',
+      component: TechnologyBasis,
     },
   ],
   mode: 'history',

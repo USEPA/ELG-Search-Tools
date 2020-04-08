@@ -8,6 +8,7 @@ const state = {
   limitationData: null,
   isFetching: false,
   longTermAvgData: null,
+  isComparingPscs: false,
 };
 
 const getters = {
@@ -22,16 +23,21 @@ const mutations = {
       state.pointSourceCategoryCode = payload.pointSourceCategoryCode;
       state.pointSourceCategoryName = payload.pointSourceCategoryName;
       state.pollutantDescription = payload.pollutantDescription;
+      state.treatmentNames = payload.treatmentNames;
     }
   },
   SET_LTA_DATA(state, payload) {
     state.longTermAvgData = payload;
+  },
+  SET_COMPARE(state, payload) {
+    state.isComparingPscs = payload;
   },
 };
 
 const actions = {
   async getLimitationData({ commit }, id) {
     commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/wastestreamProcessLimitations/${id}`);
@@ -40,11 +46,40 @@ const actions = {
   },
   async getPollLimitationData({ commit }, { pollutantId, pointSourceCategoryCode }) {
     commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get('api/pollutantLimitations', {
       params: {
         pollutantId,
+        pointSourceCategoryCode,
+      },
+    });
+    commit('SET_LIMITATION_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getPollLimitationDataForMultiplePscs({ commit }, { pollutantIds, pointSourceCategoryCodes }) {
+    commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', true);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/pollutantLimitations', {
+      params: {
+        pollutantId: pollutantIds,
+        pointSourceCategoryCode: pointSourceCategoryCodes,
+      },
+    });
+    commit('SET_LIMITATION_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getTechnologyBasisLimitationData({ commit }, { treatmentId, pointSourceCategoryCode }) {
+    commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', false);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/technologyBasisLimitations', {
+      params: {
+        treatmentId,
         pointSourceCategoryCode,
       },
     });

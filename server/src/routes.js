@@ -24,6 +24,7 @@ module.exports = (app) => {
   app.get('/api/treatmentTechnology/:id', controllers.treatmentTechnology.read);
   app.get('/api/treatmentTrain/:id', controllers.treatmentTechnology.treatmentTrain);
   app.get('/api/technologyBases', controllers.treatmentTechnology.technologyBases);
+  app.get('/api/technologyBasisLimitations', controllers.treatmentTechnology.limitations);
 
 
   // serve up built Vue files from express server
