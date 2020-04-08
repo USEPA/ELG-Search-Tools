@@ -270,21 +270,30 @@ module.exports = {
   technologyBases(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let treatmentId = utilities.parseIdAsInteger(req.query.treatmentId);
-      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.query.pointSourceCategoryCode);
+      let treatmentIds = (req.query.treatmentId ? req.query.treatmentId.split(',') : []);
+      let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(',') : []);
 
-      if (treatmentId === null) {
+      //validate passed in values
+      if (treatmentIds === [] || treatmentIds.some(function(treatmentId) {return utilities.parseIdAsInteger(treatmentId) === null})) {
         return res.status(400).send("Invalid value passed for treatmentId");
       }
 
-      if (pointSourceCategoryCode === null) {
+      if (pointSourceCategoryCodes === [] || pointSourceCategoryCodes.some(function(psc) {return utilities.parseIdAsInteger(psc) === null})) {
         return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
       }
 
-      TreatmentTechnology.findByPk(treatmentId)
-        .then(treatmentTechnology => {
-          fillTreatmentTechnology(treatmentTechnology.id, treatmentTechnology.codes)
-            .then(tt => {
+      TreatmentTechnology.findAll({
+        where: { id: { [Op.in]: treatmentIds } }
+      })
+        .then(treatmentTechnologies => {
+          let ttPromises = [];
+
+          treatmentTechnologies.forEach(function(tt) {
+            ttPromises.push(fillTreatmentTechnology(tt.id, tt.codes));
+          });
+
+          Promise.all(ttPromises)
+            .then(tts => {
               ViewWastestreamProcessTreatmentTechnology.findAll({
                 attributes: [
                   'pointSourceCategoryCode',
@@ -298,35 +307,41 @@ module.exports = {
                   'wastestreamProcessSecondary',
                   'wastestreamProcessCfrSection',
                   'treatmentId',
-                  [Sequelize.literal("'" + tt.names + "'"), 'treatmentNames'],
                   'treatmentDescription',
                   'wastestreamProcessTreatmentTechnologyNotes',
                   'wastestreamProcessZeroDischarge'
                 ],
                 where: {
-                  treatmentId: { [Op.eq]: treatmentId },
-                  pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
-                }
+                  treatmentId: { [Op.in]: treatmentIds },
+                  pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes }
+                },
+                order: [
+                  'pointSourceCategoryCode',
+                  'controlTechnologyCode',
+                  'comboSubcategory',
+                  'wastestreamProcessTitle',
+                  'wastestreamProcessSecondary'
+                ]
               })
                 .then(wastestreamProcessTreatmentTechnologies => {
                   let result = new Map();
-                  result.treatmentNames = tt.names;
-                  result.pointSourceCategoryCode = pointSourceCategoryCode;
+                  result.treatmentNames = tts[0].names;
+                  result.pointSourceCategoryCode = wastestreamProcessTreatmentTechnologies[0].pointSourceCategoryCode;
                   result.pointSourceCategoryName = wastestreamProcessTreatmentTechnologies[0].pointSourceCategoryName;
 
                   let ctPromises = [];
 
                   ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'].forEach(function(ctCode) {
-                      let wptts = wastestreamProcessTreatmentTechnologies.filter(function(wptt) { return wptt.controlTechnologyCode === ctCode; });
-                      let ctIncludeBmps = false;
+                    let wptts = wastestreamProcessTreatmentTechnologies.filter(function(wptt) { return wptt.controlTechnologyCode === ctCode; });
+                    let ctIncludeBmps = false;
 
-                      if (wptts.length > 0) {
-                        ctIncludeBmps = wptts[0].controlTechnologyIncludesBmps;
-                      }
+                    if (wptts.length > 0) {
+                      ctIncludeBmps = wptts[0].controlTechnologyIncludesBmps;
+                    }
 
-                      ctPromises.push(
-                        fillControlTechnology(ctCode, ctIncludeBmps, wptts)
-                      );
+                    ctPromises.push(
+                      fillControlTechnology(ctCode, ctIncludeBmps, wptts)
+                    );
                   });
 
                   Promise.all(ctPromises)

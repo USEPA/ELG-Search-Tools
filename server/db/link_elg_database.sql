@@ -10,13 +10,13 @@ $$
 BEGIN
         DROP TABLE IF EXISTS ogr_fdw_out;
         CREATE TEMP TABLE ogr_fdw_out(out text);
-        IF layer > '' THEN 
-        EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "' 
-            || data_source || '" -l "' 
+        IF layer > '' THEN
+        EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "'
+            || data_source || '" -l "'
             || layer || '"'' WITH (format ''csv'', delimiter ''|'')';
         ELSE
-                EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "' 
-                || data_source 
+                EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "'
+                || data_source
                 || '"''  WITH (format ''csv'', delimiter ''|'')';
         END IF;
         RETURN (SELECT string_agg(out,E'\n') from ogr_fdw_out);
@@ -123,14 +123,14 @@ select
     COALESCE (processop_constraint3, '') || ' ' || COALESCE ('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
     replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
-    replace(lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc,
-    replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\00A7') as processop_notes,
+    replace(lim_calc_desc, U&'\00A7', '\u00A7') as lim_calc_desc,
+    replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\u00A7') as processop_notes,
     case when zero_discharge = '1' then true else false end as zero_discharge,
     case when no_limits = '1' then true else false end as no_limits,
     case when includes_bmps = '1' then true else false end as includes_bmps,
     source_id,
     sortorder,
-    --TODO: use value from source data when it is available case when alternative_requirement = '1' then true else false end as alternative_requirement, 
+    --TODO: use value from source data when it is available case when alternative_requirement = '1' then true else false end as alternative_requirement,
     false as alternative_requirement,
     case when process_addtdetail = '1' then true else false end as process_addtdetail
 from
@@ -138,11 +138,11 @@ from
 
 
 create view elg_database.view_n5_pollutant_limitations as
-SELECT 
-	pl.processop_id, 
-	pl.lim_id, 
-	pl.pollutant_code, 
-	case 
+SELECT
+	pl.processop_id,
+	pl.lim_id,
+	pl.pollutant_code,
+	case
 		when  pl.lim_id = 17175	THEN	'0.17 + (8 X (no. of hides)/kg RM)'
 	 	when  pl.lim_id = 17176	THEN	'0.21 + (11 X (no. of hides)/kg RM)'
 		when  pl.lim_id = 17178	THEN	'0.34 + (8 X (no. of hides)/kg RM)'
@@ -155,39 +155,39 @@ SELECT
 		when  pl.lim_id = 17221	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
 		when  pl.lim_id = 17222	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
 		when  pl.lim_id = 17223	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
-		else pl.lim_value 
+		else pl.lim_value
 	end as lim_value, --TODO: check these values in the latest data!
-	pl.lim_value_min, 
-	pl.lim_value_max, 
-	pl.alt_lim_flag, 
-	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else pl.alt_lim end as alt_lim, --odd character in source data 
-	pl.lim_duration_code, 
-	pl.discharge_frequency, 
-	pl.unit_code, 
-	pl.analytical_method_id, 
-	pl.wf_id, 
-	pl.fn_id, 
+	pl.lim_value_min,
+	pl.lim_value_max,
+	pl.alt_lim_flag,
+	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else pl.alt_lim end as alt_lim, --odd character in source data
+	pl.lim_duration_code,
+	pl.discharge_frequency,
+	pl.unit_code,
+	pl.analytical_method_id,
+	pl.wf_id,
+	pl.fn_id,
 	pl.question_desc,
-	pl.mdl, 
-	pl.ml, 
-	replace(pl.lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc, 
-	pl.source_id, 
-	pl.qc_flag, 
-	pl.qc_notes, 
-	pl.zero_discharge, 
-	replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\00A7'), chr(147), '"'), chr(148), '"'), 'µ', 'u'), U&'\00A0', ' ') as pollutant_notes, 
-	pl.dataentry_psc_code, 
-	pl.qc_initials, 
+	pl.mdl,
+	pl.ml,
+	replace(pl.lim_calc_desc, U&'\00A7', '\u00A7') as lim_calc_desc,
+	pl.source_id,
+	pl.qc_flag,
+	pl.qc_notes,
+	pl.zero_discharge,
+	replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), 'ï¿½', 'u'), U&'\00A0', ' ') as pollutant_notes,
+	pl.dataentry_psc_code,
+	pl.qc_initials,
 	pl.treatment_id,
 	alf.description as alt_lim_description
 FROM elg_database.n5_pollutant_limitations pl left outer join elg_database.key_alt_lim_flag alf on pl.alt_lim_flag = alf.flag;
 
 create view elg_database.view_key_ttcodes as
 select
-	"name", 
-	code, 
-	category, 
-	variations, 
+	"name",
+	code,
+	category,
+	variations,
 	replace(replace(replace(description, chr(150), '-'), chr(147), '"'), chr(148), '"') as description
 from elg_database.key_ttcodes;
 
@@ -204,7 +204,7 @@ select
 	notes
 from elg_database.a_cfr_citation_history;
 
-create view elg_database.view_a_definition as 
+create view elg_database.view_a_definition as
 select
 	cfr_part,
 	def_id,
@@ -219,7 +219,7 @@ select
 	qc_notes
 from elg_database.a_definition;
 
-create view elg_database.view_a_generalprovisions as 
+create view elg_database.view_a_generalprovisions as
 select
 	psc_code,
 	genprov_cfr_section,
@@ -231,7 +231,7 @@ select
 	additional_detail_in_cfr_
 from elg_database.a_generalprovisions;
 
-create view elg_database.view_a_source_new as 
+create view elg_database.view_a_source_new as
 select
 	source_id,
 	sourcetype_desc,
@@ -251,26 +251,25 @@ select
 from elg_database.a_source_new;
 
 create view elg_database.view_n4c_technology_bases_ws as
-select 
-	processop_id, 
-	treatment_id, 
-	tech_ref, 
+select
+	processop_id,
+	treatment_id,
+	tech_ref,
 	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes
 from elg_database.n4c_technology_bases_ws;
 
 create view elg_database.view_ref_limit_units as
-SELECT 
-	unit_code, 
-	unit, 
-	replace(replace(replace(unit_desc, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as unit_desc, 
+SELECT
+	unit_code,
+	unit,
+	replace(replace(replace(unit_desc, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as unit_desc,
 	unit_basis
 FROM elg_database.ref_limit_units;
 
 create view elg_database.view_ref_pollutant as
-SELECT 
-	pollutant_code, 
-	pollutant_desc, 
+SELECT
+	pollutant_code,
+	pollutant_desc,
 	coalesce(elg_pollutant_description, pollutant_desc) as elg_pollutant_description
 FROM elg_database.ref_pollutant;
 
-	

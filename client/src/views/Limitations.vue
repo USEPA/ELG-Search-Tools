@@ -81,6 +81,7 @@
                 @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
                 @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
                 :colsLength="10"
+                :isComparingPscs="isComparingPscs"
               />
             </div>
           </div>
@@ -166,6 +167,7 @@ export default {
       'pointSourceCategoryName',
       'pollutantDescription',
       'treatmentNames',
+      'isComparingPscs',
     ]),
   },
   data() {
@@ -175,6 +177,7 @@ export default {
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
       uniqueTabs: null,
+      currentRow: null,
       pscColumns: [
         {
           key: 'pollutantDescription',
@@ -199,6 +202,14 @@ export default {
       ],
       pollLimitationCols: [
         {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
+        {
           key: 'comboSubcategory',
           label: 'Subpart',
         },
@@ -209,6 +220,7 @@ export default {
         {
           key: 'wastestreamProcessSecondary',
           label: 'Other Process/Wastestream Detail(s)',
+          displayAsHTML: true,
         },
         {
           key: 'limitationDurationDescription',

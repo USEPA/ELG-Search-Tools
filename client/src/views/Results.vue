@@ -32,7 +32,9 @@
     </h1>
     <div class="field is-grouped help-icons">
       <div v-if="pollutantData" class="field is-grouped psc-icon">
-        <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
+        <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
+          <span class="fas fa-share-square"></span>Go to PSC Comparison
+        </a>
       </div>
       <div class="field is-grouped">
         <span class="fas fa-book has-text-grey-dark help-icon"></span>
@@ -109,8 +111,10 @@
       :columns="pollColumns"
       :rows="pollutantData"
       :shouldHavePollCols="true"
+      :canComparePscs="true"
       @onNavigateToLimitations="navigateToLimitations"
       @shouldDisplayMoreModal="displayMoreModal"
+      @onSelectedPsc="selectedPsc"
       :colsLength="6"
     />
     <div v-if="treatmentTechnology">
@@ -148,7 +152,9 @@
       <div class="columns">
         <div class="column">
           <div v-if="treatmentTechnology" class="field is-grouped psc-icon">
-            <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
+            <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
+              <span class="fas fa-share-square"></span>Go to PSC Comparison
+            </a>
           </div>
         </div>
       </div>
@@ -157,8 +163,10 @@
         :columns="techColumns"
         :rows="treatmentTrain"
         :shouldHaveTreatmentTechCols="true"
+        :canComparePscs="true"
         @shouldDisplayMoreModal="displayMoreModal"
         @onShouldDisplayTechnologyBasisData="shouldDisplayTechnologyBasisData"
+        @onSelectedPsc="selectedPscForTechnologyBasis"
       />
     </div>
 
@@ -276,6 +284,7 @@ export default {
       shouldDisplayMoreModal: false,
       selectedTrain: null,
       shouldDisplayTrains: false,
+      selectedPscs: [],
       pscColumns: [
         {
           key: 'cfrSection',
@@ -288,6 +297,7 @@ export default {
         {
           key: 'secondary',
           label: 'Other Process/Wastestream Detail(s)',
+          displayAsHTML: true,
         },
       ],
       pollColumns: [
@@ -307,6 +317,7 @@ export default {
         {
           key: 'rangeOfPollutantLimitations',
           label: 'Range of Pollutant Limitations',
+          displayAsHTML: true,
         },
       ],
       techColumns: [
@@ -433,6 +444,29 @@ export default {
       }
       await this.$router.push('limitations');
     },
+    async selectedPsc(row, e) {
+      if (e.target.checked) {
+        // add this psc/pollutant combination to the selected list
+        this.selectedPscs.push({ pollutantId: row.pollutantId, pointSourceCategoryCode: row.pointSourceCategoryCode });
+      } else {
+        // remove this psc/pollutant combination from the selected list
+        this.selectedPscs = this.selectedPscs.filter(
+          (psc) => !(psc.pollutantId === row.pollutantId && psc.pointSourceCategoryCode === row.pointSourceCategoryCode)
+        );
+      }
+    },
+    async navigateToLimitationsForMultiplePscs(row) {
+      if (row.pollutantId) {
+        await this.$store.dispatch('limitations/getPollLimitationDataForMultiplePscs', {
+          pollutantIds: this.selectedPscs.map((psc) => psc.pollutantId).join(','),
+          pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
+        });
+        await this.$store.dispatch('limitations/getPollutantInfo', {
+          pollutantDescription: row.pollutantDescription,
+        });
+      }
+      await this.$router.push('limitations');
+    },
     displayMoreModal(value) {
       this.currentMoreInfo = null;
       this.currentMoreInfo = value;
@@ -445,6 +479,24 @@ export default {
       await this.$store.dispatch('search/getTechnologyBasisData', {
         treatmentId: row.treatmentId,
         pointSourceCategoryCode: row.pointSourceCategoryCode,
+      });
+      await this.$router.push('/technologyBasis');
+    },
+    async selectedPscForTechnologyBasis(row, e) {
+      if (e.target.checked) {
+        // add this psc/treatment combination to the selected list
+        this.selectedPscs.push({ treatmentId: row.treatmentId, pointSourceCategoryCode: row.pointSourceCategoryCode });
+      } else {
+        // remove this psc/treatment combination from the selected list
+        this.selectedPscs = this.selectedPscs.filter(
+          (psc) => !(psc.treatmentId === row.treatmentId && psc.pointSourceCategoryCode === row.pointSourceCategoryCode)
+        );
+      }
+    },
+    async shouldDisplayTechnologyBasisDataForMultiplePscs() {
+      await this.$store.dispatch('search/getTechnologyBasisDataForMultiplePscs', {
+        treatmentIds: this.selectedPscs.map((psc) => psc.treatmentId).join(','),
+        pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
       });
       await this.$router.push('/technologyBasis');
     },

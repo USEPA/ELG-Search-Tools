@@ -12,6 +12,7 @@ const state = {
   treatmentTrain: null,
   technologyBasisData: null,
   isFetching: false,
+  isComparingPscs: false,
 };
 
 const getters = {
@@ -65,6 +66,9 @@ const mutations = {
   },
   SET_TECHNOLOGY_BASIS(state, value) {
     state.technologyBasisData = value;
+  },
+  SET_COMPARE(state, payload) {
+    state.isComparingPscs = payload;
   },
   SET_IS_FETCHING(state, value) {
     state.isFetching = value;
@@ -144,12 +148,27 @@ const actions = {
   },
   async getTechnologyBasisData({ commit }, { treatmentId, pointSourceCategoryCode }) {
     commit('SET_TECHNOLOGY_BASIS', null);
+    commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
     const train = await axios.get(`api/technologyBases`, {
       params: {
         treatmentId,
         pointSourceCategoryCode,
+      },
+    });
+    commit('SET_TECHNOLOGY_BASIS', train.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getTechnologyBasisDataForMultiplePscs({ commit }, { treatmentIds, pointSourceCategoryCodes }) {
+    commit('SET_TECHNOLOGY_BASIS', null);
+    commit('SET_COMPARE', true);
+    commit('SET_IS_FETCHING', true);
+
+    const train = await axios.get(`api/technologyBases`, {
+      params: {
+        treatmentId: treatmentIds,
+        pointSourceCategoryCode: pointSourceCategoryCodes,
       },
     });
     commit('SET_TECHNOLOGY_BASIS', train.data);
