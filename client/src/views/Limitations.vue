@@ -62,9 +62,9 @@
           </p>
         </div>
         <div class="column">
-          <button class="button has-text-white is-pulled-right" @click="onNavigate">
+          <router-link to="/results" class="button has-text-white is-pulled-right">
             <span class="fa fa-reply has-text-white"></span>Back to Results
-          </button>
+          </router-link>
         </div>
       </div>
     </div>

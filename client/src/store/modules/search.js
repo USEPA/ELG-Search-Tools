@@ -105,8 +105,8 @@ const actions = {
     commit('SET_IS_FETCHING', false);
   },
   async getTechnologyBasisData({ commit }, { treatmentId, pointSourceCategoryCode }) {
-    commit('SET_TECHNOLOGY_BASIS', null);
-    commit('SET_COMPARE', false);
+    commit('SET_TECHNOLOGY_BASIS_DATA', null);
+    commit('SET_IS_COMPARING_PSCS', false);
     commit('SET_IS_FETCHING', true);
 
     const train = await axios.get(`api/technologyBases`, {
@@ -115,12 +115,12 @@ const actions = {
         pointSourceCategoryCode,
       },
     });
-    commit('SET_TECHNOLOGY_BASIS', train.data);
+    commit('SET_TECHNOLOGY_BASIS_DATA', train.data);
     commit('SET_IS_FETCHING', false);
   },
   async getTechnologyBasisDataForMultiplePscs({ commit }, { treatmentIds, pointSourceCategoryCodes }) {
-    commit('SET_TECHNOLOGY_BASIS', null);
-    commit('SET_COMPARE', true);
+    commit('SET_TECHNOLOGY_BASIS_DATA', null);
+    commit('SET_IS_COMPARING_PSCS', true);
     commit('SET_IS_FETCHING', true);
 
     const train = await axios.get(`api/technologyBases`, {
@@ -129,7 +129,7 @@ const actions = {
         pointSourceCategoryCode: pointSourceCategoryCodes,
       },
     });
-    commit('SET_TECHNOLOGY_BASIS', train.data);
+    commit('SET_TECHNOLOGY_BASIS_DATA', train.data);
     commit('SET_IS_FETCHING', false);
   },
 };

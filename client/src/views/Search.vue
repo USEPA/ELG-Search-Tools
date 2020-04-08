@@ -27,7 +27,7 @@
         <SearchBar />
       </div>
     </div>
-    <div class="colunns">
+    <div class="columns">
       <div class="column is-2 is-offset-10 adv-search">
         <a class="is-link" @click="onNavigate">Advanced Search</a>
       </div>

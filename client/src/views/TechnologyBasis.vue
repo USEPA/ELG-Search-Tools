@@ -9,25 +9,38 @@
     </div>
     <div class="columns">
       <div class="column">
-        <button class="button has-text-white is-pulled-right" @click="onNavigate">
+        <h1 class="is-size-3 has-text-weight-light">
+          {{ technologyBasisData.treatmentNames }}
+        </h1>
+        <h1 v-if="!isComparingPscs" class="is-size-5 has-text-weight-light">
+          {{ technologyBasisData.pointSourceCategoryCode }}: {{ technologyBasisData.pointSourceCategoryName }}
+        </h1>
+      </div>
+      <div class="column">
+        <router-link to="/results" class="button has-text-white is-pulled-right">
           <span class="fa fa-reply has-text-white"></span>Back to Results
-        </button>
+        </router-link>
       </div>
     </div>
-    <h1 class="is-size-3 has-text-weight-light">
-      {{ technologyBasisData.treatmentNames }}
-    </h1>
-    <h1 v-if="!isComparingPscs" class="is-size-5 has-text-weight-light">
-      {{ technologyBasisData.pointSourceCategoryCode }}: {{ technologyBasisData.pointSourceCategoryName }}
-    </h1>
-    <div class="field is-grouped help-icons">
-      <div class="field is-grouped">
-        <span class="fas fa-book has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+    <div class="columns">
+      <div class="column">
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', path: '/results' },
+            { title: 'Technology Bases', isCurrent: true },
+          ]"
+        />
       </div>
-      <div class="field is-grouped help-container">
-        <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+      <div class="column field is-grouped help-icons">
+        <div class="field is-grouped">
+          <span class="fas fa-book has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+        </div>
+        <div class="field is-grouped help-container">
+          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        </div>
       </div>
     </div>
     <Tabs v-if="technologyBasisData" :tabs="uniqueTabs">
@@ -72,6 +85,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Tabs from '@/components/shared/Tabs';
 import Modal from '@/components/shared/Modal';
@@ -118,7 +132,7 @@ export default {
       });
     }
   },
-  components: { Table, Tabs, Modal },
+  components: { Breadcrumbs, Table, Tabs, Modal },
   computed: {
     ...mapState('search', ['technologyBasisData', 'isComparingPscs']),
   },
@@ -168,9 +182,6 @@ export default {
     };
   },
   methods: {
-    onNavigate() {
-      this.$router.push('/results');
-    },
     stopTheEvent(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -207,7 +218,7 @@ export default {
           treatmentNames: row.treatmentNames,
         });
       }
-      await this.$router.push('limitations');
+      await this.$router.push('/results/limitations');
     },
   },
 };
