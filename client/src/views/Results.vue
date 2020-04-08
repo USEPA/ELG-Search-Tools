@@ -471,7 +471,7 @@ export default {
           pollutantDescription: row.pollutantDescription,
         });
       }
-      await this.$router.push('limitations');
+      await this.$router.push('/results/limitations');
     },
     displayMoreModal(value) {
       this.currentMoreInfo = null;
