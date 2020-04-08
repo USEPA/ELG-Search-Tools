@@ -31,12 +31,16 @@ let attributes = [
   'alternateLimitFlag',
   'alternateLimitDescription',
   'limitRequirementDescription',
-  'limitationLimitCalculationDescription',
-  'limitationPollutantNotes',
-  'longTermAverageCount'
+  [Sequelize.literal("replace(lim_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitationLimitCalculationDescription'],
+  [Sequelize.literal("replace(lim_pollutant_notes, '\\u00A7', U&'\\00A7')"), 'limitationPollutantNotes'],
+  'longTermAverageCount',
+  'pointSourceCategoryCode',
+  'pointSourceCategoryName'
 ];
 
 let order = [
+  'pointSourceCategoryCode',
+  'pointSourceCategoryName',
   'comboSubcategory',
   'controlTechnologyDisplayOrder',
   'wastestreamProcessDisplayOrder',
@@ -75,13 +79,13 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
   });
 }
 
-function pollutantLimitations(pollutantId, pointSourceCategoryCode) {
+function pollutantLimitations(pollutantIds, pointSourceCategoryCodes) {
   return new Promise(function(resolve, reject) {
     ViewLimitation.findAll({
       attributes: attributes,
       where: {
-        pollutantId: { [Op.eq]: pollutantId },
-        pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
+        pollutantId: { [Op.in]: pollutantIds },
+        pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes }
       },
       order: order
     })

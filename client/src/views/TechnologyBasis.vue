@@ -17,7 +17,7 @@
     <h1 class="is-size-3 has-text-weight-light">
       {{ technologyBasisData.treatmentNames }}
     </h1>
-    <h1 class="is-size-5 has-text-weight-light">
+    <h1 v-if="!isComparingPscs" class="is-size-5 has-text-weight-light">
       {{ technologyBasisData.pointSourceCategoryCode }}: {{ technologyBasisData.pointSourceCategoryName }}
     </h1>
     <div class="field is-grouped help-icons">
@@ -57,6 +57,7 @@
                 :rows="controlTechnology.technologyBases"
                 :shouldHaveTechBasisCols="true"
                 @onNavigateToLimitations="navigateToLimitations"
+                :isComparingPscs="isComparingPscs"
               />
             </div>
           </div>
@@ -119,13 +120,21 @@ export default {
   },
   components: { Table, Tabs, Modal },
   computed: {
-    ...mapState('search', ['technologyBasisData']),
+    ...mapState('search', ['technologyBasisData', 'isComparingPscs']),
   },
   data() {
     return {
       uniqueTabs: null,
       shouldDisplayPollutants: false,
       techBasisCols: [
+        {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
         {
           key: 'comboSubcategory',
           label: 'Subpart',
@@ -137,6 +146,7 @@ export default {
         {
           key: 'wastestreamProcessSecondary',
           label: 'Other Process/Wastestream Detail(s)',
+          displayAsHTML: true,
         },
         {
           key: 'treatmentNames',

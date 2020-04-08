@@ -5,32 +5,34 @@
         <table class="table is-fullwidth is-bordered">
           <thead>
             <tr>
-              <th v-if="shouldHavePollCols || shouldHaveTreatmentTechCols">
+              <th v-if="canComparePscs">
                 Select PSC
               </th>
-              <th v-for="column in columns" :key="column.key">
+              <th v-for="column in columnsToDisplay" :key="column.key">
                 {{ column.label }}
               </th>
-              <th v-if="shouldHaveResultsCols">
-                Zero Discharge<a v-if="shouldHaveResultsCols" @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')"
-                  ><span class="fa fa-info-circle checkbox-info"></span
-                ></a>
-              </th>
-              <th v-if="shouldHaveResultsCols">
-                BMPs<a @click="$emit('onDisplayCheckboxInfo', 'bmps')"
-                  ><span class="fa fa-info-circle checkbox-info"></span
-                ></a>
-              </th>
-              <th v-if="shouldHaveResultsCols">
-                Alternative Requirement<a @click="$emit('onDisplayCheckboxInfo', 'alternativeReq')"
-                  ><span class="fa fa-info-circle checkbox-info"></span
-                ></a>
-              </th>
-              <th v-if="shouldHaveResultsCols">
-                No Limitations<a @click="$emit('onDisplayCheckboxInfo', 'noLimitations')"
-                  ><span class="fa fa-info-circle checkbox-info"></span
-                ></a>
-              </th>
+              <template v-if="shouldHaveResultsCols">
+                <th>
+                  Zero Discharge<a @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')">
+                    <span class="fa fa-info-circle checkbox-info"></span>
+                  </a>
+                </th>
+                <th>
+                  BMPs<a @click="$emit('onDisplayCheckboxInfo', 'bmps')">
+                    <span class="fa fa-info-circle checkbox-info"></span>
+                  </a>
+                </th>
+                <th>
+                  Alternative Requirement<a @click="$emit('onDisplayCheckboxInfo', 'alternativeReq')">
+                    <span class="fa fa-info-circle checkbox-info"></span>
+                  </a>
+                </th>
+                <th>
+                  No Limitations<a @click="$emit('onDisplayCheckboxInfo', 'noLimitations')">
+                    <span class="fa fa-info-circle checkbox-info"></span>
+                  </a>
+                </th>
+              </template>
               <th v-if="shouldHaveResultsCols || shouldHavePollCols || shouldHaveTechBasisCols">
                 Go to Limitations
               </th>
@@ -54,16 +56,17 @@
               </td>
             </tr>
             <tr v-for="(row, index) in rows" :key="index">
-              <td v-if="shouldHavePollCols || shouldHaveTreatmentTechCols">
+              <td v-if="canComparePscs">
                 <input
                   class="is-checkradio is-info has-background-color psc"
                   type="checkbox"
                   :id="row.pointSourceCategoryCode"
                   :value="row.pointSourceCategoryCode"
-                  @click="$emit('updatePollutantList', row.pointSourceCategoryCode)"
-                /><label :for="row.pointSourceCategoryCode"></label>
+                  @click="$emit('onSelectedPsc', row, $event)"
+                />
+                <label :for="row.pointSourceCategoryCode"></label>
               </td>
-              <td v-for="column in columns" :key="column.key">
+              <td v-for="column in columnsToDisplay" :key="column.key">
                 <span v-if="column.isAbbreviatedList">
                   <span v-html="abbreviatedList(row[column.key]) + ' '"></span>
                   <br />
@@ -74,14 +77,6 @@
                     >more</a
                   >
                 </span>
-                <span v-else-if="column.key === 'rangeOfPollutantLimitations' && shouldHavePollCols">
-                  <span v-html="row[column.key]"></span>
-                </span>
-                <span v-else-if="column.key === 'wastestreamProcessTitle' && shouldHavePollLimitCols">
-                  {{ row[column.key] }}
-                </span>
-                <span v-else-if="column.key === 'secondary'" v-html="row[column.key]"></span>
-                <span v-else-if="column.key === 'wastestreamProcessSecondary'" v-html="row[column.key]"></span>
                 <span v-else-if="column.key === 'limitationDurationDescription'">
                   {{ row[column.key] ? row[column.key] : '--' }}
                   <a
@@ -95,7 +90,11 @@
                     ><span class="fa fa-info-circle"></span
                   ></a>
                 </span>
-                <span v-else-if="column.key === 'limitationValue'">
+                <span
+                  v-else-if="
+                    column.key === 'limitationValue' || column.key === 'minimumValue' || column.key === 'maximumValue'
+                  "
+                >
                   {{
                     row[column.key]
                       ? row['limitationUnitCode']
@@ -104,7 +103,7 @@
                       : '--'
                   }}
                   <a
-                    v-if="row.limitationValue && row.limitationUnitCode && row.limitationUnitDescription"
+                    v-if="row[column.key] && row.limitationUnitCode && row.limitationUnitDescription"
                     @click="$emit('onDisplayUnitDescriptionModal', row)"
                     ><span class="fa fa-info-circle"></span
                   ></a>
@@ -123,34 +122,6 @@
                     ><span class="fa fa-info-circle"></span
                   ></a>
                 </span>
-                <span v-else-if="column.key === 'minimumValue'">
-                  {{
-                    row[column.key]
-                      ? row['limitationUnitCode']
-                        ? row[column.key] + ' ' + row['limitationUnitCode']
-                        : row[column.key]
-                      : '--'
-                  }}
-                  <a
-                    v-if="row.minimumValue && row.limitationUnitCode && row.limitationUnitDescription"
-                    @click="$emit('onDisplayUnitDescriptionModal', row)"
-                    ><span class="fa fa-info-circle"></span
-                  ></a>
-                </span>
-                <span v-else-if="column.key === 'maximumValue'">
-                  {{
-                    row[column.key]
-                      ? row['limitationUnitCode']
-                        ? row[column.key] + ' ' + row['limitationUnitCode']
-                        : row[column.key]
-                      : '--'
-                  }}
-                  <a
-                    v-if="row.maximumValue && row.limitationUnitCode && row.limitationUnitDescription"
-                    @click="$emit('onDisplayUnitDescriptionModal', row)"
-                    ><span class="fa fa-info-circle"></span
-                  ></a>
-                </span>
                 <span v-else-if="column.key === 'alternateLimitFlag'">
                   {{
                     row[column.key]
@@ -163,25 +134,30 @@
                 <span v-else-if="column.key === 'wastestreamProcessZeroDischarge'">
                   {{ row[column.key] ? 'YES' : 'NO' }}
                 </span>
+                <span v-else-if="column.displayAsHTML">
+                  <span v-html="row[column.key] ? row[column.key] : '--'"></span>
+                </span>
                 <span v-else>
                   {{ row[column.key] ? row[column.key] : '--' }}
-                  <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)"
-                    ><span class="fa fa-info-circle"></span
-                  ></a>
+                  <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)">
+                    <span class="fa fa-info-circle"></span>
+                  </a>
                 </span>
               </td>
-              <td v-if="shouldHaveResultsCols">
-                <span>{{ row.zeroDischarge ? 'YES' : 'NO' }}</span>
-              </td>
-              <td v-if="shouldHaveResultsCols">
-                <span>{{ row.includesBmps ? 'YES' : 'NO' }}</span>
-              </td>
-              <td v-if="shouldHaveResultsCols">
-                <span>{{ 'NO' }}</span>
-              </td>
-              <td v-if="shouldHaveResultsCols">
-                <span>{{ row.noLimitations ? 'YES' : 'NO' }}</span>
-              </td>
+              <template v-if="shouldHaveResultsCols">
+                <td>
+                  <span>{{ row.zeroDischarge ? 'YES' : 'NO' }}</span>
+                </td>
+                <td>
+                  <span>{{ row.includesBmps ? 'YES' : 'NO' }}</span>
+                </td>
+                <td>
+                  <span>{{ 'NO' }}</span>
+                </td>
+                <td>
+                  <span>{{ row.noLimitations ? 'YES' : 'NO' }}</span>
+                </td>
+              </template>
               <td
                 v-if="
                   shouldHaveResultsCols ||
@@ -263,11 +239,34 @@ export default {
       required: false,
       default: 8,
     },
+    canComparePscs: {
+      type: Boolean,
+      required: false,
+    },
+    isComparingPscs: {
+      type: Boolean,
+      required: false,
+    },
   },
   components: { LoadingIndicator },
   computed: {
     rowSpanValue() {
       return groupBy(this.rows, 'pollutant');
+    },
+    columnsToDisplay() {
+      let result = this.columns;
+
+      if (this.shouldHavePollLimitCols && !this.isComparingPscs) {
+        result = this.columns.filter(
+          (col) => col.key !== 'pointSourceCategoryCode' && col.key !== 'pointSourceCategoryName'
+        );
+      } else if (this.shouldHaveTechBasisCols && !this.isComparingPscs) {
+        result = this.columns.filter(
+          (col) => col.key !== 'pointSourceCategoryCode' && col.key !== 'pointSourceCategoryName'
+        );
+      }
+
+      return result;
     },
   },
   methods: {

@@ -54,13 +54,12 @@ module.exports = {
       //get ranges of limitations, then group by PSC
       return ViewLimitation.findAll({
         group: [
-          "pollutantId",
           ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName"
         ],
         attributes: [
-          "pollutantId",
+          [Sequelize.literal("string_agg(distinct pollutant_code::text, ',')"), "pollutantId"],
           ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
@@ -134,18 +133,19 @@ module.exports = {
   limitations(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let pollutantId = utilities.parseIdAsInteger(req.query.pollutantId);
-      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.query.pointSourceCategoryCode);
+      let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(',') : []);
+      let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(',') : []);
 
-      if (pollutantId === null) {
+      //validate passed in values
+      if (pollutantIds === [] || pollutantIds.some(function(pollutantId) {return utilities.parseIdAsInteger(pollutantId) === null})) {
         return res.status(400).send("Invalid value passed for pollutantId");
       }
 
-      if (pointSourceCategoryCode === null) {
+      if (pointSourceCategoryCodes === [] || pointSourceCategoryCodes.some(function(psc) {return utilities.parseIdAsInteger(psc) === null})) {
         return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
       }
 
-      limitation.pollutantLimitations(pollutantId, pointSourceCategoryCode)
+      limitation.pollutantLimitations(pollutantIds, pointSourceCategoryCodes)
         .then(limitations => {
           res.status(200).send(limitations);
         })
