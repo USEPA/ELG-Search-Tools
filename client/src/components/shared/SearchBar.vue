@@ -1,42 +1,36 @@
 <template>
   <div>
     <div class="field has-addons">
-      <p class="control">
-        <a class="button is-static has-background-grey-lighter has-text-black is-medium">
+      <div class="control">
+        <label for="searchType" class="button is-static has-background-grey-lighter has-text-black is-medium">
           Browse By:
-        </a>
-      </p>
-      <p class="control">
+        </label>
+      </div>
+      <div class="control">
         <span class="select is-medium">
           <select
+            id="searchType"
             class="has-background-grey-lighter has-text-weight-semibold is-medium"
-            v-model="option"
-            @change="onChangeCategory($event)"
+            v-model="searchType"
+            @change="clearSelectedValues"
           >
             <option value="">Select Search Criteria</option>
-            <option>Point Source Category</option>
-            <option>Pollutant</option>
-            <option>Treatment Technology</option>
+            <option v-for="option in searchTypes" :key="option.id" :value="option.id">{{ option.label }}</option>
           </select>
         </span>
-      </p>
-      <p class="control is-expanded">
+      </div>
+      <div class="control is-expanded">
         <Multiselect
-          v-model="category"
-          :options="list"
-          :placeholder="option && `Select ${option}`"
-          :custom-label="
-            (option === 'Point Source Category' && customLabel) ||
-              (option === 'Pollutant' && customLabelPoll) ||
-              (option === 'Treatment Technology' && customLabelTech) ||
-              (() => {})
-          "
-          @select="getSubCategories"
-          :track-by="code"
-          :loading="isLoading"
+          :value="currentSearchValue"
+          :options="optionsList"
+          :placeholder="searchType ? `Select ${searchTypeObject.label}` : 'Select search criteria to continue'"
+          :disabled="!searchType"
+          :custom-label="getOptionLabel"
+          @input="onSelectOption"
+          :track-by="searchTypeObject.codeField"
         ></Multiselect>
-      </p>
-      <p class="control">
+      </div>
+      <div class="control">
         <button
           class="button is-medium"
           @click="onSubmit"
@@ -44,18 +38,17 @@
         >
           <span class="fa fas fa-search has-text-white"></span>
         </button>
-      </p>
+      </div>
     </div>
     <div class="columns subcategory-select">
       <div class="column">
         <Multiselect
-          v-if="category && option === 'Point Source Category'"
-          v-model="subcategory"
-          :options="subcategoryList"
+          v-if="searchType === 'pointSource' && selectedCategory"
+          v-model="selectedSubcategory"
+          :options="subcategories"
           placeholder="Select Subcategory"
           label="comboSubcategory"
-          :track-by="subcategoryCode"
-          :loading="isLoadingSubcategories"
+          :loading="isFetchingSubcategories"
         ></Multiselect>
       </div>
     </div>
@@ -63,7 +56,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
 
 export default {
@@ -71,13 +64,41 @@ export default {
   components: { Multiselect },
   data() {
     return {
+      searchTypes: [
+        {
+          id: 'pointSource',
+          label: 'Point Source Category',
+          codeField: 'pointSourceCategoryCode',
+          labelField: 'pointSourceCategoryName',
+          shouldDisplayCode: true,
+          optionsList: 'categories',
+          selectedProp: 'selectedCategory',
+          resultAction: 'getSubcategoryData',
+        },
+        {
+          id: 'pollutant',
+          label: 'Pollutant',
+          codeField: 'pollutantId',
+          labelField: 'pollutantDescription',
+          optionsList: 'pollutants',
+          selectedProp: 'selectedPollutant',
+          resultAction: 'getPollutantData',
+        },
+        {
+          id: 'treatmentTech',
+          label: 'Treatment Technology',
+          codeField: 'id',
+          labelField: 'name',
+          optionsList: 'treatmentTechnologies',
+          selectedProp: 'selectedTreatmentTechnology',
+          resultAction: 'getTreatmentTechnologyData',
+        },
+      ],
       option: '',
       category: null,
       list: [],
       subcategory: null,
-      subcategoryList: [],
-      isLoading: false,
-      isLoadingSubcategories: false,
+      isFetchingSubcategories: false,
       code: null,
       subcategoryCode: null,
       pollutantId: null,
@@ -85,69 +106,63 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('search', ['categories', 'subcategories', 'pollutants', 'treatmentTechnologies']),
+    ...get('search', ['categories', 'subcategories', 'pollutants', 'treatmentTechnologies']),
+    ...sync('search', [
+      'searchType',
+      'selectedCategory',
+      'selectedPollutant',
+      'selectedTreatmentTechnology',
+      'selectedSubcategory',
+    ]),
+    searchTypeObject() {
+      return this.searchTypes.find((type) => type.id === this.searchType) || {};
+    },
+    optionsList() {
+      const searchTypeObject = this.searchTypes.find((type) => type.id === this.searchType);
+      return searchTypeObject ? this[searchTypeObject.optionsList] : [];
+    },
+    currentSearchValue() {
+      return this[this.searchTypeObject.selectedProp];
+    },
   },
   methods: {
-    async onChangeCategory(e) {
-      this.list = [];
-      this.category = null;
-      this.isLoading = true;
-      this.code = null;
-      this.subcategory = null;
-      const option = e.target.value;
-      if (option === 'Point Source Category') {
-        await this.$store.dispatch('search/getPointSourceCategories');
-        this.list = this.categories;
-        this.code = 'pointSourceCategoryCode';
-        this.isLoading = false;
-      } else if (option === 'Pollutant') {
-        await this.$store.dispatch('search/getPollutants');
-        this.list = this.pollutants;
-        this.code = 'pollutantId';
-        this.isLoading = false;
-      } else if (option === 'Treatment Technology') {
-        await this.$store.dispatch('search/getTreatmentTechnologies');
-        this.list = this.treatmentTechnologies;
-        this.code = 'id';
-        this.isLoading = false;
-      }
-    },
-    async getSubCategories(value) {
-      this.subcategoryList = [];
-      this.subcategory = null;
-      this.isLoadingSubcategories = true;
-      this.subcategoryCode = null;
-      if (this.option === 'Point Source Category') {
+    async onSelectOption(value) {
+      if (this.searchType === 'pointSource' && value) {
+        // If user selected a point source category, fetch sub-categories
+        this.isFetchingSubcategories = true;
         await this.$store.dispatch('search/getPointSourceSubcategories', value.pointSourceCategoryCode);
-        this.$store.commit('search/SET_CATEGORY', value);
-        this.subcategoryList = this.subcategories;
-        this.subcategoryCode = 'pointSourceSubcategoryCode';
-        this.isLoadingSubcategories = false;
-      } else if (this.option === 'Pollutant') {
-        this.pollutantId = value.pollutantId;
-      } else if (this.option === 'Treatment Technology') {
-        this.treatmentTechnologyId = value.id;
+        this.isFetchingSubcategories = false;
       }
+      this[this.searchTypeObject.selectedProp] = value;
     },
-    customLabel({ pointSourceCategoryCode, pointSourceCategoryName }) {
-      return `${pointSourceCategoryCode}: ${pointSourceCategoryName}`;
+    getOptionLabel(searchOption) {
+      if (this.searchTypeObject.shouldDisplayCode) {
+        return `${searchOption[this.searchTypeObject.codeField]}: ${searchOption[this.searchTypeObject.labelField]}`;
+      }
+      return searchOption[this.searchTypeObject.labelField];
     },
-    customLabelPoll({ pollutantDescription }) {
-      return pollutantDescription;
-    },
-    customLabelTech({ name }) {
-      return name;
+    clearSelectedValues() {
+      // Clear all selected values when search type changes, so they aren't still populated if user switches back to same search type
+      [this.selectedCategory, this.selectedSubcategory, this.selectedPollutant, this.selectedTreatmentTechnology] = [
+        null,
+        null,
+        null,
+        null,
+      ];
     },
     async onSubmit() {
-      if (this.option === 'Point Source Category') {
-        await this.$store.dispatch('search/getSubcategory', this.subcategory.id);
-      } else if (this.option === 'Pollutant') {
-        await this.$store.dispatch('search/getPollutant', this.pollutantId);
-      } else if (this.option === 'Treatment Technology') {
-        await this.$store.dispatch('search/getTreatmentTechnology', this.treatmentTechnologyId);
-      }
-      await this.$router.push('results');
+      await this.$store.dispatch(`search/${this.searchTypeObject.resultAction}`);
+      this.$router.push('results');
     },
+  },
+  created() {
+    // Fetch lookup data for dropdown lists
+    this.$store.dispatch('search/getPointSourceCategories');
+    this.$store.dispatch('search/getPollutants');
+    this.$store.dispatch('search/getTreatmentTechnologies');
+    // Clear treatment train data so it's not pre-selected if user returns to same results page
+    this.$store.commit('search/SET_SELECTED_TREATMENT_TRAIN', null);
+    this.$store.commit('search/SET_TREATMENT_TRAIN', null);
   },
 };
 </script>

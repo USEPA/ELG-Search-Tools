@@ -27,12 +27,12 @@ const router = new Router({
       component: Results,
     },
     {
-      path: '/limitations',
+      path: '/results/limitations',
       name: 'limitations',
       component: Limitations,
     },
     {
-      path: '/longTermAverage',
+      path: '/results/limitations/longTermAverage',
       name: 'longTermAverage',
       component: LongTermAvg,
     },

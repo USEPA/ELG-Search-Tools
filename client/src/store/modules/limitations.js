@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { make } from 'vuex-pathify';
 
 const state = {
   pointSourceCategoryCode: null,
@@ -11,18 +12,12 @@ const state = {
 };
 
 const getters = {
-  limitationData(state) {
-    return state.limitationData;
-  },
+  ...make.getters(state),
 };
 
 const mutations = {
-  SET_LIMITATION_DATA(state, value) {
-    state.limitationData = value;
-  },
-  SET_IS_FETCHING(state, value) {
-    state.isFetching = value;
-  },
+  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_LIMITATION_DATA"
+  ...make.mutations(state),
   SET_PSC(state, payload) {
     if (payload) {
       state.pointSourceCategoryCode = payload.pointSourceCategoryCode;

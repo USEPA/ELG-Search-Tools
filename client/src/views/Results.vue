@@ -14,21 +14,29 @@
         </h1>
       </div>
       <div class="column">
-        <button class="button has-text-white is-pulled-right" @click="onNavigate">
+        <router-link to="/" class="button has-text-white is-pulled-right">
           <span class="fa fa-reply has-text-white"></span>Back to Search
-        </button>
+        </router-link>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-weight-light">
-      {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
+    <Breadcrumbs
+      :pages="[
+        { title: 'Search', path: '/' },
+        { title: 'Results', isCurrent: true },
+      ]"
+    />
+    <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
+      {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
     </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
+    <h1 v-if="subcategoryData" class="is-size-5 has-text-weight-light">
+      Subpart {{ subcategoryData.comboSubcategory }}
+    </h1>
     <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
       {{ pollutantData[0].pollutantDescription }}
     </h1>
     <h2 v-if="pollutantData">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</h2>
-    <h1 v-if="treatmentTechnology" class="is-size-3 has-text-weight-light">
-      {{ treatmentTechnology.name }}
+    <h1 v-if="treatmentTechnologyData" class="is-size-3 has-text-weight-light">
+      {{ treatmentTechnologyData.name }}
     </h1>
     <div class="field is-grouped help-icons">
       <div v-if="pollutantData" class="field is-grouped psc-icon">
@@ -45,8 +53,8 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <Tabs v-if="subcategory" :tabs="createTabs" :isPSC="true" :isPollutant="false">
-      <template v-for="controlTechnology in subcategory.controlTechnologies" v-slot:[controlTechnology.id]>
+    <Tabs v-if="subcategoryData" :tabs="createTabs" :isPSC="true" :isPollutant="false">
+      <template v-for="controlTechnology in subcategoryData.controlTechnologies" v-slot:[controlTechnology.id]>
         <div :key="controlTechnology.id" class="columns tab-content">
           <div class="column">
             <div class="field is-grouped">
@@ -117,10 +125,10 @@
       @onSelectedPsc="selectedPsc"
       :colsLength="6"
     />
-    <div v-if="treatmentTechnology">
+    <div v-if="treatmentTechnologyData">
       <div class="columns treatment-info-box">
         <div class="column is-gray-background is-7 technology-description">
-          <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnology.description }}</p>
+          <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
         </div>
         <div class="column is-gray-background is-5">
           <p><strong>Treatment Train(s):</strong></p>
@@ -129,7 +137,7 @@
           </div>
           <a
             class="is-link more"
-            v-if="treatmentTechnology.treatmentTrains.length > 3"
+            v-if="treatmentTechnologyData.treatmentTrains.length > 3"
             @click="() => (shouldDisplayTrains = true)"
             >more</a
           >
@@ -138,20 +146,16 @@
       <div class="columns">
         <div class="column is-10">
           <strong><label for="treatmentTrains">Treatment Train:</label></strong>
-          <select
-            v-model="treatmentTechnology.treatmentTrains[0].treatmentId"
-            @change="getTreatmentTrainData($event)"
-            id="treatmentTrains"
-          >
-            <option v-for="train in treatmentTechnology.treatmentTrains" :key="train.id" :value="train.id">
-              {{ train.names }}
-            </option>
+          <select v-model="selectedTreatmentTrain" @change="getTreatmentTrainData($event)" id="treatmentTrains">
+            <option v-for="train in treatmentTechnologyData.treatmentTrains" :key="train.id" :value="train.id">{{
+              train.names
+            }}</option>
           </select>
         </div>
       </div>
       <div class="columns">
         <div class="column">
-          <div v-if="treatmentTechnology" class="field is-grouped psc-icon">
+          <div v-if="treatmentTechnologyData" class="field is-grouped psc-icon">
             <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
               <span class="fas fa-share-square"></span>Go to PSC Comparison
             </a>
@@ -202,7 +206,7 @@
       <span v-html="currentMoreInfo"></span>
     </Modal>
     <Modal v-if="shouldDisplayTrains" @close="() => (shouldDisplayTrains = false)">
-      <div v-for="train in treatmentTechnology.treatmentTrains" :key="train.id">
+      <div v-for="train in treatmentTechnologyData.treatmentTrains" :key="train.id">
         <p>{{ train.names }}</p>
       </div>
     </Modal>
@@ -210,15 +214,23 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { get, sync } from 'vuex-pathify';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Tabs from '@/components/shared/Tabs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Tabs, Table, Modal },
+  components: { Breadcrumbs, Tabs, Table, Modal },
   computed: {
-    ...mapState('search', ['category', 'subcategory', 'pollutantData', 'treatmentTechnology', 'treatmentTrain']),
+    ...get('search', [
+      'selectedCategory',
+      'subcategoryData',
+      'pollutantData',
+      'treatmentTechnologyData',
+      'treatmentTrain',
+    ]),
+    ...sync('search', ['selectedTreatmentTrain']),
     createTabs() {
       const tabs = [
         {
@@ -247,23 +259,24 @@ export default {
         },
         {
           id: 11,
-          controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
+          controlTechnologyCode: `About Part ${this.selectedCategory.pointSourceCategoryCode}`,
         },
       ];
-      if (this.subcategory) {
+      if (this.subcategoryData) {
         return tabs.map(
           (tab) =>
-            this.subcategory.controlTechnologies.find((c) => c.controlTechnologyCode === tab.controlTechnologyCode) ||
-            tab
+            this.subcategoryData.controlTechnologies.find(
+              (c) => c.controlTechnologyCode === tab.controlTechnologyCode
+            ) || tab
         );
       }
       return tabs;
     },
     getTreatmentTrains() {
-      if (this.treatmentTechnology.treatmentTrains.length > 3) {
-        return this.treatmentTechnology.treatmentTrains.slice(0, 3);
+      if (this.treatmentTechnologyData.treatmentTrains.length > 3) {
+        return this.treatmentTechnologyData.treatmentTrains.slice(0, 3);
       }
-      return this.treatmentTechnology.treatmentTrains;
+      return this.treatmentTechnologyData.treatmentTrains;
     },
   },
   data() {
@@ -282,7 +295,6 @@ export default {
       shouldDisplayCheckboxModal: false,
       currentMoreInfo: null,
       shouldDisplayMoreModal: false,
-      selectedTrain: null,
       shouldDisplayTrains: false,
       selectedPscs: [],
       pscColumns: [
@@ -348,12 +360,6 @@ export default {
     };
   },
   methods: {
-    onNavigate() {
-      this.$router.push('/');
-      if (this.treatmentTrain) {
-        this.$store.commit('search/SET_TREATMENT_TRAIN', null);
-      }
-    },
     shouldDisplayNotesModal(notes) {
       this.notes = null;
       if (notes) {
@@ -442,7 +448,7 @@ export default {
           pollutantDescription: row.pollutantDescription,
         });
       }
-      await this.$router.push('limitations');
+      await this.$router.push('/results/limitations');
     },
     async selectedPsc(row, e) {
       if (e.target.checked) {
@@ -508,6 +514,10 @@ export default {
 @import '../../static/variables';
 button {
   background: $blue;
+}
+
+a.button {
+  margin: 0;
 }
 
 .is-link.more {

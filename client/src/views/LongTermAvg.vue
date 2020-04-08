@@ -7,14 +7,26 @@
         </h1>
       </div>
     </div>
-    <div class="field is-grouped help-icons">
-      <div class="field is-grouped">
-        <span class="fas fa-book has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+    <div class="columns">
+      <div class="column">
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', path: '/results' },
+            { title: 'Limitations', path: '/results/limitations' },
+            { title: 'Long Term Average', isCurrent: true },
+          ]"
+        />
       </div>
-      <div class="field is-grouped help-container">
-        <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+      <div class="column field is-grouped help-icons">
+        <div class="field is-grouped">
+          <span class="fas fa-book has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+        </div>
+        <div class="field is-grouped help-container">
+          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        </div>
       </div>
     </div>
     <div class="content info-box-container">
@@ -37,9 +49,9 @@
           </p>
         </div>
         <div class="column">
-          <button class="button has-text-white is-pulled-right" @click="onNavigateLimitations">
+          <router-link to="/results/limitations" class="button has-text-white is-pulled-right">
             <span class="fa fa-reply has-text-white"></span>Back to Limitations
-          </button>
+          </router-link>
         </div>
       </div>
     </div>
@@ -66,11 +78,12 @@
 
 <script>
 import { mapState } from 'vuex';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Table, Modal },
+  components: { Breadcrumbs, Table, Modal },
   computed: {
     ...mapState('limitations', ['longTermAvgData']),
   },
@@ -115,10 +128,6 @@ export default {
     };
   },
   methods: {
-    onNavigateLimitations() {
-      this.$store.commit('limitations/SET_LTA_DATA', null);
-      this.$router.push('/limitations');
-    },
     displayUnitDescriptionModal(row) {
       this.currentRow = null;
       this.shouldDisplayUnitDescriptionModal = true;
