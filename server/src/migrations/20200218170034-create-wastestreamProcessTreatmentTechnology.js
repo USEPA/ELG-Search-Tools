@@ -22,6 +22,16 @@ module.exports = {
       allowNull: true,
       field: 'tech_notes'
     },
+    bmpType: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      field: 'bmp_type'
+    },
+    zeroDischarge: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      field: 'zero_discharge'
+    }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology'})
 };

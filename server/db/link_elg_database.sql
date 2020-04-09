@@ -244,6 +244,7 @@ select
 	replace(replace(replace(replace(replace(replace(replace(source_summary, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), chr(147), '"'), chr(148), '"'), chr(150), '-'), chr(151), '-') as source_summary,
 	replace(replace(source_docket, chr(150), '-'), chr(151), '-') as source_docket,
 	replace(replace(source_title, chr(150), '-'), chr(151), '-') as source_title,
+	replace(replace(display_title, chr(150), '-'), chr(151), '-') as display_title,
 	source_notes,
 	fr_revision_type,
 	replace(replace(rin, chr(150), '-'), chr(151), '-') as rin,
@@ -255,7 +256,9 @@ select
 	processop_id,
 	treatment_id,
 	tech_ref,
-	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes
+	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes,
+	bmp_type,
+	case when zero_discharge = '1' then true else false end as zero_discharge
 from elg_database.n4c_technology_bases_ws;
 
 create view elg_database.view_ref_limit_units as

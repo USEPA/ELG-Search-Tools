@@ -131,7 +131,7 @@
                       : '--'
                   }}
                 </span>
-                <span v-else-if="column.key === 'wastestreamProcessZeroDischarge'">
+                <span v-else-if="column.key === 'wastestreamProcessTreatmentTechnologyZeroDischarge'">
                   {{ row[column.key] ? 'YES' : 'NO' }}
                 </span>
                 <span v-else-if="column.displayAsHTML">

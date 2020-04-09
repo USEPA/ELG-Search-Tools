@@ -309,7 +309,8 @@ module.exports = {
                   'treatmentId',
                   'treatmentDescription',
                   'wastestreamProcessTreatmentTechnologyNotes',
-                  'wastestreamProcessZeroDischarge'
+                  'wastestreamProcessTreatmentTechnologyBmpType',
+                  'wastestreamProcessTreatmentTechnologyZeroDischarge'
                 ],
                 where: {
                   treatmentId: { [Op.in]: treatmentIds },

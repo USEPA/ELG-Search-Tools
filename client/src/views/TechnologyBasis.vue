@@ -171,11 +171,11 @@ export default {
           label: 'Treatment Description',
         },
         {
-          key: 'typeOfBmp',
+          key: 'wastestreamProcessTreatmentTechnologyBmpType',
           label: 'Type of BMP',
         },
         {
-          key: 'wastestreamProcessZeroDischarge',
+          key: 'wastestreamProcessTreatmentTechnologyZeroDischarge',
           label: 'Zero Discharge',
         },
       ],
