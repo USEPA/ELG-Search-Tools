@@ -33,7 +33,7 @@ let attributes = [
   'limitRequirementDescription',
   [Sequelize.literal("replace(lim_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitationLimitCalculationDescription'],
   [Sequelize.literal("replace(lim_pollutant_notes, '\\u00A7', U&'\\00A7')"), 'limitationPollutantNotes'],
-  'longTermAverageCount',
+  [Sequelize.literal("case when stat_base_type = 'Average' then lta_count else 0 end"), 'longTermAverageCount'],
   'pointSourceCategoryCode',
   'pointSourceCategoryName'
 ];

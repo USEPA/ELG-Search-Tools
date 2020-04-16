@@ -169,7 +169,7 @@ module.exports = {
 
       return TreatmentTechnologyCode.findOne({
         where: {
-          id: { [Op.iLike]: '%' + id + '%' }
+          id: { [Op.eq]: id }
         }
       })
         .then(treatmentTechnologyCode => {
@@ -307,8 +307,10 @@ module.exports = {
                   'wastestreamProcessSecondary',
                   'wastestreamProcessCfrSection',
                   'treatmentId',
+                  [Sequelize.literal("'" + tts[0].names + "'"), 'treatmentNames'],
                   'treatmentDescription',
                   'wastestreamProcessTreatmentTechnologyNotes',
+                  'wastestreamProcessTreatmentTechnologySourceTitle',
                   'wastestreamProcessTreatmentTechnologyBmpType',
                   'wastestreamProcessTreatmentTechnologyZeroDischarge'
                 ],
@@ -316,6 +318,25 @@ module.exports = {
                   treatmentId: { [Op.in]: treatmentIds },
                   pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes }
                 },
+                group: [
+                  'pointSourceCategoryCode',
+                  'pointSourceCategoryName',
+                  'pointSourceCategoryCfrSection',
+                  'controlTechnologyCode',
+                  'controlTechnologyIncludesBmps',
+                  'comboSubcategory',
+                  'wastestreamProcessId',
+                  'wastestreamProcessTitle',
+                  'wastestreamProcessSecondary',
+                  'wastestreamProcessCfrSection',
+                  'treatmentId',
+                  [Sequelize.literal("12")],
+                  'treatmentDescription',
+                  'wastestreamProcessTreatmentTechnologyNotes',
+                  'wastestreamProcessTreatmentTechnologySourceTitle',
+                  'wastestreamProcessTreatmentTechnologyBmpType',
+                  'wastestreamProcessTreatmentTechnologyZeroDischarge'
+                ],
                 order: [
                   'pointSourceCategoryCode',
                   'controlTechnologyCode',

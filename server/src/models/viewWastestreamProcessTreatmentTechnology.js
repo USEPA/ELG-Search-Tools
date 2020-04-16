@@ -77,6 +77,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'wptt_tech_ref'
       },
+      wastestreamProcessTreatmentTechnologySourceTitle: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'wptt_source_title'
+      },
       wastestreamProcessTreatmentTechnologyNotes: {
         type: DataTypes.STRING,
         allowNull: false,

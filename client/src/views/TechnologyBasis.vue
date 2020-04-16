@@ -71,6 +71,7 @@
                 :shouldHaveTechBasisCols="true"
                 @onNavigateToLimitations="navigateToLimitations"
                 :isComparingPscs="isComparingPscs"
+                :colsLength="9"
               />
             </div>
           </div>
@@ -167,8 +168,12 @@ export default {
           label: 'Treatment Train',
         },
         {
-          key: 'treatmentDescription',
-          label: 'Treatment Description',
+          key: 'wastestreamProcessTreatmentTechnologyNotes',
+          label: 'Treatment Notes',
+        },
+        {
+          key: 'wastestreamProcessTreatmentTechnologySourceTitle',
+          label: 'Treatment Reference',
         },
         {
           key: 'wastestreamProcessTreatmentTechnologyBmpType',
