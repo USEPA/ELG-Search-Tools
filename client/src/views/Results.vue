@@ -153,6 +153,7 @@
           </select>
         </div>
       </div>
+      <h2 v-if="treatmentTrain">Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}</h2>
       <div class="columns">
         <div class="column">
           <div v-if="treatmentTechnologyData" class="field is-grouped psc-icon">
