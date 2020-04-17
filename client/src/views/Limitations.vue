@@ -189,6 +189,10 @@ export default {
       ],
       pollLimitationCols: [
         {
+          key: 'pollutantDescription',
+          label: 'Pollutant',
+        },
+        {
           key: 'pointSourceCategoryCode',
           label: '40 CFR',
         },
