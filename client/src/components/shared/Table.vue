@@ -131,9 +131,10 @@
                       : '--'
                   }}
                 </span>
-                <span v-else-if="column.key === 'wastestreamProcessTreatmentTechnologyZeroDischarge'">
-                  {{ row[column.key] ? 'YES' : 'NO' }}
-                </span>
+                <YesNoIndicator
+                  v-else-if="column.key === 'wastestreamProcessTreatmentTechnologyZeroDischarge'"
+                  :boolVal="row[column.key]"
+                />
                 <span v-else-if="column.displayAsHTML">
                   <span v-html="row[column.key] ? row[column.key] : '--'"></span>
                 </span>
@@ -146,16 +147,17 @@
               </td>
               <template v-if="shouldHaveResultsCols">
                 <td>
-                  <span>{{ row.zeroDischarge ? 'YES' : 'NO' }}</span>
+                  <YesNoIndicator :boolVal="row.zeroDischarge" />
                 </td>
                 <td>
-                  <span>{{ row.includesBmps ? 'YES' : 'NO' }}</span>
+                  <YesNoIndicator :boolVal="row.includesBmps" />
                 </td>
                 <td>
-                  <span>{{ 'NO' }}</span>
+                  <!-- TODO: Is this supposed to be hard-coded as false/no? -->
+                  <YesNoIndicator :boolVal="false" />
                 </td>
                 <td>
-                  <span>{{ row.noLimitations ? 'YES' : 'NO' }}</span>
+                  <YesNoIndicator :boolVal="row.noLimitations" />
                 </td>
               </template>
               <td
@@ -194,6 +196,7 @@
 <script>
 import groupBy from 'lodash/groupBy';
 import LoadingIndicator from '@/components/shared/LoadingIndicator';
+import YesNoIndicator from '@/components/shared/YesNoIndicator';
 
 export default {
   props: {
@@ -248,7 +251,7 @@ export default {
       required: false,
     },
   },
-  components: { LoadingIndicator },
+  components: { LoadingIndicator, YesNoIndicator },
   computed: {
     rowSpanValue() {
       return groupBy(this.rows, 'pollutant');
