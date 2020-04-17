@@ -56,10 +56,6 @@
                 >more</a
               >
             </div>
-            <div class="field is-grouped">
-              <b>Level of Control includes Best Management Practice (BMP) Requirements: </b>
-              {{ controlTechnology.includesBmps ? 'YES' : 'NO' }}
-            </div>
             <div class="field is-grouped download-icon-container">
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
               <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Technology Bases (CSV File)</p>

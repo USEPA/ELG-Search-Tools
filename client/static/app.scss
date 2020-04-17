@@ -139,6 +139,11 @@ input,
   }
 }
 
+.elg-bullet-list {
+  list-style: disc;
+  padding-bottom: 0.5rem;
+}
+
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 // Import vue-multiselect

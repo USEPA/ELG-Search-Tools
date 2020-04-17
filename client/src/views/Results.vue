@@ -135,9 +135,9 @@
         </div>
         <div class="column is-gray-background is-5">
           <p><strong>Treatment Train(s):</strong></p>
-          <div v-for="train in getTreatmentTrains" :key="train.id">
-            <p>{{ train.names }}</p>
-          </div>
+          <ul class="elg-bullet-list">
+            <li v-for="train in getTreatmentTrains" :key="train.id">{{ train.names }}</li>
+          </ul>
           <a
             class="is-link more"
             v-if="treatmentTechnologyData.treatmentTrains.length > 3"
@@ -210,9 +210,11 @@
       <span v-html="currentMoreInfo"></span>
     </Modal>
     <Modal v-if="shouldDisplayTrains" @close="() => (shouldDisplayTrains = false)">
-      <div v-for="train in treatmentTechnologyData.treatmentTrains" :key="train.id">
-        <p>{{ train.names }}</p>
-      </div>
+      <ul class="elg-bullet-list">
+        <li v-for="train in treatmentTechnologyData.treatmentTrains" :key="train.id">
+          {{ train.names }}
+        </li>
+      </ul>
     </Modal>
   </section>
 </template>
