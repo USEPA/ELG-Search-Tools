@@ -9,6 +9,7 @@ const state = {
   isFetching: false,
   longTermAvgData: null,
   isComparingPscs: false,
+  treatmentNames: null,
 };
 
 const getters = {
