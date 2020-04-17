@@ -43,8 +43,8 @@
         </div>
       </div>
     </div>
-    <Tabs v-if="technologyBasisData" :tabs="uniqueTabs">
-      <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
+    <Tabs v-if="technologyBasisData" :tabs="controlTechTabs" :activeTab="activeTab" @onTabClick="changeControlTechTab">
+      <template v-for="controlTechnology in controlTechData" v-slot:[controlTechnology.controlTechnologyCode]>
         <div :key="controlTechnology.id" class="columns tab-content tech-basis-tab-content">
           <div class="column tech-basis-container">
             <div class="field is-grouped" v-if="controlTechnology.pollutants">
@@ -67,7 +67,7 @@
             <div class="field">
               <Table
                 :columns="techBasisCols"
-                :rows="controlTechnology.technologyBases"
+                :rows="controlTechnology.wastestreamProcessTreatmentTechnologies"
                 :shouldHaveTechBasisCols="true"
                 @onNavigateToLimitations="navigateToLimitations"
                 :isComparingPscs="isComparingPscs"
@@ -85,61 +85,26 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Tabs from '@/components/shared/Tabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  beforeMount() {
-    if (this.technologyBasisData) {
-      this.uniqueTabs = [
-        {
-          id: 0,
-          controlTechnologyCode: 'BPT',
-        },
-        {
-          id: 1,
-          controlTechnologyCode: 'BAT',
-        },
-        {
-          id: 2,
-          controlTechnologyCode: 'BCT',
-        },
-        {
-          id: 3,
-          controlTechnologyCode: 'NSPS',
-        },
-        {
-          id: 4,
-          controlTechnologyCode: 'PSES',
-        },
-        {
-          id: 5,
-          controlTechnologyCode: 'PSNS',
-        },
-      ];
-
-      this.uniqueTabs.map((tab) => {
-        const ct = this.technologyBasisData.controlTechnologies.filter(
-          (l) => l.controlTechnologyCode === tab.controlTechnologyCode
-        )[0];
-
-        tab.includesBmps = ct.includesBmps;
-        tab.pollutants = ct.pollutants;
-        tab.technologyBases = ct.wastestreamProcessTreatmentTechnologies;
-        return tab;
-      });
-    }
-  },
   components: { Breadcrumbs, Table, Tabs, Modal },
   computed: {
-    ...mapState('search', ['technologyBasisData', 'isComparingPscs']),
+    ...get('search', ['technologyBasisData', 'isComparingPscs']),
+    ...sync('results', ['activeTab']),
+    controlTechData() {
+      return this.controlTechTabs.map((controlTechCode) =>
+        this.technologyBasisData.controlTechnologies.find((tech) => tech.controlTechnologyCode === controlTechCode)
+      );
+    },
   },
   data() {
     return {
-      uniqueTabs: null,
+      controlTechTabs: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
       shouldDisplayPollutants: false,
       techBasisCols: [
         {
@@ -224,6 +189,9 @@ export default {
         });
       }
       await this.$router.push('/results/limitations');
+    },
+    changeControlTechTab(tab) {
+      this.activeTab = tab;
     },
   },
 };

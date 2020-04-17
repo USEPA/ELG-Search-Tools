@@ -31,11 +31,6 @@ const getters = {
 const mutations = {
   // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_CATEGORIES"
   ...make.mutations(state),
-  CLEAR_DATA(state) {
-    state.subcategoryData = null;
-    state.pollutantData = null;
-    state.treatmentTechnologyData = null;
-  },
 };
 
 const actions = {
@@ -56,8 +51,8 @@ const actions = {
     commit('SET_SUBCATEGORIES', res.data.pointSourceSubcategories);
     commit('SET_IS_FETCHING', false);
   },
-  async getSubcategoryData({ state, commit }) {
-    commit('CLEAR_DATA');
+  async getSubcategoryData({ state, commit, dispatch }) {
+    dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/pointSourceSubcategory/${state.selectedSubcategory.id}`);
@@ -72,8 +67,8 @@ const actions = {
     commit('SET_POLLUTANTS', res.data);
     commit('SET_IS_FETCHING', false);
   },
-  async getPollutantData({ state, commit }) {
-    commit('CLEAR_DATA');
+  async getPollutantData({ state, commit, dispatch }) {
+    dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/pollutant/${state.selectedPollutant.pollutantId}`);
@@ -88,8 +83,8 @@ const actions = {
     commit('SET_TREATMENT_TECHNOLOGIES', res.data);
     commit('SET_IS_FETCHING', false);
   },
-  async getTreatmentTechnologyData({ state, commit }) {
-    commit('CLEAR_DATA');
+  async getTreatmentTechnologyData({ state, commit, dispatch }) {
+    dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/treatmentTechnology/${state.selectedTreatmentTechnology.id}`);
@@ -131,6 +126,13 @@ const actions = {
     });
     commit('SET_TECHNOLOGY_BASIS_DATA', train.data);
     commit('SET_IS_FETCHING', false);
+  },
+  clearResultsData({ commit }) {
+    // Clear persisted results data to restart results session once user searches again
+    commit('SET_SUBCATEGORY_DATA', null);
+    commit('SET_POLLUTANT_DATA', null);
+    commit('SET_TREATMENT_TECHNOLOGY_DATA', null);
+    commit('results/SET_ACTIVE_TAB', null, { root: true });
   },
 };
 

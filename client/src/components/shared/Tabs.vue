@@ -12,14 +12,18 @@
     </div>
     <div class="tabs aq-tabs is-toggle">
       <ul>
-        <li v-for="tab in tabs" :key="tab.id" :class="tab.id === activeTabId ? 'is-active' : ''">
-          <button @click="activeTabId = tab.id" :style="tab.id === 11 && { width: '100%' }">
-            {{ tab.controlTechnologyCode }}
+        <li
+          v-for="(tab, index) in tabs"
+          :key="tab"
+          :class="tab === activeTab || (!activeTab && index === 0) ? 'is-active' : ''"
+        >
+          <button @click="$emit('onTabClick', tab)" :style="tab.indexOf('About') > -1 && { width: '100%' }">
+            {{ tab }}
           </button>
         </li>
       </ul>
     </div>
-    <slot :name="activeTabId" />
+    <slot :name="activeTab ? activeTab : tabs[0]" />
   </section>
 </template>
 
@@ -30,11 +34,9 @@ export default {
       type: Array,
       required: true,
     },
-  },
-  data() {
-    return {
-      activeTabId: this.tabs.find((t) => t.isActive) ? this.tabs.find((t) => t.isActive).id : this.tabs[0].id,
-    };
+    activeTab: {
+      type: String,
+    },
   },
 };
 </script>

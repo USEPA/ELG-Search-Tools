@@ -53,8 +53,11 @@
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
     </div>
-    <Tabs v-if="subcategoryData" :tabs="createTabs" :isPSC="true" :isPollutant="false">
-      <template v-for="controlTechnology in subcategoryData.controlTechnologies" v-slot:[controlTechnology.id]>
+    <Tabs v-if="subcategoryData" :tabs="controlTechTabs" :activeTab="activeTab" @onTabClick="changeControlTechTab">
+      <template
+        v-for="controlTechnology in subcategoryData.controlTechnologies"
+        v-slot:[controlTechnology.controlTechnologyCode]
+      >
         <div :key="controlTechnology.id" class="columns tab-content">
           <div class="column">
             <div class="field is-grouped">
@@ -231,47 +234,18 @@ export default {
       'treatmentTechnologyData',
       'treatmentTrain',
     ]),
+    ...sync('results', ['activeTab']),
     ...sync('search', ['selectedTreatmentTrain']),
-    createTabs() {
-      const tabs = [
-        {
-          id: 5,
-          controlTechnologyCode: 'BPT',
-        },
-        {
-          id: 6,
-          controlTechnologyCode: 'BAT',
-        },
-        {
-          id: 7,
-          controlTechnologyCode: 'BCT',
-        },
-        {
-          id: 8,
-          controlTechnologyCode: 'NSPS',
-        },
-        {
-          id: 9,
-          controlTechnologyCode: 'PSES',
-        },
-        {
-          id: 10,
-          controlTechnologyCode: 'PSNS',
-        },
-        {
-          id: 11,
-          controlTechnologyCode: `About Part ${this.selectedCategory.pointSourceCategoryCode}`,
-        },
+    controlTechTabs() {
+      return [
+        'BPT',
+        'BAT',
+        'BCT',
+        'NSPS',
+        'PSES',
+        'PSNS',
+        `About Part ${this.selectedCategory.pointSourceCategoryCode}`,
       ];
-      if (this.subcategoryData) {
-        return tabs.map(
-          (tab) =>
-            this.subcategoryData.controlTechnologies.find(
-              (c) => c.controlTechnologyCode === tab.controlTechnologyCode
-            ) || tab
-        );
-      }
-      return tabs;
     },
     getTreatmentTrains() {
       if (this.treatmentTechnologyData.treatmentTrains.length > 3) {
@@ -506,6 +480,9 @@ export default {
         pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
       });
       await this.$router.push('/technologyBasis');
+    },
+    changeControlTechTab(tabId) {
+      this.activeTab = tabId;
     },
   },
 };

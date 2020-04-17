@@ -78,9 +78,14 @@
       @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
       @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
-    <Tabs v-if="!subcategoryData && limitationData" :tabs="uniqueTabs" :isPollutant="true" :isPSC="false">
-      <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
-        <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
+    <Tabs
+      v-if="!subcategoryData && limitationData"
+      :tabs="controlTechTabs"
+      :activeTab="activeTab"
+      @onTabClick="changeControlTechTab"
+    >
+      <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
+        <div :key="controlTechnologyCode" class="columns tab-content poll-limit-tab-content">
           <div class="column poll-limitation-container">
             <div class="field is-grouped download-icon-container">
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
@@ -89,7 +94,7 @@
             <div class="field">
               <Table
                 :columns="pollLimitationCols"
-                :rows="controlTechnology.limitations"
+                :rows="getControlTechLimitations(controlTechnologyCode)"
                 :shouldHavePollLimitCols="true"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
                 @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
@@ -132,52 +137,17 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Tabs from '@/components/shared/Tabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  beforeMount() {
-    if (!this.subcategoryData && this.limitationData) {
-      this.uniqueTabs = [
-        {
-          id: 0,
-          controlTechnologyCode: 'BPT',
-        },
-        {
-          id: 1,
-          controlTechnologyCode: 'BAT',
-        },
-        {
-          id: 2,
-          controlTechnologyCode: 'BCT',
-        },
-        {
-          id: 3,
-          controlTechnologyCode: 'NSPS',
-        },
-        {
-          id: 4,
-          controlTechnologyCode: 'PSES',
-        },
-        {
-          id: 5,
-          controlTechnologyCode: 'PSNS',
-        },
-      ];
-
-      this.uniqueTabs.map((tab) => {
-        tab.limitations = this.limitationData.filter((l) => l.controlTechnologyCode === tab.controlTechnologyCode);
-        return tab;
-      });
-    }
-  },
   components: { Breadcrumbs, Table, Tabs, Modal },
   computed: {
-    ...mapState('search', ['selectedCategory', 'subcategoryData']),
-    ...mapState('limitations', [
+    ...get('search', ['selectedCategory', 'subcategoryData']),
+    ...get('limitations', [
       'limitationData',
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
@@ -185,6 +155,7 @@ export default {
       'treatmentNames',
       'isComparingPscs',
     ]),
+    ...sync('results', ['activeTab']),
   },
   data() {
     return {
@@ -192,7 +163,7 @@ export default {
       shouldDisplayTypeOfLimitationModal: false,
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
-      uniqueTabs: null,
+      controlTechTabs: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
       currentRow: null,
       pscColumns: [
         {
@@ -284,6 +255,12 @@ export default {
     async shouldDisplayLongTermAvgData(row) {
       await this.$store.dispatch('limitations/getLongTermAvgData', row.limitationId);
       await this.$router.push('/results/limitations/longTermAverage');
+    },
+    getControlTechLimitations(controlTechCode) {
+      return this.limitationData.filter((limitation) => limitation.controlTechnologyCode === controlTechCode);
+    },
+    changeControlTechTab(tabId) {
+      this.activeTab = tabId;
     },
   },
 };
