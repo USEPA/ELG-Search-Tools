@@ -456,7 +456,7 @@ export default {
         treatmentId: row.treatmentId,
         pointSourceCategoryCode: row.pointSourceCategoryCode,
       });
-      await this.$router.push('/technologyBasis');
+      await this.$router.push('/results/technologyBasis');
     },
     async selectedPscForTechnologyBasis(row, e) {
       if (e.target.checked) {
@@ -474,7 +474,7 @@ export default {
         treatmentIds: this.selectedPscs.map((psc) => psc.treatmentId).join(','),
         pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
       });
-      await this.$router.push('/technologyBasis');
+      await this.$router.push('/reuslts/technologyBasis');
     },
     changeControlTechTab(tabId) {
       this.activeTab = tabId;

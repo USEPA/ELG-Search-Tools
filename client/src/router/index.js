@@ -37,7 +37,7 @@ const router = new Router({
       component: LongTermAvg,
     },
     {
-      path: '/technologyBasis',
+      path: '/results/technologyBasis',
       name: 'technologyBasis',
       component: TechnologyBasis,
     },
