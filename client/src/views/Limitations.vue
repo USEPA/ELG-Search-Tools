@@ -1,28 +1,6 @@
 <template>
   <section class="section">
-    <div class="columns" v-if="!subcategoryData && limitationData">
-      <div class="column">
-        <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
-          {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
-        </h1>
-        <h1 v-if="!subcategoryData && limitationData" class="is-size-3 has-text-weight-light">
-          {{ pollutantDescription }}
-          {{ treatmentNames }}
-        </h1>
-        <h1 v-if="!subcategoryData && limitationData" class="is-size-5 has-text-weight-light">
-          {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
-        </h1>
-        <h1 v-if="subcategoryData" class="is-size-5 has-text-weight-light">
-          Subpart {{ subcategoryData.comboSubcategory }}
-        </h1>
-      </div>
-      <div class="column">
-        <router-link to="/results" class="button has-text-white is-pulled-right">
-          <span class="fa fa-reply has-text-white"></span>Back to Results
-        </router-link>
-      </div>
-    </div>
-    <div class="columns">
+    <div class="columns elg-breadcrumbs-container">
       <div class="column">
         <Breadcrumbs
           :pages="[
@@ -41,6 +19,29 @@
           <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
           <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
         </div>
+      </div>
+    </div>
+    <div class="columns" v-if="!subcategoryData && limitationData">
+      <div class="column">
+        <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
+          {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
+        </h1>
+        <h1 v-if="!subcategoryData && limitationData" class="is-size-4 has-text-weight-bold">
+          {{ pollutantDescription }}
+          {{ treatmentNames }}
+          Limitations
+        </h1>
+        <h1 v-if="!subcategoryData && limitationData" class="is-size-5">
+          Point Source Category {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
+        </h1>
+        <h1 v-if="subcategoryData" class="is-size-5 has-text-weight-light">
+          Subpart {{ subcategoryData.comboSubcategory }}
+        </h1>
+      </div>
+      <div class="column">
+        <router-link to="/results" class="button has-text-white is-pulled-right">
+          <span class="fa fa-reply has-text-white"></span>Back to Results
+        </router-link>
       </div>
     </div>
     <div v-if="subcategoryData" class="content info-box-container">

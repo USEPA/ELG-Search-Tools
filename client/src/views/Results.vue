@@ -1,10 +1,13 @@
 <template>
   <section class="section">
-    <div class="columns">
-      <div class="column">
-        <h1 class="is-size-4">
-          Search Results
-        </h1>
+    <div class="columns elg-breadcrumbs-container">
+      <div class="column is-8">
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', isCurrent: true },
+          ]"
+        />
       </div>
       <div class="column">
         <router-link to="/" class="button has-text-white is-pulled-right">
@@ -12,31 +15,21 @@
         </router-link>
       </div>
     </div>
-    <Breadcrumbs
-      :pages="[
-        { title: 'Search', path: '/' },
-        { title: 'Results', isCurrent: true },
-      ]"
-    />
-    <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
+    <div class="columns elg-header-container">
+      <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
+        <span v-if="subcategoryData">
+          Point Source Category
       {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
-    </h1>
-    <h1 v-if="subcategoryData" class="is-size-5 has-text-weight-light">
-      Subpart {{ subcategoryData.comboSubcategory }}
-    </h1>
-    <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
+        </span>
+        <span v-else-if="pollutantData">
       {{ pollutantData[0].pollutantDescription }}
-    </h1>
-    <h2 v-if="pollutantData">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</h2>
-    <h1 v-if="treatmentTechnologyData" class="is-size-3 has-text-weight-light">
+        </span>
+        <span v-else-if="treatmentTechnologyData">
       {{ treatmentTechnologyData.name }}
-    </h1>
-    <div class="field is-grouped help-icons">
-      <div v-if="pollutantData" class="field is-grouped psc-icon">
-        <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
-          <span class="fas fa-share-square"></span>Go to PSC Comparison
-        </a>
-      </div>
+        </span>
+        Results
+      </h2>
+      <div class="column field is-grouped help-icons">
       <div class="field is-grouped">
         <span class="fas fa-book has-text-grey-dark help-icon"></span>
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
@@ -45,6 +38,7 @@
         <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
         <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
       </div>
+    </div>
     </div>
     <Tabs v-if="subcategoryData" :tabs="controlTechTabs" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template
@@ -485,6 +479,11 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../static/variables';
+
+.page-heading {
+  margin-bottom: 0.5rem;
+}
+
 button {
   background: $blue;
 }
@@ -508,11 +507,15 @@ label {
 
 .help-icons {
   justify-content: flex-end;
-  margin-bottom: 0;
+  margin: auto;
 }
 
 .help-container {
   margin-left: 20px;
+}
+
+.pollutant-subtext {
+  margin-bottom: 1rem;
 }
 
 section p {
