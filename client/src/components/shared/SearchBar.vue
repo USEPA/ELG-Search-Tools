@@ -190,13 +190,15 @@ button {
 }
 </style>
 
-<style lang="scss">
-.multiselect__tags {
-  min-height: 45px !important;
-}
+<style lang="scss" scoped>
+::v-deep {
+  .multiselect__tags {
+    min-height: 45px !important;
+  }
 
-.multiselect__single {
-  white-space: nowrap;
-  overflow: hidden;
+  .multiselect__single {
+    white-space: nowrap;
+    overflow: hidden;
+  }
 }
 </style>
