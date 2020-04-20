@@ -19,27 +19,40 @@
       <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
         <span v-if="subcategoryData">
           Point Source Category
-      {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
+          {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
         </span>
         <span v-else-if="pollutantData">
-      {{ pollutantData[0].pollutantDescription }}
+          {{ pollutantData[0].pollutantDescription }}
         </span>
         <span v-else-if="treatmentTechnologyData">
-      {{ treatmentTechnologyData.name }}
+          {{ treatmentTechnologyData.name }}
         </span>
         Results
       </h2>
       <div class="column field is-grouped help-icons">
-      <div class="field is-grouped">
-        <span class="fas fa-book has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-      </div>
-      <div class="field is-grouped help-container">
-        <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        <div class="field is-grouped">
+          <span class="fas fa-book has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+        </div>
+        <div class="field is-grouped help-container">
+          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        </div>
       </div>
     </div>
-    </div>
+
+    <label class="sr-only" for="subcategory">Subpart</label>
+    <Multiselect
+      v-if="subcategoryData"
+      :value="selectedSubcategory"
+      :options="subcategories"
+      placeholder="Select Subcategory"
+      label="comboSubcategory"
+      :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
+      @input="onChangeSubcategory"
+      class="results-select"
+    ></Multiselect>
+
     <p v-if="pollutantData" class="pollutant-subtext">
       Number of PSCs Referencing Pollutant: {{ pollutantData.length }}
     </p>
@@ -216,23 +229,25 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
+import Multiselect from 'vue-multiselect';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Tabs from '@/components/shared/Tabs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Tabs, Table, Modal },
+  components: { Breadcrumbs, Tabs, Table, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
+      'subcategories',
       'subcategoryData',
       'pollutantData',
       'treatmentTechnologyData',
       'treatmentTrain',
     ]),
     ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedTreatmentTrain']),
+    ...sync('search', ['selectedTreatmentTrain', 'selectedSubcategory']),
     controlTechTabs() {
       return [
         'BPT',
@@ -481,6 +496,10 @@ export default {
     changeControlTechTab(tabId) {
       this.activeTab = tabId;
     },
+    onChangeSubcategory(value) {
+      this.selectedSubcategory = value;
+      this.$store.dispatch('search/getSubcategoryData');
+    },
   },
 };
 </script>
@@ -541,6 +560,13 @@ section p {
 
 select {
   width: 54em;
+}
+
+.results-select {
+  display: inline-block;
+  width: auto;
+  min-width: 500px;
+  margin-bottom: 2rem;
 }
 
 .treatment-info-box {
