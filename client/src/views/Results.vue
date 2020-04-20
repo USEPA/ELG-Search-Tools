@@ -157,22 +157,23 @@
       <div class="columns">
         <div class="column is-10">
           <strong><label for="treatmentTrains">Treatment Train:</label></strong>
-          <select v-model="selectedTreatmentTrain" @change="getTreatmentTrainData($event)" id="treatmentTrains">
-            <option v-for="train in treatmentTechnologyData.treatmentTrains" :key="train.id" :value="train.id">{{
-              train.names
-            }}</option>
-          </select>
+          <Multiselect
+            :value="selectedTreatmentTrain"
+            :options="treatmentTechnologyData.treatmentTrains"
+            placeholder="Select Treatment Train"
+            label="names"
+            @input="onChangeTreatmentTrain"
+            class="results-select treatment-select"
+          ></Multiselect>
         </div>
       </div>
-      <h2 v-if="treatmentTrain">Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}</h2>
-      <div class="columns">
-        <div class="column">
-          <div v-if="treatmentTechnologyData" class="field is-grouped psc-icon">
-            <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
-              <span class="fas fa-share-square"></span>Go to PSC Comparison
-            </a>
-          </div>
-        </div>
+      <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
+        Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
+      </p>
+      <div v-if="selectedTreatmentTrain && treatmentTechnologyData" class="field is-grouped">
+        <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
+          <span class="fas fa-share-square"></span>Go to PSC Comparison
+        </a>
       </div>
       <Table
         v-if="treatmentTrain"
@@ -465,9 +466,6 @@ export default {
       this.currentMoreInfo = value;
       this.shouldDisplayMoreModal = true;
     },
-    async getTreatmentTrainData(e) {
-      await this.$store.dispatch('search/getTreatmentTrain', e.target.value);
-    },
     async shouldDisplayTechnologyBasisData(row) {
       await this.$store.dispatch('search/getTechnologyBasisData', {
         treatmentId: row.treatmentId,
@@ -495,6 +493,10 @@ export default {
     },
     changeControlTechTab(tabId) {
       this.activeTab = tabId;
+    },
+    onChangeTreatmentTrain(value) {
+      this.selectedTreatmentTrain = value;
+      this.$store.dispatch('search/getTreatmentTrain', value.id);
     },
     onChangeSubcategory(value) {
       this.selectedSubcategory = value;
@@ -567,6 +569,12 @@ select {
   width: auto;
   min-width: 500px;
   margin-bottom: 2rem;
+
+  &.treatment-select {
+    min-width: 650px;
+    margin-bottom: 0;
+    margin-left: 0.5rem;
+  }
 }
 
 .treatment-info-box {
