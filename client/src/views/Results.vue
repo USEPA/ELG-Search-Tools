@@ -40,6 +40,14 @@
       </div>
     </div>
     </div>
+    <p v-if="pollutantData" class="pollutant-subtext">
+      Number of PSCs Referencing Pollutant: {{ pollutantData.length }}
+    </p>
+    <div v-if="pollutantData" class="field is-grouped">
+      <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
+        <span class="fas fa-share-square"></span>Go to PSC Comparison
+      </a>
+    </div>
     <Tabs v-if="subcategoryData" :tabs="controlTechTabs" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template
         v-for="controlTechnology in subcategoryData.controlTechnologies"
