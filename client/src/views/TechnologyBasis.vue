@@ -1,20 +1,14 @@
 <template>
   <section class="section">
-    <div class="columns">
-      <div class="column">
-        <h1 class="title is-size-3">
-          Effluent Limitations Guidelines and Standards (ELG) Database
-        </h1>
-      </div>
-    </div>
-    <div class="columns">
-      <div class="column">
-        <h1 class="is-size-3 has-text-weight-light">
-          {{ technologyBasisData.treatmentNames }}
-        </h1>
-        <h1 v-if="!isComparingPscs" class="is-size-5 has-text-weight-light">
-          {{ technologyBasisData.pointSourceCategoryCode }}: {{ technologyBasisData.pointSourceCategoryName }}
-        </h1>
+    <div class="columns elg-breadcrumbs-container">
+      <div class="column is-8">
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', path: '/results' },
+            { title: 'Technology Bases', isCurrent: true },
+          ]"
+        />
       </div>
       <div class="column">
         <router-link to="/results" class="button has-text-white is-pulled-right">
@@ -23,14 +17,13 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column">
-        <Breadcrumbs
-          :pages="[
-            { title: 'Search', path: '/' },
-            { title: 'Results', path: '/results' },
-            { title: 'Technology Bases', isCurrent: true },
-          ]"
-        />
+      <div class="column is-9">
+        <h2 class="is-size-4 has-text-weight-bold page-heading">
+          {{ technologyBasisData.treatmentNames }}
+        </h2>
+        <h3 v-if="!isComparingPscs" class="subtitle is-size-5 has-text-weight-light">
+          {{ technologyBasisData.pointSourceCategoryCode }}: {{ technologyBasisData.pointSourceCategoryName }}
+        </h3>
       </div>
       <div class="column field is-grouped help-icons">
         <div class="field is-grouped">
@@ -195,6 +188,11 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../static/variables';
+
+.subtitle {
+  font-family: inherit;
+  margin-bottom: 0.75rem;
+}
 
 button {
   background: $blue;

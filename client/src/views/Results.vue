@@ -1,17 +1,13 @@
 <template>
   <section class="section">
-    <div class="columns">
-      <div class="column">
-        <h1 class="title is-size-3">
-          Effluent Limitations Guidelines and Standards (ELG) Database
-        </h1>
-      </div>
-    </div>
-    <div class="columns">
-      <div class="column">
-        <h1 class="is-size-4">
-          Search Results
-        </h1>
+    <div class="columns elg-breadcrumbs-container">
+      <div class="column is-8">
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', isCurrent: true },
+          ]"
+        />
       </div>
       <div class="column">
         <router-link to="/" class="button has-text-white is-pulled-right">
@@ -19,39 +15,51 @@
         </router-link>
       </div>
     </div>
-    <Breadcrumbs
-      :pages="[
-        { title: 'Search', path: '/' },
-        { title: 'Results', isCurrent: true },
-      ]"
-    />
-    <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
-      {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
-    </h1>
-    <h1 v-if="subcategoryData" class="is-size-5 has-text-weight-light">
-      Subpart {{ subcategoryData.comboSubcategory }}
-    </h1>
-    <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
-      {{ pollutantData[0].pollutantDescription }}
-    </h1>
-    <h2 v-if="pollutantData">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</h2>
-    <h1 v-if="treatmentTechnologyData" class="is-size-3 has-text-weight-light">
-      {{ treatmentTechnologyData.name }}
-    </h1>
-    <div class="field is-grouped help-icons">
-      <div v-if="pollutantData" class="field is-grouped psc-icon">
-        <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
-          <span class="fas fa-share-square"></span>Go to PSC Comparison
-        </a>
+    <div class="columns elg-header-container">
+      <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
+        <span v-if="subcategoryData">
+          Point Source Category
+          {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
+        </span>
+        <span v-else-if="pollutantData">
+          {{ pollutantData[0].pollutantDescription }}
+        </span>
+        <span v-else-if="treatmentTechnologyData">
+          {{ treatmentTechnologyData.name }}
+        </span>
+        Results
+      </h2>
+      <div class="column field is-grouped help-icons">
+        <div class="field is-grouped">
+          <span class="fas fa-book has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+        </div>
+        <div class="field is-grouped help-container">
+          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        </div>
       </div>
-      <div class="field is-grouped">
-        <span class="fas fa-book has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-      </div>
-      <div class="field is-grouped help-container">
-        <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
-      </div>
+    </div>
+
+    <label class="sr-only" for="subcategory">Subpart</label>
+    <Multiselect
+      v-if="subcategoryData"
+      :value="selectedSubcategory"
+      :options="subcategories"
+      placeholder="Select Subcategory"
+      label="comboSubcategory"
+      :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
+      @input="onChangeSubcategory"
+      class="results-select"
+    ></Multiselect>
+
+    <p v-if="pollutantData" class="pollutant-subtext">
+      Number of PSCs Referencing Pollutant: {{ pollutantData.length }}
+    </p>
+    <div v-if="pollutantData" class="field is-grouped">
+      <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
+        <span class="fas fa-share-square"></span>Go to PSC Comparison
+      </a>
     </div>
     <Tabs v-if="subcategoryData" :tabs="controlTechTabs" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template
@@ -149,22 +157,23 @@
       <div class="columns">
         <div class="column is-10">
           <strong><label for="treatmentTrains">Treatment Train:</label></strong>
-          <select v-model="selectedTreatmentTrain" @change="getTreatmentTrainData($event)" id="treatmentTrains">
-            <option v-for="train in treatmentTechnologyData.treatmentTrains" :key="train.id" :value="train.id">{{
-              train.names
-            }}</option>
-          </select>
+          <Multiselect
+            :value="selectedTreatmentTrain"
+            :options="treatmentTechnologyData.treatmentTrains"
+            placeholder="Select Treatment Train"
+            label="names"
+            @input="onChangeTreatmentTrain"
+            class="results-select treatment-select"
+          ></Multiselect>
         </div>
       </div>
-      <h2 v-if="treatmentTrain">Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}</h2>
-      <div class="columns">
-        <div class="column">
-          <div v-if="treatmentTechnologyData" class="field is-grouped psc-icon">
-            <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
-              <span class="fas fa-share-square"></span>Go to PSC Comparison
-            </a>
-          </div>
-        </div>
+      <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
+        Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
+      </p>
+      <div v-if="selectedTreatmentTrain && treatmentTechnologyData" class="field is-grouped">
+        <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
+          <span class="fas fa-share-square"></span>Go to PSC Comparison
+        </a>
       </div>
       <Table
         v-if="treatmentTrain"
@@ -221,23 +230,25 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
+import Multiselect from 'vue-multiselect';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Tabs from '@/components/shared/Tabs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Tabs, Table, Modal },
+  components: { Breadcrumbs, Tabs, Table, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
+      'subcategories',
       'subcategoryData',
       'pollutantData',
       'treatmentTechnologyData',
       'treatmentTrain',
     ]),
     ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedTreatmentTrain']),
+    ...sync('search', ['selectedTreatmentTrain', 'selectedSubcategory']),
     controlTechTabs() {
       return [
         'BPT',
@@ -455,15 +466,12 @@ export default {
       this.currentMoreInfo = value;
       this.shouldDisplayMoreModal = true;
     },
-    async getTreatmentTrainData(e) {
-      await this.$store.dispatch('search/getTreatmentTrain', e.target.value);
-    },
     async shouldDisplayTechnologyBasisData(row) {
       await this.$store.dispatch('search/getTechnologyBasisData', {
         treatmentId: row.treatmentId,
         pointSourceCategoryCode: row.pointSourceCategoryCode,
       });
-      await this.$router.push('/technologyBasis');
+      await this.$router.push('/results/technologyBasis');
     },
     async selectedPscForTechnologyBasis(row, e) {
       if (e.target.checked) {
@@ -481,10 +489,18 @@ export default {
         treatmentIds: this.selectedPscs.map((psc) => psc.treatmentId).join(','),
         pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
       });
-      await this.$router.push('/technologyBasis');
+      await this.$router.push('/reuslts/technologyBasis');
     },
     changeControlTechTab(tabId) {
       this.activeTab = tabId;
+    },
+    onChangeTreatmentTrain(value) {
+      this.selectedTreatmentTrain = value;
+      this.$store.dispatch('search/getTreatmentTrain', value.id);
+    },
+    onChangeSubcategory(value) {
+      this.selectedSubcategory = value;
+      this.$store.dispatch('search/getSubcategoryData');
     },
   },
 };
@@ -492,6 +508,11 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../static/variables';
+
+.page-heading {
+  margin-bottom: 0.5rem;
+}
+
 button {
   background: $blue;
 }
@@ -515,11 +536,15 @@ label {
 
 .help-icons {
   justify-content: flex-end;
-  margin-bottom: 0;
+  margin: auto;
 }
 
 .help-container {
   margin-left: 20px;
+}
+
+.pollutant-subtext {
+  margin-bottom: 1rem;
 }
 
 section p {
@@ -537,6 +562,19 @@ section p {
 
 select {
   width: 54em;
+}
+
+.results-select {
+  display: inline-block;
+  width: auto;
+  min-width: 500px;
+  margin-bottom: 2rem;
+
+  &.treatment-select {
+    min-width: 650px;
+    margin-bottom: 0;
+    margin-left: 0.5rem;
+  }
 }
 
 .treatment-info-box {

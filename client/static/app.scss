@@ -24,7 +24,11 @@ html {
 }
 
 #main-content {
-  max-width: 70em;
+  max-width: 100%;
+}
+
+section.main-content {
+  padding: 0;
 }
 
 .table td,
@@ -64,9 +68,9 @@ html {
   padding-left: 1px !important;
 }
 
-h1.title {
-  font-size: 28px !important;
-}
+// h1.title {
+//   font-size: 28px !important;
+// }
 
 .is-link {
   text-decoration: underline;
@@ -142,6 +146,19 @@ input,
 .elg-bullet-list {
   list-style: disc;
   padding-bottom: 0.5rem;
+}
+
+.columns.elg-breadcrumbs-container,
+.columns.elg-header-container {
+  margin-bottom: 0;
+
+  .button {
+    margin-bottom: 0;
+  }
+}
+
+.container {
+  max-width: 68em;
 }
 
 // Import font-awesome
