@@ -69,7 +69,11 @@ where
 	'A_Definition',
 	'A_GeneralProvisions',
 	'A_Source_New',
-	'KEY_Alt_Lim_Flag'))
+	'KEY_Alt_Lim_Flag',
+	'REF_NAICS_CODE',
+	'REF_SIC_CODE',
+	'REF_PSC_NAICS_XWALK',
+	'REF_PSC_SIC_XWALK'))
 select
 	string_agg( replace(replace(replace(regexp_replace(elg_database.ogr_fdw_sql_table(conn, tb.table_name), 'CREATE SERVER (.*);(.*)CREATE FOREIGN TABLE ([a-z0-9\_]+)', E'DROP FOREIGN TABLE IF EXISTS elg_database.\\3;CREATE FOREIGN TABLE elg_database.\\3'), 'myserver', 'elg_database_odbc'), 'fid bigint,', ''), 'geom Geometry(Geometry),', ''), E'\n') as sql
 from

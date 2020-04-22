@@ -444,7 +444,17 @@ module.exports = {
         "code":"ZVI",
         "category":"Chemical, Sorption",
         "variations":"nZVI",
-        "description":"Granular or nanoscale ZVI is used to remove metals by adsorption and reductive precipitation mechanisms. Used through a separate reactor unit. Similar configuration to granular-media filtration."}];
+        "description":"Granular or nanoscale ZVI is used to remove metals by adsorption and reductive precipitation mechanisms. Used through a separate reactor unit. Similar configuration to granular-media filtration."},
+      {"name":"Other Wastewater Treatment",
+        "code":"OTHER",
+        "category":"--",
+        "variations":null,
+        "description":"Wastewater treatment technology that is either not captured by other technology codes or is unspecified."},
+      {"name":"Hauling Solid Waste",
+        "code":"HAUL",
+        "category":"--",
+        "variations":null,
+        "description":"Hauling of solid waste generated from wastewater treatment."}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "TreatmentTechnologyCode" }, records);
   },
