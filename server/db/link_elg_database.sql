@@ -199,8 +199,8 @@ create view elg_database.view_a_cfr_citation_history as
 select
 	source_id,
 	psc,
-	cfr_section,
-	replace(subcategory, chr(151), '-') as subcategory,
+	replace(cfr_section, U&'\00A0', '') as cfr_section,
+	replace(replace(subcategory, U&'\0096', '-'), U&'\0097', '-') as subcategory,
 	cfr_section_description,
 	publication_date,
 	frn__in_cfr_,
@@ -214,10 +214,13 @@ select
 	def_id,
 	subcat_cfr_section,
 	cfr_subsection,
-	replace(replace(replace(replace(term, chr(150), '-'), chr(151), '-'), chr(147), '"'), chr(148), '"') as term,
-	replace(replace(replace(replace(replace(replace(definition, U&'\00B0', '\u00B0'), chr(150), '-'), chr(151), '-'), U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as definition,
+	replace(replace(replace(term, U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as term,
+	replace(replace(replace(replace(replace(case 
+        when cfr_part = 427 and cfr_subsection = '427.71.c' and term = 'Pieces' then 'Floor tile measured in the standard size of 12" X 12" X 3/32 ".'
+        else definition 
+       end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-'), U&'\00B0', '\u00B0') as definition,
 	deftype,
-	additional_detail_cfr_flag,
+	case when additional_detail_cfr_flag = '1' then true else false end as additional_detail_cfr_flag,
 	source_id,
 	qc_flag,
 	qc_notes
@@ -227,12 +230,16 @@ create view elg_database.view_a_generalprovisions as
 select
 	psc_code,
 	genprov_cfr_section,
-	replace(replace(genprov_section_title, chr(150), '-'), chr(151), '-') as genprov_section_title,
-	replace(replace(replace(genprov_desc, chr(147), '"'), chr(148), '"'), U&'\00A7', '\u00A7') as genprov_desc,
-	genprov_monitoring_reqs,
-	genprov_bmps_reqs,
+	replace(genprov_section_title, U&'\0097', '-') as genprov_section_title,
+	replace(replace(replace(replace(case 
+       	when psc_code = 469 and genprov_cfr_section = '469.13' and genprov_section_title = 'Monitoring' 
+       		then '(Subpart A) (a) In lieu of monitoring for TTO, the permitting authority may allow direct dischargers to include the following certification as a “comment” on the Discharge Monitoring Report required by §122.44 (i), formerly §122.62(i): “Based on my  inquiry of the person or persons directly responsible for managing compliance with the permit limitation for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the permitting authority.” (b) In requesting that no monitoring of TTO be required, the direct discharger shall submit a solvent management plan that specifies to the permitting authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater. The permitting authority shall incorporate the plan as a provision of the permit. (c) In lieu of monitoring for TTO, the control authority may allow industrial users of POTWs to make the following certification as a comment to the periodic reports required by §403.12: “Based on my inquiry of the person or persons directly responsible for managing compliance with the pretreatment standard for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the control authority.” (d) In requesting that no monitoring be required, industrial users of POTWs shall submit a solvent management plan that specifies to the control authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater.'
+       	else genprov_desc 
+       end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as genprov_desc,
+	case when genprov_monitoring_reqs = '1' then true else false end as genprov_monitoring_reqs,
+	case when genprov_bmps_reqs = '1' then true else false end as genprov_bmps_reqs,
 	genprov_source_id,
-	additional_detail_in_cfr_
+	case when additional_detail_in_cfr_ = '1' then true else false end as additional_detail_in_cfr_
 from elg_database.a_generalprovisions;
 
 create view elg_database.view_a_source_new as
@@ -279,4 +286,3 @@ SELECT
 	pollutant_desc,
 	coalesce(elg_pollutant_description, pollutant_desc) as elg_pollutant_description
 FROM elg_database.ref_pollutant;
-
