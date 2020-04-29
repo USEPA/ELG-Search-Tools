@@ -17,5 +17,7 @@ select 'NaicsCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) 
 select 'SicCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_sic_code as tablename union all
 select 'PointSourceCategoryNaicsCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_psc_naics_xwalk as tablename union all
 select 'PointSourceCategorySicCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_psc_sic_xwalk as tablename union all
-select 'CitationHistory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_psc_sic_xwalk as tablename;
+select 'CitationHistory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.view_a_cfr_citation_history as tablename union all
+select 'GeneralProvision' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.view_a_generalprovisions as tablename union all
+select 'Definition' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.view_a_definition as tablename;
 
