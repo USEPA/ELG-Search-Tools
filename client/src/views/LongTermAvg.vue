@@ -1,6 +1,6 @@
 <template>
   <section class="section">
-    <div class="columns">
+    <div class="columns elg-breadcrumbs-container">
       <div class="column">
         <Breadcrumbs
           :pages="[
@@ -10,6 +10,18 @@
             { title: 'Long Term Average', isCurrent: true },
           ]"
         />
+      </div>
+      <div class="column">
+        <router-link to="/results/limitations" class="button has-text-white is-pulled-right">
+          <span class="fa fa-reply has-text-white"></span>Back to Limitations
+        </router-link>
+      </div>
+    </div>
+    <div class="columns elg-header-container">
+      <div class="column">
+        <h2 class="is-size-4 has-text-weight-bold page-heading">
+          Long-Term Averages
+        </h2>
       </div>
       <div class="column field is-grouped help-icons">
         <div class="field is-grouped">
@@ -22,30 +34,28 @@
         </div>
       </div>
     </div>
-    <div class="content info-box-container">
-      <div class="columns">
-        <div class="column is-8">
-          <h1 class="info-box">{{ longTermAvgData.pollutantDescription }}</h1>
-          <p class="info-box">Control Technology: {{ longTermAvgData.controlTechnologyCode }}</p>
-          <p class="info-box">
-            Part {{ longTermAvgData.pointSourceCategoryCode }}:
-            {{ longTermAvgData.pointSourceCategoryName }}
-          </p>
-          <p class="info-box">Subpart {{ longTermAvgData.comboSubcategory }}</p>
-          <p class="info-box">
-            Process Operation/Wastestream: {{ longTermAvgData.wastestreamProcessCfrSection }}
-            {{ longTermAvgData.wastestreamProcessTitle }}
-          </p>
-          <p class="info-box">
-            Other Process Operation/Wastestream Detail(s):
-            <span v-html="longTermAvgData.wastestreamProcessSecondary"></span>
-          </p>
-        </div>
-        <div class="column">
-          <router-link to="/results/limitations" class="button has-text-white is-pulled-right">
-            <span class="fa fa-reply has-text-white"></span>Back to Limitations
-          </router-link>
-        </div>
+    <div class="info-box-container message">
+      <div class="message-body">
+        <p v-if="selectedTreatmentTrain !== null">
+          <span class="has-text-weight-bold">Treatment Train:</span> {{ selectedTreatmentTrain.names }}
+        </p>
+        <p>
+          <span class="has-text-weight-bold">Point Source Category:</span>
+          {{ longTermAvgData.pointSourceCategoryCode }}:
+          {{ longTermAvgData.pointSourceCategoryName }}
+        </p>
+        <p><span class="has-text-weight-bold">Subpart:</span> {{ longTermAvgData.comboSubcategory }}</p>
+        <p><span class="has-text-weight-bold">Control Technology:</span> {{ longTermAvgData.controlTechnologyCode }}</p>
+        <p>
+          <span class="has-text-weight-bold">Process Operation/Wastestream:</span>
+          {{ longTermAvgData.wastestreamProcessCfrSection }}
+          {{ longTermAvgData.wastestreamProcessTitle }}
+        </p>
+        <p>
+          <span class="has-text-weight-bold">Other Process Operation/Wastestream Detail(s):</span>
+          <span v-html="longTermAvgData.wastestreamProcessSecondary"></span>
+        </p>
+        <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
     </div>
     <Table
@@ -78,6 +88,7 @@ import Modal from '@/components/shared/Modal';
 export default {
   components: { Breadcrumbs, Table, Modal },
   computed: {
+    ...mapState('search', ['selectedTreatmentTrain']),
     ...mapState('limitations', ['longTermAvgData']),
   },
   data() {
@@ -153,20 +164,16 @@ button {
 .help-icons {
   justify-content: flex-end;
   margin-bottom: 0;
+  margin-top: 0.25rem;
+
+  p {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
 }
 
 .help-container {
   margin-left: 20px;
-}
-
-.info-box {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.info-box-container {
-  background-color: $gray !important;
-  padding: 20px !important;
 }
 
 .download-icon-container {

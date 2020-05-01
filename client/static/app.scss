@@ -157,6 +157,20 @@ input,
   }
 }
 
+.info-box-container {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+
+  .message-body {
+    color: inherit;
+  }
+
+  p {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
 .container {
   max-width: 68em;
 }

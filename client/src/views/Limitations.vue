@@ -10,6 +10,30 @@
           ]"
         />
       </div>
+      <div class="column">
+        <router-link to="/results" class="button has-text-white is-pulled-right">
+          <span class="fa fa-reply has-text-white"></span>Back to Results
+        </router-link>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-8">
+        <h2 v-if="subcategoryData" class="is-size-4 has-text-weight-bold">
+          Point Source Category {{ selectedCategory.pointSourceCategoryCode }}:
+          {{ selectedCategory.pointSourceCategoryName }} Limitations
+        </h2>
+        <h2 v-if="!subcategoryData && limitationData" class="is-size-4 has-text-weight-bold">
+          {{ pollutantDescription }}
+          {{ treatmentNames }}
+          Limitations
+        </h2>
+        <h3 v-if="!subcategoryData && limitationData" class="subtitle is-size-5 has-text-weight-light">
+          Point Source Category {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
+        </h3>
+        <h3 v-if="subcategoryData" class="subtitle is-size-5 has-text-weight-light">
+          Subpart {{ subcategoryData.comboSubcategory }}
+        </h3>
+      </div>
       <div class="column field is-grouped help-icons">
         <div class="field is-grouped">
           <span class="fas fa-book has-text-grey-dark help-icon"></span>
@@ -21,45 +45,17 @@
         </div>
       </div>
     </div>
-    <div class="columns" v-if="!subcategoryData && limitationData">
-      <div class="column">
-        <h1 v-if="subcategoryData" class="is-size-3 has-text-weight-light">
-          {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
-        </h1>
-        <h1 v-if="!subcategoryData && limitationData" class="is-size-4 has-text-weight-bold">
-          {{ pollutantDescription }}
-          {{ treatmentNames }}
-          Limitations
-        </h1>
-        <h1 v-if="!subcategoryData && limitationData" class="is-size-5">
-          Point Source Category {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
-        </h1>
-        <h1 v-if="subcategoryData" class="is-size-5 has-text-weight-light">
-          Subpart {{ subcategoryData.comboSubcategory }}
-        </h1>
-      </div>
-      <div class="column">
-        <router-link to="/results" class="button has-text-white is-pulled-right">
-          <span class="fa fa-reply has-text-white"></span>Back to Results
-        </router-link>
-      </div>
-    </div>
-    <div v-if="subcategoryData" class="content info-box-container">
-      <div class="columns">
-        <div class="column is-9">
-          <p class="info-box"><strong>CFR Section:</strong> {{ limitationData.cfrSection }}</p>
-          <p class="info-box"><strong>Level of Control:</strong> {{ limitationData.controlTechnologyCode }}</p>
-          <p class="info-box"><strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}</p>
-          <p class="info-box">
-            <strong>Secondary Wastestream/Process Operation(s):</strong>
-            <span v-html="limitationData.secondary"></span>
-          </p>
-        </div>
-        <div class="column">
-          <router-link to="/results" class="button has-text-white is-pulled-right">
-            <span class="fa fa-reply has-text-white"></span>Back to Results
-          </router-link>
-        </div>
+    <div v-if="subcategoryData" class="info-box-container message">
+      <div class="message-body">
+        <p><span class="has-text-weight-bold">CFR Section:</span> {{ limitationData.cfrSection }}</p>
+        <p><span class="has-text-weight-bold">Level of Control:</span> {{ limitationData.controlTechnologyCode }}</p>
+        <p>
+          <span class="has-text-weight-bold">Primary Wastestream/Process Operation:</span> {{ limitationData.title }}
+        </p>
+        <p>
+          <span class="has-text-weight-bold">Secondary Wastestream/Process Operation(s):</span>
+          <span v-html="limitationData.secondary"></span>
+        </p>
       </div>
     </div>
     <Table
@@ -270,6 +266,15 @@ button {
   background: $blue;
 }
 
+.subtitle {
+  font-family: inherit;
+  margin-bottom: 0.75rem;
+}
+
+.info-box-container {
+  margin-top: -1rem;
+}
+
 a.button {
   margin-bottom: 0;
 }
@@ -290,24 +295,15 @@ label {
 .help-icons {
   justify-content: flex-end;
   margin-bottom: 0;
+  margin-top: 0.25rem;
 }
 
 .help-container {
   margin-left: 20px;
 }
 
-.info-box {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
 .is-checkradio[type='checkbox'] + label {
   cursor: auto;
-}
-
-.info-box-container {
-  background-color: $gray !important;
-  padding: 20px !important;
 }
 
 .download-icon-container {

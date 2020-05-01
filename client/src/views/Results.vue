@@ -101,7 +101,8 @@
             </div>
             <div class="field is-grouped" v-if="controlTechnology.pollutants">
               <p>
-                <b>Pollutant(s):</b> {{ abbreviatedList(controlTechnology.pollutants) }}
+                <span class="has-text-weight-bold">Pollutant(s):</span>
+                {{ abbreviatedList(controlTechnology.pollutants) }}
                 <a
                   class="is-link more"
                   v-if="controlTechnology.pollutants.split(', ').length > 2"
@@ -137,21 +138,29 @@
       :colsLength="6"
     />
     <div v-if="treatmentTechnologyData">
-      <div class="columns treatment-info-box">
-        <div class="column is-gray-background is-7 technology-description">
-          <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
+      <div class="columns">
+        <div class="column">
+          <div class="info-box-container message">
+            <div class="message-body">
+              <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
+            </div>
+          </div>
         </div>
-        <div class="column is-gray-background is-5">
-          <p><strong>Treatment Train(s):</strong></p>
-          <ul class="elg-bullet-list">
-            <li v-for="train in getTreatmentTrains" :key="train.id">{{ train.names }}</li>
-          </ul>
-          <a
-            class="is-link more"
-            v-if="treatmentTechnologyData.treatmentTrains.length > 3"
-            @click="() => (shouldDisplayTrains = true)"
-            >more</a
-          >
+        <div class="column">
+          <div class="info-box-container message">
+            <div class="message-body">
+              <p><strong>Treatment Train(s):</strong></p>
+              <ul class="elg-bullet-list">
+                <li v-for="train in getTreatmentTrains" :key="train.id">{{ train.names }}</li>
+              </ul>
+              <a
+                class="is-link more"
+                v-if="treatmentTechnologyData.treatmentTrains.length > 3"
+                @click="() => (shouldDisplayTrains = true)"
+                >more</a
+              >
+            </div>
+          </div>
         </div>
       </div>
       <div class="columns">
@@ -577,9 +586,9 @@ select {
   }
 }
 
-.treatment-info-box {
-  padding-left: 10px;
-  margin-top: 10px;
+.info-box-container {
+  height: 100%;
+  margin-bottom: 0;
 }
 
 .technology-description {
