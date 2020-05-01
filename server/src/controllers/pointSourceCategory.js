@@ -2,7 +2,92 @@ const utilities = require('./utilities');
 
 const PointSourceCategory = require('../models').PointSourceCategory;
 const PointSourceSubcategory = require('../models').PointSourceSubcategory;
-const Op = require('sequelize').Op;
+const PointSourceCategoryNaicsCode = require('../models').PointSourceCategoryNaicsCode;
+const PointSourceCategorySicCode = require('../models').PointSourceCategorySicCode;
+const ViewGeneralProvision = require('../models').ViewGeneralProvision;
+const ViewDefinition = require('../models').ViewDefinition;
+const CitationHistory = require('../models').CitationHistory;
+const Op = require('sequelize').Op
+const Sequelize = require("sequelize");
+
+function fillSubcategoryForCfr(subcategory) {
+  return new Promise( function(resolve, reject) {
+    let sub = {
+      'id': subcategory.id,
+      'pointSourceCategoryCode': subcategory.pointSourceCategoryCode,
+      'comboSubcategory': subcategory.comboSubcategory,
+      'applicabilityProvisions': [],
+      'monitoringRequirementProvisions': [],
+      'bmpProvisions': [],
+      'otherProvisions': []
+    };
+
+    let attributes = [
+      'cfrSection',
+      'title',
+      [Sequelize.literal("replace(genprov_desc, '\\u00A7', U&'\\00A7')"), 'description'],
+      'cfrHasAdditionalDetails',
+      'type'
+    ];
+
+    let subCategoryIdWhereClause = { [Op.eq]: sub.id }
+    if (sub.comboSubcategory === 'All') {
+      subCategoryIdWhereClause = { [Op.eq]: null }
+    }
+
+    ViewGeneralProvision.findAll({
+      attributes: attributes,
+      where: {
+        pointSourceCategoryCode: { [Op.eq]: sub.pointSourceCategoryCode },
+        type: { [Op.ne]: null },
+        subcategoryId: subCategoryIdWhereClause
+      },
+      order: ['cfrSection']
+    })
+      .then(provisions => {
+        sub.applicabilityProvisions = provisions.filter(function(provision) { return provision.type === 'applicability' } );
+        sub.monitoringRequirementProvisions = provisions.filter(function(provision) { return provision.type === 'monitoringRequirement' } );
+        sub.bmpProvisions = provisions.filter(function(provision) { return provision.type === 'bmp' } );
+        sub.otherProvisions = provisions.filter(function(provision) { return provision.type === 'other' } );
+        resolve(sub);
+      });
+  })
+}
+
+function fillSubcategoryForDefinitions(subcategory) {
+  return new Promise( function(resolve, reject) {
+    let sub = {
+      'id': subcategory.id,
+      'pointSourceCategoryCode': subcategory.pointSourceCategoryCode,
+      'comboSubcategory': subcategory.comboSubcategory,
+      'definitions': []
+    };
+
+    let attributes = [
+      'term',
+      'definition',
+      'cfrHasAdditionalDetails'
+    ];
+
+    let subCategoryIdWhereClause = { [Op.eq]: sub.id }
+    if (sub.comboSubcategory === 'General Definitions') {
+      subCategoryIdWhereClause = { [Op.eq]: null }
+    }
+
+    ViewDefinition.findAll({
+      attributes: attributes,
+      where: {
+        pointSourceCategoryCode: { [Op.eq]: sub.pointSourceCategoryCode },
+        subcategoryId: subCategoryIdWhereClause
+      },
+      order: ['term']
+    })
+      .then(definitions => {
+        sub.definitions = definitions;
+        resolve(sub);
+      });
+  })
+}
 
 module.exports = {
   list(req, res) {
@@ -63,11 +148,238 @@ module.exports = {
           else {
             res.status(200).send(result);
           }
-
         })
         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
     } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
+  /**
+   * @param {
+   *          {id:number}
+   * } req.params
+   */
+  cfr(req, res) {
+    // check for required query attributes and replace with defaults if missing
+    try {
+      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.params.id);
+
+      if (pointSourceCategoryCode === null) {
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode')
+      }
+
+      return PointSourceCategory.findByPk(pointSourceCategoryCode, {
+        attributes: [
+          'pointSourceCategoryCode',
+          'pointSourceCategoryName',
+          'initialPromulgationDate',
+          'mostRecentRevisionDate'
+        ]
+      })
+        .then((pointSourceCategory) => {
+          let result = new Map();
+
+          if(pointSourceCategory) {
+            result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
+            result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
+            result['initialPromulgationDate'] = pointSourceCategory.initialPromulgationDate;
+            result['mostRecentRevisionDate'] = pointSourceCategory.mostRecentRevisionDate;
+
+            PointSourceCategoryNaicsCode.findAll({
+              attributes: [
+                [Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g')"), 'naicsCode'],
+                [Sequelize.literal('(select "NaicsCode".naics_desc from "elg_search"."NaicsCode" where "NaicsCode".naics = "PointSourceCategoryNaicsCode".naics)'), 'naicsDescription']
+              ],
+              where: {
+                pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
+              },
+              order: ['naicsCode']
+            })
+              .then((pointSourceCategoryNaicsCodes) => {
+                result['naicsCodes'] = pointSourceCategoryNaicsCodes;
+
+                PointSourceCategorySicCode.findAll({
+                  attributes: [
+                    [Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g')"), 'sicCode'],
+                    [Sequelize.literal('(select "SicCode".sic_desc from "elg_search"."SicCode" where "SicCode".sic = "PointSourceCategorySicCode".sic)'), 'sicDescription']
+                  ],
+                  where: {
+                    generalPointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
+                  },
+                  order: ['sicCode']
+                })
+                  .then((pointSourceCategorySicCodes) => {
+                    result['sicCodes'] = pointSourceCategorySicCodes;
+
+                    PointSourceSubcategory.findAll({
+                      attributes: [
+                        'id',
+                        'pointSourceCategoryCode',
+                        'comboSubcategory',
+                        'pointSourceSubcategoryCfrSection'
+                      ],
+                      where: {
+                        pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
+                      },
+                      order: [
+                        'comboSubcategory'
+                      ]
+                    })
+                      .then((subcategories) => {
+                        subcategories.unshift({id: -1, pointSourceCategoryCode: pointSourceCategoryCode, comboSubcategory: 'All', pointSourceSubcategoryCfrSection: ''})
+
+                        let subcategoryPromises = [];
+
+                        //get provisions for each subcategory, grouped by type
+                        subcategories.forEach(function(subcategory) {
+                          subcategoryPromises.push(fillSubcategoryForCfr(subcategory))
+                        });
+
+                        Promise.all(subcategoryPromises).then(filledSubcategories => {
+                          result['subcategories'] = filledSubcategories;
+
+                          res.status(200).send(result);
+                        })
+                      })
+                      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                  })
+                  .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+              })
+              .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+          }
+          else {
+            res.status(200).send(result);
+          }
+        })
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+    } catch (err) {
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
+    }
+  },
+  /**
+   * @param {
+   *          {id:number}
+   * } req.params
+   */
+  definitions(req, res) {
+    // check for required query attributes and replace with defaults if missing
+    try {
+      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.params.id);
+
+      if (pointSourceCategoryCode === null) {
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode')
+      }
+
+      return PointSourceCategory.findByPk(pointSourceCategoryCode, {
+        attributes: [
+          'pointSourceCategoryCode',
+          'pointSourceCategoryName'
+        ]
+      })
+        .then((pointSourceCategory) => {
+          let result = new Map();
+
+          if(pointSourceCategory) {
+            result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
+            result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
+
+            PointSourceSubcategory.findAll({
+              attributes: [
+                'id',
+                'pointSourceCategoryCode',
+                'comboSubcategory',
+                'pointSourceSubcategoryCfrSection'
+              ],
+              where: {
+                pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
+              },
+              order: [
+                'comboSubcategory'
+              ]
+            })
+              .then((subcategories) => {
+                subcategories.unshift({id: -1, pointSourceCategoryCode: pointSourceCategoryCode, comboSubcategory: 'General Definitions', pointSourceSubcategoryCfrSection: ''})
+
+                let subcategoryPromises = [];
+
+                //get provisions for each subcategory, grouped by type
+                subcategories.forEach(function(subcategory) {
+                  subcategoryPromises.push(fillSubcategoryForDefinitions(subcategory))
+                });
+
+                Promise.all(subcategoryPromises).then(filledSubcategories => {
+                  result['subcategories'] = filledSubcategories;
+
+                  res.status(200).send(result);
+                })
+              })
+              .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+          }
+          else {
+            res.status(200).send(result);
+          }
+        })
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+    } catch (err) {
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
+    }
+  },
+  /**
+   * @param {
+   *          {id:number}
+   * } req.params
+   */
+  citationHistory(req, res) {
+    // check for required query attributes and replace with defaults if missing
+    try {
+      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.params.id);
+
+      if (pointSourceCategoryCode === null) {
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode')
+      }
+
+      return PointSourceCategory.findByPk(pointSourceCategoryCode, {
+        attributes: [
+          'pointSourceCategoryCode',
+          'pointSourceCategoryName'
+        ]
+      })
+        .then((pointSourceCategory) => {
+          let result = new Map();
+
+          if(pointSourceCategory) {
+            result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
+            result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
+
+            CitationHistory.findAll({
+              attributes: [
+                'cfrSection',
+                'subcategory',
+                'description',
+                'publicationDate',
+                'federalRegisterNoticeInCfr',
+                'federalRegisterNoticeFirstPage'
+              ],
+              where: {
+                pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
+              },
+              order: [
+                'cfrSection',
+                'publicationDate'
+              ]
+            })
+              .then((citationHistories) => {
+                res.status(200).send(citationHistories);
+              })
+              .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+          }
+          else {
+            res.status(200).send(result);
+          }
+        })
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+    } catch (err) {
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
+    }
+  }
 };
