@@ -19,10 +19,11 @@
     <div class="columns">
       <div class="column is-9">
         <h2 class="is-size-4 has-text-weight-bold page-heading">
-          {{ technologyBasisData.treatmentNames }}
+          {{ technologyBasisData.treatmentNames }} Technology Bases
         </h2>
         <h3 v-if="!isComparingPscs" class="subtitle is-size-5 has-text-weight-light">
-          {{ technologyBasisData.pointSourceCategoryCode }}: {{ technologyBasisData.pointSourceCategoryName }}
+          Point Source Category {{ technologyBasisData.pointSourceCategoryCode }}:
+          {{ technologyBasisData.pointSourceCategoryName }}
         </h3>
       </div>
       <div class="column field is-grouped help-icons">
@@ -40,14 +41,16 @@
       <template v-for="controlTechnology in controlTechData" v-slot:[controlTechnology.controlTechnologyCode]>
         <div :key="controlTechnology.id" class="columns tab-content tech-basis-tab-content">
           <div class="column tech-basis-container">
-            <div class="field is-grouped" v-if="controlTechnology.pollutants">
-              <b>Pollutant(s): </b> {{ abbreviatedList(controlTechnology.pollutants) }}
+            <div v-if="controlTechnology.pollutants">
+              <span class="has-text-weight-bold">Pollutant(s): </span>
+              {{ abbreviatedList(controlTechnology.pollutants) }}
               <a
                 class="is-link more"
                 v-if="controlTechnology.pollutants.split(', ').length > 2"
                 @click="shouldDisplayPollutantsModal(controlTechnology.pollutants)"
-                >more</a
               >
+                more
+              </a>
             </div>
             <div class="field is-grouped download-icon-container">
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
@@ -214,6 +217,7 @@ label {
 .help-icons {
   justify-content: flex-end;
   margin-bottom: 0;
+  margin-top: 0.25rem;
 }
 
 .help-container {
