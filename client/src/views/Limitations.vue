@@ -68,12 +68,7 @@
       @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
       @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
-    <Tabs
-      v-if="!subcategoryData && limitationData"
-      :tabs="controlTechTabs"
-      :activeTab="activeTab"
-      @onTabClick="changeControlTechTab"
-    >
+    <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="columns tab-content poll-limit-tab-content">
           <div class="column poll-limitation-container">
@@ -97,7 +92,7 @@
           </div>
         </div>
       </template>
-    </Tabs>
+    </ControlTabs>
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
     </Modal>
@@ -130,11 +125,11 @@
 import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
-import Tabs from '@/components/shared/Tabs';
+import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Table, Tabs, Modal },
+  components: { Breadcrumbs, Table, ControlTabs, Modal },
   computed: {
     ...get('search', ['selectedCategory', 'subcategoryData']),
     ...get('limitations', [

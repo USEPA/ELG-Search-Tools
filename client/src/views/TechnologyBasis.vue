@@ -37,10 +37,10 @@
         </div>
       </div>
     </div>
-    <Tabs v-if="technologyBasisData" :tabs="controlTechTabs" :activeTab="activeTab" @onTabClick="changeControlTechTab">
+    <ControlTabs v-if="technologyBasisData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnology in controlTechData" v-slot:[controlTechnology.controlTechnologyCode]>
-        <div :key="controlTechnology.id" class="columns tab-content tech-basis-tab-content">
-          <div class="column tech-basis-container">
+        <div :key="controlTechnology.id" class="tab-content tech-basis-tab-content">
+          <div>
             <div v-if="controlTechnology.pollutants">
               <span class="has-text-weight-bold">Pollutant(s): </span>
               {{ abbreviatedList(controlTechnology.pollutants) }}
@@ -56,20 +56,18 @@
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
               <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Technology Bases (CSV File)</p>
             </div>
-            <div class="field">
-              <Table
-                :columns="techBasisCols"
-                :rows="controlTechnology.wastestreamProcessTreatmentTechnologies"
-                :shouldHaveTechBasisCols="true"
-                @onNavigateToLimitations="navigateToLimitations"
-                :isComparingPscs="isComparingPscs"
-                :colsLength="9"
-              />
-            </div>
+            <Table
+              :columns="techBasisCols"
+              :rows="controlTechnology.wastestreamProcessTreatmentTechnologies"
+              :shouldHaveTechBasisCols="true"
+              @onNavigateToLimitations="navigateToLimitations"
+              :isComparingPscs="isComparingPscs"
+              :colsLength="9"
+            />
           </div>
         </div>
       </template>
-    </Tabs>
+    </ControlTabs>
     <Modal v-if="shouldDisplayPollutants" @close="() => (shouldDisplayPollutants = false)">
       <p><strong>Pollutants:</strong> {{ pollutants }}</p>
     </Modal>
@@ -80,11 +78,11 @@
 import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
-import Tabs from '@/components/shared/Tabs';
+import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Table, Tabs, Modal },
+  components: { Breadcrumbs, Table, ControlTabs, Modal },
   computed: {
     ...get('search', ['technologyBasisData', 'isComparingPscs']),
     ...sync('results', ['activeTab']),

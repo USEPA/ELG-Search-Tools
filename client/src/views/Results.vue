@@ -41,17 +41,27 @@
       </div>
     </div>
 
-    <label class="sr-only" for="subcategory">Subpart</label>
-    <Multiselect
-      v-if="subcategoryData"
-      :value="selectedSubcategory"
-      :options="subcategories"
-      placeholder="Select Subcategory"
-      label="comboSubcategory"
-      :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
-      @input="onChangeSubcategory"
-      class="results-select"
-    ></Multiselect>
+    <div v-if="subcategoryData" class="columns psc-select">
+      <div class="column">
+        <label class="sr-only" for="subcategory">Subpart</label>
+        <Multiselect
+          v-if="subcategoryData"
+          :value="selectedSubcategory"
+          :options="subcategories"
+          placeholder="Select Subcategory"
+          label="comboSubcategory"
+          :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
+          @input="onChangeSubcategory"
+          class="results-select"
+        ></Multiselect>
+      </div>
+      <div class="column cfr-link">
+        <router-link to="/about-cfr">
+          About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}
+          <span class="fa fa-external-link-alt"></span>
+        </router-link>
+      </div>
+    </div>
 
     <p v-if="pollutantData" class="pollutant-subtext">
       Number of PSCs Referencing Pollutant: {{ pollutantData.length }}
@@ -61,7 +71,7 @@
         <span class="fas fa-share-square"></span>Go to PSC Comparison
       </a>
     </div>
-    <Tabs v-if="subcategoryData" :tabs="controlTechTabs" :activeTab="activeTab" @onTabClick="changeControlTechTab">
+    <ControlTabs v-if="subcategoryData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template
         v-for="controlTechnology in subcategoryData.controlTechnologies"
         v-slot:[controlTechnology.controlTechnologyCode]
@@ -125,7 +135,7 @@
           </div>
         </div>
       </template>
-    </Tabs>
+    </ControlTabs>
     <Table
       v-if="pollutantData"
       :columns="pollColumns"
@@ -240,13 +250,13 @@
 <script>
 import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
+import ControlTabs from '@/components/shared/ControlTabs';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
-import Tabs from '@/components/shared/Tabs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Tabs, Table, Modal, Multiselect },
+  components: { Breadcrumbs, ControlTabs, Table, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -258,16 +268,6 @@ export default {
     ]),
     ...sync('results', ['activeTab']),
     ...sync('search', ['selectedTreatmentTrain', 'selectedSubcategory']),
-    controlTechTabs() {
-      return [
-        'BPT',
-        'BAT',
-        'BCT',
-        'NSPS',
-        'PSES',
-        'PSNS',
-        `About Part ${this.selectedCategory.pointSourceCategoryCode}`,
-      ];
     },
     getTreatmentTrains() {
       if (this.treatmentTechnologyData.treatmentTrains.length > 3) {
@@ -573,16 +573,33 @@ select {
   width: 54em;
 }
 
+.psc-select {
+  margin-bottom: 1rem;
+}
+
 .results-select {
   display: inline-block;
   width: auto;
   min-width: 500px;
-  margin-bottom: 2rem;
 
   &.treatment-select {
     min-width: 650px;
     margin-bottom: 0;
     margin-left: 0.5rem;
+  }
+}
+
+.cfr-link {
+  margin: auto;
+  font-weight: bold;
+  font-size: 1.05rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .fa {
+    margin-left: 0.2rem;
   }
 }
 
