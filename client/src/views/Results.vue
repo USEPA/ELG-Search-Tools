@@ -268,7 +268,6 @@ export default {
     ]),
     ...sync('results', ['activeTab']),
     ...sync('search', ['selectedTreatmentTrain', 'selectedSubcategory']),
-    },
     getTreatmentTrains() {
       if (this.treatmentTechnologyData.treatmentTrains.length > 3) {
         return this.treatmentTechnologyData.treatmentTrains.slice(0, 3);
