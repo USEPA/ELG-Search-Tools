@@ -6,6 +6,7 @@ import CustomSearch from '@/views/CustomSearch';
 import Limitations from '@/views/Limitations';
 import LongTermAvg from '@/views/LongTermAvg';
 import TechnologyBasis from '@/views/TechnologyBasis';
+import AboutCFR from '@/views/AboutCFR';
 
 Vue.use(Router);
 
@@ -40,6 +41,11 @@ const router = new Router({
       path: '/results/technologyBasis',
       name: 'technologyBasis',
       component: TechnologyBasis,
+    },
+    {
+      path: '/results/about-cfr',
+      name: 'aboutCfr',
+      component: AboutCFR,
     },
   ],
   mode: 'history',
