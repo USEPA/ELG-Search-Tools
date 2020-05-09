@@ -34,7 +34,7 @@
           Subpart {{ subcategoryData.comboSubcategory }}
         </h3>
       </div>
-      <div class="column field is-grouped help-icons">
+      <div class="column help-icons">
         <div class="field is-grouped">
           <span class="fas fa-book has-text-grey-dark help-icon"></span>
           <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
@@ -280,21 +280,6 @@ a.button {
 
 label {
   margin-left: 0 !important;
-}
-
-.help-icon {
-  font-size: 20px;
-  margin-right: 5px;
-}
-
-.help-icons {
-  justify-content: flex-end;
-  margin-bottom: 0;
-  margin-top: 0.25rem;
-}
-
-.help-container {
-  margin-left: 20px;
 }
 
 .is-checkradio[type='checkbox'] + label {

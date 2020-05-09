@@ -6,7 +6,7 @@
           Custom Search
         </h1>
       </div>
-      <div class="field is-grouped help-icons">
+      <div class="help-icons">
         <div class="field is-grouped">
           <span class="fas fa-book has-text-grey-dark help-icon"></span>
           <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
@@ -239,20 +239,6 @@ button {
   width: 23em;
   height: 3em;
   font-size: 18px;
-}
-.help-icon {
-  font-size: 20px;
-  margin-right: 5px;
-}
-
-.help-icons {
-  justify-content: flex-end;
-  margin-bottom: 0;
-  padding-top: 30px;
-}
-
-.help-container {
-  margin-left: 20px;
 }
 
 .select-label {

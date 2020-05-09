@@ -175,6 +175,20 @@ input,
   max-width: 68em;
 }
 
+.help-icon {
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.help-icons {
+  display: flex;
+  justify-content: flex-end;
+  margin: auto;
+}
+
+.help-container {
+  margin-left: 20px;
+}
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 // Import vue-multiselect
