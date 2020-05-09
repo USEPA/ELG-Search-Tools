@@ -70,7 +70,9 @@ export default {
 }
 
 .message {
-  font-size: 0.95em;
+  & > .message-body {
+    color: #212121;
+  }
 
   &.is-danger {
     background-color: #f9dede;
