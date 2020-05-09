@@ -64,6 +64,19 @@ section.main-content {
   text-decoration: none !important;
 }
 
+.button.is-hyperlink {
+  background: none;
+  padding: 0;
+  margin: 0;
+  color: $blue;
+  text-decoration: underline;
+  height: inherit;
+
+  &:hover {
+    color: darken($blue, 10);
+  }
+}
+
 .menu.column {
   padding-left: 1px !important;
 }
@@ -189,6 +202,29 @@ input,
 .help-container {
   margin-left: 20px;
 }
+
+// Custom tab styles
+.tabs {
+  li button {
+    background-color: $gray;
+    color: #212121;
+    justify-content: center;
+    margin-right: 0.2rem;
+    margin-bottom: 0;
+    padding: 0.6rem 1.5rem;
+    width: 100%;
+    border-radius: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    white-space: inherit;
+    line-height: inherit;
+
+    &:hover {
+      background-color: darken($gray, 10);
+    }
+  }
+}
+
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 // Import vue-multiselect

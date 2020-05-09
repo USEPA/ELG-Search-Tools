@@ -56,7 +56,7 @@
         ></Multiselect>
       </div>
       <div class="column cfr-link">
-        <router-link to="/about-cfr">
+        <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
           About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}
           <span class="fa fa-external-link-alt"></span>
         </router-link>
