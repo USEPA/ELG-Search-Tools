@@ -45,13 +45,45 @@
             {{ cfrResults.mostRecentRevisionDate }}
           </p>
           <p>
-            <button class="button is-hyperlink">Industry NAICS Codes</button>
+            <button class="button is-hyperlink" @click="() => (shouldDisplayNaicsModal = true)">
+              Industry NAICS Codes
+            </button>
           </p>
           <p>
-            <button class="button is-hyperlink">Industry SIC Codes</button>
+            <button class="button is-hyperlink" @click="() => (shouldDisplaySicModal = true)">
+              Industry SIC Codes
+            </button>
           </p>
         </div>
       </div>
+
+      <Modal
+        v-if="shouldDisplayNaicsModal"
+        title="Industry NAICS Codes"
+        @close="() => (shouldDisplayNaicsModal = false)"
+      >
+        <Alert type="info">
+          These codes are generally associated with the industry but the applicability statement(s) in the CFR are the
+          legal basis for the regulated facilities.
+        </Alert>
+        <ul class="elg-bullet-list">
+          <li v-for="naics in cfrResults.naicsCodes" :key="naics.naicsCode">
+            {{ naics.naicsCode }} - {{ naics.naicsDescription }}
+          </li>
+        </ul>
+      </Modal>
+      <Modal v-if="shouldDisplaySicModal" title="Industry SIC Codes" @close="() => (shouldDisplaySicModal = false)">
+        <p v-if="!cfrResults.sicCodes.length" class="is-italic">No data available.</p>
+        <div v-else>
+          <Alert type="info">
+            These codes are generally associated with the industry but the applicability statement(s) in the CFR are the
+            legal basis for the regulated facilities.
+          </Alert>
+          <ul class="elg-bullet-list">
+            <li v-for="sic in cfrResults.sicCodes" :key="sic.sicCode">{{ sic.sicCode }} - {{ sic.sicDescription }}</li>
+          </ul>
+        </div>
+      </Modal>
 
       <div v-for="subcategory in cfrResults.subcategories" class="card" :key="subcategory.id">
         <header class="card-header">
@@ -90,12 +122,15 @@ import { get } from 'vuex-pathify';
 import Alert from '@/components/shared/Alert';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import LoadingIndicator from '@/components/shared/LoadingIndicator';
+import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Alert, Breadcrumbs, LoadingIndicator },
+  components: { Alert, Breadcrumbs, LoadingIndicator, Modal },
   data() {
     return {
       noPscPassed: false,
+      shouldDisplayNaicsModal: false,
+      shouldDisplaySicModal: false,
       provisions: [
         { prop: 'applicabilityProvisions', label: 'Applicability' },
         { prop: 'bmpProvisions', label: 'BMPs', abbr: 'Best Management Practices' },
