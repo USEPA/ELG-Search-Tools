@@ -34,7 +34,7 @@
           Subpart {{ subcategoryData.comboSubcategory }}
         </h3>
       </div>
-      <div class="column field is-grouped help-icons">
+      <div class="column help-icons">
         <div class="field is-grouped">
           <span class="fas fa-book has-text-grey-dark help-icon"></span>
           <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
@@ -68,12 +68,7 @@
       @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
       @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
-    <Tabs
-      v-if="!subcategoryData && limitationData"
-      :tabs="controlTechTabs"
-      :activeTab="activeTab"
-      @onTabClick="changeControlTechTab"
-    >
+    <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="columns tab-content poll-limit-tab-content">
           <div class="column poll-limitation-container">
@@ -97,7 +92,7 @@
           </div>
         </div>
       </template>
-    </Tabs>
+    </ControlTabs>
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
     </Modal>
@@ -130,11 +125,11 @@
 import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
-import Tabs from '@/components/shared/Tabs';
+import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Table, Tabs, Modal },
+  components: { Breadcrumbs, Table, ControlTabs, Modal },
   computed: {
     ...get('search', ['selectedCategory', 'subcategoryData']),
     ...get('limitations', [
@@ -285,21 +280,6 @@ a.button {
 
 label {
   margin-left: 0 !important;
-}
-
-.help-icon {
-  font-size: 20px;
-  margin-right: 5px;
-}
-
-.help-icons {
-  justify-content: flex-end;
-  margin-bottom: 0;
-  margin-top: 0.25rem;
-}
-
-.help-container {
-  margin-left: 20px;
 }
 
 .is-checkradio[type='checkbox'] + label {
