@@ -205,7 +205,59 @@ module.exports = {
                     }
                     return 0;
                   });
-                  res.status(200).send(result);
+
+                  //get PSCs
+                  ViewWastestreamProcessTreatmentTechnology.findAll({
+                    group: [
+                      "pointSourceCategoryCode",
+                      "pointSourceCategoryName"
+                    ],
+                    attributes: [
+                      "pointSourceCategoryCode",
+                      "pointSourceCategoryName"
+                    ],
+                    where: {
+                      [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)")
+                    },
+                    raw: true
+                  })
+                    .then(pointSourceCategories => {
+                      result.pointSourceCategories = pointSourceCategories;
+
+                      //get pollutants
+                      WastestreamProcessTreatmentTechnologyPollutant.findAll({
+                        group: [
+                          "pollutantId"
+                        ],
+                        attributes: [
+                          "pollutantId"
+                        ],
+                        where: {
+                          treatmentId: { [Op.in]: result.treatmentTrains.map(a => a.id) }
+                        },
+                        raw: true
+                      })
+                        .then(pollutants => {
+                          Pollutant.findAll({
+                            attributes: [
+                              ['elg_pollutant_description', 'pollutantDescription'],
+                              [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+                            ],
+                            where: {
+                              id: { [Op.in]: pollutants.map(a => a.pollutantId) }
+                            },
+                            group: ['elg_pollutant_description']
+                          })
+                            .then(polls => {
+                              result.pollutants = polls;
+
+                              res.status(200).send(result);
+                            })
+                            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+                        })
+                        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+                    })
+                    .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
                 });
             })
             .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
