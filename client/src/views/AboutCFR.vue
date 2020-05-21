@@ -100,7 +100,7 @@
         </div>
       </Modal>
 
-      <div v-for="subcategory in cfrResults.subcategories" class="card" :key="subcategory.id">
+      <div v-for="subcategory in results" class="card" :key="subcategory.id">
         <header class="card-header">
           <div class="tabs is-boxed">
             <p class="card-header-title">Subcategory: {{ subcategory.comboSubcategory }}</p>
@@ -108,7 +108,7 @@
               <li
                 v-for="provision in availableProvisions(subcategory)"
                 :key="provision.prop"
-                :class="isActive(selectedProvisionTypes[subcategory.id], provision.prop)"
+                :class="isActive(selectedProvisionTypes[subcategory.id], provision.prop) ? 'is-active' : ''"
               >
                 <button :title="provision.abbr" @click="setProvisionType(subcategory.id, provision.prop)">
                   {{ provision.label }}
@@ -117,8 +117,19 @@
             </ul>
           </div>
         </header>
-        <div class="card-content">
-          <p v-if="!availableProvisions(subcategory).length" class="is-italic">No data available.</p>
+        <div v-if="isActive(selectedProvisionTypes[subcategory.id], 'definitions')" class="card-content">
+          <p v-for="definition in subcategory.definitions" :key="definition.term">
+            <span class="has-text-weight-bold">{{ definition.term }}: </span>
+            {{ definition.definition }}
+          </p>
+        </div>
+        <div v-else class="card-content">
+          <p
+            v-if="!subcategory[selectedProvisionTypes[subcategory.id] || 'applicabilityProvisions'].length"
+            class="is-italic"
+          >
+            No data available.
+          </p>
           <p
             v-for="provision in subcategory[selectedProvisionTypes[subcategory.id] || 'applicabilityProvisions']"
             :key="provision.cfrSection"
@@ -151,25 +162,43 @@ export default {
         { prop: 'bmpProvisions', label: 'BMPs', abbr: 'Best Management Practices' },
         { prop: 'monitoringRequirementProvisions', label: 'Monitoring Requirements' },
         { prop: 'otherProvisions', label: 'Other' },
+        { prop: 'definitions', label: 'Definitions' },
       ],
       selectedProvisionTypes: {},
     };
   },
   computed: {
-    ...get('aboutCfr', ['isFetching', 'cfrResults']),
+    ...get('aboutCfr', ['isFetching', 'cfrResults', 'cfrDefinitions']),
+    results() {
+      return this.cfrResults
+        ? this.cfrResults.subcategories.map((subcat) => {
+            return {
+              ...subcat,
+              definitions: this.cfrDefinitions
+                ? this.cfrDefinitions.subcategories.find((s) => s.id === subcat.id).definitions
+                : [],
+            };
+          })
+        : [];
+    },
   },
   methods: {
     setProvisionType(subcategoryId, provisionType) {
       this.$set(this.selectedProvisionTypes, subcategoryId, provisionType);
     },
     availableProvisions(subcategory) {
-      return this.provisions.filter((p) => subcategory[p.prop].length);
+      const provisionsWithData = this.provisions.filter((p) => subcategory[p.prop].length);
+      // Always display Applicability tab, even if there is no data available for it
+      if (!provisionsWithData.find((p) => p.prop === 'applicabilityProvisions')) {
+        provisionsWithData.unshift({ prop: 'applicabilityProvisions', label: 'Applicability' });
+      }
+      return provisionsWithData;
     },
     isActive(selected, provisionType) {
       if ((!selected && provisionType === 'applicabilityProvisions') || selected === provisionType) {
-        return 'is-active';
+        return true;
       }
-      return '';
+      return false;
     },
   },
   mounted() {
@@ -179,6 +208,7 @@ export default {
       return;
     }
     this.$store.dispatch('aboutCfr/getCfrResults', this.$route.query.psc);
+    this.$store.dispatch('aboutCfr/getCfrDefinitions', this.$route.query.psc);
   },
 };
 </script>
