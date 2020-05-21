@@ -34,26 +34,41 @@
           </div>
         </div>
       </div>
-      <div class="info-box-container message">
-        <div class="message-body">
-          <p>
-            <span class="has-text-weight-bold">Initial Promulgation:</span>
-            {{ cfrResults.initialPromulgationDate }}
-          </p>
-          <p>
-            <span class="has-text-weight-bold">Latest Promulgation:</span>
-            {{ cfrResults.mostRecentRevisionDate }}
-          </p>
-          <p>
-            <button class="button is-hyperlink" @click="() => (shouldDisplayNaicsModal = true)">
-              Industry NAICS Codes
-            </button>
-          </p>
-          <p>
-            <button class="button is-hyperlink" @click="() => (shouldDisplaySicModal = true)">
-              Industry SIC Codes
-            </button>
-          </p>
+      <div class="columns">
+        <div class="column">
+          <div class="info-box-container message">
+            <div class="message-body">
+              <p>
+                <span class="has-text-weight-bold">Initial Promulgation:</span>
+                {{ cfrResults.initialPromulgationDate }}
+              </p>
+              <p>
+                <span class="has-text-weight-bold">Latest Promulgation:</span>
+                {{ cfrResults.mostRecentRevisionDate }}
+              </p>
+              <p>
+                <button class="button is-hyperlink" @click="() => (shouldDisplayNaicsModal = true)">
+                  Industry NAICS Codes
+                </button>
+              </p>
+              <p>
+                <button class="button is-hyperlink" @click="() => (shouldDisplaySicModal = true)">
+                  Industry SIC Codes
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="cfr-link column">
+          <router-link
+            :to="{
+              path: '/results/about-cfr/citation-history',
+              query: { psc: $route.query.psc },
+            }"
+          >
+            Go To Citation History
+            <span class="fa fa-external-link-alt"></span>
+          </router-link>
         </div>
       </div>
 
@@ -158,8 +173,9 @@ export default {
     },
   },
   mounted() {
-    if (!this.$route.query.psc) {
+    if (!this.$route.query.psc && !this.cfrResults) {
       this.noPscPassed = true;
+      this.$store.commit('aboutCfr/SET_IS_FETCHING', false);
       return;
     }
     this.$store.dispatch('aboutCfr/getCfrResults', this.$route.query.psc);
@@ -218,6 +234,16 @@ export default {
     border-bottom-color: transparent !important;
     cursor: default;
   }
+}
+
+.cfr-link {
+  text-align: right;
+  margin: auto 0 1rem 0;
+}
+
+.info-box-container,
+.cfr-link {
+  margin-bottom: 0;
 }
 
 // Mobile styles

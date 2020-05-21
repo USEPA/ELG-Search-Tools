@@ -574,20 +574,6 @@ select {
   }
 }
 
-.cfr-link {
-  margin: auto;
-  font-weight: bold;
-  font-size: 1.05rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  .fa {
-    margin-left: 0.2rem;
-  }
-}
-
 .info-box-container {
   height: 100%;
   margin-bottom: 0;

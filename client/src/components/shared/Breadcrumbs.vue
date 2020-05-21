@@ -3,7 +3,7 @@
     <ul>
       <li v-for="page in pages" :key="page.path" :class="page.isCurrent ? 'is-active' : ''">
         <a v-if="page.isCurrent" href="#" aria-current="page">{{ page.title }}</a>
-        <router-link v-else :to="page.path">{{ page.title }}</router-link>
+        <router-link v-else :to="page.path || page.pathObject">{{ page.title }}</router-link>
       </li>
     </ul>
   </nav>
