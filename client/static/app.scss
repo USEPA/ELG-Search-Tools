@@ -225,6 +225,20 @@ input,
   }
 }
 
+.cfr-link {
+  margin: auto;
+  font-weight: bold;
+  font-size: 1.05rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .fa {
+    margin-left: 0.2rem;
+  }
+}
+
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 // Import vue-multiselect
