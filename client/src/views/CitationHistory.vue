@@ -65,8 +65,8 @@ export default {
         { key: 'subcategory', label: 'Subcategory' },
         { key: 'description', label: 'CFR Section Description' },
         { key: 'publicationDate', label: 'Publication Date' },
-        { key: 'federalRegisterNoticeInCfr', label: 'Federal Regsiter Notice (in CFR)' },
-        { key: 'federalRegisterNoticeFirstPage', label: 'Federal Regsiter Notice (1st Page)' },
+        { key: 'federalRegisterNoticeInCfr', label: 'Federal Register Notice (in CFR)' },
+        { key: 'federalRegisterNoticeFirstPage', label: 'Federal Register Notice (1st Page)' },
       ],
     };
   },
