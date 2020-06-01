@@ -7,6 +7,7 @@ import Limitations from '@/views/Limitations';
 import LongTermAvg from '@/views/LongTermAvg';
 import TechnologyBasis from '@/views/TechnologyBasis';
 import AboutCFR from '@/views/AboutCFR';
+import CitationHistory from '@/views/CitationHistory';
 
 Vue.use(Router);
 
@@ -46,6 +47,11 @@ const router = new Router({
       path: '/results/about-cfr',
       name: 'aboutCfr',
       component: AboutCFR,
+    },
+    {
+      path: '/results/about-cfr/citation-history',
+      name: 'citationHistory',
+      component: CitationHistory,
     },
   ],
   mode: 'history',
