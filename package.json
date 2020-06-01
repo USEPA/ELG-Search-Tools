@@ -5,7 +5,8 @@
   "author": "Eastern Research Group (ERG)",
   "scripts": {
     "build": "node server/src/build.js",
-    "lint": "eslint . --ext .js,.vue",
+    "lint": "vue-cli-service lint ./client/**/*.js ./client/**/*.vue",
+    "lint:fix": "vue-cli-service lint --fix",
     "build:dev": "cross-env NODE_ENV=local npm run migrate && cross-env NODE_ENV=local npm run seed && cross-env NODE_ENV=local vue-cli-service build",
     "build:prod": "vue-cli-service build",
     "client": "vue-cli-service serve",
@@ -68,7 +69,7 @@
     "eslint-config-prettier": "^4.1.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-prettier": "^3.0.1",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint-plugin-vue": "^7.0.0-alpha.4",
     "prettier": "^1.16.4",
     "request-promise": "^4.2.5",
     "sass": "^1.17.2",
