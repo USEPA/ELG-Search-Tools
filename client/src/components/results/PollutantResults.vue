@@ -1,40 +1,5 @@
 <template>
-  <section class="section">
-    <div class="columns elg-breadcrumbs-container">
-      <div class="column is-8">
-        <Breadcrumbs
-          :pages="[
-            { title: 'Search', path: '/' },
-            { title: 'Results', isCurrent: true },
-          ]"
-        ></Breadcrumbs>
-      </div>
-      <div class="column">
-        <router-link to="/" class="button has-text-white is-pulled-right">
-          <span class="fa fa-reply has-text-white" />Back to Search
-        </router-link>
-      </div>
-    </div>
-    <div class="columns elg-header-container">
-      <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
-        {{ pollutantData[0].pollutantDescription }} Results
-      </h2>
-      <div class="column help-icons">
-        <div class="field is-grouped">
-          <span class="fas fa-book has-text-grey-dark help-icon" />
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">
-            Glossary
-          </p>
-        </div>
-        <div class="field is-grouped help-container">
-          <span class="fas fa-question-circle has-text-grey-dark help-icon" />
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">
-            Help
-          </p>
-        </div>
-      </div>
-    </div>
-
+  <div>
     <p class="pollutant-subtext">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</p>
     <div class="field is-grouped">
       <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
@@ -50,22 +15,21 @@
       @onNavigateToLimitations="navigateToLimitations"
       @shouldDisplayMoreModal="displayMoreModal"
       @onSelectedPsc="selectedPsc"
-    ></Table>
+    />
 
     <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
       <span v-html="currentMoreInfo" />
     </Modal>
-  </section>
+  </div>
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
-import Breadcrumbs from '@/components/shared/Breadcrumbs';
+import { get } from 'vuex-pathify';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Table, Modal },
+  components: { Table, Modal },
   computed: {
     ...get('search', ['pollutantData']),
   },
@@ -146,19 +110,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../static/variables';
-
-.page-heading {
-  margin-bottom: 0.5rem;
-}
-
-button {
-  background: $blue;
-}
-
-a.button {
-  margin: 0;
-}
+@import '../../../static/variables';
 
 .is-link.more {
   margin-left: 3px;
