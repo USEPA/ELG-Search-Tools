@@ -286,3 +286,9 @@ SELECT
 	pollutant_desc,
 	coalesce(elg_pollutant_description, pollutant_desc) as elg_pollutant_description
 FROM elg_database.ref_pollutant;
+
+create view elg_database.view_ref_sic_code as 
+SELECT 
+	sic, 
+	replace(replace(sic_desc, chr(145), ''''), chr(146), '''') as sic_desc
+FROM elg_database.ref_sic_code;
