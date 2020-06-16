@@ -438,7 +438,7 @@ module.exports = {
    *          {pointSourceCategoryCode:number}
    * } req.query
    */
-  limitations(req, res) {
+  technologyBasisLimitations(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
       let treatmentId = utilities.parseIdAsInteger(req.query.treatmentId);
@@ -453,6 +453,36 @@ module.exports = {
       }
 
       limitation.technologyBasisLimitations(treatmentId, pointSourceCategoryCode)
+        .then(limitations => {
+          res.status(200).send(limitations);
+        })
+        .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+    } catch (err) {
+      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+    }
+  },
+  /*
+   * @param {
+   *          {id:string},
+   *          {treatmentId:number},
+   *          {pointSourceCategoryCode:number},
+   *          {pollutantId:string}
+   * } req.query
+   */
+  limitations(req, res) {
+    // check for required query attributes and replace with defaults if missing
+    try {
+      let id = req.query.id ? req.query.id : "";
+
+      if (id === "") {
+        return res.status(400).send("Invalid value passed for id");
+      }
+
+      let treatmentIds = (req.query.treatmentId ? req.query.treatmentId.split(',') : []);
+      let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(',') : []);
+      let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(',') : []);
+
+      limitation.technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds)
         .then(limitations => {
           res.status(200).send(limitations);
         })
