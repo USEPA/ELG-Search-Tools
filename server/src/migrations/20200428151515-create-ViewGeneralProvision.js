@@ -22,7 +22,7 @@ module.exports = {
     'from elg_search."GeneralProvision" ag ' +
     'left outer join elg_search."PointSourceSubcategory" pss ' +
     "on ag.psc_code = pss.psc_code " +
-    "and left(split_part(ag.genprov_cfr_section::text, '.'::text, 2) || case when length(split_part(ag.genprov_cfr_section::text, '.'::text, 2)) = 1 then '0' else '' end, length(split_part(ag.genprov_cfr_section::text, '.'::text, 2) || case when length(split_part(ag.genprov_cfr_section::text, '.'::text, 2)) = 1 then '0' else '' end) - 1) = " +
+    "and left(split_part(ag.genprov_cfr_section::text, '.'::text, 2), length(split_part(ag.genprov_cfr_section::text, '.'::text, 2)) - 1) = " +
     "left(split_part(pss.subcat_cfr_section::text, '.'::text, 2), length(split_part(pss.subcat_cfr_section::text, '.'::text, 2)) - 1)"),
   down: (queryInterface, Sequelize) => queryInterface.sequelize.query('DROP VIEW elg_search."ViewGeneralProvision"')
 };
