@@ -14,7 +14,7 @@ select 'LimitationUnit' as tablename, string_agg( cast(row_to_json(tablename.*,t
 select 'LongTermAverage' as tablename, string_agg( cast(row_to_json((SELECT colName from (select ltaid, lim_id, treatment_id, lta_value, lta_units, lim_duration_code, discharge_frequency, tech_ref, notes) colName)) as text), E',\n') as json_data from elg_database.n5b_pollutant_ltas as tablename union all
 select 'ReferenceSource' as tablename, string_agg( cast(row_to_json((SELECT colName from (select source_id, source_title, display_title) colName)) as text), E',\n') as json_data from elg_database.view_a_source_new as tablename union all
 select 'NaicsCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_naics_code as tablename union all
-select 'SicCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_sic_code as tablename union all
+select 'SicCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.view_ref_sic_code as tablename union all
 select 'PointSourceCategoryNaicsCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_psc_naics_xwalk as tablename union all
 select 'PointSourceCategorySicCode' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.ref_psc_sic_xwalk as tablename union all
 select 'CitationHistory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.view_a_cfr_citation_history as tablename union all
