@@ -27,7 +27,7 @@
         <span v-else-if="selectedTreatmentTechnology">
           {{ selectedTreatmentTechnology.name }}
         </span>
-        Results
+        Limitation Results
       </h2>
       <div class="column help-icons">
         <div class="field is-grouped">

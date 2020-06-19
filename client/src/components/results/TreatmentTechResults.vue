@@ -7,36 +7,106 @@
         </div>
       </div>
       <div class="columns">
-        <div class="column is-10">
-          <strong><label for="treatmentTrains">Treatment Train:</label></strong>
+        <div class="column is-4">
+          <strong>
+            <label for="categories">
+              Point Source Categories
+              <HoverText hoverId="catInfo" :icon="true">
+                The above technology is associated with a treatment train to control the discharge of pollutants for the
+                following PSCs.
+              </HoverText>
+            </label>
+          </strong>
           <Multiselect
+            id="categories"
+            :value="selectedTreatmentCategory"
+            :options="treatmentTechnologyData.pointSourceCategories"
+            :multiple="true"
+            placeholder="Select Category"
+            label="pointSourceCategoryName"
+            @select="onChangeCategory"
+            @remove="onChangeCategory"
+          />
+        </div>
+        <div class="column is-4">
+          <strong>
+            <label for="pollutants">
+              Pollutants
+              <HoverText hoverId="pollInfo" :icon="true">
+                The above technology is associated with a treatment train to control the discharge of the following
+                pollutants.
+              </HoverText>
+            </label>
+          </strong>
+          <Multiselect
+            id="pollutants"
+            :value="selectedTreatmentPollutant"
+            :options="treatmentTechnologyData.pollutants"
+            :multiple="true"
+            placeholder="Select Pollutant"
+            label="pollutantDescription"
+            @select="onChangePollutant"
+            @remove="onChangePollutant"
+          />
+        </div>
+        <div class="column is-4">
+          <strong>
+            <label for="treatmentTrains">
+              Treatment Trains
+              <HoverText hoverId="trainInfo" :icon="true">
+                The above technology is associated with the following treatment trains.
+              </HoverText>
+            </label>
+          </strong>
+          <Multiselect
+            id="treatmentTrains"
             :value="selectedTreatmentTrain"
             :options="treatmentTechnologyData.treatmentTrains"
+            :multiple="true"
             placeholder="Select Treatment Train"
             label="names"
-            @input="onChangeTreatmentTrain"
-            class="results-select treatment-select"
-          ></Multiselect>
+            @select="onChangeTrain"
+            @remove="onChangeTrain"
+          />
         </div>
       </div>
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
-      <div v-if="selectedTreatmentTrain && treatmentTechnologyData" class="field is-grouped">
-        <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
-          <span class="fas fa-share-square"></span>Go to PSC Comparison
-        </a>
-      </div>
-      <Table
-        v-if="treatmentTrain"
-        :columns="techColumns"
-        :rows="treatmentTrain"
-        :shouldHaveTreatmentTechCols="true"
-        :canComparePscs="true"
-        @shouldDisplayMoreModal="displayMoreModal"
-        @onShouldDisplayTechnologyBasisData="shouldDisplayTechnologyBasisData"
-        @onSelectedPsc="selectedPscForTechnologyBasis"
-      />
+      <NewTable v-if="treatmentLimitationData" :columns="limitationColumns" :rows="limitations" :busy="isFetching">
+        <template v-slot:cell(limitationUnitCode)="{ item }">
+          <HoverText
+            :hoverId="`units${item.limitationId}`"
+            :linkText="item.limitationUnitCode"
+            :customStyle="{ width: '200px' }"
+          >
+            {{ item.limitationUnitDescription }}
+          </HoverText>
+        </template>
+        <template v-slot:cell(wastestreamProcessTitle)="{ item }">
+          <HoverText
+            :hoverId="`process${item.limitationId}`"
+            :linkText="item.wastestreamProcessTitle"
+            :customStyle="{ width: '300px' }"
+          >
+            <span v-html="item.wastestreamProcessSecondary" />
+          </HoverText>
+        </template>
+        <template v-slot:cell(limitationDurationBaseType)="{ item }">
+          <HoverText
+            :hoverId="`limitationType${item.limitationId}`"
+            :linkText="item.limitationDurationBaseType"
+            :customStyle="{ width: '200px' }"
+          >
+            {{ item.limitationDurationDescription }}
+          </HoverText>
+        </template>
+        <template v-slot:cell(goToLta)>
+          <router-link to="/results/limitations/longTermAverage" title="View Long Term Average">
+            <span class="fa fa-external-link-square-alt" />
+          </router-link>
+        </template>
+      </NewTable>
     </div>
 
     <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
@@ -67,20 +137,19 @@
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
     </Modal>
-    <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
-      <span v-html="currentMoreInfo"></span>
-    </Modal>
   </div>
 </template>
 
 <script>
 import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
-import Table from '@/components/shared/Table';
+import xor from 'lodash/xor';
+import HoverText from '@/components/shared/HoverText';
+import NewTable from '@/components/shared/NewTable';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Table, Modal, Multiselect },
+  components: { HoverText, NewTable, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -90,13 +159,23 @@ export default {
       'treatmentTechnologyData',
       'treatmentTrain',
     ]),
+    ...get('limitations', ['treatmentLimitationData']),
     ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedTreatmentTrain', 'selectedSubcategory']),
-    getTreatmentTrains() {
-      if (this.treatmentTechnologyData.treatmentTrains.length > 3) {
-        return this.treatmentTechnologyData.treatmentTrains.slice(0, 3);
-      }
-      return this.treatmentTechnologyData.treatmentTrains;
+    ...sync('search', ['selectedSubcategory']),
+    ...sync('limitations', [
+      'isFetching',
+      'selectedTreatmentTrain',
+      'selectedTreatmentCategory',
+      'selectedTreatmentPollutant',
+    ]),
+    limitations() {
+      return this.treatmentLimitationData.map((row) => {
+        return {
+          ...row,
+          limitationValue:
+            row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
+        };
+      });
     },
   },
   data() {
@@ -111,32 +190,58 @@ export default {
       shouldDisplayTechnologies: false,
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
-      currentMoreInfo: null,
-      shouldDisplayMoreModal: false,
-      selectedPscs: [],
-      techColumns: [
+      limitationColumns: [
         {
-          key: 'pointSourceCategoryCode',
-          label: '40 CFR',
+          key: 'controlTechnologyCode',
+          label: 'Level of Control',
+        },
+        {
+          key: 'pollutantDescription',
+          label: 'Pollutant',
+        },
+        {
+          key: 'controlTechnologyCfrSection',
+          label: 'CFR Section',
         },
         {
           key: 'pointSourceCategoryName',
           label: 'Point Source Category',
         },
         {
-          key: 'pointSourceSubcategories',
-          label: 'Subcategories',
-          isAbbreviatedList: true,
+          key: 'comboSubcategory',
+          label: 'Subpart',
         },
         {
-          key: 'wastestreamProcesses',
-          label: 'Process Operation/Wastestream(s)',
-          isAbbreviatedList: true,
+          key: 'wastestreamProcessTitle',
+          label: 'Process',
         },
         {
-          key: 'pollutants',
-          label: 'Pollutants',
-          isAbbreviatedList: true,
+          key: 'alternateLimitFlag',
+          label: 'Flag',
+        },
+        {
+          key: 'limitationValue',
+          label: 'Value',
+        },
+        {
+          key: 'limitationUnitCode',
+          label: 'Units',
+        },
+        {
+          key: 'limitationDurationBaseType',
+          label: 'Type of Limitation',
+        },
+        {
+          key: 'limitationUnitBasis',
+          label: 'Limitation Basis',
+        },
+        {
+          key: 'limitationDurationBaseType',
+          label: 'Statistical Base',
+        },
+        {
+          key: 'goToLta',
+          label: 'Go To LTA',
         },
       ],
     };
@@ -146,39 +251,17 @@ export default {
       this.currentRow = null;
       this.shouldDisplayInfoModal = false;
     },
-    displayMoreModal(value) {
-      this.currentMoreInfo = null;
-      this.currentMoreInfo = value;
-      this.shouldDisplayMoreModal = true;
+    onChangeTrain(value) {
+      this.selectedTreatmentTrain = xor(this.selectedTreatmentTrain, [value]);
+      this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
     },
-    async shouldDisplayTechnologyBasisData(row) {
-      await this.$store.dispatch('search/getTechnologyBasisData', {
-        treatmentId: row.treatmentId,
-        pointSourceCategoryCode: row.pointSourceCategoryCode,
-      });
-      await this.$router.push('/results/technologyBasis');
+    onChangeCategory(value) {
+      this.selectedTreatmentCategory = xor(this.selectedTreatmentCategory, [value]);
+      this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
     },
-    async selectedPscForTechnologyBasis(row, e) {
-      if (e.target.checked) {
-        // add this psc/treatment combination to the selected list
-        this.selectedPscs.push({ treatmentId: row.treatmentId, pointSourceCategoryCode: row.pointSourceCategoryCode });
-      } else {
-        // remove this psc/treatment combination from the selected list
-        this.selectedPscs = this.selectedPscs.filter(
-          (psc) => !(psc.treatmentId === row.treatmentId && psc.pointSourceCategoryCode === row.pointSourceCategoryCode)
-        );
-      }
-    },
-    async shouldDisplayTechnologyBasisDataForMultiplePscs() {
-      await this.$store.dispatch('search/getTechnologyBasisDataForMultiplePscs', {
-        treatmentIds: this.selectedPscs.map((psc) => psc.treatmentId).join(','),
-        pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
-      });
-      await this.$router.push('/reuslts/technologyBasis');
-    },
-    onChangeTreatmentTrain(value) {
-      this.selectedTreatmentTrain = value;
-      this.$store.dispatch('search/getTreatmentTrain', value.id);
+    onChangePollutant(value) {
+      this.selectedTreatmentPollutant = xor(this.selectedTreatmentPollutant, [value]);
+      this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
     },
   },
 };
@@ -187,12 +270,22 @@ export default {
 <style lang="scss" scoped>
 @import '../../../static/variables';
 
-.is-link.more {
-  margin-left: 3px;
+.button {
+  width: 100%;
+  margin-top: 0.5rem;
+
+  &[disabled] {
+    background-color: whitesmoke;
+    color: inherit;
+
+    &:hover {
+      background-color: #fff;
+    }
+  }
 }
 
-label {
-  margin-left: 0 !important;
+a .fa {
+  font-size: 1.25rem;
 }
 
 .pollutant-subtext {
@@ -203,45 +296,8 @@ section p {
   padding-bottom: 0 !important;
 }
 
-.is-checkradio[type='checkbox'] + label {
-  cursor: auto;
-}
-
-.psc-icon {
-  position: absolute;
-  left: 0;
-}
-
-select {
-  width: 54em;
-}
-
-.psc-select {
-  margin-bottom: 1rem;
-}
-
-.results-select {
-  display: inline-block;
-  width: auto;
-  min-width: 500px;
-
-  &.treatment-select {
-    min-width: 650px;
-    margin-bottom: 0;
-    margin-left: 0.5rem;
-  }
-}
-
 .info-box-container {
   height: 100%;
-  margin-bottom: 0;
-}
-
-.technology-description {
-  margin-right: 5px;
-}
-
-.is-gray-background {
-  background-color: $gray;
+  margin-bottom: 1rem;
 }
 </style>

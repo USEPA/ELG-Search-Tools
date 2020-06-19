@@ -10,6 +10,10 @@ const state = {
   longTermAvgData: null,
   isComparingPscs: false,
   treatmentNames: null,
+  treatmentLimitationData: null,
+  selectedTreatmentTrain: [],
+  selectedTreatmentCategory: [],
+  selectedTreatmentPollutant: [],
 };
 
 const getters = {
@@ -97,6 +101,20 @@ const actions = {
 
     const res = await axios.get(`api/limitation/${id}`);
     commit('SET_LTA_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getTreatmentTechnologyLimitations({ commit, state, rootState }) {
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/treatmentTechnologyLimitations', {
+      params: {
+        id: rootState.search.treatmentTechnologyData.id,
+        treatmentId: state.selectedTreatmentTrain.map((t) => t.id).join(','),
+        pointSourceCategoryCode: state.selectedTreatmentCategory.map((t) => t.pointSourceCategoryCode).join(','),
+        pollutantId: state.selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(','),
+      },
+    });
+    commit('SET_TREATMENT_LIMITATION_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
 };
