@@ -21,6 +21,7 @@
     "@fortawesome/fontawesome-free": "^5.0.13",
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
+    "bootstrap-vue": "^2.9.0",
     "bulma": "^0.7.4",
     "bulma-checkradio": "^1.1.0",
     "connect-history-api-fallback": "^1.6.0",
