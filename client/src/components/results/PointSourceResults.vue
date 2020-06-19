@@ -137,8 +137,6 @@ export default {
   },
   data() {
     return {
-      directLength: null,
-      indirectLength: null,
       shouldDisplayNotes: false,
       notes: null,
       currentRow: null,
@@ -175,10 +173,6 @@ export default {
         this.shouldDisplayNotes = true;
         this.notes = notes;
       }
-    },
-    stopTheEvent(e) {
-      e.preventDefault();
-      e.stopPropagation();
     },
     closeInfoModal() {
       this.currentRow = null;
