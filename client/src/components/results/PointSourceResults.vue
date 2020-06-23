@@ -1,24 +1,23 @@
 <template>
   <div>
-    <div class="columns psc-select">
-      <div class="column">
-        <label class="sr-only" for="subcategory">Subpart</label>
-        <Multiselect
-          :value="selectedSubcategory"
-          :options="subcategories"
-          placeholder="Select Subcategory"
-          label="comboSubcategory"
-          :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
-          @input="onChangeSubcategory"
-          class="results-select"
-        />
-      </div>
-      <div class="column cfr-link">
-        <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
-          About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}
-          <span class="fa fa-external-link-alt" />
-        </router-link>
-      </div>
+    <div class="cfr-link">
+      <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
+        About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}: Applicability, General Requirements, and
+        Definitions
+        <span class="fa fa-external-link-alt" />
+      </router-link>
+    </div>
+    <div class="psc-select">
+      <label class="sr-only" for="subcategory">Subpart</label>
+      <Multiselect
+        :value="selectedSubcategory"
+        :options="subcategories"
+        placeholder="Select Subcategory"
+        label="comboSubcategory"
+        :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
+        @input="onChangeSubcategory"
+        class="results-select"
+      />
     </div>
 
     <ControlTabs :activeTab="activeTab" @onTabClick="changeControlTechTab">
@@ -292,8 +291,12 @@ select {
   width: 54em;
 }
 
-.psc-select {
+.cfr-link {
   margin-bottom: 1rem;
+}
+
+.psc-select {
+  margin-bottom: 1.5rem;
 }
 
 .results-select {

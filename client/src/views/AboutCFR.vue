@@ -20,9 +20,12 @@
         </div>
       </div>
       <div class="columns elg-header-container">
-        <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
-          About 40 CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
-        </h2>
+        <div class="column is-10 page-heading">
+          <h2 class="is-size-4 has-text-weight-bold">
+            About 40 CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
+          </h2>
+          <h3 class="is-size-5 subtitle">Applicability, General Requirements, and Definitions</h3>
+        </div>
         <div class="column help-icons">
           <div class="field is-grouped">
             <span class="fas fa-book has-text-grey-dark help-icon"></span>
@@ -34,6 +37,12 @@
           </div>
         </div>
       </div>
+      <Alert type="info">
+        This page presents applicability, definitions, best management practices, monitoring requirements, and other
+        general provisions applicable to the point source category (presented first) and subcategories. Click on the
+        tabs to view the CFR text of interest. If there is no applicability text in the CFR, ’No Data Available’ will be
+        noted.
+      </Alert>
       <div class="columns">
         <div class="column">
           <div class="info-box-container message">
@@ -159,10 +168,10 @@ export default {
       shouldDisplaySicModal: false,
       provisions: [
         { prop: 'applicabilityProvisions', label: 'Applicability' },
+        { prop: 'definitions', label: 'Definitions' },
         { prop: 'bmpProvisions', label: 'BMPs', abbr: 'Best Management Practices' },
         { prop: 'monitoringRequirementProvisions', label: 'Monitoring Requirements' },
         { prop: 'otherProvisions', label: 'Other' },
-        { prop: 'definitions', label: 'Definitions' },
       ],
       selectedProvisionTypes: {},
     };
