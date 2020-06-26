@@ -42,6 +42,12 @@
     </div>
 
     <div v-if="subcategoryData" class="columns psc-select">
+      <div class="column cfr-link">
+        <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
+          About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}
+          <span class="fa fa-external-link-alt"></span>
+        </router-link>
+      </div>
       <div class="column">
         <label class="sr-only" for="subcategory">Subpart</label>
         <Multiselect
@@ -54,12 +60,6 @@
           @input="onChangeSubcategory"
           class="results-select"
         ></Multiselect>
-      </div>
-      <div class="column cfr-link">
-        <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
-          About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}
-          <span class="fa fa-external-link-alt"></span>
-        </router-link>
       </div>
     </div>
 
@@ -558,8 +558,12 @@ select {
   width: 54em;
 }
 
-.psc-select {
+.cfr-link {
   margin-bottom: 1rem;
+}
+
+.psc-select {
+  margin-bottom: 1.5rem;
 }
 
 .results-select {
