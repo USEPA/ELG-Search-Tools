@@ -1,10 +1,15 @@
 module.exports = {
   up(queryInterface) {
-    let records = [{"name":"Anoxic/anaerobic fixed film biological treatment",
-      "code":"AAFF",
-      "category":"Biological",
+    let records = [{"name":"Deepwell Injection",
+      "code":"DWI",
+      "category":"Disposal",
       "variations":null,
-      "description":"Biological treatment in which microorganisms attach to inert media and break down organic materials in the absence of oxygen. A clarifier is included."},
+      "description":"Disposal of brine or other waste through injection wells."},
+      {"name":"Anoxic/anaerobic fixed film biological treatment",
+        "code":"AAFF",
+        "category":"Biological",
+        "variations":null,
+        "description":"Biological treatment in which microorganisms attach to inert media and break down organic materials in the absence of oxygen. A clarifier is included."},
       {"name":"Alkaline Chlorination",
         "code":"AC",
         "category":"Chemical",
@@ -444,7 +449,17 @@ module.exports = {
         "code":"ZVI",
         "category":"Chemical, Sorption",
         "variations":"nZVI",
-        "description":"Granular or nanoscale ZVI is used to remove metals by adsorption and reductive precipitation mechanisms. Used through a separate reactor unit. Similar configuration to granular-media filtration."}];
+        "description":"Granular or nanoscale ZVI is used to remove metals by adsorption and reductive precipitation mechanisms. Used through a separate reactor unit. Similar configuration to granular-media filtration."},
+      {"name":"Other Wastewater Treatment",
+        "code":"OTHER",
+        "category":"--",
+        "variations":null,
+        "description":"Wastewater treatment technology that is either not captured by other technology codes or is unspecified."},
+      {"name":"Hauling Solid Waste",
+        "code":"HAUL",
+        "category":"--",
+        "variations":null,
+        "description":"Hauling of solid waste generated from wastewater treatment."}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "TreatmentTechnologyCode" }, records);
   },

@@ -2,7 +2,7 @@ module.exports = {
   up(queryInterface) {
     let records = [{"unit_code":1,
       "unit":"kg/kkg of product",
-      "unit_desc":"\tKg/kkg (or pounds per 1,000 lb) of product",
+      "unit_desc":"kilograms per 1,000 kilograms (or pounds per 1,000 lb) of product",
       "unit_basis":"Quantity"},
       {"unit_code":2,
         "unit":"mg/L",
@@ -923,6 +923,18 @@ module.exports = {
       {"unit_code":1222,
         "unit":"PAH mass ratio",
         "unit_desc":"PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \\u00A7435.11(u)] entitled \"PAH Content of Oil by HPLC/UV,\" December 1992, which is published as an appendix to subpart A of this part and in \"Analytic Methods for the Oil and Gas Extraction Point Source Category,\" EPA-821-R-11-004. See \\u00A7435.11(uu).",
+        "unit_basis":null},
+      {"unit_code":1223,
+        "unit":"kg/1000 kkg of metal poured",
+        "unit_desc":null,
+        "unit_basis":null},
+      {"unit_code":1224,
+        "unit":"kg/62.3 million sm3 of air scrubbed",
+        "unit_desc":null,
+        "unit_basis":null},
+      {"unit_code":1225,
+        "unit":"kg/1000 kkg of sand reclaimed",
+        "unit_desc":null,
         "unit_basis":null}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "LimitationUnit" }, records);

@@ -69,8 +69,8 @@ function getUnauthorizedResponse(req) {
   return req.auth ? "Invalid credentials" : "No credentials provided";
 }
 
-require('./routes')(app);
-app.use(history());
+//app.use(history());
+require('./routes')(app,history());
 
 app.listen(config.port);
 console.log(`Server started on port ${config.port}`);

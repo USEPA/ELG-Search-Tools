@@ -3,6 +3,7 @@ const utilities = require('./utilities');
 const ViewLimitation = require('../models').ViewLimitation;
 const ViewLongTermAverage = require('../models').ViewLongTermAverage;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
+const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
 
@@ -30,12 +31,16 @@ let attributes = [
   'alternateLimitFlag',
   'alternateLimitDescription',
   'limitRequirementDescription',
-  'limitationLimitCalculationDescription',
-  'limitationPollutantNotes',
-  'longTermAverageCount'
+  [Sequelize.literal("replace(lim_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitationLimitCalculationDescription'],
+  [Sequelize.literal("replace(lim_pollutant_notes, '\\u00A7', U&'\\00A7')"), 'limitationPollutantNotes'],
+  [Sequelize.literal("case when stat_base_type = 'Average' then lta_count else 0 end"), 'longTermAverageCount'],
+  'pointSourceCategoryCode',
+  'pointSourceCategoryName'
 ];
 
 let order = [
+  'pointSourceCategoryCode',
+  'pointSourceCategoryName',
   'comboSubcategory',
   'controlTechnologyDisplayOrder',
   'wastestreamProcessDisplayOrder',
@@ -74,18 +79,44 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
   });
 }
 
-function pollutantLimitations(pollutantId, pointSourceCategoryCode) {
+function pollutantLimitations(pollutantIds, pointSourceCategoryCodes) {
   return new Promise(function(resolve, reject) {
     ViewLimitation.findAll({
       attributes: attributes,
       where: {
-        pollutantId: { [Op.eq]: pollutantId },
-        pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
+        pollutantId: { [Op.in]: pollutantIds },
+        pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes }
       },
       order: order
     })
       .then((limitations) => {
         resolve(limitations);
+      })
+      .catch((error) => reject('Error retrieving limitations: ' + error));
+  });
+}
+
+function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
+  return new Promise(function(resolve, reject) {
+    ViewWastestreamProcessTreatmentTechnology.findAll({
+      attributes: ['wastestreamProcessId'],
+      where: {
+        treatmentId: {[Op.eq]: treatmentId},
+        pointSourceCategoryCode: {[Op.eq]: pointSourceCategoryCode}
+      }
+    })
+      .then(wastestreamProcessTreatmentTechnologies => {
+        ViewLimitation.findAll({
+          attributes: attributes,
+          where: {
+            wastestreamProcessId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.wastestreamProcessId) }
+          },
+          order: order
+        })
+          .then((limitations) => {
+            resolve(limitations);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error));
       })
       .catch((error) => reject('Error retrieving limitations: ' + error));
   });
@@ -141,6 +172,7 @@ function fillLongTermAverage(longTermAverage) {
 module.exports = {
   wastestreamProcessLimitations,
   pollutantLimitations,
+  technologyBasisLimitations,
   /**
    * @param {
    *          {id:number}

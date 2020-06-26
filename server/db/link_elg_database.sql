@@ -10,13 +10,13 @@ $$
 BEGIN
         DROP TABLE IF EXISTS ogr_fdw_out;
         CREATE TEMP TABLE ogr_fdw_out(out text);
-        IF layer > '' THEN 
-        EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "' 
-            || data_source || '" -l "' 
+        IF layer > '' THEN
+        EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "'
+            || data_source || '" -l "'
             || layer || '"'' WITH (format ''csv'', delimiter ''|'')';
         ELSE
-                EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "' 
-                || data_source 
+                EXECUTE 'COPY ogr_fdw_out FROM PROGRAM ''"C:/Program Files/PostgreSQL/9.6/bin/ogr_fdw_info" -s "'
+                || data_source
                 || '"''  WITH (format ''csv'', delimiter ''|'')';
         END IF;
         RETURN (SELECT string_agg(out,E'\n') from ogr_fdw_out);
@@ -69,7 +69,11 @@ where
 	'A_Definition',
 	'A_GeneralProvisions',
 	'A_Source_New',
-	'KEY_Alt_Lim_Flag'))
+	'KEY_Alt_Lim_Flag',
+	'REF_NAICS_CODE',
+	'REF_SIC_CODE',
+	'REF_PSC_NAICS_XWALK',
+	'REF_PSC_SIC_XWALK'))
 select
 	string_agg( replace(replace(replace(regexp_replace(elg_database.ogr_fdw_sql_table(conn, tb.table_name), 'CREATE SERVER (.*);(.*)CREATE FOREIGN TABLE ([a-z0-9\_]+)', E'DROP FOREIGN TABLE IF EXISTS elg_database.\\3;CREATE FOREIGN TABLE elg_database.\\3'), 'myserver', 'elg_database_odbc'), 'fid bigint,', ''), 'geom Geometry(Geometry),', ''), E'\n') as sql
 from
@@ -123,14 +127,14 @@ select
     COALESCE (processop_constraint3, '') || ' ' || COALESCE ('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
     replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
-    replace(lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc,
-    replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\00A7') as processop_notes,
+    replace(lim_calc_desc, U&'\00A7', '\u00A7') as lim_calc_desc,
+    replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\u00A7') as processop_notes,
     case when zero_discharge = '1' then true else false end as zero_discharge,
     case when no_limits = '1' then true else false end as no_limits,
     case when includes_bmps = '1' then true else false end as includes_bmps,
     source_id,
     sortorder,
-    --TODO: use value from source data when it is available case when alternative_requirement = '1' then true else false end as alternative_requirement, 
+    --TODO: use value from source data when it is available case when alternative_requirement = '1' then true else false end as alternative_requirement,
     false as alternative_requirement,
     case when process_addtdetail = '1' then true else false end as process_addtdetail
 from
@@ -138,11 +142,11 @@ from
 
 
 create view elg_database.view_n5_pollutant_limitations as
-SELECT 
-	pl.processop_id, 
-	pl.lim_id, 
-	pl.pollutant_code, 
-	case 
+SELECT
+	pl.processop_id,
+	pl.lim_id,
+	pl.pollutant_code,
+	case
 		when  pl.lim_id = 17175	THEN	'0.17 + (8 X (no. of hides)/kg RM)'
 	 	when  pl.lim_id = 17176	THEN	'0.21 + (11 X (no. of hides)/kg RM)'
 		when  pl.lim_id = 17178	THEN	'0.34 + (8 X (no. of hides)/kg RM)'
@@ -155,39 +159,39 @@ SELECT
 		when  pl.lim_id = 17221	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
 		when  pl.lim_id = 17222	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
 		when  pl.lim_id = 17223	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
-		else pl.lim_value 
+		else pl.lim_value
 	end as lim_value, --TODO: check these values in the latest data!
-	pl.lim_value_min, 
-	pl.lim_value_max, 
-	pl.alt_lim_flag, 
-	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else pl.alt_lim end as alt_lim, --odd character in source data 
-	pl.lim_duration_code, 
-	pl.discharge_frequency, 
-	pl.unit_code, 
-	pl.analytical_method_id, 
-	pl.wf_id, 
-	pl.fn_id, 
+	pl.lim_value_min,
+	pl.lim_value_max,
+	pl.alt_lim_flag,
+	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else pl.alt_lim end as alt_lim, --odd character in source data
+	pl.lim_duration_code,
+	pl.discharge_frequency,
+	pl.unit_code,
+	pl.analytical_method_id,
+	pl.wf_id,
+	pl.fn_id,
 	pl.question_desc,
-	pl.mdl, 
-	pl.ml, 
-	replace(pl.lim_calc_desc, U&'\00A7', '\00A7') as lim_calc_desc, 
-	pl.source_id, 
-	pl.qc_flag, 
-	pl.qc_notes, 
-	pl.zero_discharge, 
-	replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\00A7'), chr(147), '"'), chr(148), '"'), 'µ', 'u'), U&'\00A0', ' ') as pollutant_notes, 
-	pl.dataentry_psc_code, 
-	pl.qc_initials, 
+	pl.mdl,
+	pl.ml,
+	replace(pl.lim_calc_desc, U&'\00A7', '\u00A7') as lim_calc_desc,
+	pl.source_id,
+	pl.qc_flag,
+	pl.qc_notes,
+	pl.zero_discharge,
+	replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), 'ï¿½', 'u'), U&'\00A0', ' ') as pollutant_notes,
+	pl.dataentry_psc_code,
+	pl.qc_initials,
 	pl.treatment_id,
 	alf.description as alt_lim_description
 FROM elg_database.n5_pollutant_limitations pl left outer join elg_database.key_alt_lim_flag alf on pl.alt_lim_flag = alf.flag;
 
 create view elg_database.view_key_ttcodes as
 select
-	"name", 
-	code, 
-	category, 
-	variations, 
+	"name",
+	code,
+	category,
+	variations,
 	replace(replace(replace(description, chr(150), '-'), chr(147), '"'), chr(148), '"') as description
 from elg_database.key_ttcodes;
 
@@ -195,8 +199,8 @@ create view elg_database.view_a_cfr_citation_history as
 select
 	source_id,
 	psc,
-	cfr_section,
-	replace(subcategory, chr(151), '-') as subcategory,
+	replace(cfr_section, U&'\00A0', '') as cfr_section,
+	replace(replace(subcategory, U&'\0096', '-'), U&'\0097', '-') as subcategory,
 	cfr_section_description,
 	publication_date,
 	frn__in_cfr_,
@@ -204,34 +208,41 @@ select
 	notes
 from elg_database.a_cfr_citation_history;
 
-create view elg_database.view_a_definition as 
+create view elg_database.view_a_definition as
 select
 	cfr_part,
 	def_id,
 	subcat_cfr_section,
 	cfr_subsection,
-	replace(replace(replace(replace(term, chr(150), '-'), chr(151), '-'), chr(147), '"'), chr(148), '"') as term,
-	replace(replace(replace(replace(replace(replace(definition, U&'\00B0', '\u00B0'), chr(150), '-'), chr(151), '-'), U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as definition,
+	replace(replace(replace(term, U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as term,
+	replace(replace(replace(replace(replace(case 
+        when cfr_part = 427 and cfr_subsection = '427.71.c' and term = 'Pieces' then 'Floor tile measured in the standard size of 12" X 12" X 3/32 ".'
+        else definition 
+       end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-'), U&'\00B0', '\u00B0') as definition,
 	deftype,
-	additional_detail_cfr_flag,
+	case when additional_detail_cfr_flag = '1' then true else false end as additional_detail_cfr_flag,
 	source_id,
 	qc_flag,
 	qc_notes
 from elg_database.a_definition;
 
-create view elg_database.view_a_generalprovisions as 
+create view elg_database.view_a_generalprovisions as
 select
 	psc_code,
 	genprov_cfr_section,
-	replace(replace(genprov_section_title, chr(150), '-'), chr(151), '-') as genprov_section_title,
-	replace(replace(replace(genprov_desc, chr(147), '"'), chr(148), '"'), U&'\00A7', '\u00A7') as genprov_desc,
-	genprov_monitoring_reqs,
-	genprov_bmps_reqs,
+	replace(genprov_section_title, U&'\0097', '-') as genprov_section_title,
+	replace(replace(replace(replace(case 
+       	when psc_code = 469 and genprov_cfr_section = '469.13' and genprov_section_title = 'Monitoring' 
+       		then '(Subpart A) (a) In lieu of monitoring for TTO, the permitting authority may allow direct dischargers to include the following certification as a “comment” on the Discharge Monitoring Report required by §122.44 (i), formerly §122.62(i): “Based on my  inquiry of the person or persons directly responsible for managing compliance with the permit limitation for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the permitting authority.” (b) In requesting that no monitoring of TTO be required, the direct discharger shall submit a solvent management plan that specifies to the permitting authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater. The permitting authority shall incorporate the plan as a provision of the permit. (c) In lieu of monitoring for TTO, the control authority may allow industrial users of POTWs to make the following certification as a comment to the periodic reports required by §403.12: “Based on my inquiry of the person or persons directly responsible for managing compliance with the pretreatment standard for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the control authority.” (d) In requesting that no monitoring be required, industrial users of POTWs shall submit a solvent management plan that specifies to the control authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater.'
+       	else genprov_desc 
+       end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as genprov_desc,
+	case when genprov_monitoring_reqs = '1' then true else false end as genprov_monitoring_reqs,
+	case when genprov_bmps_reqs = '1' then true else false end as genprov_bmps_reqs,
 	genprov_source_id,
-	additional_detail_in_cfr_
+	case when additional_detail_in_cfr_ = '1' then true else false end as additional_detail_in_cfr_
 from elg_database.a_generalprovisions;
 
-create view elg_database.view_a_source_new as 
+create view elg_database.view_a_source_new as
 select
 	source_id,
 	sourcetype_desc,
@@ -244,6 +255,7 @@ select
 	replace(replace(replace(replace(replace(replace(replace(source_summary, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), chr(147), '"'), chr(148), '"'), chr(150), '-'), chr(151), '-') as source_summary,
 	replace(replace(source_docket, chr(150), '-'), chr(151), '-') as source_docket,
 	replace(replace(source_title, chr(150), '-'), chr(151), '-') as source_title,
+	replace(replace(display_title, chr(150), '-'), chr(151), '-') as display_title,
 	source_notes,
 	fr_revision_type,
 	replace(replace(rin, chr(150), '-'), chr(151), '-') as rin,
@@ -251,26 +263,32 @@ select
 from elg_database.a_source_new;
 
 create view elg_database.view_n4c_technology_bases_ws as
-select 
-	processop_id, 
-	treatment_id, 
-	tech_ref, 
-	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes
+select
+	processop_id,
+	treatment_id,
+	tech_ref,
+	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes,
+	bmp_type,
+	case when zero_discharge = '1' then true else false end as zero_discharge
 from elg_database.n4c_technology_bases_ws;
 
 create view elg_database.view_ref_limit_units as
-SELECT 
-	unit_code, 
-	unit, 
-	replace(replace(replace(unit_desc, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as unit_desc, 
+SELECT
+	unit_code,
+	unit,
+	replace(replace(replace(unit_desc, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as unit_desc,
 	unit_basis
 FROM elg_database.ref_limit_units;
 
 create view elg_database.view_ref_pollutant as
-SELECT 
-	pollutant_code, 
-	pollutant_desc, 
+SELECT
+	pollutant_code,
+	pollutant_desc,
 	coalesce(elg_pollutant_description, pollutant_desc) as elg_pollutant_description
 FROM elg_database.ref_pollutant;
 
-	
+create view elg_database.view_ref_sic_code as 
+SELECT 
+	sic, 
+	replace(replace(sic_desc, chr(145), ''''), chr(146), '''') as sic_desc
+FROM elg_database.ref_sic_code;

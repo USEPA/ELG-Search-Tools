@@ -19,3 +19,6 @@ docker-compose.yml
 
 #vsCode
 .vscode
+
+#source Access database
+/server/db/elg_database.accdb

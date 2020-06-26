@@ -5,6 +5,9 @@ import Results from '@/views/Results';
 import CustomSearch from '@/views/CustomSearch';
 import Limitations from '@/views/Limitations';
 import LongTermAvg from '@/views/LongTermAvg';
+import TechnologyBasis from '@/views/TechnologyBasis';
+import AboutCFR from '@/views/AboutCFR';
+import CitationHistory from '@/views/CitationHistory';
 
 Vue.use(Router);
 
@@ -26,14 +29,29 @@ const router = new Router({
       component: Results,
     },
     {
-      path: '/limitations',
+      path: '/results/limitations',
       name: 'limitations',
       component: Limitations,
     },
     {
-      path: '/longTermAverage',
+      path: '/results/limitations/longTermAverage',
       name: 'longTermAverage',
       component: LongTermAvg,
+    },
+    {
+      path: '/results/technologyBasis',
+      name: 'technologyBasis',
+      component: TechnologyBasis,
+    },
+    {
+      path: '/results/about-cfr',
+      name: 'aboutCfr',
+      component: AboutCFR,
+    },
+    {
+      path: '/results/about-cfr/citation-history',
+      name: 'citationHistory',
+      component: CitationHistory,
     },
   ],
   mode: 'history',

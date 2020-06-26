@@ -77,10 +77,25 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'wptt_tech_ref'
       },
+      wastestreamProcessTreatmentTechnologySourceTitle: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'wptt_source_title'
+      },
       wastestreamProcessTreatmentTechnologyNotes: {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'wptt_tech_notes'
+      },
+      wastestreamProcessTreatmentTechnologyBmpType: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'wptt_bmp_type'
+      },
+      wastestreamProcessTreatmentTechnologyZeroDischarge: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'wptt_zero_discharge'
       },
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,

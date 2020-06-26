@@ -12,6 +12,11 @@ module.exports = {
       type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'source_title'
+    },
+    displayTitle: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'display_title'
     }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'ReferenceSource'})

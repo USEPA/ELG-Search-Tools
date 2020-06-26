@@ -1,59 +1,65 @@
 <template>
   <section class="section">
-    <div class="columns">
+    <div class="columns elg-breadcrumbs-container">
       <div class="column">
-        <h1 class="title is-size-3">
-          Effluent Limitations Guidelines and Standards (ELG) Database
-        </h1>
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', path: '/results' },
+            { title: 'Limitations', isCurrent: true },
+          ]"
+        />
       </div>
-    </div>
-    <div class="columns" v-if="!subcategory && limitationData">
       <div class="column">
-        <button class="button has-text-white is-pulled-right" @click="onNavigate">
+        <router-link to="/results" class="button has-text-white is-pulled-right">
           <span class="fa fa-reply has-text-white"></span>Back to Results
-        </button>
+        </router-link>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-weight-light">
-      {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
-    </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-3 has-text-weight-light">
-      {{ pollutantDescription }}
-    </h1>
-    <h1 v-if="!subcategory && limitationData" class="is-size-5 has-text-weight-light">
-      {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
-    </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
-    <div class="field is-grouped help-icons">
-      <div class="field is-grouped">
-        <span class="fas fa-book has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+    <div class="columns">
+      <div class="column is-8">
+        <h2 v-if="subcategoryData" class="is-size-4 has-text-weight-bold">
+          Point Source Category {{ selectedCategory.pointSourceCategoryCode }}:
+          {{ selectedCategory.pointSourceCategoryName }} Limitations
+        </h2>
+        <h2 v-if="!subcategoryData && limitationData" class="is-size-4 has-text-weight-bold">
+          {{ pollutantDescription }}
+          {{ treatmentNames }}
+          Limitations
+        </h2>
+        <h3 v-if="!subcategoryData && limitationData" class="subtitle is-size-5 has-text-weight-light">
+          Point Source Category {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
+        </h3>
+        <h3 v-if="subcategoryData" class="subtitle is-size-5 has-text-weight-light">
+          Subpart {{ subcategoryData.comboSubcategory }}
+        </h3>
       </div>
-      <div class="field is-grouped help-container">
-        <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+      <div class="column help-icons">
+        <div class="field is-grouped">
+          <span class="fas fa-book has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+        </div>
+        <div class="field is-grouped help-container">
+          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        </div>
       </div>
     </div>
-    <div v-if="subcategory" class="content info-box-container">
-      <div class="columns">
-        <div class="column is-9">
-          <p class="info-box"><strong>CFR Section:</strong> {{ limitationData.cfrSection }}</p>
-          <p class="info-box"><strong>Level of Control:</strong> {{ limitationData.controlTechnologyCode }}</p>
-          <p class="info-box"><strong>Primary Wastestream/Process Operation:</strong> {{ limitationData.title }}</p>
-          <p class="info-box">
-            <strong>Secondary Wastestream/Process Operation(s):</strong>
-            <span v-html="limitationData.secondary"></span>
-          </p>
-        </div>
-        <div class="column">
-          <button class="button has-text-white is-pulled-right" @click="onNavigate">
-            <span class="fa fa-reply has-text-white"></span>Back to Results
-          </button>
-        </div>
+    <div v-if="subcategoryData" class="info-box-container message">
+      <div class="message-body">
+        <p><span class="has-text-weight-bold">CFR Section:</span> {{ limitationData.cfrSection }}</p>
+        <p><span class="has-text-weight-bold">Level of Control:</span> {{ limitationData.controlTechnologyCode }}</p>
+        <p>
+          <span class="has-text-weight-bold">Primary Wastestream/Process Operation:</span> {{ limitationData.title }}
+        </p>
+        <p>
+          <span class="has-text-weight-bold">Secondary Wastestream/Process Operation(s):</span>
+          <span v-html="limitationData.secondary"></span>
+        </p>
       </div>
     </div>
     <Table
-      v-if="subcategory"
+      v-if="subcategoryData"
       :columns="pscColumns"
       :rows="limitationData.limitations"
       :shouldHaveLimitationCols="true"
@@ -62,9 +68,9 @@
       @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
       @onDisplayCheckboxInfo="displayCheckboxInfo"
     />
-    <Tabs v-if="!subcategory && limitationData" :tabs="uniqueTabs" :isPollutant="true" :isPSC="false">
-      <template v-for="controlTechnology in uniqueTabs" v-slot:[controlTechnology.id]>
-        <div :key="controlTechnology.id" class="columns tab-content poll-limit-tab-content">
+    <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
+      <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
+        <div :key="controlTechnologyCode" class="columns tab-content poll-limit-tab-content">
           <div class="column poll-limitation-container">
             <div class="field is-grouped download-icon-container">
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
@@ -73,19 +79,20 @@
             <div class="field">
               <Table
                 :columns="pollLimitationCols"
-                :rows="controlTechnology.limitations"
+                :rows="getControlTechLimitations(controlTechnologyCode)"
                 :shouldHavePollLimitCols="true"
                 @onDisplayCheckboxInfo="displayCheckboxInfo"
                 @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
                 @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
                 @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
                 :colsLength="10"
+                :isComparingPscs="isComparingPscs"
               />
             </div>
           </div>
         </div>
       </template>
-    </Tabs>
+    </ControlTabs>
     <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
       {{ currentCheckboxInfo }}
     </Modal>
@@ -115,56 +122,25 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { get, sync } from 'vuex-pathify';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
-import Tabs from '@/components/shared/Tabs';
+import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  beforeMount() {
-    if (!this.subcategory && this.limitationData) {
-      this.uniqueTabs = [
-        {
-          id: 0,
-          controlTechnologyCode: 'BPT',
-        },
-        {
-          id: 1,
-          controlTechnologyCode: 'BAT',
-        },
-        {
-          id: 2,
-          controlTechnologyCode: 'BCT',
-        },
-        {
-          id: 3,
-          controlTechnologyCode: 'NSPS',
-        },
-        {
-          id: 4,
-          controlTechnologyCode: 'PSES',
-        },
-        {
-          id: 5,
-          controlTechnologyCode: 'PSNS',
-        },
-      ];
-
-      this.uniqueTabs.map((tab) => {
-        tab.limitations = this.limitationData.filter((l) => l.controlTechnologyCode === tab.controlTechnologyCode);
-        return tab;
-      });
-    }
-  },
-  components: { Table, Tabs, Modal },
+  components: { Breadcrumbs, Table, ControlTabs, Modal },
   computed: {
-    ...mapState('search', ['category', 'subcategory']),
-    ...mapState('limitations', [
+    ...get('search', ['selectedCategory', 'subcategoryData']),
+    ...get('limitations', [
       'limitationData',
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
       'pollutantDescription',
+      'treatmentNames',
+      'isComparingPscs',
     ]),
+    ...sync('results', ['activeTab']),
   },
   data() {
     return {
@@ -172,7 +148,8 @@ export default {
       shouldDisplayTypeOfLimitationModal: false,
       currentCheckboxInfo: null,
       shouldDisplayCheckboxModal: false,
-      uniqueTabs: null,
+      controlTechTabs: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
+      currentRow: null,
       pscColumns: [
         {
           key: 'pollutantDescription',
@@ -197,6 +174,18 @@ export default {
       ],
       pollLimitationCols: [
         {
+          key: 'pollutantDescription',
+          label: 'Pollutant',
+        },
+        {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
+        {
           key: 'comboSubcategory',
           label: 'Subpart',
         },
@@ -207,6 +196,7 @@ export default {
         {
           key: 'wastestreamProcessSecondary',
           label: 'Other Process/Wastestream Detail(s)',
+          displayAsHTML: true,
         },
         {
           key: 'limitationDurationDescription',
@@ -228,9 +218,6 @@ export default {
     };
   },
   methods: {
-    onNavigate() {
-      this.$router.push('/results');
-    },
     stopTheEvent(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -256,7 +243,13 @@ export default {
     },
     async shouldDisplayLongTermAvgData(row) {
       await this.$store.dispatch('limitations/getLongTermAvgData', row.limitationId);
-      await this.$router.push('/longTermAverage');
+      await this.$router.push('/results/limitations/longTermAverage');
+    },
+    getControlTechLimitations(controlTechCode) {
+      return this.limitationData.filter((limitation) => limitation.controlTechnologyCode === controlTechCode);
+    },
+    changeControlTechTab(tabId) {
+      this.activeTab = tabId;
     },
   },
 };
@@ -268,6 +261,19 @@ button {
   background: $blue;
 }
 
+.subtitle {
+  font-family: inherit;
+  margin-bottom: 0.75rem;
+}
+
+.info-box-container {
+  margin-top: -1rem;
+}
+
+a.button {
+  margin-bottom: 0;
+}
+
 .is-link.more {
   margin-left: 3px;
 }
@@ -276,32 +282,8 @@ label {
   margin-left: 0 !important;
 }
 
-.help-icon {
-  font-size: 20px;
-  margin-right: 5px;
-}
-
-.help-icons {
-  justify-content: flex-end;
-  margin-bottom: 0;
-}
-
-.help-container {
-  margin-left: 20px;
-}
-
-.info-box {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
 .is-checkradio[type='checkbox'] + label {
   cursor: auto;
-}
-
-.info-box-container {
-  background-color: $gray !important;
-  padding: 20px !important;
 }
 
 .download-icon-container {

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { make } from 'vuex-pathify';
 
 const state = {
   pointSourceCategoryCode: null,
@@ -7,36 +8,37 @@ const state = {
   limitationData: null,
   isFetching: false,
   longTermAvgData: null,
+  isComparingPscs: false,
+  treatmentNames: null,
 };
 
 const getters = {
-  limitationData(state) {
-    return state.limitationData;
-  },
+  ...make.getters(state),
 };
 
 const mutations = {
-  SET_LIMITATION_DATA(state, value) {
-    state.limitationData = value;
-  },
-  SET_IS_FETCHING(state, value) {
-    state.isFetching = value;
-  },
+  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_LIMITATION_DATA"
+  ...make.mutations(state),
   SET_PSC(state, payload) {
     if (payload) {
       state.pointSourceCategoryCode = payload.pointSourceCategoryCode;
       state.pointSourceCategoryName = payload.pointSourceCategoryName;
       state.pollutantDescription = payload.pollutantDescription;
+      state.treatmentNames = payload.treatmentNames;
     }
   },
   SET_LTA_DATA(state, payload) {
     state.longTermAvgData = payload;
+  },
+  SET_COMPARE(state, payload) {
+    state.isComparingPscs = payload;
   },
 };
 
 const actions = {
   async getLimitationData({ commit }, id) {
     commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/wastestreamProcessLimitations/${id}`);
@@ -45,11 +47,40 @@ const actions = {
   },
   async getPollLimitationData({ commit }, { pollutantId, pointSourceCategoryCode }) {
     commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get('api/pollutantLimitations', {
       params: {
         pollutantId,
+        pointSourceCategoryCode,
+      },
+    });
+    commit('SET_LIMITATION_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getPollLimitationDataForMultiplePscs({ commit }, { pollutantIds, pointSourceCategoryCodes }) {
+    commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', true);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/pollutantLimitations', {
+      params: {
+        pollutantId: pollutantIds,
+        pointSourceCategoryCode: pointSourceCategoryCodes,
+      },
+    });
+    commit('SET_LIMITATION_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getTechnologyBasisLimitationData({ commit }, { treatmentId, pointSourceCategoryCode }) {
+    commit('SET_LIMITATION_DATA', null);
+    commit('SET_COMPARE', false);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/technologyBasisLimitations', {
+      params: {
+        treatmentId,
         pointSourceCategoryCode,
       },
     });

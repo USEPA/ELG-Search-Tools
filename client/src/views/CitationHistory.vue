@@ -1,0 +1,106 @@
+<template>
+  <section class="section">
+    <LoadingIndicator v-if="isFetching" message="Loading..." />
+    <Alert v-if="noPscPassed" type="error" message="No Point Source Category has been selected." />
+    <div v-if="cfrCitationHistory">
+      <div class="columns elg-breadcrumbs-container">
+        <div class="column">
+          <Breadcrumbs
+            :pages="[
+              { title: 'Search', path: '/' },
+              { title: 'Results', path: '/results' },
+              { title: 'About 40 CFR', pathObject: { path: '/results/about-cfr', query: $route.query } },
+              { title: 'Citation History', isCurrent: true },
+            ]"
+          />
+        </div>
+        <div class="column">
+          <router-link
+            :to="{ path: '/results/about-cfr', query: $route.query }"
+            class="button has-text-white is-pulled-right"
+          >
+            <span class="fa fa-reply"></span>Back to About CFR
+          </router-link>
+        </div>
+      </div>
+      <div class="columns elg-header-container">
+        <div class="column is-10">
+          <h2 class="is-size-4 has-text-weight-bold title">
+            About CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
+          </h2>
+          <h3 class="is-size-5 subtitle">CFR Citation History</h3>
+        </div>
+
+        <div class="column help-icons">
+          <div class="field is-grouped">
+            <span class="fas fa-book has-text-grey-dark help-icon"></span>
+            <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+          </div>
+          <div class="field is-grouped help-container">
+            <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+            <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+          </div>
+        </div>
+      </div>
+      <Table :columns="columns" :rows="rows" />
+    </div>
+  </section>
+</template>
+
+<script>
+import { get } from 'vuex-pathify';
+import { format } from 'date-fns';
+import Alert from '@/components/shared/Alert';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
+import LoadingIndicator from '@/components/shared/LoadingIndicator';
+import Table from '@/components/shared/Table';
+
+export default {
+  components: { Alert, Breadcrumbs, LoadingIndicator, Table },
+  data() {
+    return {
+      noPscPassed: false,
+      columns: [
+        { key: 'cfrSection', label: 'CFR Section' },
+        { key: 'subcategory', label: 'Subcategory' },
+        { key: 'description', label: 'CFR Section Description' },
+        { key: 'publicationDate', label: 'Publication Date' },
+        { key: 'federalRegisterNoticeInCfr', label: 'Federal Register Notice (in CFR)' },
+        { key: 'federalRegisterNoticeFirstPage', label: 'Federal Register Notice (1st Page)' },
+      ],
+    };
+  },
+  computed: {
+    ...get('aboutCfr', ['isFetching', 'cfrResults', 'cfrCitationHistory']),
+    rows() {
+      return this.cfrCitationHistory.map((row) => ({
+        ...row,
+        publicationDate: format(new Date(row.publicationDate), 'MM/dd/yyyy'),
+      }));
+    },
+  },
+  methods: {
+    setProvisionType(subcategoryId, provisionType) {
+      this.$set(this.selectedProvisionTypes, subcategoryId, provisionType);
+    },
+    availableProvisions(subcategory) {
+      return this.provisions.filter((p) => subcategory[p.prop].length);
+    },
+    isActive(selected, provisionType) {
+      if ((!selected && provisionType === 'applicabilityProvisions') || selected === provisionType) {
+        return 'is-active';
+      }
+      return '';
+    },
+  },
+  mounted() {
+    if (!this.$route.query.psc && !this.cfrCitationHistory) {
+      this.noPscPassed = true;
+      return;
+    }
+    this.$store.dispatch('aboutCfr/getCfrCitationHistory', this.$route.query.psc);
+  },
+};
+</script>
+
+<style lang="scss" scoped></style>

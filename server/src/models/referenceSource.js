@@ -12,6 +12,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(4000),
         allowNull: true,
         field: 'source_title'
+      },
+      displayTitle: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'display_title'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ReferenceSource' }

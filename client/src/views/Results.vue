@@ -1,50 +1,102 @@
 <template>
   <section class="section">
-    <div class="columns">
-      <div class="column">
-        <h1 class="title is-size-3">
-          Effluent Limitations Guidelines and Standards (ELG) Database
-        </h1>
-      </div>
-    </div>
-    <div class="columns">
-      <div class="column">
-        <h1 class="is-size-4">
-          Search Results
-        </h1>
+    <div class="columns elg-breadcrumbs-container">
+      <div class="column is-8">
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', isCurrent: true },
+          ]"
+        />
       </div>
       <div class="column">
-        <button class="button has-text-white is-pulled-right" @click="onNavigate">
+        <router-link to="/" class="button has-text-white is-pulled-right">
           <span class="fa fa-reply has-text-white"></span>Back to Search
-        </button>
+        </router-link>
       </div>
     </div>
-    <h1 v-if="subcategory" class="is-size-3 has-text-weight-light">
-      {{ category.pointSourceCategoryCode }}: {{ category.pointSourceCategoryName }}
-    </h1>
-    <h1 v-if="subcategory" class="is-size-5 has-text-weight-light">Subpart {{ subcategory.comboSubcategory }}</h1>
-    <h1 v-if="pollutantData" class="is-size-3 has-text-weight-light">
-      {{ pollutantData[0].pollutantDescription }}
-    </h1>
-    <h2 v-if="pollutantData">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</h2>
-    <h1 v-if="treatmentTechnology" class="is-size-3 has-text-weight-light">
-      {{ treatmentTechnology.name }}
-    </h1>
-    <div class="field is-grouped help-icons">
-      <div v-if="pollutantData" class="field is-grouped psc-icon">
-        <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
-      </div>
-      <div class="field is-grouped">
-        <span class="fas fa-book has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-      </div>
-      <div class="field is-grouped help-container">
-        <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+    <div class="columns elg-header-container">
+      <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
+        <span v-if="subcategoryData">
+          Point Source Category
+          {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
+        </span>
+        <span v-else-if="pollutantData">
+          {{ pollutantData[0].pollutantDescription }}
+        </span>
+        <span v-else-if="treatmentTechnologyData">
+          {{ treatmentTechnologyData.name }}
+        </span>
+        Results
+      </h2>
+      <div class="column help-icons">
+        <div class="field is-grouped">
+          <span class="fas fa-book has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+        </div>
+        <div class="field is-grouped help-container">
+          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        </div>
       </div>
     </div>
-    <Tabs v-if="subcategory" :tabs="createTabs" :isPSC="true" :isPollutant="false">
-      <template v-for="controlTechnology in subcategory.controlTechnologies" v-slot:[controlTechnology.id]>
+
+    <div v-if="subcategoryData" class="cfr-link">
+      <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
+        About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}: Applicability, General Requirements, and
+        Definitions
+        <span class="fa fa-external-link-alt" />
+      </router-link>
+    </div>
+    <div v-if="subcategoryData" class="psc-select">
+      <label class="sr-only" for="subcategory">Subpart</label>
+      <Multiselect
+        v-if="subcategoryData"
+        :value="selectedSubcategory"
+        :options="subcategories"
+        placeholder="Select Subcategory"
+        label="comboSubcategory"
+        :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
+        @input="onChangeSubcategory"
+        class="results-select"
+      />
+    </div>
+
+    <!--<div v-if="subcategoryData" class="columns psc-select">
+      <div class="column cfr-link">
+        <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
+          About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}
+          <span class="fa fa-external-link-alt"></span>
+        </router-link>
+      </div>
+      <div class="column">
+        <label class="sr-only" for="subcategory">Subpart</label>
+        <Multiselect
+          v-if="subcategoryData"
+          :value="selectedSubcategory"
+          :options="subcategories"
+          placeholder="Select Subcategory"
+          label="comboSubcategory"
+          :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
+          @input="onChangeSubcategory"
+          class="results-select"
+        ></Multiselect>
+      </div>
+    </div>-->
+
+    <p v-if="pollutantData" class="pollutant-subtext">
+      Number of PSCs Referencing Pollutant: {{ pollutantData.length }}
+    </p>
+    <div v-if="pollutantData" class="field is-grouped">
+      <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
+        <span class="fas fa-share-square"></span>Go to PSC Comparison
+      </a>
+    </div>
+    <ControlTabs v-if="subcategoryData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
+      <template
+        v-for="controlTechnology in subcategoryData.controlTechnologies"
+        v-slot:[controlTechnology.controlTechnologyCode]
+      >
         <div :key="controlTechnology.id" class="columns tab-content">
           <div class="column">
             <div class="field is-grouped">
@@ -80,7 +132,8 @@
             </div>
             <div class="field is-grouped" v-if="controlTechnology.pollutants">
               <p>
-                <b>Pollutant(s):</b> {{ abbreviatedList(controlTechnology.pollutants) }}
+                <span class="has-text-weight-bold">Pollutant(s):</span>
+                {{ abbreviatedList(controlTechnology.pollutants) }}
                 <a
                   class="is-link more"
                   v-if="controlTechnology.pollutants.split(', ').length > 2"
@@ -103,58 +156,74 @@
           </div>
         </div>
       </template>
-    </Tabs>
+    </ControlTabs>
     <Table
       v-if="pollutantData"
       :columns="pollColumns"
       :rows="pollutantData"
       :shouldHavePollCols="true"
+      :canComparePscs="true"
       @onNavigateToLimitations="navigateToLimitations"
       @shouldDisplayMoreModal="displayMoreModal"
+      @onSelectedPsc="selectedPsc"
       :colsLength="6"
     />
-    <div v-if="treatmentTechnology">
-      <div class="columns treatment-info-box">
-        <div class="column is-gray-background is-7 technology-description">
-          <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnology.description }}</p>
-        </div>
-        <div class="column is-gray-background is-5">
-          <p><strong>Treatment Train(s):</strong></p>
-          <div v-for="train in getTreatmentTrains" :key="train.id">
-            <p>{{ train.names }}</p>
+    <div v-if="treatmentTechnologyData">
+      <div class="columns">
+        <div class="column">
+          <div class="info-box-container message">
+            <div class="message-body">
+              <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
+            </div>
           </div>
-          <a
-            class="is-link more"
-            v-if="treatmentTechnology.treatmentTrains.length > 3"
-            @click="() => (shouldDisplayTrains = true)"
-            >more</a
-          >
+        </div>
+        <div class="column">
+          <div class="info-box-container message">
+            <div class="message-body">
+              <p><strong>Treatment Train(s):</strong></p>
+              <ul class="elg-bullet-list">
+                <li v-for="train in getTreatmentTrains" :key="train.id">{{ train.names }}</li>
+              </ul>
+              <a
+                class="is-link more"
+                v-if="treatmentTechnologyData.treatmentTrains.length > 3"
+                @click="() => (shouldDisplayTrains = true)"
+                >more</a
+              >
+            </div>
+          </div>
         </div>
       </div>
       <div class="columns">
         <div class="column is-10">
           <strong><label for="treatmentTrains">Treatment Train:</label></strong>
-          <select v-model="selectedTrain" @change="getTreatmentTrainData($event)" id="treatmentTrains">
-            <option v-for="train in treatmentTechnology.treatmentTrains" :key="train.id" :value="train.id">{{
-              train.names
-            }}</option>
-          </select>
+          <Multiselect
+            :value="selectedTreatmentTrain"
+            :options="treatmentTechnologyData.treatmentTrains"
+            placeholder="Select Treatment Train"
+            label="names"
+            @input="onChangeTreatmentTrain"
+            class="results-select treatment-select"
+          ></Multiselect>
         </div>
       </div>
-      <div class="columns">
-        <div class="column">
-          <div v-if="treatmentTechnology" class="field is-grouped psc-icon">
-            <a><span class="fas fa-share-square"></span>Go to PSC Comparison</a>
-          </div>
-        </div>
+      <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
+        Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
+      </p>
+      <div v-if="selectedTreatmentTrain && treatmentTechnologyData" class="field is-grouped">
+        <a @click="shouldDisplayTechnologyBasisDataForMultiplePscs()">
+          <span class="fas fa-share-square"></span>Go to PSC Comparison
+        </a>
       </div>
       <Table
         v-if="treatmentTrain"
         :columns="techColumns"
         :rows="treatmentTrain"
-        :colsLength="7"
         :shouldHaveTreatmentTechCols="true"
+        :canComparePscs="true"
         @shouldDisplayMoreModal="displayMoreModal"
+        @onShouldDisplayTechnologyBasisData="shouldDisplayTechnologyBasisData"
+        @onSelectedPsc="selectedPscForTechnologyBasis"
       />
     </div>
 
@@ -190,68 +259,41 @@
       <span v-html="currentMoreInfo"></span>
     </Modal>
     <Modal v-if="shouldDisplayTrains" @close="() => (shouldDisplayTrains = false)">
-      <div v-for="train in treatmentTechnology.treatmentTrains" :key="train.id">
-        <p>{{ train.names }}</p>
-      </div>
+      <ul class="elg-bullet-list">
+        <li v-for="train in treatmentTechnologyData.treatmentTrains" :key="train.id">
+          {{ train.names }}
+        </li>
+      </ul>
     </Modal>
   </section>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import Tabs from '@/components/shared/Tabs';
+import { get, sync } from 'vuex-pathify';
+import Multiselect from 'vue-multiselect';
+import ControlTabs from '@/components/shared/ControlTabs';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Tabs, Table, Modal },
+  components: { Breadcrumbs, ControlTabs, Table, Modal, Multiselect },
   computed: {
-    ...mapState('search', ['category', 'subcategory', 'pollutantData', 'treatmentTechnology', 'treatmentTrain']),
-    createTabs() {
-      const tabs = [
-        {
-          id: 5,
-          controlTechnologyCode: 'BPT',
-        },
-        {
-          id: 6,
-          controlTechnologyCode: 'BAT',
-        },
-        {
-          id: 7,
-          controlTechnologyCode: 'BCT',
-        },
-        {
-          id: 8,
-          controlTechnologyCode: 'NSPS',
-        },
-        {
-          id: 9,
-          controlTechnologyCode: 'PSES',
-        },
-        {
-          id: 10,
-          controlTechnologyCode: 'PSNS',
-        },
-        {
-          id: 11,
-          controlTechnologyCode: `About Part ${this.category.pointSourceCategoryCode}`,
-        },
-      ];
-      if (this.subcategory) {
-        return tabs.map(
-          (tab) =>
-            this.subcategory.controlTechnologies.find((c) => c.controlTechnologyCode === tab.controlTechnologyCode) ||
-            tab
-        );
-      }
-      return tabs;
-    },
+    ...get('search', [
+      'selectedCategory',
+      'subcategories',
+      'subcategoryData',
+      'pollutantData',
+      'treatmentTechnologyData',
+      'treatmentTrain',
+    ]),
+    ...sync('results', ['activeTab']),
+    ...sync('search', ['selectedTreatmentTrain', 'selectedSubcategory']),
     getTreatmentTrains() {
-      if (this.treatmentTechnology.treatmentTrains.length > 3) {
-        return this.treatmentTechnology.treatmentTrains.slice(0, 3);
+      if (this.treatmentTechnologyData.treatmentTrains.length > 3) {
+        return this.treatmentTechnologyData.treatmentTrains.slice(0, 3);
       }
-      return this.treatmentTechnology.treatmentTrains;
+      return this.treatmentTechnologyData.treatmentTrains;
     },
   },
   data() {
@@ -270,8 +312,8 @@ export default {
       shouldDisplayCheckboxModal: false,
       currentMoreInfo: null,
       shouldDisplayMoreModal: false,
-      selectedTrain: null,
       shouldDisplayTrains: false,
+      selectedPscs: [],
       pscColumns: [
         {
           key: 'cfrSection',
@@ -284,6 +326,7 @@ export default {
         {
           key: 'secondary',
           label: 'Other Process/Wastestream Detail(s)',
+          displayAsHTML: true,
         },
       ],
       pollColumns: [
@@ -298,10 +341,12 @@ export default {
         {
           key: 'pointSourceSubcategories',
           label: 'Subcategories',
+          isAbbreviatedList: true,
         },
         {
           key: 'rangeOfPollutantLimitations',
           label: 'Range of Pollutant Limitations',
+          displayAsHTML: true,
         },
       ],
       techColumns: [
@@ -316,25 +361,22 @@ export default {
         {
           key: 'pointSourceSubcategories',
           label: 'Subcategories',
+          isAbbreviatedList: true,
         },
         {
           key: 'wastestreamProcesses',
           label: 'Process Operation/Wastestream(s)',
+          isAbbreviatedList: true,
         },
         {
           key: 'pollutants',
           label: 'Pollutants',
+          isAbbreviatedList: true,
         },
       ],
     };
   },
   methods: {
-    onNavigate() {
-      this.$router.push('/');
-      if (this.treatmentTrain) {
-        this.$store.commit('search/SET_TREATMENT_TRAIN', null);
-      }
-    },
     shouldDisplayNotesModal(notes) {
       this.notes = null;
       if (notes) {
@@ -423,15 +465,71 @@ export default {
           pollutantDescription: row.pollutantDescription,
         });
       }
-      await this.$router.push('limitations');
+      await this.$router.push('/results/limitations');
+    },
+    async selectedPsc(row, e) {
+      if (e.target.checked) {
+        // add this psc/pollutant combination to the selected list
+        this.selectedPscs.push({ pollutantId: row.pollutantId, pointSourceCategoryCode: row.pointSourceCategoryCode });
+      } else {
+        // remove this psc/pollutant combination from the selected list
+        this.selectedPscs = this.selectedPscs.filter(
+          (psc) => !(psc.pollutantId === row.pollutantId && psc.pointSourceCategoryCode === row.pointSourceCategoryCode)
+        );
+      }
+    },
+    async navigateToLimitationsForMultiplePscs(row) {
+      if (row.pollutantId) {
+        await this.$store.dispatch('limitations/getPollLimitationDataForMultiplePscs', {
+          pollutantIds: this.selectedPscs.map((psc) => psc.pollutantId).join(','),
+          pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
+        });
+        await this.$store.dispatch('limitations/getPollutantInfo', {
+          pollutantDescription: row.pollutantDescription,
+        });
+      }
+      await this.$router.push('/results/limitations');
     },
     displayMoreModal(value) {
       this.currentMoreInfo = null;
       this.currentMoreInfo = value;
       this.shouldDisplayMoreModal = true;
     },
-    async getTreatmentTrainData(e) {
-      await this.$store.dispatch('search/getTreatmentTrain', e.target.value);
+    async shouldDisplayTechnologyBasisData(row) {
+      await this.$store.dispatch('search/getTechnologyBasisData', {
+        treatmentId: row.treatmentId,
+        pointSourceCategoryCode: row.pointSourceCategoryCode,
+      });
+      await this.$router.push('/results/technologyBasis');
+    },
+    async selectedPscForTechnologyBasis(row, e) {
+      if (e.target.checked) {
+        // add this psc/treatment combination to the selected list
+        this.selectedPscs.push({ treatmentId: row.treatmentId, pointSourceCategoryCode: row.pointSourceCategoryCode });
+      } else {
+        // remove this psc/treatment combination from the selected list
+        this.selectedPscs = this.selectedPscs.filter(
+          (psc) => !(psc.treatmentId === row.treatmentId && psc.pointSourceCategoryCode === row.pointSourceCategoryCode)
+        );
+      }
+    },
+    async shouldDisplayTechnologyBasisDataForMultiplePscs() {
+      await this.$store.dispatch('search/getTechnologyBasisDataForMultiplePscs', {
+        treatmentIds: this.selectedPscs.map((psc) => psc.treatmentId).join(','),
+        pointSourceCategoryCodes: this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(','),
+      });
+      await this.$router.push('/reuslts/technologyBasis');
+    },
+    changeControlTechTab(tabId) {
+      this.activeTab = tabId;
+    },
+    onChangeTreatmentTrain(value) {
+      this.selectedTreatmentTrain = value;
+      this.$store.dispatch('search/getTreatmentTrain', value.id);
+    },
+    onChangeSubcategory(value) {
+      this.selectedSubcategory = value;
+      this.$store.dispatch('search/getSubcategoryData');
     },
   },
 };
@@ -439,8 +537,17 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../static/variables';
+
+.page-heading {
+  margin-bottom: 0.5rem;
+}
+
 button {
   background: $blue;
+}
+
+a.button {
+  margin: 0;
 }
 
 .is-link.more {
@@ -451,18 +558,8 @@ label {
   margin-left: 0 !important;
 }
 
-.help-icon {
-  font-size: 20px;
-  margin-right: 5px;
-}
-
-.help-icons {
-  justify-content: flex-end;
-  margin-bottom: 0;
-}
-
-.help-container {
-  margin-left: 20px;
+.pollutant-subtext {
+  margin-bottom: 1rem;
 }
 
 section p {
@@ -482,9 +579,29 @@ select {
   width: 54em;
 }
 
-.treatment-info-box {
-  padding-left: 10px;
-  margin-top: 10px;
+.cfr-link {
+  margin-bottom: 1rem;
+}
+
+.psc-select {
+  margin-bottom: 1.5rem;
+}
+
+.results-select {
+  display: inline-block;
+  width: auto;
+  min-width: 500px;
+
+  &.treatment-select {
+    min-width: 650px;
+    margin-bottom: 0;
+    margin-left: 0.5rem;
+  }
+}
+
+.info-box-container {
+  height: 100%;
+  margin-bottom: 0;
 }
 
 .technology-description {

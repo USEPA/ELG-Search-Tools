@@ -32,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'lta_source_title'
       },
+      treatmentId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'treatment_id'
+      },
       treatmentTechnologyCodes: {
         type: DataTypes.STRING,
         allowNull: false,

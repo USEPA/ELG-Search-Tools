@@ -1,46 +1,61 @@
 <template>
   <section class="section">
-    <div class="columns">
+    <div class="columns elg-breadcrumbs-container">
       <div class="column">
-        <h1 class="title is-size-3">
-          Effluent Limitations Guidelines and Standards (ELG) Database
-        </h1>
+        <Breadcrumbs
+          :pages="[
+            { title: 'Search', path: '/' },
+            { title: 'Results', path: '/results' },
+            { title: 'Limitations', path: '/results/limitations' },
+            { title: 'Long Term Average', isCurrent: true },
+          ]"
+        />
+      </div>
+      <div class="column">
+        <router-link to="/results/limitations" class="button has-text-white is-pulled-right">
+          <span class="fa fa-reply has-text-white"></span>Back to Limitations
+        </router-link>
       </div>
     </div>
-    <div class="field is-grouped help-icons">
-      <div class="field is-grouped">
-        <span class="fas fa-book has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+    <div class="columns elg-header-container">
+      <div class="column">
+        <h2 class="is-size-4 has-text-weight-bold page-heading">
+          Long-Term Averages
+        </h2>
       </div>
-      <div class="field is-grouped help-container">
-        <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-        <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+      <div class="column help-icons">
+        <div class="field is-grouped">
+          <span class="fas fa-book has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
+        </div>
+        <div class="field is-grouped help-container">
+          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
+          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
+        </div>
       </div>
     </div>
-    <div class="content info-box-container">
-      <div class="columns">
-        <div class="column is-8">
-          <h1 class="info-box">{{ longTermAvgData.pollutantDescription }}</h1>
-          <p class="info-box">Control Technology: {{ longTermAvgData.controlTechnologyCode }}</p>
-          <p class="info-box">
-            Part {{ longTermAvgData.pointSourceCategoryCode }}:
-            {{ longTermAvgData.pointSourceCategoryName }}
-          </p>
-          <p class="info-box">Subpart {{ longTermAvgData.comboSubcategory }}</p>
-          <p class="info-box">
-            Process Operation/Wastestream: {{ longTermAvgData.wastestreamProcessCfrSection }}
-            {{ longTermAvgData.wastestreamProcessTitle }}
-          </p>
-          <p class="info-box">
-            Other Process Operation/Wastestream Detail(s):
-            <span v-html="longTermAvgData.wastestreamProcessSecondary"></span>
-          </p>
-        </div>
-        <div class="column">
-          <button class="button has-text-white is-pulled-right" @click="onNavigateLimitations">
-            <span class="fa fa-reply has-text-white"></span>Back to Limitations
-          </button>
-        </div>
+    <div class="info-box-container message">
+      <div class="message-body">
+        <p v-if="selectedTreatmentTrain !== null">
+          <span class="has-text-weight-bold">Treatment Train:</span> {{ selectedTreatmentTrain.names }}
+        </p>
+        <p>
+          <span class="has-text-weight-bold">Point Source Category:</span>
+          {{ longTermAvgData.pointSourceCategoryCode }}:
+          {{ longTermAvgData.pointSourceCategoryName }}
+        </p>
+        <p><span class="has-text-weight-bold">Subpart:</span> {{ longTermAvgData.comboSubcategory }}</p>
+        <p><span class="has-text-weight-bold">Control Technology:</span> {{ longTermAvgData.controlTechnologyCode }}</p>
+        <p>
+          <span class="has-text-weight-bold">Process Operation/Wastestream:</span>
+          {{ longTermAvgData.wastestreamProcessCfrSection }}
+          {{ longTermAvgData.wastestreamProcessTitle }}
+        </p>
+        <p>
+          <span class="has-text-weight-bold">Other Process Operation/Wastestream Detail(s):</span>
+          <span v-html="longTermAvgData.wastestreamProcessSecondary"></span>
+        </p>
+        <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
     </div>
     <Table
@@ -66,12 +81,14 @@
 
 <script>
 import { mapState } from 'vuex';
+import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Table, Modal },
+  components: { Breadcrumbs, Table, Modal },
   computed: {
+    ...mapState('search', ['selectedTreatmentTrain']),
     ...mapState('limitations', ['longTermAvgData']),
   },
   data() {
@@ -115,10 +132,6 @@ export default {
     };
   },
   methods: {
-    onNavigateLimitations() {
-      this.$store.commit('limitations/SET_LTA_DATA', null);
-      this.$router.push('/limitations');
-    },
     displayUnitDescriptionModal(row) {
       this.currentRow = null;
       this.shouldDisplayUnitDescriptionModal = true;
@@ -141,30 +154,6 @@ button {
 
 .is-link.more {
   margin-left: 3px;
-}
-
-.help-icon {
-  font-size: 20px;
-  margin-right: 5px;
-}
-
-.help-icons {
-  justify-content: flex-end;
-  margin-bottom: 0;
-}
-
-.help-container {
-  margin-left: 20px;
-}
-
-.info-box {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.info-box-container {
-  background-color: $gray !important;
-  padding: 20px !important;
 }
 
 .download-icon-container {

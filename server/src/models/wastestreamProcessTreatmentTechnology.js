@@ -22,6 +22,16 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'tech_notes'
       },
+      bmpType: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'bmp_type'
+      },
+      zeroDischarge: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'zero_discharge'
+      }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology' }
   );

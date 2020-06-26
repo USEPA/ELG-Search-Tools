@@ -2,9 +2,6 @@
   <section class="section">
     <div class="columns">
       <div class="column">
-        <h1 class="title is-size-2">
-          Effluent Limitations Guidelines and Standards (ELG) Database
-        </h1>
         <p>
           The goal of the ELG Database Web Application is to provide the Agency and other interested parties easy access
           to information relevant to the effluent limitations guidelines and standards (ELGs) program. The ELG Database
@@ -27,7 +24,7 @@
         <SearchBar />
       </div>
     </div>
-    <div class="colunns">
+    <div class="columns">
       <div class="column is-2 is-offset-10 adv-search">
         <a class="is-link" @click="onNavigate">Advanced Search</a>
       </div>
