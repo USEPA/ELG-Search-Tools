@@ -41,7 +41,28 @@
       </div>
     </div>
 
-    <div v-if="subcategoryData" class="columns psc-select">
+    <div v-if="subcategoryData" class="cfr-link">
+      <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
+        About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}: Applicability, General Requirements, and
+        Definitions
+        <span class="fa fa-external-link-alt" />
+      </router-link>
+    </div>
+    <div v-if="subcategoryData" class="psc-select">
+      <label class="sr-only" for="subcategory">Subpart</label>
+      <Multiselect
+        v-if="subcategoryData"
+        :value="selectedSubcategory"
+        :options="subcategories"
+        placeholder="Select Subcategory"
+        label="comboSubcategory"
+        :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
+        @input="onChangeSubcategory"
+        class="results-select"
+      />
+    </div>
+
+    <!--<div v-if="subcategoryData" class="columns psc-select">
       <div class="column cfr-link">
         <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
           About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}
@@ -61,7 +82,7 @@
           class="results-select"
         ></Multiselect>
       </div>
-    </div>
+    </div>-->
 
     <p v-if="pollutantData" class="pollutant-subtext">
       Number of PSCs Referencing Pollutant: {{ pollutantData.length }}
