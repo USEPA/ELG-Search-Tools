@@ -239,6 +239,23 @@ input,
   }
 }
 
+.multiselect__option {
+  white-space: normal;
+}
+
+.multiselect--active {
+  .multiselect__tags {
+    padding: 0;
+  }
+
+  .multiselect__input {
+    min-height: 32px;
+    line-height: 32px;
+    margin-bottom: 0;
+    padding: 5px 10px;
+  }
+}
+
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 // Import vue-multiselect

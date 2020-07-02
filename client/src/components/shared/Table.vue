@@ -190,7 +190,6 @@
 </template>
 
 <script>
-import groupBy from 'lodash/groupBy';
 import LoadingIndicator from '@/components/shared/LoadingIndicator';
 import YesNoIndicator from '@/components/shared/YesNoIndicator';
 
@@ -249,9 +248,6 @@ export default {
   },
   components: { LoadingIndicator, YesNoIndicator },
   computed: {
-    rowSpanValue() {
-      return groupBy(this.rows, 'pollutant');
-    },
     columnsToDisplay() {
       let result = this.columns;
 
@@ -269,10 +265,6 @@ export default {
     },
   },
   methods: {
-    stopTheEvent(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    },
     abbreviatedList(value) {
       const shortList = value.split('<br/>');
 

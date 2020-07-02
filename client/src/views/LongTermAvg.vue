@@ -12,9 +12,9 @@
         />
       </div>
       <div class="column">
-        <router-link to="/results/limitations" class="button has-text-white is-pulled-right">
+        <a @click="$router.go(-1)" class="button has-text-white is-pulled-right">
           <span class="fa fa-reply has-text-white"></span>Back to Limitations
-        </router-link>
+        </a>
       </div>
     </div>
     <div class="columns elg-header-container">

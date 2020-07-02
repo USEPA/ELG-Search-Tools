@@ -218,10 +218,6 @@ export default {
     };
   },
   methods: {
-    stopTheEvent(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    },
     displayCheckboxInfo(checkbox) {
       this.shouldDisplayCheckboxModal = false;
       this.currentCheckboxInfo = null;
