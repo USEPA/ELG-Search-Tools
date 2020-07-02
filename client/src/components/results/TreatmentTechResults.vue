@@ -92,6 +92,22 @@
             <span v-html="item.wastestreamProcessSecondary" />
           </HoverText>
         </template>
+        <template v-slot:cell(treatmentNames)="{ item }">
+          <HoverText
+            :hoverId="`process${item.limitationId}`"
+            :linkText="item.treatmentNames"
+            :customStyle="{ width: '300px' }"
+          >
+            <span
+              v-html="
+                item.wastestreamProcessTreatmentTechnologyNotes +
+                  ' (' +
+                  item.wastestreamProcessTreatmentTechnologySourceTitle +
+                  ')'
+              "
+            />
+          </HoverText>
+        </template>
         <template v-slot:cell(limitationDurationBaseType)="{ item }">
           <HoverText
             :hoverId="`limitationType${item.limitationId}`"
@@ -101,10 +117,12 @@
             {{ item.limitationDurationDescription }}
           </HoverText>
         </template>
-        <template v-slot:cell(goToLta)>
-          <router-link to="/results/limitations/longTermAverage" title="View Long Term Average">
-            <span class="fa fa-external-link-square-alt" />
-          </router-link>
+        <template v-slot:cell(goToLta)="{ item }">
+          <span v-if="item.longTermAverageCount > 0">
+            <a @click="onShouldDisplayLongTermAvgData(item.limitationId)">
+              <span class="fas fa-share-square limitation-link"></span>
+            </a>
+          </span>
         </template>
       </NewTable>
     </div>
@@ -216,9 +234,13 @@ export default {
           label: 'Process',
         },
         {
+          key: 'treatmentNames',
+          label: 'Treatment Train',
+        },
+        /* {
           key: 'alternateLimitFlag',
           label: 'Flag',
-        },
+        }, */
         {
           key: 'limitationValue',
           label: 'Value',
@@ -262,6 +284,10 @@ export default {
     onChangePollutant(value) {
       this.selectedTreatmentPollutant = xor(this.selectedTreatmentPollutant, [value]);
       this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
+    },
+    onShouldDisplayLongTermAvgData(limitationId) {
+      this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
+      this.$router.push('/results/limitations/longTermAverage');
     },
   },
 };

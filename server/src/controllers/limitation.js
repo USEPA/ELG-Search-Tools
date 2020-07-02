@@ -5,6 +5,7 @@ const ViewLongTermAverage = require('../models').ViewLongTermAverage;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
 const ViewWastestreamProcessTreatmentTechnologyPollutant = require('../models').ViewWastestreamProcessTreatmentTechnologyPollutant;
+const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('../models').ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
 
@@ -130,10 +131,11 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
           .then(wastestreamProcesses => {
             if (wastestreamProcesses.length) {
               //determine list of limitations that are relevant based on selected PSCs, selected pollutants, and relevant wastestream processes
-              ViewLimitation.findAll({
-                attributes: attributes,
+              ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+                attributes: attributes.concat(['treatmentCodes', 'treatmentNames', 'wastestreamProcessTreatmentTechnologyNotes', 'wastestreamProcessTreatmentTechnologySourceTitle']),
                 where: {
                   [Op.and]: [
+                    Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"),
                     {
                       [Op.or]: {
                         pointSourceCategoryCode: {[Op.in]: pointSourceCategoryCodes},
