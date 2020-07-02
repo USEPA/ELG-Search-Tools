@@ -53,7 +53,6 @@ import PointSourceResults from '@/components/results/PointSourceResults';
 import PollutantResults from '@/components/results/PollutantResults';
 import TreatmentTechResults from '@/components/results/TreatmentTechResults';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
-
 export default {
   components: { Breadcrumbs, PointSourceResults, PollutantResults, TreatmentTechResults },
   computed: {
@@ -64,73 +63,57 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../static/variables';
-
 .page-heading {
   margin-bottom: 0.5rem;
 }
-
 button {
   background: $blue;
 }
-
 a.button {
   margin: 0;
 }
-
 .is-link.more {
   margin-left: 3px;
 }
-
 label {
   margin-left: 0 !important;
 }
-
 .pollutant-subtext {
   margin-bottom: 1rem;
 }
-
 section p {
   padding-bottom: 0 !important;
 }
-
 .is-checkradio[type='checkbox'] + label {
   cursor: auto;
 }
-
 .psc-icon {
   position: absolute;
   left: 0;
 }
-
 select {
   width: 54em;
 }
-
 .psc-select {
   margin-bottom: 1rem;
 }
-
 .results-select {
   display: inline-block;
   width: auto;
   min-width: 500px;
-
   &.treatment-select {
     min-width: 650px;
     margin-bottom: 0;
     margin-left: 0.5rem;
   }
 }
-
 .info-box-container {
   height: 100%;
   margin-bottom: 0;
 }
-
 .technology-description {
   margin-right: 5px;
 }
-
 .is-gray-background {
   background-color: $gray;
 }

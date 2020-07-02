@@ -20033,7 +20033,7 @@ module.exports = {
         "includesbmps":"0"},
       {"subcat_id":366,
         "ct_id":7734,
-        "ct_code":"BCT",
+        "ct_code":"BPT",
         "ct_order":1,
         "ct_cfr_section":"435.52",
         "ct_notes":null,

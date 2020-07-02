@@ -5606,7 +5606,7 @@ module.exports = {
       {"psc_code":447,
         "subcat_id":443,
         "subcat_title":"Oil-Base Solvent Wash Ink",
-        "subcat_code":"B",
+        "subcat_code":"A",
         "subcat_cfr_section":"447.10",
         "subcat_applicability":"The provisions of this subpart are applicable to discharges resulting from the production of oil-base ink where the tank washing system uses solvents. When a plant is subject to effluent limitations covering more than one subcategory the discharge limitation shall be the aggregate of the limitations applicable to the total production covered in each subcategory.",
         "subcat_includes_bmps":"0",
