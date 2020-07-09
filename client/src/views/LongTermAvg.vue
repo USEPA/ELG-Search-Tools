@@ -121,10 +121,6 @@ export default {
           label: 'Limitation Basis',
         },
         {
-          key: 'longTermAverageNotes',
-          label: 'LTA Notes',
-        },
-        {
           key: 'longTermAverageSourceTitle',
           label: 'LTA Reference',
         },

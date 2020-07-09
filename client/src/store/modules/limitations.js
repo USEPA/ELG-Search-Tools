@@ -101,7 +101,6 @@ const actions = {
 
     const res = await axios.get(`api/limitation/${id}`);
     commit('SET_LTA_DATA', res.data);
-    commit('SET_LTA_DATA_FROM_TECH_SEARCH', false);
     commit('SET_IS_FETCHING', false);
   },
   async getLongTermAvgDataTechSearch({ commit }, id) {
@@ -110,7 +109,6 @@ const actions = {
 
     const res = await axios.get(`api/limitation/${id}`);
     commit('SET_LTA_DATA', res.data);
-    commit('SET_LTA_DATA_FROM_TECH_SEARCH', true);
     commit('SET_IS_FETCHING', false);
   },
   async getTreatmentTechnologyLimitations({ commit, state, rootState }) {

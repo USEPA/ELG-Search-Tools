@@ -295,7 +295,7 @@ module.exports = {
               [Sequelize.literal("replace(lta_unit_desc, '\\u00A7', U&'\\00A7')"), 'longTermAverageUnitDescription'],
               'longTermAverageUnitBasis',
               'longTermAverageNotes',
-              'longTermAverageSourceTitle',
+              [Sequelize.literal("CASE WHEN lta_source_title IS NOT NULL THEN lta_source_title || CASE WHEN lta_notes IS NOT NULL THEN ': ' || lta_notes ELSE '' END ELSE '' END"), 'longTermAverageSourceTitle'],
               'alternateLimitFlag',
               'limitationValue',
               'limitationUnitCode',
