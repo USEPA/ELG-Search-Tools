@@ -18,6 +18,7 @@ let attributes = [
   'wastestreamProcessTitle',
   'wastestreamProcessSecondary',
   'wastestreamProcessCfrSection',
+  'wastestreamProcessDescription',
   'wastestreamProcessLimitCalculationDescription',
   ['elg_pollutant_description', 'pollutantDescription'],
   'dischargeFrequency',

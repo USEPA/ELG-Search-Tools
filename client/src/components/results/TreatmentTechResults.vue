@@ -89,7 +89,7 @@
             :linkText="item.wastestreamProcessTitle"
             :customStyle="{ width: '300px' }"
           >
-            <span v-html="item.wastestreamProcessSecondary" />
+            <span v-html="item.wastestreamProcessDescription" />
           </HoverText>
         </template>
         <template v-slot:cell(treatmentNames)="{ item }">
