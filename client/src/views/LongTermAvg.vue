@@ -34,6 +34,11 @@
         </div>
       </div>
     </div>
+    <Alert type="info">
+      A long-term average (LTA) is the average pollutant concentration that is achieved over a period of time. It is the
+      mean of the underlying statistical distribution of the daily effluent values used to calculate numeric pollutant
+      limitations.
+    </Alert>
     <div class="info-box-container message">
       <div class="message-body">
         <p v-if="selectedTreatmentTrain !== null">
@@ -81,12 +86,13 @@
 
 <script>
 import { mapState } from 'vuex';
+import Alert from '@/components/shared/Alert';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Table, Modal },
+  components: { Alert, Breadcrumbs, Table, Modal },
   computed: {
     ...mapState('search', ['selectedTreatmentTrain']),
     ...mapState('limitations', ['longTermAvgData']),
