@@ -68,6 +68,9 @@ export default {
     columns() {
       this.buildTableColumns();
     },
+    rows() {
+      this.totalRows = this.rows.length;
+    },
   },
   methods: {
     buildTableColumns() {
@@ -156,14 +159,12 @@ export default {
       }
     }
     .b-pagination {
-      margin-top: 1rem;
+      margin: 1rem 0 0 0;
       display: flex;
       padding-left: 0;
       list-style: none;
       border-radius: 0.25rem;
-      .flex-fill {
-        flex: 1 1 auto;
-      }
+      justify-content: start;
       .page-item.disabled .page-link {
         color: #6c757d;
         pointer-events: none;
@@ -179,16 +180,17 @@ export default {
       .page-item.active .page-link {
         z-index: 3;
         color: #fff;
-        background-color: #005ea2;
-        border-color: #005ea2;
+        background-color: #0071bc;
+        border-color: #0071bc;
       }
       .page-link {
         position: relative;
         display: block;
         padding: 0.5rem 0.75rem;
         margin-left: -1px;
+        margin-bottom: 0;
         line-height: 1.25;
-        color: #005ea2;
+        color: #0071bc;
         background-color: #fff;
         border: 1px solid #dee2e6;
         border-radius: 0;

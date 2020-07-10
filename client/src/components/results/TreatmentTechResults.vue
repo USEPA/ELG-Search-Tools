@@ -1,5 +1,10 @@
 <template>
   <div>
+    <Alert type="info">
+      Disclaimer: The ELG Database is populated with readily-available information on the technology basis to develop
+      the requirements. Not all Point Source Categories, Level of Control, or Wastestreams will have an associated
+      technology basis.
+    </Alert>
     <div v-if="treatmentTechnologyData">
       <div class="info-box-container message">
         <div class="message-body">
@@ -10,7 +15,7 @@
         <div class="column is-4">
           <strong>
             <label for="categories">
-              Point Source Categories
+              Point Source Categories ({{ treatmentTechnologyData.pointSourceCategories.length }})
               <HoverText hoverId="catInfo" :icon="true">
                 The above technology is associated with a treatment train to control the discharge of pollutants for the
                 following PSCs.
@@ -31,7 +36,7 @@
         <div class="column is-4">
           <strong>
             <label for="pollutants">
-              Pollutants
+              Pollutants ({{ treatmentTechnologyData.pollutants.length }})
               <HoverText hoverId="pollInfo" :icon="true">
                 The above technology is associated with a treatment train to control the discharge of the following
                 pollutants.
@@ -52,7 +57,7 @@
         <div class="column is-4">
           <strong>
             <label for="treatmentTrains">
-              Treatment Trains
+              Treatment Trains ({{ treatmentTechnologyData.treatmentTrains.length }})
               <HoverText hoverId="trainInfo" :icon="true">
                 The above technology is associated with the following treatment trains.
               </HoverText>
@@ -73,7 +78,13 @@
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
-      <NewTable v-if="treatmentLimitationData" :columns="limitationColumns" :rows="limitations" :busy="isFetching">
+      <NewTable
+        v-if="treatmentLimitationData"
+        :columns="limitationColumns"
+        :rows="limitations"
+        :busy="isFetching"
+        :perPage="100"
+      >
         <template v-slot:cell(limitationUnitCode)="{ item }">
           <HoverText
             :hoverId="`units${item.limitationId}`"
@@ -162,12 +173,13 @@
 import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
 import xor from 'lodash/xor';
+import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
 import NewTable from '@/components/shared/NewTable';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { HoverText, NewTable, Modal, Multiselect },
+  components: { Alert, HoverText, NewTable, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -210,24 +222,24 @@ export default {
       shouldDisplayCheckboxModal: false,
       limitationColumns: [
         {
-          key: 'controlTechnologyCode',
-          label: 'Level of Control',
-        },
-        {
-          key: 'pollutantDescription',
-          label: 'Pollutant',
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
         },
         {
           key: 'controlTechnologyCfrSection',
           label: 'CFR Section',
         },
         {
-          key: 'pointSourceCategoryName',
-          label: 'Point Source Category',
-        },
-        {
           key: 'comboSubcategory',
           label: 'Subpart',
+        },
+        {
+          key: 'controlTechnologyCode',
+          label: 'Level of Control',
+        },
+        {
+          key: 'pollutantDescription',
+          label: 'Pollutant',
         },
         {
           key: 'wastestreamProcessTitle',
