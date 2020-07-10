@@ -222,24 +222,24 @@ export default {
       shouldDisplayCheckboxModal: false,
       limitationColumns: [
         {
-          key: 'controlTechnologyCode',
-          label: 'Level of Control',
-        },
-        {
-          key: 'pollutantDescription',
-          label: 'Pollutant',
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
         },
         {
           key: 'controlTechnologyCfrSection',
           label: 'CFR Section',
         },
         {
-          key: 'pointSourceCategoryName',
-          label: 'Point Source Category',
-        },
-        {
           key: 'comboSubcategory',
           label: 'Subpart',
+        },
+        {
+          key: 'controlTechnologyCode',
+          label: 'Level of Control',
+        },
+        {
+          key: 'pollutantDescription',
+          label: 'Pollutant',
         },
         {
           key: 'wastestreamProcessTitle',
