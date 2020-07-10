@@ -1,5 +1,10 @@
 <template>
   <div>
+    <Alert type="info">
+      Disclaimer: The ELG Database is populated with readily-available information on the technology basis to develop
+      the requirements. Not all Point Source Categories, Level of Control, or Wastestreams will have an associated
+      technology basis.
+    </Alert>
     <div v-if="treatmentTechnologyData">
       <div class="info-box-container message">
         <div class="message-body">
@@ -73,7 +78,13 @@
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
-      <NewTable v-if="treatmentLimitationData" :columns="limitationColumns" :rows="limitations" :busy="isFetching">
+      <NewTable
+        v-if="treatmentLimitationData"
+        :columns="limitationColumns"
+        :rows="limitations"
+        :busy="isFetching"
+        :perPage="100"
+      >
         <template v-slot:cell(limitationUnitCode)="{ item }">
           <HoverText
             :hoverId="`units${item.limitationId}`"
@@ -162,12 +173,13 @@
 import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
 import xor from 'lodash/xor';
+import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
 import NewTable from '@/components/shared/NewTable';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { HoverText, NewTable, Modal, Multiselect },
+  components: { Alert, HoverText, NewTable, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
