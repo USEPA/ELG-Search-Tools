@@ -180,8 +180,8 @@ export default {
       .page-item.active .page-link {
         z-index: 3;
         color: #fff;
-        background-color: #005ea2;
-        border-color: #005ea2;
+        background-color: #0071bc;
+        border-color: #0071bc;
       }
       .page-link {
         position: relative;
@@ -190,7 +190,7 @@ export default {
         margin-left: -1px;
         margin-bottom: 0;
         line-height: 1.25;
-        color: #005ea2;
+        color: #0071bc;
         background-color: #fff;
         border: 1px solid #dee2e6;
         border-radius: 0;
