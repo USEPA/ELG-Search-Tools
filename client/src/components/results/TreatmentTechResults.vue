@@ -15,7 +15,7 @@
         <div class="column is-4">
           <strong>
             <label for="categories">
-              Point Source Categories
+              Point Source Categories ({{ treatmentTechnologyData.pointSourceCategories.length }})
               <HoverText hoverId="catInfo" :icon="true">
                 The above technology is associated with a treatment train to control the discharge of pollutants for the
                 following PSCs.
@@ -36,7 +36,7 @@
         <div class="column is-4">
           <strong>
             <label for="pollutants">
-              Pollutants
+              Pollutants ({{ treatmentTechnologyData.pollutants.length }})
               <HoverText hoverId="pollInfo" :icon="true">
                 The above technology is associated with a treatment train to control the discharge of the following
                 pollutants.
@@ -57,7 +57,7 @@
         <div class="column is-4">
           <strong>
             <label for="treatmentTrains">
-              Treatment Trains
+              Treatment Trains ({{ treatmentTechnologyData.treatmentTrains.length }})
               <HoverText hoverId="trainInfo" :icon="true">
                 The above technology is associated with the following treatment trains.
               </HoverText>
