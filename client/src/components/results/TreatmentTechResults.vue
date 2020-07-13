@@ -97,6 +97,9 @@
         :busy="isFetching"
         :perPage="100"
       >
+        <template v-slot:cell(limitationValue)="{ item }">
+          {{ item.alternateLimitFlag }} {{ item.limitationValue }}
+        </template>
         <template v-slot:cell(limitationUnitCode)="{ item }">
           <HoverText
             :hoverId="`units${item.limitationId}`"
@@ -261,10 +264,6 @@ export default {
           key: 'treatmentNames',
           label: 'Treatment Train',
         },
-        /* {
-          key: 'alternateLimitFlag',
-          label: 'Flag',
-        }, */
         {
           key: 'limitationValue',
           label: 'Value',
@@ -277,10 +276,10 @@ export default {
           key: 'limitationDurationBaseType',
           label: 'Type of Limitation',
         },
-        {
-          key: 'limitationUnitBasis',
-          label: 'Limitation Basis',
-        },
+        // {
+        //   key: 'limitationUnitBasis',
+        //   label: 'Limitation Basis',
+        // },
         {
           key: 'limitationDurationBaseType',
           label: 'Statistical Base',
@@ -313,6 +312,9 @@ export default {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
       this.$router.push('/results/limitations/longTermAverage');
     },
+  },
+  mounted() {
+    this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
   },
 };
 </script>
