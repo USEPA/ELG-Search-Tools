@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Alert type="info">
+    <Alert type="warning">
       Disclaimer: The ELG Database is populated with readily-available information on the technology basis to develop
       the requirements. Not all Point Source Categories, Level of Control, or Wastestreams will have an associated
       technology basis.
@@ -11,6 +11,12 @@
           <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
         </div>
       </div>
+      <Alert type="info">
+        Instructions: From the dropdown menus, select one or more criteria to narrow the search results, including Point
+        Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will automatically update after each
+        criterion is selected. Click the “x” next to a criterion to remove it from the search results. Select the arrow
+        in the “Go to LTA” column to navigate to the pollutant limitation’s corresponding long-term average.
+      </Alert>
       <div class="columns">
         <div class="column is-4">
           <strong>
@@ -29,6 +35,8 @@
             :multiple="true"
             placeholder="Select Category"
             label="pointSourceCategoryName"
+            select-label=""
+            deselect-label=""
             @select="onChangeCategory"
             @remove="onChangeCategory"
           />
@@ -50,6 +58,8 @@
             :multiple="true"
             placeholder="Select Pollutant"
             label="pollutantDescription"
+            select-label=""
+            deselect-label=""
             @select="onChangePollutant"
             @remove="onChangePollutant"
           />
@@ -70,6 +80,8 @@
             :multiple="true"
             placeholder="Select Treatment Train"
             label="names"
+            select-label=""
+            deselect-label=""
             @select="onChangeTrain"
             @remove="onChangeTrain"
           />
