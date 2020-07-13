@@ -35,8 +35,8 @@
             :multiple="true"
             placeholder="Select Category"
             label="pointSourceCategoryName"
-            :select-label="false"
-            :deselect-label="false"
+            select-label=""
+            deselect-label=""
             @select="onChangeCategory"
             @remove="onChangeCategory"
           />
@@ -58,8 +58,8 @@
             :multiple="true"
             placeholder="Select Pollutant"
             label="pollutantDescription"
-            :select-label="false"
-            :deselect-label="false"
+            select-label=""
+            deselect-label=""
             @select="onChangePollutant"
             @remove="onChangePollutant"
           />
@@ -80,8 +80,8 @@
             :multiple="true"
             placeholder="Select Treatment Train"
             label="names"
-            :select-label="false"
-            :deselect-label="false"
+            select-label=""
+            deselect-label=""
             @select="onChangeTrain"
             @remove="onChangeTrain"
           />
