@@ -1,21 +1,27 @@
 <template>
   <div>
-    <Alert type="warning">
-      Disclaimer: The ELG Database is populated with readily-available information on the technology basis to develop
-      the requirements. Not all Point Source Categories, Level of Control, or Wastestreams will have an associated
-      technology basis.
-    </Alert>
     <div v-if="treatmentTechnologyData">
       <div class="info-box-container message">
         <div class="message-body">
           <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
         </div>
       </div>
+    </div>
+    <Alert type="warning">
+      Disclaimer: The ELG Database is populated with readily-available information on the technology basis to develop
+      the requirements. Not all Point Source Categories, Level of Control, or Wastestreams will have an associated
+      technology basis.
+    </Alert>
+    <div v-if="treatmentTechnologyData">
       <Alert type="info">
-        Instructions: From the dropdown menus, select one or more criteria to narrow the search results, including Point
-        Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will automatically update after each
-        criterion is selected. Click the “x” next to a criterion to remove it from the search results. Select the arrow
-        in the “Go to LTA” column to navigate to the pollutant limitation’s corresponding long-term average.
+        Instructions: The numbers in parentheses next to the Point Source Categories, Pollutants, and Treatment Trains
+        dropdown menu titles indicate the total number of records in the ELG Database related to the selected treatment
+        technology for that search criteria. From the dropdown menus, select one or more criteria to narrow the search
+        results, including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will
+        automatically update after each criterion is selected. Click the “x” next to a criterion to remove it from the
+        search results. If EPA was able to readily identify the associated pollutant limitation’s long-term average
+        (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to Select the arrow in the “Go
+        to LTA” column to navigate to the long-term average information.
       </Alert>
       <div class="columns">
         <div class="column is-4">
