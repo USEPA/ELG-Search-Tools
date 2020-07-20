@@ -65,8 +65,8 @@ jobs:
       - run:
           name: Set application-level variables
           command: |
-            cf set-env $APP_NAME-green "ELG_BASIC_USER_NAME" "$ELG_BASIC_USER_NAME" > /dev/null
-            cf set-env $APP_NAME-green "ELG_BASIC_USER_PWD" "$ELG_BASIC_USER_PWD" > /dev/null
+            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
+            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
       - run:
           name: Start application on Cloud.gov and clean routes
           command: |
