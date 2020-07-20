@@ -4,41 +4,83 @@ jobs:
     docker:
       - image: circleci/node:dubnium-stretch
     environment:
-      HEROKU_APP_NAME: elg-dev
+      APP_NAME: elg-search-tools-test
+      APP_DOMAIN: app.cloud.gov
+      CF_ORG: epa-surface-water
+      CF_SPACE: owtbx-elg-dev
     steps:
       - checkout
       - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
+      - run:
+          name: Check npm version
+          command: |
+            npm --version
+      - run:
+          name: Check node version
+          command: |
+            node --version
+      - restore_cache: # special step to restore the dependency cache
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install npm
+          command: npm install
+      - save_cache: # special step to save the dependency cache
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run: # run tests
+          name: test
+          command: npm test
+      - run: # run build
+          name: build
+          command: npm run build:prod
+      - run:
           name: Install Sonarqube scanner
           command: |
+            cd ..
             wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
             unzip sonar-scanner-cli-3.3.0.1492-linux.zip
       - run:
           name: Run Sonarqube scanner
           command: |
-            ./sonar-scanner-3.3.0.1492-linux/bin/sonar-scanner -Dsonar.projectKey=ELG -Dsonar.host.url=$SONARQUBE_URL -Dsonar.login=$SONARQUBE_TOKEN
+            cd ..
+            ./sonar-scanner-3.3.0.1492-linux/bin/sonar-scanner -Dsonar.projectKey=elg -Dsonar.host.url=$SONARQUBE_URL -Dsonar.login=$SONARQUBE_TOKEN
       - run:
-          name: Update npm
+          name: Setup Cloud Foundry CLI
           command: |
-            sudo npm install -g npm
-      - restore_cache: # special step to restore the dependency cache
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          key: dependency-cache-{{ checksum "package.json" }}
+            cd ..
+            curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
+            sudo dpkg -i cf-cli_amd64.deb
+            cf -v
+            cf api https://api.fr.cloud.gov
+            cf auth "$CF_USER_DEV" "$CF_PASSWORD_DEV"
+            cf target -o "$CF_ORG" -s "$CF_SPACE"
       - run:
-          name: Build npm dependencies
+          name: Deploy application to Cloud.gov
           command: |
-            npm install
+            cf push --no-start $APP_NAME-green -f manifest-dev.yml -p . -n green
       - run:
-          name: Run eslint
+          name: Set application-level variables
           command: |
-            npm run lint -- --max-warnings=0
+            cf set-env $APP_NAME-green "ELG_BASIC_USER_NAME" "$ELG_BASIC_USER_NAME" > /dev/null
+            cf set-env $APP_NAME-green "ELG_BASIC_USER_PWD" "$ELG_BASIC_USER_PWD" > /dev/null
       - run:
-          name: Run automated tests
+          name: Start application on Cloud.gov and clean routes
           command: |
-            npm test
+            cf start $APP_NAME-green
+            cf unmap-route $APP_NAME-green $APP_DOMAIN -n green
+            cf delete-route app.cloud.gov -n green -f
       - run:
-          name: Deploy $HEROKU_APP_NAME to Heroku
+          name: Re-route green to blue and then remove blue
           command: |
-            git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
+            cf map-route $APP_NAME-green $APP_DOMAIN -n $APP_NAME
+            cf unmap-route $APP_NAME $APP_DOMAIN -n $APP_NAME
+            cf stop $APP_NAME
+            cf delete $APP_NAME -f
+            cf rename $APP_NAME-green $APP_NAME
 
   stage-branch:
     docker:
