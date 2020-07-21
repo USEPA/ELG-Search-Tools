@@ -1,6 +1,6 @@
 ---
  applications:
-   - name: elg-search-tools-test
+   - name: elg-search-tools-dev
      instances: 1
      memory: 512M
      disk_quota: 1GB

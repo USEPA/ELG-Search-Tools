@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/node:dubnium-stretch
     environment:
-      APP_NAME: elg-search-tools-test
+      APP_NAME: elg-search-tools-dev
       APP_DOMAIN: app.cloud.gov
       CF_ORG: epa-surface-water
       CF_SPACE: owtbx-elg-dev
