@@ -116,16 +116,23 @@ const actions = {
 
     let data = null;
 
-    const res = await axios.get('api/treatmentTechnologyLimitations', {
-      params: {
-        id: rootState.search.treatmentTechnologyData.id,
-        treatmentId: state.selectedTreatmentTrain.map((t) => t.id).join(';'),
-        pointSourceCategoryCode: state.selectedTreatmentCategory.map((t) => t.pointSourceCategoryCode).join(';'),
-        pollutantId: state.selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';'),
-      },
-    });
+    // Only search if one or more criteria has been selected
+    if (
+      state.selectedTreatmentTrain.length > 0 ||
+      state.selectedTreatmentCategory.length > 0 ||
+      state.selectedTreatmentPollutant.length > 0
+    ) {
+      const res = await axios.get('api/treatmentTechnologyLimitations', {
+        params: {
+          id: rootState.search.treatmentTechnologyData.id,
+          treatmentId: state.selectedTreatmentTrain.map((t) => t.id).join(';'),
+          pointSourceCategoryCode: state.selectedTreatmentCategory.map((t) => t.pointSourceCategoryCode).join(';'),
+          pollutantId: state.selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';'),
+        },
+      });
 
-    data = res.data;
+      data = res.data;
+    }
 
     commit('SET_TREATMENT_LIMITATION_DATA', data);
     commit('SET_IS_FETCHING', false);

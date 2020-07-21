@@ -16,7 +16,7 @@
       <Alert type="info">
         Instructions: The numbers in parentheses next to the Point Source Categories, Pollutants, and Treatment Trains
         dropdown menu titles indicate the total number of records in the ELG Database related to the selected treatment
-        technology for that search criteria. From the dropdown menus, select one or more criteria to narrow the search
+        technology for that search criteria. From the dropdown menus, select one or more criteria to view the search
         results, including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will
         automatically update after each criterion is selected. Click the “x” next to a criterion to remove it from the
         search results. If EPA was able to readily identify the associated pollutant limitation’s long-term average
@@ -319,9 +319,10 @@ export default {
       this.$router.push('/results/limitations/longTermAverage');
     },
   },
-  mounted() {
-    this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
-  },
+  // TODO: add back in when pagination is handled on the back-end
+  // mounted() {
+  //   this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
+  // },
 };
 </script>
 
