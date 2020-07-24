@@ -37,7 +37,7 @@
           <Multiselect
             id="categories"
             :value="selectedTreatmentCategory"
-            :options="treatmentTechnologyData.pointSourceCategories"
+            :options="sortBy(treatmentTechnologyData.pointSourceCategories, ['pointSourceCategoryCode'])"
             :multiple="true"
             placeholder="Select Category"
             :custom-label="(option) => `${option.pointSourceCategoryCode}: ${option.pointSourceCategoryName}`"
@@ -194,6 +194,7 @@
 import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
 import xor from 'lodash/xor';
+import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
 import NewTable from '@/components/shared/NewTable';
@@ -298,6 +299,7 @@ export default {
     };
   },
   methods: {
+    sortBy,
     closeInfoModal() {
       this.currentRow = null;
       this.shouldDisplayInfoModal = false;
