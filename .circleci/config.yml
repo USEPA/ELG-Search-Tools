@@ -92,8 +92,7 @@ jobs:
       CF_ORG: epa-surface-water
       CF_SPACE: owtbx-elg-staging
     steps:
-      - checkout:
-          path: ~/project
+      - checkout
       - run:
           name: update-npm
           command: 'sudo npm install -g npm@latest'
