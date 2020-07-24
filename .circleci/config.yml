@@ -84,7 +84,7 @@ jobs:
             cf delete $APP_NAME -f
             cf rename $APP_NAME-green $APP_NAME
 
- stage-branch:
+  stage-branch:
     working_directory: ~/project/app # directory where steps will run
     docker:
       - image: circleci/node:erbium-buster
