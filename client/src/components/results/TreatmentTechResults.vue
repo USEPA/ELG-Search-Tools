@@ -9,8 +9,8 @@
     </div>
     <Alert type="warning">
       Disclaimer: The ELG Database is populated with readily-available information on the technology basis to develop
-      the requirements. Not all Point Source Categories, Level of Control, or Wastestreams will have an associated
-      technology basis.
+      the requirements. Not all Point Source Categories, Level of Control, or Process Operations/Wastestreams (Process)
+      will have an associated technology basis.
     </Alert>
     <div v-if="treatmentTechnologyData">
       <Alert type="info">
