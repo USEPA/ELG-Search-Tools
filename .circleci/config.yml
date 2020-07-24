@@ -5,9 +5,11 @@ jobs:
       - image: circleci/node:dubnium-stretch
     environment:
       APP_NAME: elg-search-tools-dev
+      APP_NAME_STAGING: elg-search-tools-stage-test
       APP_DOMAIN: app.cloud.gov
       CF_ORG: epa-surface-water
       CF_SPACE: owtbx-elg-dev
+      CF_SPACE_STAGING: owtbx-elg-staging
     steps:
       - checkout
       - run:
@@ -34,7 +36,7 @@ jobs:
       # - run: # run tests
         #  name: test
         #  command: npm test
-      - run: # run build
+      - run:
           name: build
           command: npm run build:prod
       # - run:
@@ -82,57 +84,65 @@ jobs:
             cf delete $APP_NAME -f
             cf rename $APP_NAME-green $APP_NAME
 
-  stage-branch:
+ stage-branch:
+    working_directory: ~/project/app # directory where steps will run
     docker:
-      - image: circleci/node:dubnium-stretch
+      - image: circleci/node:erbium-buster
     environment:
-      HEROKU_APP_NAME: elg-stage
+      APP_NAME: mywaterway-stage
+      APP_DOMAIN: app.cloud.gov
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - run:
-          name: Install Sonarqube scanner
-          command: |
-            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
-            unzip sonar-scanner-cli-3.3.0.1492-linux.zip
+          name: update-npm
+          command: 'sudo npm install -g npm@latest'
       - run:
-          name: Run Sonarqube scanner
+          name: Check npm version
           command: |
-            ./sonar-scanner-3.3.0.1492-linux/bin/sonar-scanner -Dsonar.projectKey=ELG -Dsonar.host.url=$SONARQUBE_URL -Dsonar.login=$SONARQUBE_TOKEN
+            npm --version
       - run:
-          name: Update npm
+          name: Check node version
           command: |
-            sudo npm install -g npm
-      - restore_cache: # special step to restore the dependency cache
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          key: dependency-cache-{{ checksum "package.json" }}
+            node --version
       - run:
-          name: Build npm dependencies
+          name: install npm
           command: |
+            cd client
             npm install
       - run:
-          name: Run eslint
-          command: |
-            npm run lint -- --max-warnings=0
+          name: build
+          command: npm run build:prod
       - run:
-          name: Run automated tests
+          name: Setup Cloud Foundry CLI
           command: |
-            npm test
+            curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
+            sudo dpkg -i cf-cli_amd64.deb
+            cf -v
+            cf api https://api.fr.cloud.gov
+            cf auth "$CF_USER_STAGING" "$CF_PASSWORD_STAGING"
+            cf target -o "$CF_ORG" -s "$CF_SPACE_STAGING"
       - run:
-          name: Deploy $HEROKU_APP_NAME to Heroku
+          name: Deploy application to Cloud.gov
           command: |
-            git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
-
-  master-branch:
-    docker:
-      - image: buildpack-deps:trusty
-    environment:
-      HEROKU_APP_NAME: elg
-    steps:
-      - checkout
+            cd server
+            cf push --no-start $APP_NAME_STAGING-green -f ../manifest-staging.yml -p . -n $APP_NAME_STAGING-green
+            cf set-env $APP_NAME_STAGING-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
+            cf set-env $APP_NAME_STAGING-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
       - run:
-          name: Deploy $HEROKU_APP_NAME to Heroku
+          name: Start application on Cloud.gov and clean routes
           command: |
-            git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
+            cf start $APP_NAME_STAGING-green
+            cf unmap-route $APP_NAME_STAGING-green $APP_DOMAIN -n $APP_NAME_STAGING-green
+            cf delete-route app.cloud.gov -n $APP_NAME_STAGING-green -f
+      - run:
+          name: Re-route green to blue and then remove blue
+          command: |
+            cf map-route $APP_NAME_STAGING-green $APP_DOMAIN -n $APP_NAME_STAGING
+            cf unmap-route $APP_NAME_STAGING $APP_DOMAIN -n $APP_NAME_STAGING
+            cf stop $APP_NAME_STAGING
+            cf delete $APP_NAME_STAGING -f
+            cf rename $APP_NAME_STAGING-green $APP_NAME_STAGING
 
 workflows:
   version: 2
