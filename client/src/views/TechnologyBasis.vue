@@ -142,10 +142,6 @@ export default {
     };
   },
   methods: {
-    stopTheEvent(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    },
     abbreviatedList(value) {
       const shortList = value.split(', ');
 

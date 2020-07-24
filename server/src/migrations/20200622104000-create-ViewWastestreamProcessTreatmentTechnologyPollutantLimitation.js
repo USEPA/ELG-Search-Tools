@@ -1,0 +1,44 @@
+'use strict';
+
+module.exports = {
+  up: (queryInterface, Sequelize) => queryInterface.sequelize.query('CREATE VIEW elg_search."ViewWastestreamProcessTreatmentTechnologyPollutantLimitation" as ' +
+    'select l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, l.alt_lim_description, ' +
+    "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END as zero_discharge, " +
+    'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect as wp_cfr_sect, ' +
+    'wp.processop_description, wp.processop_notes, wp.lim_calc_desc as wp_lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +
+    'p.pollutant_code, p.pollutant_desc, p.elg_pollutant_description, ld.limit_duration_code, ' +
+    "ld.limit_duration_description || CASE WHEN l.discharge_frequency IS NOT NULL THEN ' (' || l.discharge_frequency || ')' ELSE '' END as limit_duration_description, " +
+    "ld.stat_base_type, lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, " +
+    'l.lim_calc_desc as lim_lim_calc_desc, l.pollutant_notes as lim_pollutant_notes, ' +
+    'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, ' +
+    'pss.subcat_id, pss.combo_subcat, pss.subcat_title, pss.subcat_cfr_section, pss.subcat_applicability, pss.subcat_notes, ' +
+    'ct.ct_id, ct.ct_code, ct.ct_order, ct.ct_cfr_section, ' +
+    'tt.treatment_id, tt.treatment_codes, tt.treatment_description, tt.treatment_names, ' +
+    'wptt.tech_ref as wptt_tech_ref, rs.display_title AS wptt_source_title, wptt.tech_notes as wptt_tech_notes, count(lta.ltaid) as lta_count ' +
+    'from elg_search."Limitation" l inner join elg_search."LimitationDuration" ld on l.lim_duration_code = ld.limit_duration_code ' +
+    'left outer join elg_search."LimitationUnit" lu on l.unit_code = lu.unit_code ' +
+    'inner join elg_search."Pollutant" p on l.pollutant_code = p.pollutant_code ' +
+    'inner join elg_search."WastestreamProcess" wp on l.processop_id = wp.processop_id ' +
+    'inner join elg_search."ControlTechnology" ct on wp.ct_id = ct.ct_id ' +
+    'inner join elg_search."PointSourceSubcategory" pss on ct.subcat_id = pss.subcat_id ' +
+    'inner join elg_search."PointSourceCategory" psc on pss.psc_code = psc.psc_code and psc."IncludeInSearchTool" = true ' +
+    'left outer join elg_search."LongTermAverage" lta on l.lim_id = lta.lim_id ' +
+    'inner join elg_search."WastestreamProcessTreatmentTechnologyPollutant" wpttp on wp.processop_id = wpttp.processop_id and p.pollutant_code = wpttp.pollutant_code ' +
+    'inner join (select tt_sub.treatment_id, tt_sub.treatment_codes, string_agg((select name from elg_search."TreatmentTechnologyCode" where code = treatment_code), \' + \') as treatment_names, tt_sub.treatment_description from elg_search."TreatmentTechnology" tt_sub, regexp_split_to_table(tt_sub.treatment_codes, \'; \') WITH ORDINALITY x(treatment_code, rn) group by tt_sub.treatment_id, tt_sub.treatment_codes, tt_sub.treatment_description order by tt_sub.treatment_codes) tt on wpttp.treatment_id = tt.treatment_id ' +
+    'inner join elg_search."WastestreamProcessTreatmentTechnology" wptt ON wpttp.processop_id = wptt.processop_id AND wpttp.treatment_id = wptt.treatment_id ' +
+    'inner join elg_search."ReferenceSource" rs ON wptt.tech_ref = rs.source_id ' +
+    "cross join regexp_split_to_table(tt.treatment_codes, '; ') WITH ORDINALITY x(treatment_code, treatment_code_rn) " +
+    'group by l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, l.alt_lim_description, ' +
+    "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END, " +
+    'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect, ' +
+    'wp.processop_description, wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +
+    'p.pollutant_code, p.pollutant_desc, p.elg_pollutant_description, ' +
+    'ld.limit_duration_code, ld.limit_duration_description, ld.stat_base_type, ' +
+    'lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, ' +
+    'l.lim_calc_desc, l.pollutant_notes, ' +
+    'psc.psc_code, psc.psc_name, psc.cfr_part, psc.cfr_notes, ' +
+    'pss.subcat_id, pss.combo_subcat, pss.subcat_title, pss.subcat_cfr_section, pss.subcat_applicability, pss.subcat_notes, ' +
+    'ct.ct_id, ct.ct_code, ct.ct_order, ct.ct_cfr_section, tt.treatment_id, tt.treatment_codes, tt.treatment_description, tt.treatment_names, ' +
+    'wptt.tech_ref, rs.display_title, wptt.tech_notes'),
+  down: (queryInterface, Sequelize) => queryInterface.sequelize.query('DROP VIEW elg_search."ViewWastestreamProcessTreatmentTechnologyPollutantLimitation"')
+};

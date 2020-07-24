@@ -79,20 +79,6 @@ export default {
       }));
     },
   },
-  methods: {
-    setProvisionType(subcategoryId, provisionType) {
-      this.$set(this.selectedProvisionTypes, subcategoryId, provisionType);
-    },
-    availableProvisions(subcategory) {
-      return this.provisions.filter((p) => subcategory[p.prop].length);
-    },
-    isActive(selected, provisionType) {
-      if ((!selected && provisionType === 'applicabilityProvisions') || selected === provisionType) {
-        return 'is-active';
-      }
-      return '';
-    },
-  },
   mounted() {
     if (!this.$route.query.psc && !this.cfrCitationHistory) {
       this.noPscPassed = true;

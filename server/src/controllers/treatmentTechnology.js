@@ -5,6 +5,8 @@ const TreatmentTechnologyCode = require("../models").TreatmentTechnologyCode;
 const TreatmentTechnology = require("../models").TreatmentTechnology;
 const ViewWastestreamProcessTreatmentTechnology = require("../models").ViewWastestreamProcessTreatmentTechnology;
 const WastestreamProcessTreatmentTechnologyPollutant = require("../models").WastestreamProcessTreatmentTechnologyPollutant;
+const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require("../models").ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
+const PointSourceCategory = require("../models").PointSourceCategory
 const Pollutant = require("../models").Pollutant;
 const Op = require("sequelize").Op;
 const Sequelize = require("sequelize");
@@ -180,89 +182,78 @@ module.exports = {
           result["category"] = treatmentTechnologyCode.category;
           result["variations"] = treatmentTechnologyCode.variations;
 
-          ViewWastestreamProcessTreatmentTechnology.findAll({
-            attributes: ["treatmentId", "treatmentCodes", 'treatmentDescription'],
+          //get lists of pscs, pollutants, and treatment trains for this technology code
+          ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findOne({
+            attributes: [
+              ["string_agg(distinct psc_code::character varying, ';')", 'psc_code'],
+              ["string_agg(distinct elg_pollutant_description, ';')", 'elg_pollutant_description'],
+              ["string_agg(distinct treatment_id::character varying, ';')", 'treatment_id']
+            ],
             where: {
               [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)")
             },
-            group: ["treatmentId", "treatmentCodes", 'treatmentDescription']
+            raw: true
           })
-            .then(treatmentTechnologies => {
-              let ttPromises = [];
+            .then(criteriaList => {
+              PointSourceCategory.findAll({
+                attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
+                where: {
+                  [Op.and]: Sequelize.literal("psc_code::character varying IN (SELECT psc_codes FROM regexp_split_to_table('" + criteriaList.psc_code + "', ';') AS psc_codes)")
+                }
+              })
+                .then(pointSourceCategories => {
+                result.pointSourceCategories = pointSourceCategories;
 
-              treatmentTechnologies.forEach(function(tt) {
-                ttPromises.push(fillTreatmentTechnology(tt.treatmentId, tt.treatmentCodes));
-              });
+                Pollutant.findAll({
+                  attributes: [
+                    ['elg_pollutant_description', 'pollutantDescription'],
+                    [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+                  ],
+                  where: {
+                    [Op.and]: Sequelize.literal("elg_pollutant_description IN (SELECT elg_pollutant_descriptions FROM regexp_split_to_table('" + criteriaList.elg_pollutant_description + "', ';') AS elg_pollutant_descriptions)")
+                  },
+                  group: ['elg_pollutant_description']
+                })
+                  .then(pollutants => {
+                    result.pollutants = pollutants;
 
-              Promise.all(ttPromises)
-                .then(tts => {
-                  result.treatmentTrains = tts.sort(function(a, b) {
-                    if (a.names < b.names) {
-                      return -1;
-                    }
-                    if (a.names > b.names) {
-                      return 1;
-                    }
-                    return 0;
-                  });
-
-                  //get PSCs
-                  ViewWastestreamProcessTreatmentTechnology.findAll({
-                    group: [
-                      "pointSourceCategoryCode",
-                      "pointSourceCategoryName"
-                    ],
-                    attributes: [
-                      "pointSourceCategoryCode",
-                      "pointSourceCategoryName"
-                    ],
-                    where: {
-                      [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)")
-                    },
-                    raw: true
-                  })
-                    .then(pointSourceCategories => {
-                      result.pointSourceCategories = pointSourceCategories;
-
-                      //get pollutants
-                      WastestreamProcessTreatmentTechnologyPollutant.findAll({
-                        group: [
-                          "pollutantId"
-                        ],
-                        attributes: [
-                          "pollutantId"
-                        ],
-                        where: {
-                          treatmentId: { [Op.in]: result.treatmentTrains.map(a => a.id) }
-                        },
-                        raw: true
-                      })
-                        .then(pollutants => {
-                          Pollutant.findAll({
-                            attributes: [
-                              ['elg_pollutant_description', 'pollutantDescription'],
-                              [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
-                            ],
-                            where: {
-                              id: { [Op.in]: pollutants.map(a => a.pollutantId) }
-                            },
-                            group: ['elg_pollutant_description']
-                          })
-                            .then(polls => {
-                              result.pollutants = polls;
-
-                              res.status(200).send(result);
-                            })
-                            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
-                        })
-                        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+                    TreatmentTechnology.findAll({
+                      attributes: ["id", "codes"],
+                      where: {
+                        [Op.and]: Sequelize.literal("treatment_id::character varying IN (SELECT treatment_ids FROM regexp_split_to_table('" + criteriaList.treatment_id + "', ';') AS treatment_ids)")
+                      }
                     })
-                    .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
-                });
-            })
-            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
-        })
-        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+                      .then(treatmentTechnologies => {
+                        let ttPromises = [];
+
+                        treatmentTechnologies.forEach(function(tt) {
+                          ttPromises.push(fillTreatmentTechnology(tt.id, tt.codes));
+                        });
+
+                        Promise.all(ttPromises)
+                          .then(tts => {
+                            result.treatmentTrains = tts.sort(function (a, b) {
+                              if (a.names < b.names) {
+                                return -1;
+                              }
+                              if (a.names > b.names) {
+                                return 1;
+                              }
+                              return 0;
+                            });
+
+                            res.status(200).send(result);
+                          })
+                      })
+                      .catch((error) => res.status(400).send("Error! TreatmentTechnology:  " + utilities.sanitizeError(error)));
+                  })
+                  .catch((error) => res.status(400).send("Error! Pollutant:  " + utilities.sanitizeError(error)));
+              })
+                .catch((error) => res.status(400).send("Error! PointSourceCategory:  " + utilities.sanitizeError(error)));
+              })
+              .catch((error) => res.status(400).send("Error! ViewWastestreamProcessTreatmentTechnologyPollutantLimitation:  " + utilities.sanitizeError(error)));
+          })
+          .catch((error) => res.status(400).send("Error! TreatmentTechnologyCode: " + utilities.sanitizeError(error)));
     } catch (err) {
       return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
     }
@@ -438,7 +429,7 @@ module.exports = {
    *          {pointSourceCategoryCode:number}
    * } req.query
    */
-  limitations(req, res) {
+  technologyBasisLimitations(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
       let treatmentId = utilities.parseIdAsInteger(req.query.treatmentId);
@@ -453,6 +444,36 @@ module.exports = {
       }
 
       limitation.technologyBasisLimitations(treatmentId, pointSourceCategoryCode)
+        .then(limitations => {
+          res.status(200).send(limitations);
+        })
+        .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+    } catch (err) {
+      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+    }
+  },
+  /*
+   * @param {
+   *          {id:string},
+   *          {treatmentId:number},
+   *          {pointSourceCategoryCode:number},
+   *          {pollutantId:string}
+   * } req.query
+   */
+  limitations(req, res) {
+    // check for required query attributes and replace with defaults if missing
+    try {
+      let id = req.query.id ? req.query.id : "";
+
+      if (id === "") {
+        return res.status(400).send("Invalid value passed for id");
+      }
+
+      let treatmentIds = (req.query.treatmentId ? req.query.treatmentId.split(';') : []);
+      let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(';') : []);
+      let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
+
+      limitation.technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds)
         .then(limitations => {
           res.status(200).send(limitations);
         })

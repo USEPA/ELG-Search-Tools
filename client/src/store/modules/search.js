@@ -132,6 +132,10 @@ const actions = {
     commit('SET_SUBCATEGORY_DATA', null);
     commit('SET_POLLUTANT_DATA', null);
     commit('SET_TREATMENT_TECHNOLOGY_DATA', null);
+    commit('limitations/SET_SELECTED_TREATMENT_TRAIN', [], { root: true });
+    commit('limitations/SET_SELECTED_TREATMENT_CATEGORY', [], { root: true });
+    commit('limitations/SET_SELECTED_TREATMENT_POLLUTANT', [], { root: true });
+    commit('limitations/SET_TREATMENT_LIMITATION_DATA', null, { root: true });
     commit('results/SET_ACTIVE_TAB', null, { root: true });
   },
 };

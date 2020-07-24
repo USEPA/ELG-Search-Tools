@@ -21,6 +21,11 @@
         <p>
           Please select one of the following search criteria: point source category, pollutant, or treatment technology.
         </p>
+        <Alert type="warning">
+          Treatment technologies are classified to the most discreet level according to the descriptions in the
+          underlying regulatory development documents. Results for broad treatment technologies (e.g., biological
+          treatment) only include those technologies that cannot be more specifically classified.
+        </Alert>
         <SearchBar />
       </div>
     </div>
@@ -33,6 +38,7 @@
 </template>
 
 <script>
+import Alert from '@/components/shared/Alert';
 import SearchBar from '@/components/shared/SearchBar';
 
 export default {
@@ -40,6 +46,7 @@ export default {
     return {};
   },
   components: {
+    Alert,
     SearchBar,
   },
   methods: {
