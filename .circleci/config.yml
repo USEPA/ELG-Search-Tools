@@ -107,9 +107,7 @@ jobs:
             node --version
       - run:
           name: install npm
-          command: |
-            cd client
-            npm install
+          command: npm install
       - run:
           name: build
           command: npm run build:prod
