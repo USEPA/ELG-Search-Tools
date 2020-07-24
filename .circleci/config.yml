@@ -87,7 +87,7 @@ jobs:
     docker:
       - image: circleci/node:erbium-buster
     environment:
-      APP_NAME: elg-search-tools-stage-test
+      APP_NAME: elg-search-tools-stage
       APP_DOMAIN: app.cloud.gov
       CF_ORG: epa-surface-water
       CF_SPACE: owtbx-elg-staging
