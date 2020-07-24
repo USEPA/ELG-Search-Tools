@@ -40,7 +40,7 @@
             :options="treatmentTechnologyData.pointSourceCategories"
             :multiple="true"
             placeholder="Select Category"
-            label="pointSourceCategoryName"
+            :custom-label="(option) => `${option.pointSourceCategoryCode}: ${option.pointSourceCategoryName}`"
             select-label=""
             deselect-label=""
             @select="onChangeCategory"
