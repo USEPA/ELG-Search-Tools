@@ -1,6 +1,6 @@
 ---
  applications:
-   - name: elg-search-tools-stage-test
+   - name: elg-search-tools-stage
      instances: 1
      memory: 512M
      disk_quota: 1GB

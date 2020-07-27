@@ -5,11 +5,9 @@ jobs:
       - image: circleci/node:dubnium-stretch
     environment:
       APP_NAME: elg-search-tools-dev
-      APP_NAME_STAGING: elg-search-tools-stage-test
       APP_DOMAIN: app.cloud.gov
       CF_ORG: epa-surface-water
       CF_SPACE: owtbx-elg-dev
-      CF_SPACE_STAGING: owtbx-elg-staging
     steps:
       - checkout
       - run:
@@ -84,16 +82,17 @@ jobs:
             cf delete $APP_NAME -f
             cf rename $APP_NAME-green $APP_NAME
 
- stage-branch:
+  stage-branch:
     working_directory: ~/project/app # directory where steps will run
     docker:
       - image: circleci/node:erbium-buster
     environment:
-      APP_NAME: mywaterway-stage
+      APP_NAME: elg-search-tools-stage
       APP_DOMAIN: app.cloud.gov
+      CF_ORG: epa-surface-water
+      CF_SPACE: owtbx-elg-staging
     steps:
-      - checkout:
-          path: ~/project
+      - checkout
       - run:
           name: update-npm
           command: 'sudo npm install -g npm@latest'
@@ -107,9 +106,7 @@ jobs:
             node --version
       - run:
           name: install npm
-          command: |
-            cd client
-            npm install
+          command: npm install
       - run:
           name: build
           command: npm run build:prod
@@ -121,28 +118,27 @@ jobs:
             cf -v
             cf api https://api.fr.cloud.gov
             cf auth "$CF_USER_STAGING" "$CF_PASSWORD_STAGING"
-            cf target -o "$CF_ORG" -s "$CF_SPACE_STAGING"
+            cf target -o "$CF_ORG" -s "$CF_SPACE"
       - run:
           name: Deploy application to Cloud.gov
           command: |
-            cd server
-            cf push --no-start $APP_NAME_STAGING-green -f ../manifest-staging.yml -p . -n $APP_NAME_STAGING-green
-            cf set-env $APP_NAME_STAGING-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
-            cf set-env $APP_NAME_STAGING-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
+            cf push --no-start $APP_NAME-green -f manifest-staging.yml -p . -n $APP_NAME-green
+            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
+            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
       - run:
           name: Start application on Cloud.gov and clean routes
           command: |
-            cf start $APP_NAME_STAGING-green
-            cf unmap-route $APP_NAME_STAGING-green $APP_DOMAIN -n $APP_NAME_STAGING-green
-            cf delete-route app.cloud.gov -n $APP_NAME_STAGING-green -f
+            cf start $APP_NAME-green
+            cf unmap-route $APP_NAME-green $APP_DOMAIN -n $APP_NAME-green
+            cf delete-route app.cloud.gov -n $APP_NAME-green -f
       - run:
           name: Re-route green to blue and then remove blue
           command: |
-            cf map-route $APP_NAME_STAGING-green $APP_DOMAIN -n $APP_NAME_STAGING
-            cf unmap-route $APP_NAME_STAGING $APP_DOMAIN -n $APP_NAME_STAGING
-            cf stop $APP_NAME_STAGING
-            cf delete $APP_NAME_STAGING -f
-            cf rename $APP_NAME_STAGING-green $APP_NAME_STAGING
+            cf map-route $APP_NAME-green $APP_DOMAIN -n $APP_NAME
+            cf unmap-route $APP_NAME $APP_DOMAIN -n $APP_NAME
+            cf stop $APP_NAME
+            cf delete $APP_NAME -f
+            cf rename $APP_NAME-green $APP_NAME
 
 workflows:
   version: 2
