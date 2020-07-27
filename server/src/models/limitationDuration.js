@@ -17,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'stat_base_type'
+      },
+      typeDisplay: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'limit_type_display'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'LimitationDuration' }
