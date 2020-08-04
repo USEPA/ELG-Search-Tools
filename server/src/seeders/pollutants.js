@@ -2745,7 +2745,8 @@ module.exports = {
       {"pollutant_code":2763,"pollutant_desc":"Foam","elg_pollutant_description":"Foam"},
       {"pollutant_code":2764,"pollutant_desc":"Floating solids","elg_pollutant_description":"Floating solids"},
       {"pollutant_code":2766,"pollutant_desc":"Polynuclear Aromatic Hydrocarbons (PAH)","elg_pollutant_description":"83-32-9"},
-      {"pollutant_code":2767,"pollutant_desc":"Floating solids and garbage","elg_pollutant_description":"Floating solids and garbage"}];
+      {"pollutant_code":2767,"pollutant_desc":"Floating solids and garbage","elg_pollutant_description":"Floating solids and garbage"},
+      {"pollutant_code":2768,"pollutant_desc":"Nitrate (as N)","elg_pollutant_description":"Nitrate (as N)"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "Pollutant" }, records);
   },
