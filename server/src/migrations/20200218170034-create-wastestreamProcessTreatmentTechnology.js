@@ -14,7 +14,7 @@ module.exports = {
     },
     technicalReferenceId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'tech_ref'
     },
     notes: {

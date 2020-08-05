@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       technicalReferenceId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         field: 'tech_ref'
       },
       notes: {

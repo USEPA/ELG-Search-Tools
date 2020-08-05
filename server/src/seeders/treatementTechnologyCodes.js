@@ -105,7 +105,7 @@ module.exports = {
         "category":"Physical, NEC",
         "variations":"BioMag, CoMag, enhanced settling, high rate settling, Actiflo",
         "description":"Removal of solids deposited by sedimentation, with improved gravitational settling rates by the addition of a weighing agent to the clarifier, typically magnetite or sand."},
-      {"name":"Biological Treatment",
+      {"name":"Biological Treatment (Not Elsewhere Classified)",
         "code":"BIO",
         "category":"Biological",
         "variations":null,
