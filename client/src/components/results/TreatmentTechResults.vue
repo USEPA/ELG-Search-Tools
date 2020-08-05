@@ -8,9 +8,9 @@
       </div>
     </div>
     <Alert type="warning">
-      Disclaimer: The ELG Database is populated with readily-available information on the technology basis to develop
-      the requirements. Not all Point Source Categories, Level of Control, or Process Operations/Wastestreams (Process)
-      will have an associated technology basis.
+      Disclaimer: The technology basis information in the ELG Database is not comprehensive across all Point Source
+      Categories, Levels of Control, and Process Operations/Wastestreams (Process). The results below will only display
+      the technology bases for which EPA was able to identify readily available information.
     </Alert>
     <div v-if="treatmentTechnologyData">
       <Alert type="info">
@@ -20,8 +20,8 @@
         results, including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will
         automatically update after each criterion is selected. Click the “x” next to a criterion to remove it from the
         search results. If EPA was able to readily identify the associated pollutant limitation’s long-term average
-        (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to Select the arrow in the “Go
-        to LTA” column to navigate to the long-term average information.
+        (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to navigate to the long-term
+        average information.
       </Alert>
       <div class="columns">
         <div class="column is-4">
@@ -125,20 +125,26 @@
           </HoverText>
         </template>
         <template v-slot:cell(treatmentNames)="{ item }">
-          <HoverText
-            :hoverId="`process${item.limitationId}`"
-            :linkText="item.treatmentNames"
-            :customStyle="{ width: '300px' }"
+          {{ item.treatmentNames }}
+          <button
+            class="button is-text icon-btn"
+            @click="shouldDisplayNotes = true"
+            title="Click to view Treatment Train Notes"
           >
-            <span
-              v-html="
-                item.wastestreamProcessTreatmentTechnologyNotes +
-                  ' (' +
-                  item.wastestreamProcessTreatmentTechnologySourceTitle +
-                  ')'
-              "
-            />
-          </HoverText>
+            <span class="fa fa-info-circle"></span>
+          </button>
+          <Modal v-if="shouldDisplayNotes" title="Treatment Train Notes" @close="shouldDisplayNotes = false">
+            <p class="has-text-left">
+              <span
+                v-html="
+                  item.wastestreamProcessTreatmentTechnologyNotes +
+                    ' (' +
+                    item.wastestreamProcessTreatmentTechnologySourceTitle +
+                    ')'
+                "
+              />
+            </p>
+          </Modal>
         </template>
         <template v-slot:cell(limitationDurationBaseType)="{ item }">
           <HoverText
@@ -158,35 +164,6 @@
         </template>
       </NewTable>
     </div>
-
-    <Modal v-if="shouldDisplayNotes" @close="() => (shouldDisplayNotes = false)">
-      <div class="control-notes" v-for="(note, index) in notes" :key="index">
-        <h3><strong>CFR Section:</strong> {{ note.cfrSection }}</h3>
-        <p><strong>Notes:</strong> {{ note.notes }}</p>
-        <br />
-      </div>
-    </Modal>
-    <Modal v-if="shouldDisplayInfoModal" @close="closeInfoModal">
-      <div class="info-modal">
-        <h3><strong>Description</strong></h3>
-        <p>{{ currentRow.description }}</p>
-        <hr v-if="currentRow.limitCalculationDescription" />
-        <h3 v-if="currentRow.limitCalculationDescription"><strong>Limit Calculation Description</strong></h3>
-        <p>{{ currentRow.limitCalculationDescription }}</p>
-        <hr v-if="currentRow.notes" />
-        <h3 v-if="currentRow.notes"><strong>Notes</strong></h3>
-        <p>{{ currentRow.notes }}</p>
-      </div>
-    </Modal>
-    <Modal v-if="shouldDisplayTechnologies" @close="() => (shouldDisplayTechnologies = false)">
-      <p><strong>Technologies:</strong> {{ technologies }}</p>
-    </Modal>
-    <Modal v-if="shouldDisplayPollutants" @close="() => (shouldDisplayPollutants = false)">
-      <p><strong>Pollutants:</strong> {{ pollutants }}</p>
-    </Modal>
-    <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
-      {{ currentCheckboxInfo }}
-    </Modal>
   </div>
 </template>
 
@@ -233,15 +210,6 @@ export default {
   data() {
     return {
       shouldDisplayNotes: false,
-      notes: null,
-      currentRow: null,
-      shouldDisplayInfoModal: false,
-      pollutants: null,
-      technologies: null,
-      shouldDisplayPollutants: false,
-      shouldDisplayTechnologies: false,
-      currentCheckboxInfo: null,
-      shouldDisplayCheckboxModal: false,
       limitationColumns: [
         {
           key: 'pointSourceCategoryName',
@@ -300,10 +268,6 @@ export default {
   },
   methods: {
     sortBy,
-    closeInfoModal() {
-      this.currentRow = null;
-      this.shouldDisplayInfoModal = false;
-    },
     onChangeTrain(value) {
       this.selectedTreatmentTrain = xor(this.selectedTreatmentTrain, [value]);
       this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
@@ -343,6 +307,18 @@ export default {
       background-color: #fff;
     }
   }
+}
+
+.icon-btn {
+  display: inline;
+  padding: 0;
+  margin-top: 0;
+  height: inherit;
+  width: inherit;
+}
+
+.fa-info-circle {
+  color: $blue;
 }
 
 a .fa {
