@@ -40,18 +40,6 @@
         </button>
       </div>
     </div>
-    <div class="columns subcategory-select">
-      <div class="column">
-        <Multiselect
-          v-if="searchType === 'pointSource' && selectedCategory"
-          v-model="selectedSubcategory"
-          :options="subcategories"
-          placeholder="Select Subcategory"
-          label="comboSubcategory"
-          :loading="isFetchingSubcategories"
-        ></Multiselect>
-      </div>
-    </div>
   </div>
 </template>
 
