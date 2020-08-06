@@ -120,14 +120,14 @@ create view elg_database.view_n4_wastestream_process as
 select
     processop_id,
     ct_id,
-    processop_title,
+    replace(processop_title, U&'\0097', '-') as processop_title,
     cfr_sect,
     TRIM(COALESCE (processop_constraint1, '') || ' ' || COALESCE ('<strong><u>' || processop_andor1 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint2, '') || ' ' || COALESCE ('<strong><u>' || processop_andor2 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint3, '') || ' ' || COALESCE ('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
     replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
-    replace(lim_calc_desc, U&'\00A7', '\u00A7') as lim_calc_desc,
+    replace(replace(replace(lim_calc_desc, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"') as lim_calc_desc,
     replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\u00A7') as processop_notes,
     case when zero_discharge = '1' then true else false end as zero_discharge,
     case when no_limits = '1' then true else false end as no_limits,
@@ -164,7 +164,7 @@ SELECT
 	pl.lim_value_min,
 	pl.lim_value_max,
 	pl.alt_lim_flag,
-	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else pl.alt_lim end as alt_lim, --odd character in source data
+	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else replace(pl.alt_lim, U&'\00A7', '\u00A7') end as alt_lim, --odd character in source data
 	pl.lim_duration_code,
 	pl.discharge_frequency,
 	pl.unit_code,
@@ -179,7 +179,7 @@ SELECT
 	pl.qc_flag,
 	pl.qc_notes,
 	pl.zero_discharge,
-	replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), '�', 'u'), U&'\00A0', ' ') as pollutant_notes,
+	replace(replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), '�', 'u'), U&'\00A0', ' '), U&'\00B5', '\u00B5') as pollutant_notes,
 	pl.dataentry_psc_code,
 	pl.qc_initials,
 	pl.treatment_id,
@@ -201,9 +201,9 @@ select
 	psc,
 	replace(cfr_section, U&'\00A0', '') as cfr_section,
 	replace(replace(subcategory, U&'\0096', '-'), U&'\0097', '-') as subcategory,
-	cfr_section_description,
+	replace(replace(cfr_section_description, U&'\0093', '"'), U&'\0094', '"') as cfr_section_description,
 	publication_date,
-	frn__in_cfr_,
+	replace(frn__in_cfr_, U&'\00A0', '') as frn__in_cfr_,
 	frn__1st_page_,
 	notes
 from elg_database.a_cfr_citation_history;
@@ -217,6 +217,7 @@ select
 	replace(replace(replace(term, U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as term,
 	replace(replace(replace(replace(replace(case 
         when cfr_part = 427 and cfr_subsection = '427.71.c' and term = 'Pieces' then 'Floor tile measured in the standard size of 12" X 12" X 3/32 ".'
+        when cfr_part = 420 and cfr_subsection = '420.21.d' and term = 'pg/L' then '(Subpart B) Picograms per liter (ppt = 1.0 X 10-12 gm/L).'
         else definition 
        end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-'), U&'\00B0', '\u00B0') as definition,
 	deftype,
@@ -255,7 +256,7 @@ select
 	replace(replace(replace(replace(replace(replace(replace(source_summary, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), chr(147), '"'), chr(148), '"'), chr(150), '-'), chr(151), '-') as source_summary,
 	replace(replace(source_docket, chr(150), '-'), chr(151), '-') as source_docket,
 	replace(replace(source_title, chr(150), '-'), chr(151), '-') as source_title,
-	replace(replace(display_title, chr(150), '-'), chr(151), '-') as display_title,
+	replace(replace(replace(display_title, chr(150), '-'), chr(151), '-'), U&'\00A0', '') as display_title,
 	source_notes,
 	fr_revision_type,
 	replace(replace(rin, chr(150), '-'), chr(151), '-') as rin,

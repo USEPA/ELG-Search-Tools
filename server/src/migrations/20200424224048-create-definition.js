@@ -30,12 +30,12 @@ module.exports = {
     },
     definition: {
       type: Sequelize.STRING(4000),
-      allowNull: false,
+      allowNull: true,
       field: 'definition'
     },
     definitionType: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
       field: 'deftype'
     },
     cfrHasAdditionalDetails: {
