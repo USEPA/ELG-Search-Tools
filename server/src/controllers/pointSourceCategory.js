@@ -7,6 +7,12 @@ const PointSourceCategorySicCode = require('../models').PointSourceCategorySicCo
 const ViewGeneralProvision = require('../models').ViewGeneralProvision;
 const ViewDefinition = require('../models').ViewDefinition;
 const CitationHistory = require('../models').CitationHistory;
+const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
+const ViewLimitation = require('../models').ViewLimitation;
+const TreatmentTechnology = require('../models').TreatmentTechnology;
+const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
+const ViewWastestreamProcessTreatmentTechnologyPollutant = require('../models').ViewWastestreamProcessTreatmentTechnologyPollutant;
+const Pollutant  = require('../models').Pollutant;
 const Op = require('sequelize').Op
 const Sequelize = require("sequelize");
 
@@ -140,8 +146,76 @@ module.exports = {
             })
               .then((pointSourceSubcategories) => {
                 result['pointSourceSubcategories'] = pointSourceSubcategories;
+                result['technologyNames'] = '';
+                result['pollutants'] = '';
 
-                res.status(200).send(result);
+                ViewWastestreamProcessTreatmentTechnology.findAll({
+                  attributes: ['wastestreamProcessId', 'treatmentId'],
+                  where: {
+                    pointSourceCategoryCode: { [Op.eq]: id }
+                  }
+                }).then((wastestreamProcessTreatmentTechnologies) => {
+                  if (wastestreamProcessTreatmentTechnologies.length > 0) {
+                    TreatmentTechnology.findAll({
+                      attributes: ['codes'],
+                      where: {
+                        id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
+                      }
+                    }).then(treatmentTechnologies => {
+                      TreatmentTechnologyCode.findAll({
+                        attributes: ['name'],
+                        where: {
+                          code: { [Op.in]: treatmentTechnologies.map(a => a.codes).join('; ').split('; ') }
+                        },
+                        group: ['name'],
+                        order: ['name']
+                      })
+                        .then((treatmentTechnologyCodes) => {
+                          ViewWastestreamProcessTreatmentTechnologyPollutant.findAll({
+                            attributes: ['pollutantId'],
+                            where: {
+                              wastestreamProcessId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.wastestreamProcessId) },
+                              treatmentId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
+                            }
+                          }).then(wastestreamProcessTreatmentTechnologyPollutants => {
+                            Pollutant.findAll({
+                              attributes: ['elgDescription'],
+                              where: {
+                                id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
+                              },
+                              group: ['elgDescription'],
+                              order: ['elgDescription']
+                            }).then(pollutants => {
+                              result['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join(', ');
+                              result['pollutants'] = pollutants.map(a => a.elgDescription).join(', ');
+
+                              res.status(200).send(result);
+                            });
+                          });
+                        });
+                    })
+                  }
+                  else {
+                    // no treatment technologies are linked to this point source category
+                    // use limitations to get pollutants
+                    ViewLimitation.findAll( {
+                      attributes: [
+                        [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
+                        [Sequelize.col('elg_pollutant_description'), 'elgPollutantDescription']
+                      ],
+                      where: {
+                        pointSourceCategoryCode: { [Op.eq]: id },
+                      }
+                    })
+                      .then(pollutants => {
+                        result['pollutants'] = pollutants.map(a => a.elgPollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
+                          return self.indexOf(value) === index;
+                        }).join('; ');
+
+                        res.status(200).send(result);
+                      })
+                  }
+                }).catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
               })
               .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
           }
