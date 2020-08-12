@@ -22,7 +22,7 @@
           Please select one of the following search criteria: point source category, pollutant, or treatment technology.
         </p>
         <Alert type="warning">
-          Treatment technologies are classified to the most discreet level according to the descriptions in the
+          Treatment technologies are classified to the most discrete level according to the descriptions in the
           underlying regulatory development documents. Results for broad treatment technologies (e.g., biological
           treatment) only include those technologies that cannot be more specifically classified.
         </Alert>

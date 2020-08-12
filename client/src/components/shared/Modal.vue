@@ -29,6 +29,10 @@ export default {
   z-index: 9999;
 }
 
+.modal-background {
+  background-color: rgba(10, 10, 10, 0.25);
+}
+
 .modal-card {
   border-radius: 6px;
 }
