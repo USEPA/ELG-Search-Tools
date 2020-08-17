@@ -116,13 +116,15 @@
           </HoverText>
         </template>
         <template v-slot:cell(wastestreamProcessTitle)="{ item }">
-          <HoverText
-            :hoverId="`process${item.limitationId}`"
-            :linkText="item.wastestreamProcessTitle"
-            :customStyle="{ width: '300px' }"
-          >
-            <span v-html="item.wastestreamProcessDescription" />
-          </HoverText>
+          {{ item.wastestreamProcessTitle }}
+          <button class="button is-text icon-btn" @click="shouldDisplayProcess = true">
+            <span class="fa fa-info-circle"></span>
+          </button>
+          <Modal v-if="shouldDisplayProcess" title="Treatment Train Notes" @close="shouldDisplayProcess = false">
+            <p class="has-text-left">
+              <span v-html="item.wastestreamProcessDescription" />
+            </p>
+          </Modal>
         </template>
         <template v-slot:cell(treatmentNames)="{ item }">
           {{ item.treatmentNames }}
@@ -145,15 +147,6 @@
               />
             </p>
           </Modal>
-        </template>
-        <template v-slot:cell(limitationDurationBaseType)="{ item }">
-          <HoverText
-            :hoverId="`limitationType${item.limitationId}`"
-            :linkText="item.limitationDurationBaseType"
-            :customStyle="{ width: '200px' }"
-          >
-            {{ item.limitationDurationDescription }}
-          </HoverText>
         </template>
         <template v-slot:cell(goToLta)="{ item }">
           <span v-if="item.longTermAverageCount > 0">
@@ -210,6 +203,7 @@ export default {
   data() {
     return {
       shouldDisplayNotes: false,
+      shouldDisplayProcess: false,
       limitationColumns: [
         {
           key: 'pointSourceCategoryName',
@@ -248,17 +242,13 @@ export default {
           label: 'Units',
         },
         {
-          key: 'limitationDurationBaseType',
+          key: 'limitationDurationDescription',
           label: 'Type of Limitation',
         },
         // {
         //   key: 'limitationUnitBasis',
         //   label: 'Limitation Basis',
         // },
-        {
-          key: 'limitationDurationBaseType',
-          label: 'Statistical Base',
-        },
         {
           key: 'goToLta',
           label: 'Go To LTA',
