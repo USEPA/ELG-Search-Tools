@@ -947,6 +947,22 @@ module.exports = {
       {"unit_code":1228,
         "unit":"lb/1000 lb product",
         "unit_desc":"pounds per 1,000 pounds of product",
+        "unit_basis":null},
+      {"unit_code":1229,
+        "unit":"kg/m3 flow",
+        "unit_desc":"kilograms per cubic meter of flow",
+        "unit_basis":null},
+      {"unit_code":1230,
+        "unit":"mg/off-kg",
+        "unit_desc":"milligrams per off kilogram",
+        "unit_basis":null},
+      {"unit_code":1231,
+        "unit":"mg/off-kg of aluminum rolled with emulsions",
+        "unit_desc":"milligrams per off-kilogram of aluminum rolled with emulsions",
+        "unit_basis":null},
+      {"unit_code":1232,
+        "unit":"mg/employee-day",
+        "unit_desc":"milligrams per employee per day",
         "unit_basis":null}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "LimitationUnit" }, records);

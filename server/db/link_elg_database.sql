@@ -110,7 +110,7 @@ create view elg_database.view_n3a_control_technology_notes as
 select
     loc,
     ct_cfr_section,
-    replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"') as ct_notes,
+    replace(replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), U&'\0097', '-') as ct_notes,
     case when loc_display = '1' then true else false end as loc_display
 from
     elg_database.n3a_control_technology_notes;
@@ -126,9 +126,9 @@ select
     COALESCE (processop_constraint2, '') || ' ' || COALESCE ('<strong><u>' || processop_andor2 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint3, '') || ' ' || COALESCE ('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
-    replace(processop_description, U&'\00A7', '\u00A7') as processop_description,
+    replace(replace(replace(replace(replace(processop_description, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), U&'\0093', '"'), U&'\0094', '"') as processop_description,
     replace(replace(replace(lim_calc_desc, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"') as lim_calc_desc,
-    replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\u00A7') as processop_notes,
+    replace(replace(replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"') as processop_notes,
     case when zero_discharge = '1' then true else false end as zero_discharge,
     case when no_limits = '1' then true else false end as no_limits,
     case when includes_bmps = '1' then true else false end as includes_bmps,
@@ -164,7 +164,12 @@ SELECT
 	pl.lim_value_min,
 	pl.lim_value_max,
 	pl.alt_lim_flag,
-	case when pl.lim_id = 6799 then 'As referenced in 423.16(e)' else replace(pl.alt_lim, U&'\00A7', '\u00A7') end as alt_lim, --odd character in source data
+	case 
+		when pl.lim_id = 6799 then 'As referenced in 423.16(e)' --odd character in source data
+		when pl.lim_id = 52831 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Co'
+		when pl.lim_id = 52867 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Co'
+		else replace(replace(replace(replace(replace(pl.alt_lim, U&'\00A7', '\u00A7'), U&'\00B0', '\u00B0'), U&'\0093', '"'), U&'\0094', '"'), U&'\00D7', 'X') 
+	end as alt_lim, 
 	pl.lim_duration_code,
 	pl.discharge_frequency,
 	pl.unit_code,
@@ -201,11 +206,11 @@ select
 	psc,
 	replace(cfr_section, U&'\00A0', '') as cfr_section,
 	replace(replace(subcategory, U&'\0096', '-'), U&'\0097', '-') as subcategory,
-	replace(replace(cfr_section_description, U&'\0093', '"'), U&'\0094', '"') as cfr_section_description,
+	replace(replace(replace(replace(replace(cfr_section_description, U&'\0093', '"'), U&'\0094', '"'), U&'\0096', '-'), U&'\0097', '-'), U&'\00A0', '') as cfr_section_description,
 	publication_date,
 	replace(frn__in_cfr_, U&'\00A0', '') as frn__in_cfr_,
 	frn__1st_page_,
-	notes
+	replace(notes, U&'\00A7', '\u00A7') as notes
 from elg_database.a_cfr_citation_history;
 
 create view elg_database.view_a_definition as
@@ -232,11 +237,11 @@ select
 	psc_code,
 	genprov_cfr_section,
 	replace(genprov_section_title, U&'\0097', '-') as genprov_section_title,
-	replace(replace(replace(replace(case 
+	replace(replace(replace(replace(replace(replace(case 
        	when psc_code = 469 and genprov_cfr_section = '469.13' and genprov_section_title = 'Monitoring' 
        		then '(Subpart A) (a) In lieu of monitoring for TTO, the permitting authority may allow direct dischargers to include the following certification as a “comment” on the Discharge Monitoring Report required by §122.44 (i), formerly §122.62(i): “Based on my  inquiry of the person or persons directly responsible for managing compliance with the permit limitation for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the permitting authority.” (b) In requesting that no monitoring of TTO be required, the direct discharger shall submit a solvent management plan that specifies to the permitting authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater. The permitting authority shall incorporate the plan as a provision of the permit. (c) In lieu of monitoring for TTO, the control authority may allow industrial users of POTWs to make the following certification as a comment to the periodic reports required by §403.12: “Based on my inquiry of the person or persons directly responsible for managing compliance with the pretreatment standard for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the control authority.” (d) In requesting that no monitoring be required, industrial users of POTWs shall submit a solvent management plan that specifies to the control authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater.'
        	else genprov_desc 
-       end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as genprov_desc,
+       end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-'), U&'\0091', ''''), U&'\0092', '''') as genprov_desc,
 	case when genprov_monitoring_reqs = '1' then true else false end as genprov_monitoring_reqs,
 	case when genprov_bmps_reqs = '1' then true else false end as genprov_bmps_reqs,
 	genprov_source_id,
@@ -268,7 +273,7 @@ select
 	processop_id,
 	treatment_id,
 	tech_ref,
-	replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...') as tech_notes,
+	replace(replace(replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...'), chr(150), '-'), chr(151), '-') as tech_notes,
 	bmp_type,
 	case when zero_discharge = '1' then true else false end as zero_discharge
 from elg_database.n4c_technology_bases_ws;

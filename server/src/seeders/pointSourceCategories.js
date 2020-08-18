@@ -495,7 +495,8 @@ module.exports = {
         "most_recent_revision_date":1989}];
 
     records.forEach(function(record) {
-      record.IncludeInSearchTool = showThese.includes(record.psc_code);
+      //record.IncludeInSearchTool = showThese.includes(record.psc_code);
+      record.IncludeInSearchTool = true; // as of 8/17/2020, include all PSCs in the search tool in all environments
     });
 
     return queryInterface.bulkInsert({schema: "elg_search", tableName: 'PointSourceCategory'}, records);

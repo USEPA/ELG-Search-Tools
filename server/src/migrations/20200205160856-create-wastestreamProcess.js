@@ -15,7 +15,7 @@ module.exports = {
     },
     cfrSection: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
       field: 'cfr_sect'
     },
     title: {

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       cfrSection: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         field: 'cfr_sect'
       },
       title: {
