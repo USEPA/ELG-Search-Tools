@@ -115,27 +115,31 @@
             {{ item.limitationUnitDescription }}
           </HoverText>
         </template>
-        <template v-slot:cell(wastestreamProcessTitle)="{ item }">
+        <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
-          <button class="button is-text icon-btn" @click="shouldDisplayProcess = true">
+          <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
             <span class="fa fa-info-circle"></span>
           </button>
-          <Modal v-if="shouldDisplayProcess" title="Treatment Train Notes" @close="shouldDisplayProcess = false">
+          <Modal
+            v-if="shouldDisplayProcess === index"
+            title="Treatment Train Notes"
+            @close="shouldDisplayProcess = false"
+          >
             <p class="has-text-left">
               <span v-html="item.wastestreamProcessDescription" />
             </p>
           </Modal>
         </template>
-        <template v-slot:cell(treatmentNames)="{ item }">
+        <template v-slot:cell(treatmentNames)="{ index, item }">
           {{ item.treatmentNames }}
           <button
             class="button is-text icon-btn"
-            @click="shouldDisplayNotes = true"
+            @click="shouldDisplayNotes = index"
             title="Click to view Treatment Train Notes"
           >
             <span class="fa fa-info-circle"></span>
           </button>
-          <Modal v-if="shouldDisplayNotes" title="Treatment Train Notes" @close="shouldDisplayNotes = false">
+          <Modal v-if="shouldDisplayNotes === index" title="Treatment Train Notes" @close="shouldDisplayNotes = false">
             <p class="has-text-left">
               <span
                 v-html="
@@ -146,6 +150,38 @@
                 "
               />
             </p>
+          </Modal>
+        </template>
+        <template v-slot:cell(limitationDurationDescription)="{ index, item }">
+          {{ item.limitationDurationTypeDisplay }}
+          <button
+            class="button is-text icon-btn"
+            @click="shouldDisplayLimitationType = index"
+            title="Click to view Type of Limitation"
+          >
+            <span class="fa fa-info-circle"></span>
+          </button>
+          <Modal
+            v-if="shouldDisplayLimitationType === index"
+            :title="item.limitationDurationDescription"
+            @close="shouldDisplayLimitationType = false"
+          >
+            <div class="info-modal">
+              <h3 class="has-text-left" v-if="item.wastestreamProcessLimitCalculationDescription">
+                <strong>Limitation Calculation Description</strong>
+              </h3>
+              <p class="has-text-left">{{ item.wastestreamProcessLimitCalculationDescription }}</p>
+              <br />
+              <h3 class="has-text-left" v-if="item.limitRequirementDescription">
+                <strong>Limitation Requirement Description</strong>
+              </h3>
+              <p class="has-text-left">{{ item.limitRequirementDescription }}</p>
+              <br />
+              <h3 class="has-text-left" v-if="item.limitationPollutantNotes">
+                <strong>Notes</strong>
+              </h3>
+              <p class="has-text-left">{{ item.limitationPollutantNotes }}</p>
+            </div>
           </Modal>
         </template>
         <template v-slot:cell(goToLta)="{ item }">
@@ -204,6 +240,7 @@ export default {
     return {
       shouldDisplayNotes: false,
       shouldDisplayProcess: false,
+      shouldDisplayLimitationType: false,
       limitationColumns: [
         {
           key: 'pointSourceCategoryName',

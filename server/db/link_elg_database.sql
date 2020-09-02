@@ -127,7 +127,11 @@ select
     COALESCE (processop_constraint3, '') || ' ' || COALESCE ('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
     replace(replace(replace(replace(replace(processop_description, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), U&'\0093', '"'), U&'\0094', '"') as processop_description,
-    replace(replace(replace(lim_calc_desc, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"') as lim_calc_desc,
+    replace(replace(replace(replace(
+	    case 
+	    	when processop_id = 25055 then 'Limitations for the parameters are the same as the corresponding limitation specified in \u00A7437.42' --odd character in source data
+	    	else lim_calc_desc
+	    end	, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as lim_calc_desc,
     replace(replace(replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"') as processop_notes,
     case when zero_discharge = '1' then true else false end as zero_discharge,
     case when no_limits = '1' then true else false end as no_limits,

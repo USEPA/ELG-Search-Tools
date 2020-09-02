@@ -102,7 +102,11 @@
         <p>{{ currentRow.limitationUnitDescription }}</p>
       </div>
     </Modal>
-    <Modal v-if="shouldDisplayTypeOfLimitationModal" @close="() => (shouldDisplayTypeOfLimitationModal = false)">
+    <Modal
+      v-if="shouldDisplayTypeOfLimitationModal"
+      :title="currentRow.limitationDurationTypeDisplay"
+      @close="() => (shouldDisplayTypeOfLimitationModal = false)"
+    >
       <div class="info-modal">
         <h3 v-if="currentRow.wastestreamProcessLimitCalculationDescription">
           <strong>Limitation Calculation Description</strong>
@@ -156,7 +160,7 @@ export default {
           label: 'Pollutant',
         },
         {
-          key: 'limitationDurationDescription',
+          key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
         },
         {
@@ -199,7 +203,7 @@ export default {
           displayAsHTML: true,
         },
         {
-          key: 'limitationDurationDescription',
+          key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
         },
         {

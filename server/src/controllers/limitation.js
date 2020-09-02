@@ -28,6 +28,7 @@ let attributes = [
   'zeroDischarge',
   'limitationDurationDescription',
   'limitationDurationBaseType',
+  'limitationDurationTypeDisplay',
   'limitationUnitCode',
   [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
   'limitationUnitBasis',
@@ -48,7 +49,8 @@ let order = [
   'controlTechnologyDisplayOrder',
   'wastestreamProcessDisplayOrder',
   'pollutantDescription',
-  'limitationDurationDescription'
+  'limitationDurationDescription',
+  'limitationDurationTypeDisplay'
 ];
 
 function wastestreamProcessLimitations(wastestreamProcessId) {

@@ -128,6 +128,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'stat_base_type'
       },
+      limitationDurationTypeDisplay: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'limit_type_display'
+      },
       limitationUnitId: {
         type: DataTypes.INTEGER,
         allowNull: true,

@@ -8,7 +8,7 @@ module.exports = {
     'wp.processop_description, wp.processop_notes, wp.lim_calc_desc as wp_lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +
     'p.pollutant_code, p.pollutant_desc, p.elg_pollutant_description, ld.limit_duration_code, ' +
     "ld.limit_duration_description || CASE WHEN l.discharge_frequency IS NOT NULL THEN ' (' || l.discharge_frequency || ')' ELSE '' END as limit_duration_description, " +
-    "ld.stat_base_type, lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, " +
+    "ld.stat_base_type, ld.limit_type_display, lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, " +
     'l.lim_calc_desc as lim_lim_calc_desc, l.pollutant_notes as lim_pollutant_notes, ' +
     'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, ' +
     'pss.subcat_id, pss.combo_subcat, pss.subcat_title, pss.subcat_cfr_section, pss.subcat_applicability, pss.subcat_notes, ' +
@@ -33,7 +33,7 @@ module.exports = {
     'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect, ' +
     'wp.processop_description, wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +
     'p.pollutant_code, p.pollutant_desc, p.elg_pollutant_description, ' +
-    'ld.limit_duration_code, ld.limit_duration_description, ld.stat_base_type, ' +
+    'ld.limit_duration_code, ld.limit_duration_description, ld.stat_base_type, ld.limit_type_display, ' +
     'lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, ' +
     'l.lim_calc_desc, l.pollutant_notes, ' +
     'psc.psc_code, psc.psc_name, psc.cfr_part, psc.cfr_notes, ' +

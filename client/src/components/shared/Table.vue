@@ -75,7 +75,7 @@
                 >more</a
               >
             </span>
-            <span v-else-if="column.key === 'limitationDurationDescription'">
+            <span v-else-if="column.key === 'limitationDurationTypeDisplay'">
               {{ row[column.key] ? row[column.key] : '--' }}
               <a
                 v-if="
