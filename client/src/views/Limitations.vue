@@ -104,7 +104,7 @@
     </Modal>
     <Modal
       v-if="shouldDisplayTypeOfLimitationModal"
-      :title="currentRow.limitationDurationTypeDisplay"
+      :title="currentRow.limitationDurationDescription"
       @close="() => (shouldDisplayTypeOfLimitationModal = false)"
     >
       <div class="info-modal">
