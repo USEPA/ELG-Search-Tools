@@ -2,7 +2,7 @@
   <div class="table-container">
     <BTable
       :fields="tableColumns"
-      :items="rows"
+      :items="filtered"
       :sticky-header="height"
       :busy="busy"
       :striped="true"
@@ -22,6 +22,64 @@
       <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
         <slot :name="slot" v-bind="scope" />
       </template>
+
+      <!-- Hard-coded slots that are on multiple instances of table -->
+      <template v-slot:cell(limitationUnitCode)="{ item }">
+        <HoverText
+          :hoverId="`units${item.limitationId}`"
+          :linkText="item.limitationUnitCode"
+          :customStyle="{ width: '200px' }"
+        >
+          {{ item.limitationUnitDescription }}
+        </HoverText>
+      </template>
+      <template v-slot:cell(limitationValue)="{ item }">
+        {{ item.alternateLimitFlag }} {{ item.limitationValue }}
+      </template>
+      <template v-slot:cell(limitationDurationTypeDisplay)="{ index, item }">
+        {{ item.limitationDurationTypeDisplay }}
+        <button
+          class="button is-text icon-btn"
+          @click="shouldDisplayLimitationType = index"
+          title="Click to view Type of Limitation"
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+        <Modal v-if="shouldDisplayLimitationType === index" @close="shouldDisplayLimitationType = false">
+          <div class="info-modal has-text-left">
+            <h3 class="has-text-weight-bold">{{ item.limitationDurationDescription }}</h3>
+            <br />
+            <div v-if="item.wastestreamProcessLimitCalculationDescription">
+              <h3 class="has-text-weight-bold">Limitation Calculation Description</h3>
+              <p>{{ item.wastestreamProcessLimitCalculationDescription }}</p>
+            </div>
+            <div v-if="item.limitRequirementDescription">
+              <h3 class="has-text-weight-bold">Limitation Requirement Description</h3>
+              <p>{{ item.limitRequirementDescription }}</p>
+            </div>
+            <div v-if="item.limitationPollutantNotes">
+              <h3 class="has-text-weight-bold">Notes</h3>
+              <p>{{ item.limitationPollutantNotes }}</p>
+            </div>
+          </div>
+        </Modal>
+      </template>
+
+      <!-- Custom Filters row -->
+      <template v-if="filterableFields.length" #top-row="{fields}">
+        <td v-for="field in fields" :key="field.key">
+          <Multiselect
+            v-if="filterableFields.map((f) => f.key).includes(field.key)"
+            v-model="filterValues[field.key]"
+            :options="rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v)"
+            :placeholder="`Select ${field.label}`"
+            select-label=""
+            deselect-label=""
+            open-direction="below"
+            class="table-filter"
+          />
+        </td>
+      </template>
     </BTable>
 
     <BPagination v-if="perPage" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" :limit="11" />
@@ -30,6 +88,9 @@
 
 <script>
 import { BTable, BPagination } from 'bootstrap-vue';
+import Multiselect from 'vue-multiselect';
+import HoverText from './HoverText';
+import Modal from './Modal';
 
 export default {
   props: {
@@ -60,7 +121,7 @@ export default {
       default: 'No data available.',
     },
   },
-  components: { BTable, BPagination },
+  components: { BTable, BPagination, Multiselect, HoverText, Modal },
   data() {
     return {
       sortBy: this.defaultSort || '',
@@ -68,14 +129,43 @@ export default {
       tableColumns: [],
       currentPage: 1,
       totalRows: 0,
+      shouldDisplayLimitationType: false,
+      filterValues: {},
     };
+  },
+  computed: {
+    filterableFields() {
+      return this.columns.filter((col) => col.filterable);
+    },
+    filtered() {
+      if (this.rows.length > 0) {
+        const filtered = this.rows.filter((item) => {
+          return Object.keys(this.filterValues).every((key) =>
+            String(item[key]).includes(this.filterValues[key] || '')
+          );
+        });
+        return filtered.length > 0
+          ? filtered
+          : [
+              Object.keys(this.rows[0]).reduce((obj, value) => {
+                obj[value] = '';
+                return obj;
+              }, {}),
+            ];
+      }
+      return this.rows;
+    },
   },
   watch: {
     columns() {
       this.buildTableColumns();
+      this.buildFilterValues();
     },
     rows() {
       this.totalRows = this.rows.length;
+    },
+    filtered() {
+      this.positionFilterRow();
     },
   },
   methods: {
@@ -101,13 +191,49 @@ export default {
     changeSort(key) {
       return key;
     },
+    buildFilterValues() {
+      const filters = {};
+      this.filterableFields.forEach((field) => {
+        filters[field.key] = '';
+      });
+      this.filterValues = filters;
+    },
+    positionFilterRow() {
+      const head = document.querySelector('.b-table thead tr th');
+      const filterCells = document.querySelectorAll('.b-table-top-row td');
+      for (let i = 0; i < filterCells.length; i += 1) {
+        filterCells[i].style.top = `${head.offsetHeight - 1}px`;
+      }
+    },
+  },
+  created() {
+    this.buildTableColumns();
+    this.buildFilterValues();
   },
   mounted() {
     this.totalRows = this.rows.length;
-    this.buildTableColumns();
+    this.positionFilterRow();
   },
 };
 </script>
+
+<style lang="scss">
+.table-filter {
+  .multiselect--active,
+  .multiselect__input,
+  .multiselect__element,
+  .multiselect__single {
+    font-size: 14px;
+    padding-right: 0;
+    padding-bottom: 3px;
+    padding-top: 3px;
+  }
+
+  .multiselect__tags {
+    padding-right: 0;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .table-container {
@@ -119,6 +245,15 @@ export default {
         position: -webkit-sticky;
         z-index: 9;
         top: -1px;
+      }
+    }
+    .b-table-top-row {
+      td {
+        border-bottom: 1px solid #ddd !important;
+        background: #fff;
+        position: sticky;
+        top: 0;
+        z-index: 9;
       }
     }
     .b-table {
