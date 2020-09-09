@@ -7,6 +7,8 @@
       :busy="busy"
       :striped="true"
       :responsive="true"
+      :show-empty="true"
+      :empty-text="emptyText"
       :per-page="perPage"
       :current-page="currentPage"
       :sort-by.sync="sortBy"
@@ -52,6 +54,10 @@ export default {
     },
     perPage: {
       type: Number,
+    },
+    emptyText: {
+      type: String,
+      default: 'No data available.',
     },
   },
   components: { BTable, BPagination },
@@ -120,6 +126,7 @@ export default {
       font-size: 0.95rem;
       border-collapse: separate;
       border-spacing: 0;
+      border: 1px solid #f1f1f1;
       td,
       thead th {
         border: none;
@@ -164,7 +171,7 @@ export default {
       padding-left: 0;
       list-style: none;
       border-radius: 0.25rem;
-      justify-content: start;
+      justify-content: flex-start;
       .page-item.disabled .page-link {
         color: #6c757d;
         pointer-events: none;

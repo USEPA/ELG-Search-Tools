@@ -336,14 +336,6 @@ export default {
   }
 }
 
-.icon-btn {
-  display: inline;
-  padding: 0;
-  margin-top: 0;
-  height: inherit;
-  width: inherit;
-}
-
 .fa-info-circle {
   color: $blue;
 }
