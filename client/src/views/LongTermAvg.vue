@@ -50,36 +50,56 @@
           {{ longTermAvgData.pointSourceCategoryName }}
         </p>
         <p><span class="has-text-weight-bold">Subpart:</span> {{ longTermAvgData.comboSubcategory }}</p>
-        <p><span class="has-text-weight-bold">Control Technology:</span> {{ longTermAvgData.controlTechnologyCode }}</p>
+        <p><span class="has-text-weight-bold">Level of Control:</span> {{ longTermAvgData.controlTechnologyCode }}</p>
         <p>
           <span class="has-text-weight-bold">Process Operation/Wastestream:</span>
           {{ longTermAvgData.wastestreamProcessCfrSection }}
           {{ longTermAvgData.wastestreamProcessTitle }}
         </p>
         <p>
-          <span class="has-text-weight-bold">Other Process Operation/Wastestream Detail(s):</span>
+          <span class="has-text-weight-bold">Other Process/Wastestream Details:</span>
           <span v-html="longTermAvgData.wastestreamProcessSecondary"></span>
         </p>
         <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
     </div>
-    <Table
-      :columns="longTermAvgCols"
-      :rows="longTermAvgData.longTermAverages"
-      @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
-      @onDisplayLtaUnitDescriptionModal="displayLtaUnitDescriptionModal"
-    />
-    <Modal v-if="shouldDisplayUnitDescriptionModal" @close="() => (shouldDisplayUnitDescriptionModal = false)">
-      <div class="info-modal">
-        <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
-        <p>{{ currentRow.limitationUnitDescription }}</p>
-      </div>
-    </Modal>
-    <Modal v-if="shouldDisplayLtaUnitDescriptionModal" @close="() => (shouldDisplayLtaUnitDescriptionModal = false)">
-      <div class="info-modal">
-        <h3 v-if="currentRow.longTermAverageUnitDescription"><strong>LTA Unit Description</strong></h3>
-        <p>{{ currentRow.longTermAverageUnitDescription }}</p>
-      </div>
+    <NewTable :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
+      <template v-slot:cell(treatmentTechnologyNames)="{ item }">
+        {{ item.treatmentTechnologyNames }}
+        <button
+          class="button is-text icon-btn"
+          @click="
+            openModal(
+              'Treatment Train Notes',
+              `${item.wastestreamProcessTreatmentTechnologyNotes} (${item.wastestreamProcessTreatmentTechnologySourceTitle})`
+            )
+          "
+          title="Click to view Treatment Train Notes"
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+      </template>
+      <template v-slot:cell(longTermAverageValue)="{ item, index }">
+        {{ item.longTermAverageValue }}
+        <HoverText
+          :hoverId="`units${index}`"
+          :linkText="item.longTermAverageUnitCode"
+          :customStyle="{ width: '200px' }"
+        >
+          {{ item.longTermAverageUnitDescription }}
+        </HoverText>
+      </template>
+      <template v-slot:cell(limitationValue)="{ item }">
+        {{ item.limitationValue }}
+        <HoverText :hoverId="`units${index}`" :linkText="item.limitationUnitCode" :customStyle="{ width: '200px' }">
+          {{ item.limitationUnitDescription }}
+        </HoverText>
+      </template>
+    </NewTable>
+    <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
+      <p class="has-text-left">
+        <span v-html="currentModalContent" />
+      </p>
     </Modal>
   </section>
 </template>
@@ -88,19 +108,21 @@
 import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
-import Table from '@/components/shared/Table';
+import NewTable from '@/components/shared/NewTable';
 import Modal from '@/components/shared/Modal';
+import HoverText from '@/components/shared/HoverText';
 
 export default {
-  components: { Alert, Breadcrumbs, Table, Modal },
+  components: { Alert, Breadcrumbs, NewTable, Modal, HoverText },
   computed: {
     ...mapState('search', ['selectedTreatmentTrain']),
     ...mapState('limitations', ['longTermAvgData']),
   },
   data() {
     return {
-      shouldDisplayUnitDescriptionModal: false,
-      shouldDisplayLtaUnitDescriptionModal: false,
+      shouldDisplayModal: false,
+      currentModalTitle: null,
+      currentModalContent: null,
       longTermAvgCols: [
         {
           key: 'treatmentTechnologyNames',
@@ -134,15 +156,10 @@ export default {
     };
   },
   methods: {
-    displayUnitDescriptionModal(row) {
-      this.currentRow = null;
-      this.shouldDisplayUnitDescriptionModal = true;
-      this.currentRow = row;
-    },
-    displayLtaUnitDescriptionModal(row) {
-      this.currentRow = null;
-      this.shouldDisplayLtaUnitDescriptionModal = true;
-      this.currentRow = row;
+    openModal(title, content) {
+      this.currentModalTitle = title;
+      this.currentModalContent = content;
+      this.shouldDisplayModal = true;
     },
   },
 };

@@ -119,13 +119,31 @@
               {{ item.title }}
               <button
                 class="button is-text icon-btn"
-                @click="openModal('Process Operation/Wastestream Description', item.description)"
+                @click="shouldDisplayLimitationType = index"
+                title="Click to view Type of Limitation"
               >
                 <span class="fa fa-info-circle"></span>
               </button>
+              <Modal v-if="shouldDisplayLimitationType === index" @close="shouldDisplayLimitationType = false">
+                <div class="info-modal has-text-left">
+                  <h3 class="has-text-weight-bold">Description</h3>
+                  <p>{{ item.description }}</p>
+                  <div v-if="item.limitCalculationDescription">
+                    <hr />
+                    <h3 class="has-text-weight-bold">Limit Calculation Description</h3>
+                    <p>{{ item.limitCalculationDescription }}</p>
+                  </div>
+                  <div v-if="item.notes">
+                    <hr />
+                    <h3 class="has-text-weight-bold">Notes</h3>
+                    <p>{{ item.notes }}</p>
+                  </div>
+                </div>
+              </Modal>
             </template>
             <template v-slot:cell(secondary)="{ item }">
-              <span v-html="item.secondary" />
+              <span v-if="item.secondary !== ''" v-html="item.secondary" />
+              <span v-else>--</span>
             </template>
             <template v-slot:cell(goToLimitations)="{ item }">
               <span v-if="!item.noLimitations">
@@ -172,6 +190,7 @@ export default {
   data() {
     return {
       shouldDisplayModal: false,
+      shouldDisplayLimitationType: false,
       currentModalTitle: null,
       currentModalContent: null,
       shouldDisplayNotes: false,

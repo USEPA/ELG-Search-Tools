@@ -15,14 +15,6 @@
       :sort-desc.sync="sortDesc"
       @head-clicked="changeSort"
     >
-      <!-- Pass on all named slots -->
-      <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot" />
-
-      <!-- Pass on all scoped slots -->
-      <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
-        <slot :name="slot" v-bind="scope" />
-      </template>
-
       <!-- Hard-coded slots that are on multiple instances of table -->
       <template v-slot:cell(limitationUnitCode)="{ item }">
         <HoverText
@@ -48,21 +40,31 @@
         <Modal v-if="shouldDisplayLimitationType === index" @close="shouldDisplayLimitationType = false">
           <div class="info-modal has-text-left">
             <h3 class="has-text-weight-bold">{{ item.limitationDurationDescription }}</h3>
-            <br />
             <div v-if="item.wastestreamProcessLimitCalculationDescription">
+              <hr />
               <h3 class="has-text-weight-bold">Limitation Calculation Description</h3>
               <p>{{ item.wastestreamProcessLimitCalculationDescription }}</p>
             </div>
             <div v-if="item.limitRequirementDescription">
+              <hr />
               <h3 class="has-text-weight-bold">Limitation Requirement Description</h3>
               <p>{{ item.limitRequirementDescription }}</p>
             </div>
             <div v-if="item.limitationPollutantNotes">
+              <hr />
               <h3 class="has-text-weight-bold">Notes</h3>
               <p>{{ item.limitationPollutantNotes }}</p>
             </div>
           </div>
         </Modal>
+      </template>
+
+      <!-- Pass on all named slots -->
+      <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot" />
+
+      <!-- Pass on all scoped slots -->
+      <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
+        <slot :name="slot" v-bind="scope" />
       </template>
 
       <!-- Custom Filters row -->
@@ -79,6 +81,11 @@
             class="table-filter"
           />
         </td>
+      </template>
+
+      <template v-slot:cell()="{ value }">
+        <span v-if="value === null || value === ''">--</span>
+        <span v-else>{{ value }}</span>
       </template>
     </BTable>
 
