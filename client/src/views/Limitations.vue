@@ -49,25 +49,22 @@
       <div class="message-body">
         <p><span class="has-text-weight-bold">CFR Section:</span> {{ limitationData.cfrSection }}</p>
         <p><span class="has-text-weight-bold">Level of Control:</span> {{ limitationData.controlTechnologyCode }}</p>
+        <p><span class="has-text-weight-bold">Process Operation/Wastestream:</span> {{ limitationData.title }}</p>
         <p>
-          <span class="has-text-weight-bold">Primary Wastestream/Process Operation:</span> {{ limitationData.title }}
-        </p>
-        <p>
-          <span class="has-text-weight-bold">Secondary Wastestream/Process Operation(s):</span>
+          <span class="has-text-weight-bold">Other Process/Wastestream Details:</span>
           <span v-html="limitationData.secondary"></span>
         </p>
       </div>
     </div>
-    <Table
-      v-if="subcategoryData"
-      :columns="pscColumns"
-      :rows="limitationData.limitations"
-      :shouldHaveLimitationCols="true"
-      @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
-      @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
-      @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
-      @onDisplayCheckboxInfo="displayCheckboxInfo"
-    />
+    <NewTable v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
+      <template v-slot:cell(goToLta)="{ item }">
+        <span v-if="item.longTermAverageCount > 0">
+          <a @click="shouldDisplayLongTermAvgData(item)">
+            <span class="fas fa-share-square limitation-link"></span>
+          </a>
+        </span>
+      </template>
+    </NewTable>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="columns tab-content poll-limit-tab-content">
@@ -129,11 +126,12 @@
 import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
+import NewTable from '@/components/shared/NewTable';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Table, ControlTabs, Modal },
+  components: { Breadcrumbs, NewTable, Table, ControlTabs, Modal },
   computed: {
     ...get('search', ['selectedCategory', 'subcategoryData']),
     ...get('limitations', [
@@ -162,18 +160,24 @@ export default {
         {
           key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
-        },
-        {
-          key: 'alternateLimitFlag',
-          label: 'Flag',
+          filterable: true,
         },
         {
           key: 'limitationValue',
           label: 'Value',
         },
         {
+          key: 'limitationUnitCode',
+          label: 'Units',
+        },
+        {
           key: 'limitationUnitBasis',
           label: 'Limitation Basis',
+          filterable: true,
+        },
+        {
+          key: 'goToLta',
+          label: 'Go to LTA',
         },
       ],
       pollLimitationCols: [
