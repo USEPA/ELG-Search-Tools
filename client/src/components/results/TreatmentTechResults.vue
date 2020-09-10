@@ -96,25 +96,13 @@
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
-      <NewTable
+      <Table
         v-if="treatmentLimitationData"
         :columns="limitationColumns"
         :rows="limitations"
         :busy="isFetching"
         :perPage="100"
       >
-        <template v-slot:cell(limitationValue)="{ item }">
-          {{ item.alternateLimitFlag }} {{ item.limitationValue }}
-        </template>
-        <template v-slot:cell(limitationUnitCode)="{ item }">
-          <HoverText
-            :hoverId="`units${item.limitationId}`"
-            :linkText="item.limitationUnitCode"
-            :customStyle="{ width: '200px' }"
-          >
-            {{ item.limitationUnitDescription }}
-          </HoverText>
-        </template>
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
           <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
@@ -152,38 +140,6 @@
             </p>
           </Modal>
         </template>
-        <template v-slot:cell(limitationDurationDescription)="{ index, item }">
-          {{ item.limitationDurationTypeDisplay }}
-          <button
-            class="button is-text icon-btn"
-            @click="shouldDisplayLimitationType = index"
-            title="Click to view Type of Limitation"
-          >
-            <span class="fa fa-info-circle"></span>
-          </button>
-          <Modal
-            v-if="shouldDisplayLimitationType === index"
-            :title="item.limitationDurationDescription"
-            @close="shouldDisplayLimitationType = false"
-          >
-            <div class="info-modal">
-              <h3 class="has-text-left" v-if="item.wastestreamProcessLimitCalculationDescription">
-                <strong>Limitation Calculation Description</strong>
-              </h3>
-              <p class="has-text-left">{{ item.wastestreamProcessLimitCalculationDescription }}</p>
-              <br />
-              <h3 class="has-text-left" v-if="item.limitRequirementDescription">
-                <strong>Limitation Requirement Description</strong>
-              </h3>
-              <p class="has-text-left">{{ item.limitRequirementDescription }}</p>
-              <br />
-              <h3 class="has-text-left" v-if="item.limitationPollutantNotes">
-                <strong>Notes</strong>
-              </h3>
-              <p class="has-text-left">{{ item.limitationPollutantNotes }}</p>
-            </div>
-          </Modal>
-        </template>
         <template v-slot:cell(goToLta)="{ item }">
           <span v-if="item.longTermAverageCount > 0">
             <a @click="onShouldDisplayLongTermAvgData(item.limitationId)">
@@ -191,7 +147,7 @@
             </a>
           </span>
         </template>
-      </NewTable>
+      </Table>
     </div>
   </div>
 </template>
@@ -203,11 +159,11 @@ import xor from 'lodash/xor';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
-import NewTable from '@/components/shared/NewTable';
+import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Alert, HoverText, NewTable, Modal, Multiselect },
+  components: { Alert, HoverText, Table, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -240,7 +196,6 @@ export default {
     return {
       shouldDisplayNotes: false,
       shouldDisplayProcess: false,
-      shouldDisplayLimitationType: false,
       limitationColumns: [
         {
           key: 'pointSourceCategoryName',
@@ -257,6 +212,7 @@ export default {
         {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
+          filterable: true,
         },
         {
           key: 'pollutantDescription',
@@ -279,8 +235,9 @@ export default {
           label: 'Units',
         },
         {
-          key: 'limitationDurationDescription',
+          key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
+          filterable: true,
         },
         // {
         //   key: 'limitationUnitBasis',
@@ -334,14 +291,6 @@ export default {
       background-color: #fff;
     }
   }
-}
-
-.icon-btn {
-  display: inline;
-  padding: 0;
-  margin-top: 0;
-  height: inherit;
-  width: inherit;
 }
 
 .fa-info-circle {

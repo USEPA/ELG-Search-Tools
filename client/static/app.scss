@@ -257,6 +257,21 @@ input,
   }
 }
 
+.b-table {
+  .icon-btn {
+    display: inline-block;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    height: inherit;
+    width: inherit;
+
+    .fa-info-circle {
+      color: $blue;
+    }
+  }
+}
+
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 // Import vue-multiselect

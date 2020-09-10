@@ -2,7 +2,7 @@
   <div class="modal is-active">
     <div class="modal-background" @click="$emit('close')"></div>
     <div class="modal-card" @keydown.native.esc="close" role="dialog" aria-modal="true">
-      <header class="modal-card-head">
+      <header :class="`modal-card-head ${title ? '' : 'no-title'}`">
         <p class="modal-card-title">{{ title }}</p>
         <button class="delete is-small" aria-label="close" @click="$emit('close')"></button>
       </header>
@@ -39,6 +39,18 @@ export default {
 
 .modal-card-head {
   padding: 1rem;
+
+  &.no-title {
+    background-color: #fff;
+    border: none;
+    height: 0;
+    padding: 0;
+
+    .delete {
+      margin-top: 2rem;
+      margin-right: 0.5rem;
+    }
+  }
 }
 
 .modal-card-title {
