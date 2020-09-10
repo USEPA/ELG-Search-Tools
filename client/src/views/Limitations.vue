@@ -27,8 +27,17 @@
           {{ treatmentNames }}
           Limitations
         </h2>
-        <h3 v-if="!subcategoryData && limitationData" class="subtitle is-size-5 has-text-weight-light">
+        <h3
+          v-if="!subcategoryData && limitationData && pointSourceCategoryCode"
+          class="subtitle is-size-5 has-text-weight-light"
+        >
           Point Source Category {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
+        </h3>
+        <h3
+          v-if="!subcategoryData && limitationData && !pointSourceCategoryCode"
+          class="subtitle is-size-5 has-text-weight-light"
+        >
+          Point Source Categories {{ getPscs(limitationData) }}
         </h3>
         <h3 v-if="subcategoryData" class="subtitle is-size-5 has-text-weight-light">
           Subpart {{ subcategoryData.comboSubcategory }}
@@ -67,25 +76,24 @@
     </NewTable>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
-        <div :key="controlTechnologyCode" class="columns tab-content poll-limit-tab-content">
-          <div class="column poll-limitation-container">
+        <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
+          <div class="poll-limitation-container">
             <div class="field is-grouped download-icon-container">
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
               <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
             </div>
-            <div class="field">
-              <Table
-                :columns="pollLimitationCols"
-                :rows="getControlTechLimitations(controlTechnologyCode)"
-                :shouldHavePollLimitCols="true"
-                @onDisplayCheckboxInfo="displayCheckboxInfo"
-                @onDisplayUnitDescriptionModal="displayUnitDescriptionModal"
-                @onDisplayTypeOfLimitationModal="displayTypeOfLimitationModal"
-                @onShouldDisplayLongTermAvgData="shouldDisplayLongTermAvgData"
-                :colsLength="10"
-                :isComparingPscs="isComparingPscs"
-              />
-            </div>
+            <NewTable :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
+              <template v-slot:cell(goToLta)="{ item }">
+                <span v-if="item.longTermAverageCount > 0">
+                  <a @click="shouldDisplayLongTermAvgData(item)">
+                    <span class="fas fa-share-square limitation-link"></span>
+                  </a>
+                </span>
+              </template>
+              <template v-slot:cell(wastestreamProcessSecondary)="{ value }">
+                <span v-html="value" />
+              </template>
+            </NewTable>
           </div>
         </div>
       </template>
@@ -125,13 +133,13 @@
 <script>
 import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
-import Table from '@/components/shared/Table';
+// import Table from '@/components/shared/Table';
 import NewTable from '@/components/shared/NewTable';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, NewTable, Table, ControlTabs, Modal },
+  components: { Breadcrumbs, NewTable, ControlTabs, Modal },
   computed: {
     ...get('search', ['selectedCategory', 'subcategoryData']),
     ...get('limitations', [
@@ -186,14 +194,6 @@ export default {
           label: 'Pollutant',
         },
         {
-          key: 'pointSourceCategoryCode',
-          label: '40 CFR',
-        },
-        {
-          key: 'pointSourceCategoryName',
-          label: 'Point Source Category',
-        },
-        {
           key: 'comboSubcategory',
           label: 'Subpart',
         },
@@ -209,41 +209,34 @@ export default {
         {
           key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
-        },
-        {
-          key: 'alternativeLimitFlag',
-          label: 'Flag',
+          filterable: true,
         },
         {
           key: 'limitationValue',
           label: 'Value',
         },
         {
+          key: 'limitationUnitCode',
+          label: 'Units',
+        },
+        {
           key: 'limitationUnitBasis',
           label: 'Limitation Basis',
+          filterable: true,
+        },
+        {
+          key: 'goToLta',
+          label: 'Go to LTA',
         },
       ],
     };
   },
   methods: {
-    displayCheckboxInfo(checkbox) {
-      this.shouldDisplayCheckboxModal = false;
-      this.currentCheckboxInfo = null;
-      if (checkbox === 'zeroDischarge') {
-        this.currentCheckboxInfo =
-          'There will be no discharge from the process operation or no discharge of the wastestream.';
-        this.shouldDisplayCheckboxModal = true;
-      }
-    },
-    displayUnitDescriptionModal(row) {
-      this.currentRow = null;
-      this.shouldDisplayUnitDescriptionModal = true;
-      this.currentRow = row;
-    },
-    displayTypeOfLimitationModal(row) {
-      this.currentRow = null;
-      this.shouldDisplayTypeOfLimitationModal = true;
-      this.currentRow = row;
+    getPscs(data) {
+      return data
+        .map((row) => `${row.pointSourceCategoryCode}: ${row.pointSourceCategoryName}`)
+        .filter((v, i, a) => a.indexOf(v) === i)
+        .join(', ');
     },
     async shouldDisplayLongTermAvgData(row) {
       await this.$store.dispatch('limitations/getLongTermAvgData', row.limitationId);

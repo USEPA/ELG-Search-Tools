@@ -212,6 +212,7 @@ export default {
         {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
+          filterable: true,
         },
         {
           key: 'pollutantDescription',
@@ -236,6 +237,7 @@ export default {
         {
           key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
+          filterable: true,
         },
         // {
         //   key: 'limitationUnitBasis',

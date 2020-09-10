@@ -89,7 +89,7 @@
           {{ item.longTermAverageUnitDescription }}
         </HoverText>
       </template>
-      <template v-slot:cell(limitationValue)="{ item }">
+      <template v-slot:cell(limitationValue)="{ item, index }">
         {{ item.limitationValue }}
         <HoverText :hoverId="`units${index}`" :linkText="item.limitationUnitCode" :customStyle="{ width: '200px' }">
           {{ item.limitationUnitDescription }}

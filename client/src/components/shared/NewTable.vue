@@ -1,6 +1,7 @@
 <template>
   <div class="table-container">
     <BTable
+      :class="`${filterableFields.length ? 'filter-table' : ''}`"
       :fields="tableColumns"
       :items="filtered"
       :sticky-header="height"
@@ -74,7 +75,7 @@
             v-if="filterableFields.map((f) => f.key).includes(field.key)"
             v-model="filterValues[field.key]"
             :options="rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v)"
-            :placeholder="`Select ${field.label}`"
+            :placeholder="`Filter` /* `Select ${field.label}` */"
             select-label=""
             deselect-label=""
             open-direction="below"
@@ -209,7 +210,7 @@ export default {
       const head = document.querySelector('.b-table thead tr th');
       const filterCells = document.querySelectorAll('.b-table-top-row td');
       for (let i = 0; i < filterCells.length; i += 1) {
-        filterCells[i].style.top = `${head.offsetHeight - 1}px`;
+        filterCells[i].style.top = `${head.offsetHeight - 2}px`;
       }
     },
   },
@@ -239,6 +240,10 @@ export default {
   .multiselect__tags {
     padding-right: 0;
   }
+
+  .multiselect__content-wrapper {
+    min-width: 150px;
+  }
 }
 </style>
 
@@ -247,6 +252,7 @@ export default {
   ::v-deep {
     .b-table-sticky-header {
       overflow: auto;
+      border-bottom: 1px solid #f1f1f1;
       .b-table th {
         position: sticky;
         position: -webkit-sticky;
@@ -256,13 +262,21 @@ export default {
     }
     .b-table-top-row {
       td {
+        // padding: 0 5px 5px 5px !important;
+        padding: 5px !important;
         border-bottom: 1px solid #ddd !important;
-        background: #fff;
+        // border-right: 1px solid #fff !important;
+        background-color: #f1f1f1;
         position: sticky;
         top: 0;
-        z-index: 9;
       }
     }
+    .filter-table th {
+      border-bottom: none !important;
+    }
+    // .filter-table th {
+    //   padding-bottom: 0 !important;
+    // }
     .b-table {
       width: 100%;
       font-size: 0.95rem;
