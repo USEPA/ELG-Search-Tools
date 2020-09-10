@@ -11,7 +11,7 @@
         <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
       </button>
     </div>
-    <NewTable :columns="pollColumns" :rows="pollutantData">
+    <Table :columns="pollColumns" :rows="pollutantData">
       <template v-slot:cell(selectPsc)="{ item }">
         <label class="sr-only">Select Point Source Category and click "Compare PSCs" to view limitations.</label>
         <input
@@ -34,16 +34,16 @@
           <span class="fas fa-share-square limitation-link"></span>
         </a>
       </template>
-    </NewTable>
+    </Table>
   </div>
 </template>
 
 <script>
 import { get } from 'vuex-pathify';
-import NewTable from '@/components/shared/NewTable';
+import Table from '@/components/shared/Table';
 
 export default {
-  components: { NewTable },
+  components: { Table },
   computed: {
     ...get('search', ['pollutantData']),
   },

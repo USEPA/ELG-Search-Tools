@@ -94,7 +94,7 @@
               </div>
             </div>
           </div>
-          <NewTable
+          <Table
             v-if="controlTechnology.wastestreamProcesses"
             :columns="pscColumns"
             :rows="controlTechnology.wastestreamProcesses"
@@ -152,7 +152,7 @@
                 </a>
               </span>
             </template>
-          </NewTable>
+          </Table>
           <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
             <p class="has-text-left">
               <span v-html="currentModalContent" />
@@ -177,11 +177,11 @@ import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
 import Alert from '@/components/shared/Alert';
 import ControlTabs from '@/components/shared/ControlTabs';
-import NewTable from '@/components/shared/NewTable';
+import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Alert, ControlTabs, NewTable, Modal, Multiselect },
+  components: { Alert, ControlTabs, Table, Modal, Multiselect },
   computed: {
     ...get('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
     ...sync('results', ['activeTab']),

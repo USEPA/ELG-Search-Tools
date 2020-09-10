@@ -1,197 +1,104 @@
 <template>
   <div class="table-container">
-    <table class="table is-fullwidth is-bordered">
-      <thead>
-        <tr>
-          <th v-if="canComparePscs">
-            Select PSC
-          </th>
-          <th v-for="column in columnsToDisplay" :key="column.key">
-            {{ column.label }}
-          </th>
-          <template v-if="shouldHaveResultsCols">
-            <th>
-              Zero Discharge<a @click="$emit('onDisplayCheckboxInfo', 'zeroDischarge')">
-                <span class="fa fa-info-circle checkbox-info"></span>
-              </a>
-            </th>
-            <th>
-              BMPs<a @click="$emit('onDisplayCheckboxInfo', 'bmps')">
-                <span class="fa fa-info-circle checkbox-info"></span>
-              </a>
-            </th>
-            <th>
-              Alternative Requirement<a @click="$emit('onDisplayCheckboxInfo', 'alternativeReq')">
-                <span class="fa fa-info-circle checkbox-info"></span>
-              </a>
-            </th>
-            <th>
-              No Limitations<a @click="$emit('onDisplayCheckboxInfo', 'noLimitations')">
-                <span class="fa fa-info-circle checkbox-info"></span>
-              </a>
-            </th>
-          </template>
-          <th v-if="shouldHaveResultsCols || shouldHavePollCols || shouldHaveTechBasisCols">
-            Go to Limitations
-          </th>
-          <th v-if="shouldHavePollLimitCols || shouldHaveLimitationCols">
-            Go to LTA
-          </th>
-          <th v-if="shouldHaveTreatmentTechCols">
-            Go to Technology Basis
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="isFetching">
-          <td :colspan="columns.length">
-            <LoadingIndicator message="Loading..." class="dark" />
-          </td>
-        </tr>
-        <tr v-else-if="rows.length === 0">
-          <td :colspan="colsLength">
-            {{ noDataMessage }}
-          </td>
-        </tr>
-        <tr v-for="(row, index) in rows" :key="index">
-          <td v-if="canComparePscs">
-            <input
-              class="is-checkradio is-info has-background-color psc"
-              type="checkbox"
-              :id="row.pointSourceCategoryCode"
-              :value="row.pointSourceCategoryCode"
-              @click="$emit('onSelectedPsc', row, $event)"
-            />
-            <label :for="row.pointSourceCategoryCode"></label>
-          </td>
-          <td v-for="column in columnsToDisplay" :key="column.key">
-            <span v-if="column.isAbbreviatedList">
-              <span v-html="abbreviatedList(row[column.key]) + ' '"></span>
-              <br />
-              <a
-                class="is-link more"
-                v-if="row[column.key].split('<br/>').length > 2"
-                @click="$emit('shouldDisplayMoreModal', row[column.key])"
-                >more</a
-              >
-            </span>
-            <span v-else-if="column.key === 'limitationDurationTypeDisplay'">
-              {{ row[column.key] ? row[column.key] : '--' }}
-              <a
-                v-if="
-                  row.limitationDurationDescription &&
-                    (row.wastestreamProcessLimitCalculationDescription ||
-                      row.limitRequirementDescription ||
-                      row.limitationPollutantNotes)
-                "
-                @click="$emit('onDisplayTypeOfLimitationModal', row)"
-                ><span class="fa fa-info-circle"></span
-              ></a>
-            </span>
-            <span
-              v-else-if="
-                column.key === 'limitationValue' || column.key === 'minimumValue' || column.key === 'maximumValue'
-              "
-            >
-              {{
-                row[column.key]
-                  ? row['limitationUnitCode']
-                    ? row[column.key] + ' ' + row['limitationUnitCode']
-                    : row[column.key]
-                  : '--'
-              }}
-              <a
-                v-if="row[column.key] && row.limitationUnitCode && row.limitationUnitDescription"
-                @click="$emit('onDisplayUnitDescriptionModal', row)"
-                ><span class="fa fa-info-circle"></span
-              ></a>
-            </span>
-            <span v-else-if="column.key === 'longTermAverageValue'">
-              {{
-                row[column.key]
-                  ? row['longTermAverageUnitCode']
-                    ? row[column.key] + ' ' + row['longTermAverageUnitCode']
-                    : row[column.key]
-                  : '--'
-              }}
-              <a
-                v-if="row.longTermAverageValue && row.longTermAverageUnitCode && row.longTermAverageUnitDescription"
-                @click="$emit('onDisplayLtaUnitDescriptionModal', row)"
-                ><span class="fa fa-info-circle"></span
-              ></a>
-            </span>
-            <span v-else-if="column.key === 'alternateLimitFlag'">
-              {{
-                row[column.key]
-                  ? row['alternateLimitDescription']
-                    ? row[column.key] + ' ' + row['alternateLimitDescription']
-                    : row[column.key]
-                  : '--'
-              }}
-            </span>
-            <YesNoIndicator
-              v-else-if="column.key === 'wastestreamProcessTreatmentTechnologyZeroDischarge'"
-              :boolVal="row[column.key]"
-            />
-            <span v-else-if="column.displayAsHTML">
-              <span v-html="row[column.key] ? row[column.key] : '--'"></span>
-            </span>
-            <span v-else>
-              {{ row[column.key] ? row[column.key] : '--' }}
-              <a v-if="column.key === 'title'" @click="$emit('onDisplayInfoModal', row)">
-                <span class="fa fa-info-circle"></span>
-              </a>
-            </span>
-          </td>
-          <template v-if="shouldHaveResultsCols">
-            <td>
-              <YesNoIndicator :boolVal="row.zeroDischarge" />
-            </td>
-            <td>
-              <YesNoIndicator :boolVal="row.includesBmps" />
-            </td>
-            <td>
-              <!-- TODO: Is this supposed to be hard-coded as false/no? -->
-              <YesNoIndicator :boolVal="false" />
-            </td>
-            <td>
-              <YesNoIndicator :boolVal="row.noLimitations" />
-            </td>
-          </template>
-          <td
-            v-if="
-              shouldHaveResultsCols ||
-                shouldHaveLimitationCols ||
-                shouldHavePollCols ||
-                shouldHavePollLimitCols ||
-                shouldHaveTreatmentTechCols ||
-                shouldHaveTechBasisCols
-            "
-          >
-            <a
-              v-if="shouldHaveResultsCols || shouldHavePollCols || shouldHaveTechBasisCols"
-              @click="$emit('onNavigateToLimitations', row)"
-            >
-              <span v-if="!row.noLimitations" class="fas fa-share-square limitation-link"></span>
-            </a>
-            <a
-              v-if="shouldHaveLimitationCols || shouldHavePollLimitCols"
-              @click="$emit('onShouldDisplayLongTermAvgData', row)"
-              ><span v-if="row.longTermAverageCount > 0" class="fas fa-share-square limitation-link"></span
-            ></a>
-            <a v-if="shouldHaveTreatmentTechCols" @click="$emit('onShouldDisplayTechnologyBasisData', row)">
-              <span class="fas fa-share-square limitation-link"></span>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <BTable
+      :class="`${filterableFields.length ? 'filter-table' : ''}`"
+      :fields="tableColumns"
+      :items="filtered"
+      :sticky-header="height"
+      :busy="busy"
+      :striped="true"
+      :responsive="true"
+      :show-empty="true"
+      :empty-text="emptyText"
+      :per-page="perPage"
+      :current-page="currentPage"
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="sortDesc"
+      @head-clicked="changeSort"
+    >
+      <!-- Hard-coded slots that are on multiple instances of table -->
+      <template v-slot:cell(limitationUnitCode)="{ item }">
+        <HoverText
+          :hoverId="`units${item.limitationId}`"
+          :linkText="item.limitationUnitCode"
+          :customStyle="{ width: '200px' }"
+        >
+          {{ item.limitationUnitDescription }}
+        </HoverText>
+      </template>
+      <template v-slot:cell(limitationValue)="{ item }">
+        {{ item.alternateLimitFlag }} {{ item.limitationValue }}
+      </template>
+      <template v-slot:cell(limitationDurationTypeDisplay)="{ index, item }">
+        {{ item.limitationDurationTypeDisplay }}
+        <button
+          class="button is-text icon-btn"
+          @click="shouldDisplayLimitationType = index"
+          title="Click to view Type of Limitation"
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+        <Modal v-if="shouldDisplayLimitationType === index" @close="shouldDisplayLimitationType = false">
+          <div class="info-modal has-text-left">
+            <h3 class="has-text-weight-bold">{{ item.limitationDurationDescription }}</h3>
+            <div v-if="item.wastestreamProcessLimitCalculationDescription">
+              <hr />
+              <h3 class="has-text-weight-bold">Limitation Calculation Description</h3>
+              <p>{{ item.wastestreamProcessLimitCalculationDescription }}</p>
+            </div>
+            <div v-if="item.limitRequirementDescription">
+              <hr />
+              <h3 class="has-text-weight-bold">Limitation Requirement Description</h3>
+              <p>{{ item.limitRequirementDescription }}</p>
+            </div>
+            <div v-if="item.limitationPollutantNotes">
+              <hr />
+              <h3 class="has-text-weight-bold">Notes</h3>
+              <p>{{ item.limitationPollutantNotes }}</p>
+            </div>
+          </div>
+        </Modal>
+      </template>
+
+      <!-- Pass on all named slots -->
+      <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot" />
+
+      <!-- Pass on all scoped slots -->
+      <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
+        <slot :name="slot" v-bind="scope" />
+      </template>
+
+      <!-- Custom Filters row -->
+      <template v-if="filterableFields.length" #top-row="{fields}">
+        <td v-for="field in fields" :key="field.key">
+          <Multiselect
+            v-if="filterableFields.map((f) => f.key).includes(field.key)"
+            v-model="filterValues[field.key]"
+            :options="rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v)"
+            :placeholder="`Filter` /* `Select ${field.label}` */"
+            select-label=""
+            deselect-label=""
+            open-direction="below"
+            class="table-filter"
+          />
+        </td>
+      </template>
+
+      <template v-slot:cell()="{ value }">
+        <span v-if="value === null || value === ''">--</span>
+        <span v-else>{{ value }}</span>
+      </template>
+    </BTable>
+
+    <BPagination v-if="perPage" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" :limit="11" />
   </div>
 </template>
 
 <script>
-import LoadingIndicator from '@/components/shared/LoadingIndicator';
-import YesNoIndicator from '@/components/shared/YesNoIndicator';
+import { BTable, BPagination } from 'bootstrap-vue';
+import Multiselect from 'vue-multiselect';
+import HoverText from './HoverText';
+import Modal from './Modal';
 
 export default {
   props: {
@@ -203,129 +110,258 @@ export default {
       type: Array,
       required: true,
     },
-    noDataMessage: {
+    height: {
       type: String,
-      required: false,
+      default: '500px',
+    },
+    defaultSort: {
+      type: String,
+    },
+    busy: {
+      type: Boolean,
+      default: false,
+    },
+    perPage: {
+      type: Number,
+    },
+    emptyText: {
+      type: String,
       default: 'No data available.',
     },
-    shouldHaveResultsCols: {
-      type: Boolean,
-      required: false,
+  },
+  components: { BTable, BPagination, Multiselect, HoverText, Modal },
+  data() {
+    return {
+      sortBy: this.defaultSort || '',
+      sortDesc: false,
+      tableColumns: [],
+      currentPage: 1,
+      totalRows: 0,
+      shouldDisplayLimitationType: false,
+      filterValues: {},
+    };
+  },
+  computed: {
+    filterableFields() {
+      return this.columns.filter((col) => col.filterable);
     },
-    shouldHaveLimitationCols: {
-      type: Boolean,
-      required: false,
-    },
-    shouldHavePollCols: {
-      type: Boolean,
-      required: false,
-    },
-    shouldHavePollLimitCols: {
-      type: Boolean,
-      required: false,
-    },
-    shouldHaveTreatmentTechCols: {
-      type: Boolean,
-      required: false,
-    },
-    shouldHaveTechBasisCols: {
-      type: Boolean,
-      required: false,
-    },
-    colsLength: {
-      type: Number,
-      required: false,
-      default: 8,
-    },
-    canComparePscs: {
-      type: Boolean,
-      required: false,
-    },
-    isComparingPscs: {
-      type: Boolean,
-      required: false,
+    filtered() {
+      if (this.rows.length > 0) {
+        const filtered = this.rows.filter((item) => {
+          return Object.keys(this.filterValues).every((key) =>
+            String(item[key]).includes(this.filterValues[key] || '')
+          );
+        });
+        return filtered.length > 0
+          ? filtered
+          : [
+              Object.keys(this.rows[0]).reduce((obj, value) => {
+                obj[value] = '';
+                return obj;
+              }, {}),
+            ];
+      }
+      return this.rows;
     },
   },
-  components: { LoadingIndicator, YesNoIndicator },
-  computed: {
-    columnsToDisplay() {
-      let result = this.columns;
-
-      if (this.shouldHavePollLimitCols && !this.isComparingPscs) {
-        result = this.columns.filter(
-          (col) => col.key !== 'pointSourceCategoryCode' && col.key !== 'pointSourceCategoryName'
-        );
-      } else if (this.shouldHaveTechBasisCols && !this.isComparingPscs) {
-        result = this.columns.filter(
-          (col) => col.key !== 'pointSourceCategoryCode' && col.key !== 'pointSourceCategoryName'
-        );
-      }
-
-      return result;
+  watch: {
+    columns() {
+      this.buildTableColumns();
+      this.buildFilterValues();
+    },
+    rows() {
+      this.totalRows = this.rows.length;
+    },
+    filtered() {
+      this.positionFilterRow();
     },
   },
   methods: {
-    abbreviatedList(value) {
-      const shortList = value.split('<br/>');
-
-      if (shortList.length >= 2) {
-        return `${shortList[0]}<br/>${shortList[1]}`;
+    buildTableColumns() {
+      this.tableColumns = this.columns.map((col) => {
+        if (typeof col === 'string') {
+          return {
+            key: col,
+            label: col,
+            tdClass: 'text-center',
+            sortable: true,
+          };
+        }
+        return {
+          key: col.key,
+          label: col.label || col.key,
+          tdClass: col.tdClass || 'text-center',
+          sortable: col.sortable !== undefined ? col.sortable : true,
+        };
+      });
+    },
+    // For some reason, we need an event on header click in order for bootstrap-vue table to trigger sort
+    changeSort(key) {
+      return key;
+    },
+    buildFilterValues() {
+      const filters = {};
+      this.filterableFields.forEach((field) => {
+        filters[field.key] = '';
+      });
+      this.filterValues = filters;
+    },
+    positionFilterRow() {
+      const head = document.querySelector('.b-table thead tr th');
+      const filterCells = document.querySelectorAll('.b-table-top-row td');
+      for (let i = 0; i < filterCells.length; i += 1) {
+        filterCells[i].style.top = `${head.offsetHeight - 2}px`;
       }
-
-      if (shortList.length === 1) {
-        return value;
-      }
-
-      return '';
     },
   },
-  data() {
-    return {
-      isFetching: false,
-    };
+  created() {
+    this.buildTableColumns();
+    this.buildFilterValues();
+  },
+  mounted() {
+    this.totalRows = this.rows.length;
+    this.positionFilterRow();
   },
 };
 </script>
 
+<style lang="scss">
+.table-filter {
+  .multiselect--active,
+  .multiselect__input,
+  .multiselect__element,
+  .multiselect__single {
+    font-size: 14px;
+    padding-right: 0;
+    padding-bottom: 3px;
+    padding-top: 3px;
+  }
+
+  .multiselect__tags {
+    padding-right: 0;
+  }
+
+  .multiselect__content-wrapper {
+    min-width: 150px;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
-@import '../../../static/variables';
+.table-container {
+  ::v-deep {
+    .b-table-sticky-header {
+      overflow: auto;
+      border-bottom: 1px solid #f1f1f1;
+      .b-table th {
+        position: sticky;
+        position: -webkit-sticky;
+        z-index: 9;
+        top: -1px;
+      }
+    }
+    .b-table-top-row {
+      td {
+        // padding: 0 5px 5px 5px !important;
+        padding: 5px !important;
+        border-bottom: 1px solid #ddd !important;
+        // border-right: 1px solid #fff !important;
+        background-color: #f1f1f1;
+        position: sticky;
+        top: 0;
+      }
+    }
+    .filter-table th {
+      border-bottom: none !important;
+    }
+    // .filter-table th {
+    //   padding-bottom: 0 !important;
+    // }
+    .b-table {
+      width: 100%;
+      font-size: 0.95rem;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid #f1f1f1;
+      td,
+      thead th {
+        border: none;
+        padding: 0.6rem;
+        vertical-align: middle;
+        line-height: 1.25;
+      }
+      thead th {
+        text-align: center;
+        background-color: #f1f1f1 !important;
+        border-right: 1px solid #fff;
+        border-bottom: 1px solid #ddd;
+        &[tabindex='0']:focus {
+          outline-offset: -2px;
+        }
+        &[aria-sort] {
+          cursor: pointer;
+          padding-right: calc(0.75rem + 0.65em);
+          background-position: right 0.375rem center;
+          background-repeat: no-repeat;
+          background-size: 0.65em 1em;
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='101' height='101' preserveAspectRatio='none'><path opacity='.3' d='M51 1l25 23 24 22H1l25-22zm0 100l25-23 24-22H1l25 22z'/></svg>");
+        }
+        &[aria-sort='ascending'] {
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='101' height='101' preserveAspectRatio='none'><path d='M51 1l25 23 24 22H1l25-22z'/><path opacity='.3' d='M51 101l25-23 24-22H1l25 22z'/></svg>");
+        }
+        &[aria-sort='descending'] {
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='101' height='101' preserveAspectRatio='none'><path opacity='.3' d='M51 1l25 23 24 22H1l25-22z'/><path d='M51 101l25-23 24-22H1l25 22z'/></svg>");
+        }
+      }
+      &.table-striped tbody tr:nth-of-type(even) {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
 
-.btn-container .button {
-  margin-left: 1em;
-  width: 6em;
-}
-
-.is-checkradio {
-  margin-left: 10px !important;
-}
-
-label {
-  padding-left: 0 !important;
-}
-
-.limitation-link {
-  color: $blue;
-  font-size: 25px;
-}
-
-.fa-info-circle {
-  color: $blue;
-}
-
-th {
-  text-align: center !important;
-}
-
-.is-checkradio.static[type='checkbox'] + label {
-  cursor: auto;
-}
-
-.is-checkradio.psc[type='checkbox'] + label {
-  margin-left: -10px;
-}
-
-.checkbox-info {
-  color: gray;
-  display: block;
+      &[aria-busy='true'] {
+        opacity: 0.55;
+      }
+    }
+    .b-pagination {
+      margin: 1rem 0 0 0;
+      display: flex;
+      padding-left: 0;
+      list-style: none;
+      border-radius: 0.25rem;
+      justify-content: flex-start;
+      .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        cursor: auto;
+        background-color: #fff;
+        border-color: #dee2e6;
+      }
+      .page-item:first-child .page-link {
+        margin-left: 0;
+        border-top-left-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+      }
+      .page-item.active .page-link {
+        z-index: 3;
+        color: #fff;
+        background-color: #0071bc;
+        border-color: #0071bc;
+      }
+      .page-link {
+        position: relative;
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-left: -1px;
+        margin-bottom: 0;
+        line-height: 1.25;
+        color: #0071bc;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 0;
+      }
+      .page-link {
+        max-width: inherit;
+      }
+    }
+  }
 }
 </style>

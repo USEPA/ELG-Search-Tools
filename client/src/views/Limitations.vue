@@ -65,7 +65,7 @@
         </p>
       </div>
     </div>
-    <NewTable v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
+    <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
           <a @click="shouldDisplayLongTermAvgData(item)">
@@ -73,7 +73,7 @@
           </a>
         </span>
       </template>
-    </NewTable>
+    </Table>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
@@ -82,7 +82,7 @@
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
               <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
             </div>
-            <NewTable :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
+            <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
               <template v-slot:cell(goToLta)="{ item }">
                 <span v-if="item.longTermAverageCount > 0">
                   <a @click="shouldDisplayLongTermAvgData(item)">
@@ -93,7 +93,7 @@
               <template v-slot:cell(wastestreamProcessSecondary)="{ value }">
                 <span v-html="value" />
               </template>
-            </NewTable>
+            </Table>
           </div>
         </div>
       </template>
@@ -134,12 +134,12 @@
 import { get, sync } from 'vuex-pathify';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 // import Table from '@/components/shared/Table';
-import NewTable from '@/components/shared/NewTable';
+import Table from '@/components/shared/Table';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, NewTable, ControlTabs, Modal },
+  components: { Breadcrumbs, Table, ControlTabs, Modal },
   computed: {
     ...get('search', ['selectedCategory', 'subcategoryData']),
     ...get('limitations', [

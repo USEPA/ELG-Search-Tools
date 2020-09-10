@@ -63,7 +63,7 @@
         <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
     </div>
-    <NewTable :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
+    <Table :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
       <template v-slot:cell(treatmentTechnologyNames)="{ item }">
         {{ item.treatmentTechnologyNames }}
         <button
@@ -95,7 +95,7 @@
           {{ item.limitationUnitDescription }}
         </HoverText>
       </template>
-    </NewTable>
+    </Table>
     <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
       <p class="has-text-left">
         <span v-html="currentModalContent" />
@@ -108,12 +108,12 @@
 import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
-import NewTable from '@/components/shared/NewTable';
+import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 import HoverText from '@/components/shared/HoverText';
 
 export default {
-  components: { Alert, Breadcrumbs, NewTable, Modal, HoverText },
+  components: { Alert, Breadcrumbs, Table, Modal, HoverText },
   computed: {
     ...mapState('search', ['selectedTreatmentTrain']),
     ...mapState('limitations', ['longTermAvgData']),

@@ -96,7 +96,7 @@
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
-      <NewTable
+      <Table
         v-if="treatmentLimitationData"
         :columns="limitationColumns"
         :rows="limitations"
@@ -147,7 +147,7 @@
             </a>
           </span>
         </template>
-      </NewTable>
+      </Table>
     </div>
   </div>
 </template>
@@ -159,11 +159,11 @@ import xor from 'lodash/xor';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
-import NewTable from '@/components/shared/NewTable';
+import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Alert, HoverText, NewTable, Modal, Multiselect },
+  components: { Alert, HoverText, Table, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
