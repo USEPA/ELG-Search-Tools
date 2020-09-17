@@ -220,7 +220,9 @@ function fillLongTermAverage(longTermAverage) {
           limitationValue: longTermAverage.limitationValue,
           limitationUnitCode: longTermAverage.limitationUnitCode,
           limitationUnitDescription: longTermAverage.limitationUnitDescription,
-          limitationUnitBasis: longTermAverage.limitationUnitBasis
+          limitationUnitBasis: longTermAverage.limitationUnitBasis,
+          wastestreamProcessTreatmentTechnologySourceTitle: longTermAverage.wastestreamProcessTreatmentTechnologySourceTitle,
+          wastestreamProcessTreatmentTechnologyNotes: longTermAverage.wastestreamProcessTreatmentTechnologyNotes
         });
       })
       .catch(err => {
@@ -238,7 +240,9 @@ function fillLongTermAverage(longTermAverage) {
           limitationValue: longTermAverage.limitationValue,
           limitationUnitCode: longTermAverage.limitationUnitCode,
           limitationUnitDescription: longTermAverage.limitationUnitDescription,
-          limitationUnitBasis: longTermAverage.limitationUnitBasis
+          limitationUnitBasis: longTermAverage.limitationUnitBasis,
+          wastestreamProcessTreatmentTechnologySourceTitle: longTermAverage.wastestreamProcessTreatmentTechnologySourceTitle,
+          wastestreamProcessTreatmentTechnologyNotes: longTermAverage.wastestreamProcessTreatmentTechnologyNotes
         });
       });
   });
@@ -303,7 +307,9 @@ module.exports = {
               'limitationValue',
               'limitationUnitCode',
               [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
-              'limitationUnitBasis'
+              'limitationUnitBasis',
+              'wastestreamProcessTreatmentTechnologySourceTitle',
+              'wastestreamProcessTreatmentTechnologyNotes'
             ],
             where: {
               limitationId: { [Op.eq]: id }

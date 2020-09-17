@@ -256,6 +256,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'ct_cfr_section'
+      },
+      wastestreamProcessTreatmentTechnologySourceTitle: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'wptt_source_title'
+      },
+      wastestreamProcessTreatmentTechnologyNotes: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'wptt_tech_notes'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ViewLongTermAverage' }
