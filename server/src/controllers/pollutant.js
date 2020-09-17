@@ -64,7 +64,7 @@ module.exports = {
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
           [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
-          [Sequelize.literal("string_agg(distinct limit_duration_description || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit, '<br/>' order by limit_duration_description || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit)"), "rangeOfPollutantLimitations"]
+          [Sequelize.literal("string_agg(distinct limit_type_display || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit, '<br/>' order by limit_type_display || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit)"), "rangeOfPollutantLimitations"]
         ],
         where: {
           pollutantDescription: { [Op.in]: id }
@@ -78,38 +78,58 @@ module.exports = {
           pointSourceCategories.forEach(function(psc) {
             pscPromises.push(new Promise(function(resolve, reject) {
               let rangeOfPollutantLimitations = '';
+              let rangeOfPollutantLimitationsAsTable = [];
 
               if(psc.rangeOfPollutantLimitations !== null) {
-                let limitationValues = [];
-                psc.rangeOfPollutantLimitations.split('<br/>').forEach(function(lim) {
-                  let limDetails = lim.split(': ');
+                ViewLimitation.findAll({
+                  group: [
+                    "limitationDurationTypeDisplay",
+                    "limitationUnitBasis",
+                    "limitationUnitCode"
+                  ],
+                  attributes: [
+                    "limitationDurationTypeDisplay",
+                    "limitationUnitBasis",
+                    "limitationUnitCode",
+                    [Sequelize.fn('min', Sequelize.col('lim_value')), 'minimumLimitationValue'],
+                    [Sequelize.fn('max', Sequelize.col('lim_value')), 'maximumLimitationValue']
+                  ],
+                  where: {
+                    pollutantDescription: { [Op.in]: id },
+                    pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode }
+                  },
+                  order: [
+                    "limitationDurationTypeDisplay",
+                    "limitationUnitBasis",
+                    "limitationUnitCode"
+                  ],
+                  raw: true
+                })
+                  .then(limitValues => {
+                    limitValues.forEach(function (limitValue) {
+                      let rangeAsTableRow = new Map();
+                      rangeAsTableRow.minimumLimitationValue = limitValue.minimumLimitationValue;
+                      rangeAsTableRow.maximumLimitationValue = limitValue.maximumLimitationValue;
+                      rangeAsTableRow.limitationUnitCode = limitValue.limitationUnitCode;
+                      rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
+                      rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
 
-                  limitationValues.push({ type: limDetails[0].replace('()', ''), value: limDetails[1] });
-                });
+                      let range = limitValue.limitationDurationTypeDisplay.replace(/\s/g, '&nbsp;') + (limitValue.limitationUnitBasis === null ? '' : '&nbsp;(' + limitValue.limitationUnitBasis.replace(/\s/g, '&nbsp;') + ')') + ': ' + limitValue.minimumLimitationValue + '&nbsp;(' + limitValue.limitationUnitCode.trim().replace(/\s/g, '&nbsp;') + ') to ' + limitValue.maximumLimitationValue + '&nbsp;(' + limitValue.limitationUnitCode.trim().replace(/\s/g, '&nbsp;') + ')';
+                      //range = range.replace(/\s/g, '&nbsp;');
+                      if (rangeOfPollutantLimitations === '') {
+                        rangeOfPollutantLimitations = range;
+                      } else {
+                        rangeOfPollutantLimitations = rangeOfPollutantLimitations + '<br/>' + range;
+                      }
+                    });
 
-                let groupedLimitationValues = [];
-                limitationValues.forEach(function(limValue) {
-                  let filteredGroupedLimitationValues = groupedLimitationValues.filter(groupedLimitationValue => groupedLimitationValue.type === limValue.type);
-                  if (filteredGroupedLimitationValues.length === 0) {
-                    groupedLimitationValues.push({ type: limValue.type, values: [limValue.value] })
-                  } else {
-                    groupedLimitationValues[0].values.push(limValue.value)
-                  }
-                });
+                    psc.rangeOfPollutantLimitations = rangeOfPollutantLimitationsAsTable;
+                    //psc.rangeOfPollutantLimitations = rangeOfPollutantLimitations;
 
-                groupedLimitationValues.forEach(function(groupedLimitationValue) {
-                  let range = groupedLimitationValue.type + ': ' + groupedLimitationValue.values[0] + ' to ' + groupedLimitationValue.values[groupedLimitationValue.values.length - 1];
-                  if (rangeOfPollutantLimitations === '') {
-                    rangeOfPollutantLimitations = range;
-                  } else {
-                    rangeOfPollutantLimitations = rangeOfPollutantLimitations + '<br/>' + range;
-                  }
-                });
+                    resolve(psc);
+                  })
+                  .catch((error) => resolve(utilities.sanitizeError(error)));
               }
-
-              psc.rangeOfPollutantLimitations = rangeOfPollutantLimitations;
-
-              resolve(psc);
             }));
           });
 

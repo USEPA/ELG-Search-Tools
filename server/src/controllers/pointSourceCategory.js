@@ -142,7 +142,7 @@ module.exports = {
               where: {
                 pointSourceCategoryCode: { [Op.eq]: id },
               },
-              order: ['pointSourceSubcategoryCode'],
+              order: [Sequelize.literal("length(subcat_code)"), 'pointSourceSubcategoryCode'],
             })
               .then((pointSourceSubcategories) => {
                 result['pointSourceSubcategories'] = pointSourceSubcategories;
@@ -186,8 +186,8 @@ module.exports = {
                               group: ['elgDescription'],
                               order: ['elgDescription']
                             }).then(pollutants => {
-                              result['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join(', ');
-                              result['pollutants'] = pollutants.map(a => a.elgDescription).join(', ');
+                              result['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join('; ');
+                              result['pollutants'] = pollutants.map(a => a.elgDescription).join('; ');
 
                               res.status(200).send(result);
                             });
@@ -296,6 +296,7 @@ module.exports = {
                         pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
                       },
                       order: [
+                        Sequelize.literal("length(subcat_code)"),
                         'comboSubcategory'
                       ]
                     })

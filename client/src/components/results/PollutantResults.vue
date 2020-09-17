@@ -25,8 +25,44 @@
         <span v-if="value !== ''" v-html="value" />
         <span v-else>--</span>
       </template>
+      <template v-slot:head(rangeOfPollutantLimitations)="{ label }">
+        <BRow>
+          <BCol cols="12">{{ label }}</BCol>
+        </BRow>
+        <BRow>
+          <BCol cols="2" style="display:inline-block; float: none; width: 17%">Min</BCol>
+          <BCol cols="2" style="display:inline-block; float: none; width: 17%">Max</BCol>
+          <BCol cols="4" style="display:inline-block; float: none; width: 33%">Units</BCol>
+          <BCol cols="4" style="display:inline-block; float: none; width: 33%">Type of Limitation</BCol>
+        </BRow>
+      </template>
       <template v-slot:cell(rangeOfPollutantLimitations)="{ value }">
-        <span v-if="value !== ''" v-html="value" />
+        <span v-if="value !== []">
+          <table>
+            <thead class="sr-only">
+              <th>Min</th>
+              <th>Max</th>
+              <th>Units</th>
+              <th>Type of Limitation</th>
+            </thead>
+            <tbody>
+              <tr v-for="range in value" v-bind:key="range">
+                <td width="17%">
+                  {{ range.minimumLimitationValue }}
+                </td>
+                <td width="17%">
+                  {{ range.maximumLimitationValue }}
+                </td>
+                <td width="33%">
+                  {{ range.limitationUnitCode }}
+                </td>
+                <td width="33%">
+                  {{ range.limitationType }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </span>
         <span v-else>--</span>
       </template>
       <template v-slot:cell(goToLimitations)="{ item }">
@@ -41,9 +77,10 @@
 <script>
 import { get } from 'vuex-pathify';
 import Table from '@/components/shared/Table';
+import { BRow, BCol } from 'bootstrap-vue';
 
 export default {
-  components: { Table },
+  components: { Table, BRow, BCol },
   computed: {
     ...get('search', ['pollutantData']),
   },
@@ -73,6 +110,7 @@ export default {
           key: 'rangeOfPollutantLimitations',
           label: 'Range of Pollutant Limitations',
           displayAsHTML: true,
+          sortable: false,
         },
         {
           key: 'goToLimitations',

@@ -35,7 +35,11 @@ function fillControlTechnology(controlTechnology) {
       where: {
         controlTechnologyCode: { [Op.eq]: controlTechnology.controlTechnologyCode },
         cfrSection: { [Op.iLike]: controlTechnology.cfrSection + '%' },
-        display: { [Op.eq] : true }
+        display: { [Op.eq] : true },
+        [Op.and]: [
+          Sequelize.literal("split_part(ct_cfr_section, '.', 1) = split_part('" + controlTechnology.cfrSection + "', '.', 1)"),
+          Sequelize.literal("split_part(ct_cfr_section, '.', 2) = split_part('" + controlTechnology.cfrSection + "', '.', 2)")
+        ]
       },
       order: ['cfrSection']
     }).then(controlTechnologyNotes => {
@@ -102,8 +106,8 @@ function fillControlTechnology(controlTechnology) {
                       group: ['elgDescription'],
                       order: ['elgDescription']
                     }).then(pollutants => {
-                      ct['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join(', ');
-                      ct['pollutants'] = pollutants.map(a => a.elgDescription).join(', ');
+                      ct['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join('; ');
+                      ct['pollutants'] = pollutants.map(a => a.elgDescription).join('; ');
 
                       resolve(ct);
                     });
