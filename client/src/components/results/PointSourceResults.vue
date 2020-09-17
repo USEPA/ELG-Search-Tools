@@ -126,6 +126,20 @@
               </button>
               <Modal v-if="shouldDisplayLimitationType === index" @close="shouldDisplayLimitationType = false">
                 <div class="info-modal has-text-left">
+                  <br />
+                  <div class="cfr-link is-pulled-right">
+                    <a
+                      title="Electronic Code of Federal Regulations"
+                      :href="
+                        `https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.${selectedCategory.pointSourceCategoryCode}#se40.31.${item.cfrSectionAnchor}`
+                      "
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      eCFR <span class="fa fa-external-link-alt" />
+                    </a>
+                  </div>
+                  <br />
                   <h3 class="has-text-weight-bold">Description</h3>
                   <p>{{ item.description }}</p>
                   <div v-if="item.limitCalculationDescription">

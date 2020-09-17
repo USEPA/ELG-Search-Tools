@@ -60,7 +60,8 @@ function fillControlTechnology(controlTechnology) {
           'includesBmps',
           'noLimitations',
           'alternativeRequirement',
-          'additionalDetail'
+          'additionalDetail',
+          [Sequelize.literal("split_part(cfr_sect, '.', 1) || '_1' || split_part(cfr_sect, '.', 2)"), 'cfrSectionAnchor']
         ],
         where: {
           controlTechnologyId: { [Op.eq]: controlTechnology.id }
