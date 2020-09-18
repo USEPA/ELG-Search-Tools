@@ -66,14 +66,43 @@
       </div>
     </div>
     <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
+      <template v-slot:head(limitationUnitBasis)="{ label }">
+        {{ label }}
+        <button
+          class="button is-text icon-btn"
+          @click.stop="
+            openModal(
+              '',
+              'The Limitation Basis column is included as a tool to sort the numerical limitations in the ELG database. The ELG may require conversion of concentration-based to mass-based limitations. See the Type of Limitation information or CFR for more details.'
+            )
+          "
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+      </template>
+      <template v-slot:head(goToLta)="{ label }">
+        {{ label }}
+        <button
+          class="button is-text icon-btn"
+          @click.stop="openModal('', 'If no LTA data are available for the pollutant, no link will be shown.')"
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+      </template>
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
           <a @click="shouldDisplayLongTermAvgData(item)">
             <span class="fas fa-share-square limitation-link"></span>
           </a>
         </span>
+        <span v-else>--</span>
       </template>
     </Table>
+    <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
+      <p class="has-text-left">
+        <span v-html="currentModalContent" />
+      </p>
+    </Modal>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
@@ -154,6 +183,9 @@ export default {
   },
   data() {
     return {
+      shouldDisplayModal: false,
+      currentModalTitle: null,
+      currentModalContent: null,
       shouldDisplayUnitDescriptionModal: false,
       shouldDisplayTypeOfLimitationModal: false,
       currentCheckboxInfo: null,
@@ -232,6 +264,11 @@ export default {
     };
   },
   methods: {
+    openModal(title, content) {
+      this.currentModalTitle = title;
+      this.currentModalContent = content;
+      this.shouldDisplayModal = true;
+    },
     getPscs(data) {
       return data
         .map((row) => `${row.pointSourceCategoryCode}: ${row.pointSourceCategoryName}`)

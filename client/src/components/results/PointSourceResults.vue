@@ -55,7 +55,10 @@
         class="results-select"
       />
     </div>
-
+    <Alert v-if="subcategoryData" type="info" style="margin-bottom:1.25rem">
+      Select the tabs below to view different levels of control. If there are no requirements for a level of control,
+      "No data available" will be noted.
+    </Alert>
     <ControlTabs v-if="subcategoryData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template
         v-for="controlTechnology in subcategoryData.controlTechnologies"
@@ -160,11 +163,12 @@
               <span v-else>--</span>
             </template>
             <template v-slot:cell(goToLimitations)="{ item }">
-              <span v-if="!item.noLimitations">
+              <span v-if="!item.noLimitations && !item.zeroDischarge">
                 <a @click="navigateToLimitations(item)">
                   <span class="fas fa-share-square limitation-link"></span>
                 </a>
               </span>
+              <span v-else>--</span>
             </template>
           </Table>
           <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
@@ -247,7 +251,7 @@ export default {
       headerDescriptions: {
         zeroDischarge: 'There will be no discharge from the process operation or no discharge of the wastestream.',
         includesBmps:
-          'Best Management Practices are included in the effluent limitations guidelines and standards for this process operation/wastestream.',
+          'Best Management Practices are included in the effluent limitations guidelines and standards for this process operation/wastestream. See the information for the Process Operation/Wastestream for details.',
         alternativeRequirement:
           'Indicates that a facility has more than one option to meet the effluent limitations guidelines and standards.',
         noLimitations: 'EPA did not promulgate numeric or narrative pollutant limitations.',
@@ -299,6 +303,15 @@ export default {
         this.$store.commit('search/SET_SUBCATEGORY_DATA', null);
       }
     },
+  },
+  async mounted() {
+    // If PSC only has one subcategory, automatically select that category
+    if (this.categoryData.pointSourceSubcategories.length === 1) {
+      [this.selectedSubcategory] = this.categoryData.pointSourceSubcategories;
+      this.isFetching = true;
+      await this.$store.dispatch('search/getSubcategoryData');
+      this.isFetching = false;
+    }
   },
 };
 </script>
