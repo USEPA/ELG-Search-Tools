@@ -55,6 +55,21 @@ const router = new Router({
     },
   ],
   mode: 'history',
+  scrollBehavior(to, from, savedPosition) {
+    // Logic to scroll to hash links when route changes
+    if (to.hash) {
+      return {
+        selector: to.hash,
+      };
+    }
+    // If user has scrolled below start of main content area, scroll back to top of main content on a new route change
+    const mainContent = document.querySelector('#app');
+    const mainYOffset = mainContent.getBoundingClientRect().top;
+    if (mainYOffset < 0) {
+      return { x: 0, y: window.pageYOffset + mainYOffset };
+    }
+    return savedPosition;
+  },
 });
 
 export default router;

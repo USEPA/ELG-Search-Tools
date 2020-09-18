@@ -146,6 +146,7 @@
               <span class="fas fa-share-square limitation-link"></span>
             </a>
           </span>
+          <span v-else>--</span>
         </template>
       </Table>
     </div>

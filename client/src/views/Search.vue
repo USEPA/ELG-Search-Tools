@@ -7,7 +7,7 @@
           to information relevant to the effluent limitations guidelines and standards (ELGs) program. The ELG Database
           includes the ELGs as promulgated in the Code of Federal Regulations (CFR); CFR citation history (links the
           dates and federal register notices (FRN) to the corresponding CFR section); and readily available technology
-          bases/pollutant long-term averages for the regulations.
+          bases/pollutant long-term averages associated with the promulgated regulations.
         </p>
         <Alert type="warning">
           <button class="button is-hyperlink" @click="shouldShowDisclaimers = true">
@@ -33,8 +33,8 @@
             of the CFR.
           </Alert>
           <Alert type="warning">
-            Treatment technologies are classified to the most discrete level according to the descriptions in the
-            underlying regulatory development documents. Results for broad treatment technologies (e.g., biological
+            Treatment technologies are classified to the most discrete level possible according to the descriptions in
+            the underlying regulatory development documents. Results for broad treatment technologies (e.g., biological
             treatment) only include those technologies that cannot be more specifically classified.
           </Alert>
         </Modal>

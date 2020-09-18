@@ -31,8 +31,9 @@
         ></Multiselect>
       </div>
       <div class="control">
-        <button class="button is-medium" @click="onSubmit">
-          <span class="fa fas fa-search has-text-white"></span>
+        <button class="button is-medium" @click="onSubmit" :title="isFetching ? 'Loading...' : 'Search'">
+          <span class="sr-only">Search</span>
+          <span :class="`fa has-text-white ${isFetching ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
         </button>
       </div>
     </div>
@@ -84,6 +85,7 @@ export default {
       code: null,
       pollutantId: null,
       treatmentTechnologyId: null,
+      isFetching: false,
     };
   },
   computed: {
@@ -115,7 +117,9 @@ export default {
       [this.selectedCategory, this.selectedPollutant, this.selectedTreatmentTechnology] = [null, null, null];
     },
     async onSubmit() {
+      this.isFetching = true;
       await this.$store.dispatch(`search/${this.searchTypeObject.resultAction}`);
+      this.isFetching = false;
       this.$router.push('results');
     },
   },
