@@ -66,29 +66,6 @@
       </div>
     </div>
     <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
-      <template v-slot:head(limitationUnitBasis)="{ label }">
-        {{ label }}
-        <button
-          class="button is-text icon-btn"
-          @click.stop="
-            openModal(
-              '',
-              'The Limitation Basis column is included as a tool to sort the numerical limitations in the ELG database. The ELG may require conversion of concentration-based to mass-based limitations. See the Type of Limitation information or CFR for more details.'
-            )
-          "
-        >
-          <span class="fa fa-info-circle"></span>
-        </button>
-      </template>
-      <template v-slot:head(goToLta)="{ label }">
-        {{ label }}
-        <button
-          class="button is-text icon-btn"
-          @click.stop="openModal('', 'If no LTA data are available for the pollutant, no link will be shown.')"
-        >
-          <span class="fa fa-info-circle"></span>
-        </button>
-      </template>
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
           <a @click="shouldDisplayLongTermAvgData(item)">
@@ -98,11 +75,10 @@
         <span v-else>--</span>
       </template>
     </Table>
-    <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
-      <p class="has-text-left">
-        <span v-html="currentModalContent" />
-      </p>
-    </Modal>
+    <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom:1.25rem">
+      Select the tabs below to view different levels of control. If there are no requirements for a level of control,
+      "No data available" will be noted.
+    </Alert>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
@@ -118,6 +94,7 @@
                     <span class="fas fa-share-square limitation-link"></span>
                   </a>
                 </span>
+                <span v-else>--</span>
               </template>
               <template v-slot:cell(wastestreamProcessSecondary)="{ value }">
                 <span v-html="value" />
@@ -161,14 +138,14 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
+import Alert from '@/components/shared/Alert';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
-// import Table from '@/components/shared/Table';
 import Table from '@/components/shared/Table';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Breadcrumbs, Table, ControlTabs, Modal },
+  components: { Alert, Breadcrumbs, Table, ControlTabs, Modal },
   computed: {
     ...get('search', ['selectedCategory', 'subcategoryData']),
     ...get('limitations', [
@@ -183,9 +160,6 @@ export default {
   },
   data() {
     return {
-      shouldDisplayModal: false,
-      currentModalTitle: null,
-      currentModalContent: null,
       shouldDisplayUnitDescriptionModal: false,
       shouldDisplayTypeOfLimitationModal: false,
       currentCheckboxInfo: null,
@@ -264,11 +238,6 @@ export default {
     };
   },
   methods: {
-    openModal(title, content) {
-      this.currentModalTitle = title;
-      this.currentModalContent = content;
-      this.shouldDisplayModal = true;
-    },
     getPscs(data) {
       return data
         .map((row) => `${row.pointSourceCategoryCode}: ${row.pointSourceCategoryName}`)

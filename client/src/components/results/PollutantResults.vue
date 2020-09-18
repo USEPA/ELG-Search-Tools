@@ -10,6 +10,9 @@
       >
         <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
       </button>
+      <HoverText hoverId="catInfo" :icon="true" style="margin-left:0.25rem">
+        Select PSCs of interest in the first column below.
+      </HoverText>
     </div>
     <Table :columns="pollColumns" :rows="pollutantData">
       <template v-slot:cell(selectPsc)="{ item }">
@@ -76,11 +79,12 @@
 
 <script>
 import { get } from 'vuex-pathify';
+import HoverText from '@/components/shared/HoverText';
 import Table from '@/components/shared/Table';
 import { BRow, BCol } from 'bootstrap-vue';
 
 export default {
-  components: { Table, BRow, BCol },
+  components: { HoverText, Table, BRow, BCol },
   computed: {
     ...get('search', ['pollutantData']),
   },

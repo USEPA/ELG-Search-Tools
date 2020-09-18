@@ -17,6 +17,30 @@
       @head-clicked="changeSort"
     >
       <!-- Hard-coded slots that are on multiple instances of table -->
+      <template v-slot:head(limitationUnitBasis)="{ label }">
+        {{ label }}
+        <button
+          class="button is-text icon-btn"
+          @click.stop="
+            openModal(
+              '',
+              'The Limitation Basis column is included as a tool to sort the numerical limitations in the ELG database. The ELG may require conversion of concentration-based to mass-based limitations. See the Type of Limitation information or CFR for more details.'
+            )
+          "
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+      </template>
+      <template v-slot:head(goToLta)="{ label }">
+        {{ label }}
+        <button
+          class="button is-text icon-btn"
+          @click.stop="openModal('', 'If no LTA data are available for the pollutant, no link will be shown.')"
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+      </template>
+
       <template v-slot:cell(limitationUnitCode)="{ item }">
         <HoverText
           :hoverId="`units${item.limitationId}`"
@@ -91,6 +115,12 @@
     </BTable>
 
     <BPagination v-if="perPage" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" :limit="11" />
+
+    <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
+      <p class="has-text-left">
+        <span v-html="currentModalContent" />
+      </p>
+    </Modal>
   </div>
 </template>
 
@@ -139,6 +169,9 @@ export default {
       totalRows: 0,
       shouldDisplayLimitationType: false,
       filterValues: {},
+      shouldDisplayModal: false,
+      currentModalTitle: null,
+      currentModalContent: null,
     };
   },
   computed: {
@@ -213,6 +246,11 @@ export default {
         filterCells[i].style.top = `${head.offsetHeight - 2}px`;
       }
     },
+    openModal(title, content) {
+      this.currentModalTitle = title;
+      this.currentModalContent = content;
+      this.shouldDisplayModal = true;
+    },
   },
   created() {
     this.buildTableColumns();
@@ -269,6 +307,7 @@ export default {
         background-color: #f1f1f1;
         position: sticky;
         top: 0;
+        z-index: 1;
       }
     }
     .filter-table th {
