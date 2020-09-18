@@ -66,6 +66,13 @@
       </div>
     </div>
     <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
+      <template v-slot:cell(limitationValue)="{ item }">
+        <span v-if="item.limitationValue">
+          {{ item.limitationValue }}
+        </span>
+        <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
+        <span v-else>--</span>
+      </template>
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
           <a @click="shouldDisplayLongTermAvgData(item)">
@@ -88,6 +95,13 @@
               <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
             </div>
             <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
+              <template v-slot:cell(limitationValue)="{ item }">
+                <span v-if="item.limitationValue">
+                  {{ item.limitationValue }}
+                </span>
+                <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
+                <span v-else>--</span>
+              </template>
               <template v-slot:cell(goToLta)="{ item }">
                 <span v-if="item.longTermAverageCount > 0">
                   <a @click="shouldDisplayLongTermAvgData(item)">
