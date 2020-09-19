@@ -66,13 +66,6 @@
       </div>
     </div>
     <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
-      <template v-slot:cell(limitationValue)="{ item }">
-        <span v-if="item.limitationValue">
-          {{ item.limitationValue }}
-        </span>
-        <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
-        <span v-else>--</span>
-      </template>
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
           <a @click="shouldDisplayLongTermAvgData(item)">

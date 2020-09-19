@@ -49,7 +49,7 @@
               <th>Type of Limitation</th>
             </thead>
             <tbody>
-              <tr v-for="range in value" v-bind:key="range">
+              <tr v-for="(range, index) in value" :key="index">
                 <td width="17%">
                   {{ range.minimumLimitationValue }}
                 </td>
