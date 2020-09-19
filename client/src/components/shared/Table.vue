@@ -50,8 +50,24 @@
           {{ item.limitationUnitDescription }}
         </HoverText>
       </template>
-      <template v-slot:cell(limitationValue)="{ item }">
-        {{ item.alternateLimitFlag }} {{ item.limitationValue }}
+      <template v-slot:cell(limitationValue)="{ item, index }">
+        <span v-if="item.limitationValue">
+          <HoverText
+            v-if="item.alternateLimitFlag && item.alternateLimitFlag !== '<' && item.alternateLimitFlag !== '>='"
+            :id="`flagHover${index}`"
+            :linkText="item.limitationValue"
+          >
+            Limitation Flag: {{ item.alternateLimitFlag }} - {{ item.alternateLimitDescription }}
+          </HoverText>
+          <span v-else>{{ item.alternateLimitFlag }} {{ item.limitationValue }}</span>
+        </span>
+        <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
+        <span v-else-if="!item.limitationValue && item.alternateLimitFlag">
+          <HoverText :id="`flagHover${index}`" :linkText="item.alternateLimitFlag">
+            {{ item.alternateLimitDescription }}
+          </HoverText>
+        </span>
+        <span v-else>--</span>
       </template>
       <template v-slot:cell(limitationDurationTypeDisplay)="{ index, item }">
         {{ item.limitationDurationTypeDisplay }}

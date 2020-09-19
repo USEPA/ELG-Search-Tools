@@ -89,6 +89,18 @@
           {{ item.longTermAverageUnitDescription }}
         </HoverText>
       </template>
+      <template v-slot:cell(alternateLimitFlag)="{ item, index }">
+        <HoverText
+          v-if="item.alternateLimitFlag !== '<' && item.alternateLimitFlag !== '>=' && item.alternateLimitDescription"
+          :hoverId="`limitHover${index}`"
+          :linkText="item.alternateLimitFlag"
+          :customStyle="{ width: '200px' }"
+        >
+          {{ item.alternateLimitDescription }}
+        </HoverText>
+        <span v-else-if="item.alternateLimitFlag">{{ item.alternateLimitFlag }}</span>
+        <span v-else>--</span>
+      </template>
       <template v-slot:cell(limitationValue)="{ item, index }">
         {{ item.limitationValue }}
         <HoverText :hoverId="`units${index}`" :linkText="item.limitationUnitCode" :customStyle="{ width: '200px' }">
