@@ -63,8 +63,7 @@ module.exports = {
           ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
-          [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
-          [Sequelize.literal("string_agg(distinct limit_type_display || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit, '<br/>' order by limit_type_display || ' (' || coalesce(unit_basis, '') || '): ' || lim_value || ' ' || unit)"), "rangeOfPollutantLimitations"]
+          [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"]
         ],
         where: {
           pollutantDescription: { [Op.in]: id }
@@ -77,59 +76,53 @@ module.exports = {
 
           pointSourceCategories.forEach(function(psc) {
             pscPromises.push(new Promise(function(resolve, reject) {
-              let rangeOfPollutantLimitations = '';
               let rangeOfPollutantLimitationsAsTable = [];
 
-              if(psc.rangeOfPollutantLimitations !== null) {
-                ViewLimitation.findAll({
-                  group: [
-                    "limitationDurationTypeDisplay",
-                    "limitationUnitBasis",
-                    "limitationUnitCode"
-                  ],
-                  attributes: [
-                    "limitationDurationTypeDisplay",
-                    "limitationUnitBasis",
-                    "limitationUnitCode",
-                    [Sequelize.fn('min', Sequelize.col('lim_value')), 'minimumLimitationValue'],
-                    [Sequelize.fn('max', Sequelize.col('lim_value')), 'maximumLimitationValue']
-                  ],
-                  where: {
-                    pollutantDescription: { [Op.in]: id },
-                    pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode }
-                  },
-                  order: [
-                    "limitationDurationTypeDisplay",
-                    "limitationUnitBasis",
-                    "limitationUnitCode"
-                  ],
-                  raw: true
+              ViewLimitation.findAll({
+                group: [
+                  "limitationDurationTypeDisplay",
+                  "limitationUnitBasis",
+                  "limitationUnitCode"
+                ],
+                attributes: [
+                  "limitationDurationTypeDisplay",
+                  "limitationUnitBasis",
+                  "limitationUnitCode",
+                  [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
+                  [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
+                  [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
+                  [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then null else lim_value_max end))"), 'maximumLimitationValueText']
+                ],
+                where: {
+                  pollutantDescription: { [Op.in]: id },
+                  pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode }
+                },
+                order: [
+                  "limitationDurationTypeDisplay",
+                  "limitationUnitBasis",
+                  "limitationUnitCode"
+                ],
+                raw: true
+              })
+                .then(limitValues => {
+                  limitValues.forEach(function (limitValue) {
+                    let rangeAsTableRow = new Map();
+                    rangeAsTableRow.minimumLimitationValue= (limitValue.minimumLimitationValue  ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
+                    rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue  ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
+                    rangeAsTableRow.limitationUnitCode = limitValue.limitationUnitCode;
+                    rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
+                    rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
+                  });
+
+                  psc.rangeOfPollutantLimitations = rangeOfPollutantLimitationsAsTable;
+
+                  resolve(psc);
                 })
-                  .then(limitValues => {
-                    limitValues.forEach(function (limitValue) {
-                      let rangeAsTableRow = new Map();
-                      rangeAsTableRow.minimumLimitationValue = limitValue.minimumLimitationValue;
-                      rangeAsTableRow.maximumLimitationValue = limitValue.maximumLimitationValue;
-                      rangeAsTableRow.limitationUnitCode = limitValue.limitationUnitCode;
-                      rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
-                      rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
-
-                      let range = limitValue.limitationDurationTypeDisplay.replace(/\s/g, '&nbsp;') + (limitValue.limitationUnitBasis === null ? '' : '&nbsp;(' + limitValue.limitationUnitBasis.replace(/\s/g, '&nbsp;') + ')') + ': ' + limitValue.minimumLimitationValue + '&nbsp;(' + limitValue.limitationUnitCode.trim().replace(/\s/g, '&nbsp;') + ') to ' + limitValue.maximumLimitationValue + '&nbsp;(' + limitValue.limitationUnitCode.trim().replace(/\s/g, '&nbsp;') + ')';
-                      //range = range.replace(/\s/g, '&nbsp;');
-                      if (rangeOfPollutantLimitations === '') {
-                        rangeOfPollutantLimitations = range;
-                      } else {
-                        rangeOfPollutantLimitations = rangeOfPollutantLimitations + '<br/>' + range;
-                      }
-                    });
-
-                    psc.rangeOfPollutantLimitations = rangeOfPollutantLimitationsAsTable;
-                    //psc.rangeOfPollutantLimitations = rangeOfPollutantLimitations;
-
-                    resolve(psc);
-                  })
-                  .catch((error) => resolve(utilities.sanitizeError(error)));
-              }
+                .catch((error) => {
+                  console.log(error);
+                  psc.rangeOfPollutantLimitations = rangeOfPollutantLimitationsAsTable;
+                  resolve(psc);
+                });
             }));
           });
 
