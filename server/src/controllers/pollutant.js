@@ -82,12 +82,14 @@ module.exports = {
                 group: [
                   "limitationDurationTypeDisplay",
                   "limitationUnitBasis",
-                  "limitationUnitCode"
+                  "limitationUnitCode",
+                  "limitationDurationDescription"
                 ],
                 attributes: [
                   "limitationDurationTypeDisplay",
                   "limitationUnitBasis",
                   "limitationUnitCode",
+                  "limitationDurationDescription",
                   [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
                   [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
                   [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
@@ -100,7 +102,8 @@ module.exports = {
                 order: [
                   "limitationDurationTypeDisplay",
                   "limitationUnitBasis",
-                  "limitationUnitCode"
+                  "limitationUnitCode",
+                  "limitationDurationDescription"
                 ],
                 raw: true
               })
@@ -111,6 +114,7 @@ module.exports = {
                     rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue  ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
                     rangeAsTableRow.limitationUnitCode = limitValue.limitationUnitCode;
                     rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
+                    rangeAsTableRow.limitationDurationDescription = limitValue.limitationDurationDescription
                     rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
                   });
 

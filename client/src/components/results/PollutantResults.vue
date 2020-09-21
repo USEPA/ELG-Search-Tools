@@ -60,7 +60,13 @@
                   {{ range.limitationUnitCode }}
                 </td>
                 <td width="33%">
-                  {{ range.limitationType }}
+                  <HoverText
+                    :hoverId="`units${range.limitationUnitCode + range.limitationType}`"
+                    :linkText="range.limitationType"
+                    :customStyle="{ width: '125px' }"
+                  >
+                    {{ range.limitationDurationDescription }}
+                  </HoverText>
                 </td>
               </tr>
             </tbody>

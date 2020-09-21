@@ -18,7 +18,7 @@ module.exports = {
     "when lower(ag.genprov_section_title) not like '%definitions%' then 'other' " +
     "end as genprov_type, " +
     "ag.additional_detail_in_cfr_, ag.genprov_section_title, " +
-    "regexp_replace(ag.genprov_desc, '^\\(Subpart [[:alpha:]]\\) ', '') as genprov_desc " +
+    "regexp_replace(ag.genprov_desc, '^\\(Subpart [[:alpha:]]*\\) ', '') as genprov_desc " +
     'from elg_search."GeneralProvision" ag ' +
     'left outer join elg_search."PointSourceSubcategory" pss ' +
     "on ag.psc_code = pss.psc_code " +
