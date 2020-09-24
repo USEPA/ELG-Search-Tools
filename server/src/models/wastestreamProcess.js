@@ -73,6 +73,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'alternative_requirement'
       },
+      voluntaryRequirement: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'voluntary_requirement'
+      },
       additionalDetail: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

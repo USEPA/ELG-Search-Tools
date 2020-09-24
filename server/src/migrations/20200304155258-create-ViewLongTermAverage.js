@@ -7,7 +7,7 @@ module.exports = {
     'l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, ' +
     "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END as zero_discharge, " +
     'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect as wp_cfr_sect, ' +
-    'wp.processop_description, wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +
+    'wp.processop_description, wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.voluntary_requirement, wp.process_addtdetail, ' +
     'p.pollutant_code, p.pollutant_desc, p.elg_pollutant_description, ' +
     'ld.limit_duration_code, ld.limit_duration_description, ld.stat_base_type, ld.limit_type_display, ' +
     'lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, ' +

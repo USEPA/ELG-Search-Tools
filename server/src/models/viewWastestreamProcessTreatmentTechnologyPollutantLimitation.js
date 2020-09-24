@@ -93,6 +93,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'alternative_requirement'
       },
+      wastestreamProcessVoluntaryRequirement: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'voluntary_requirement'
+      },
       wastestreamProcessAdditionalDetails: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

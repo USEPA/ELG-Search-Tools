@@ -4,7 +4,7 @@ module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.query('CREATE VIEW elg_search."ViewWastestreamProcessTreatmentTechnology" as ' +
     'select tt.treatment_id, tt.treatment_codes, tt.treatment_description, ' +
     'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect as wp_cfr_sect, wp.processop_description, ' +
-    'wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, wp.zero_discharge as wp_zero_discharge, ' +
+    'wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.voluntary_requirement, wp.process_addtdetail, wp.zero_discharge as wp_zero_discharge, ' +
     'wptt.tech_ref as wptt_tech_ref, rs.display_title as wptt_source_title, wptt.tech_notes as wptt_tech_notes, wptt.bmp_type as wptt_bmp_type, wptt.zero_discharge as wptt_zero_discharge, ' +
     'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, ' +
     'pss.subcat_id, pss.combo_subcat, pss.subcat_title, pss.subcat_cfr_section, pss.subcat_applicability, pss.subcat_notes, ' +

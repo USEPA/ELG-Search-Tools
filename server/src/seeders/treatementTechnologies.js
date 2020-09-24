@@ -163,7 +163,7 @@ module.exports = {
       {"treatment_id":171,"treatment_description":null,"treatment_codes":"BMP; AIR; ChemPre"},
       {"treatment_id":172,"treatment_description":null,"treatment_codes":"BMP; CO; ChemPre; FI"},
       {"treatment_id":173,"treatment_description":null,"treatment_codes":"BMP; CO; ChemPre"},
-      {"treatment_id":174,"treatment_description":null,"treatment_codes":"BMP; OW; ADSM"},
+      {"treatment_id":174,"treatment_description":null,"treatment_codes":"BMP; OW; ABSM"},
       {"treatment_id":175,"treatment_description":null,"treatment_codes":"OW; EQ"},
       {"treatment_id":176,"treatment_description":null,"treatment_codes":"MPT; EQ; ChemPre; CLAR; ASG"},
       {"treatment_id":177,"treatment_description":null,"treatment_codes":"MPT; EQ; ChemPre; CLAR; ASG; FI; GAC"},
@@ -309,7 +309,7 @@ module.exports = {
       {"treatment_id":325,"treatment_description":null,"treatment_codes":"BMP; OW; EQ; ASG"},
       {"treatment_id":326,"treatment_description":null,"treatment_codes":"EQ; ChemPre; ASG; FI"},
       {"treatment_id":327,"treatment_description":null,"treatment_codes":"ChemPre; ChemPre; SI; BMP"},
-      {"treatment_id":328,"treatment_description":null,"treatment_codes":"AST; DENIT"},
+      {"treatment_id":328,"treatment_description":null,"treatment_codes":"AST; NIT; DENIT"},
       {"treatment_id":329,"treatment_description":null,"treatment_codes":"AKH; AST"},
       {"treatment_id":330,"treatment_description":null,"treatment_codes":"ION; DENIT"},
       {"treatment_id":333,"treatment_description":null,"treatment_codes":"AC; ChemPre"},
@@ -492,7 +492,15 @@ module.exports = {
       {"treatment_id":513,"treatment_description":null,"treatment_codes":"LE; CO; REUSE"},
       {"treatment_id":514,"treatment_description":null,"treatment_codes":"REUSE; BMP; EQ; OWS; BIO; FI"},
       {"treatment_id":515,"treatment_description":null,"treatment_codes":"REDX; OW; ST"},
-      {"treatment_id":516,"treatment_description":null,"treatment_codes":"REUSE; SI"}];
+      {"treatment_id":516,"treatment_description":null,"treatment_codes":"REUSE; SI"},
+      {"treatment_id":517,"treatment_description":null,"treatment_codes":"PestActIng"},
+      {"treatment_id":518,"treatment_description":null,"treatment_codes":"CS; BMP"},
+      {"treatment_id":519,"treatment_description":null,"treatment_codes":"FI; DGF; SI; DWI"},
+      {"treatment_id":520,"treatment_description":null,"treatment_codes":"REUSE; BMP; OW; FILT"},
+      {"treatment_id":521,"treatment_description":null,"treatment_codes":"OW; FILT"},
+      {"treatment_id":522,"treatment_description":null,"treatment_codes":"OW; FILT; REUSE; CLAR"},
+      {"treatment_id":523,"treatment_description":null,"treatment_codes":"BMP; MPT; FILT"},
+      {"treatment_id":524,"treatment_description":null,"treatment_codes":"BIO; CND"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "TreatmentTechnology" }, records);
   },

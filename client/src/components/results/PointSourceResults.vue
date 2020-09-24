@@ -114,9 +114,24 @@
                 <span class="fa fa-info-circle"></span>
               </button>
             </template>
-            <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`cell(${fieldKey})`]="{ value }">
+            <template
+              v-for="fieldKey in Object.keys(headerDescriptions).filter(
+                (fieldName) => fieldName !== 'alternativeRequirement'
+              )"
+              v-slot:[`cell(${fieldKey})`]="{ value }"
+            >
               <span :key="fieldKey" v-if="value" class="fa fa-check has-text-success"></span>
               <span :key="fieldKey" v-else>--</span>
+            </template>
+            <template v-slot:cell(alternativeRequirement)="{ index, item }">
+              <span v-if="item.alternativeRequirement" class="fa fa-check has-text-success" />
+              <span v-else-if="!item.alternativeRequirement && item.voluntaryRequirement">
+                <span class="fa fa-check has-text-success" />
+                <HoverText :id="`vipHover${index}`" :linkText="'(VIP)'">
+                  Voluntary Incentives Program
+                </HoverText>
+              </span>
+              <span v-else>--</span>
             </template>
             <template v-slot:cell(title)="{ index, item }">
               {{ item.title }}
@@ -197,9 +212,10 @@ import Alert from '@/components/shared/Alert';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
+import HoverText from '@/components/shared/HoverText';
 
 export default {
-  components: { Alert, ControlTabs, Table, Modal, Multiselect },
+  components: { Alert, ControlTabs, Table, Modal, Multiselect, HoverText },
   computed: {
     ...get('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
     ...sync('results', ['activeTab']),

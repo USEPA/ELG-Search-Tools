@@ -110,7 +110,7 @@ create view elg_database.view_n3a_control_technology_notes as
 select
     loc,
     ct_cfr_section,
-    replace(replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), U&'\0097', '-') as ct_notes,
+    replace(replace(replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), U&'\0097', '-'), U&'\00B5', '\u00B5') as ct_notes,
     case when loc_display = '1' then true else false end as loc_display
 from
     elg_database.n3a_control_technology_notes;
@@ -126,7 +126,7 @@ select
     COALESCE (processop_constraint2, '') || ' ' || COALESCE ('<strong><u>' || processop_andor2 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint3, '') || ' ' || COALESCE ('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' ||
     COALESCE (processop_constraint4, '')) as secondary,
-    replace(replace(replace(replace(replace(processop_description, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), U&'\0093', '"'), U&'\0094', '"') as processop_description,
+    replace(replace(replace(replace(replace(replace(replace(processop_description, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), U&'\0093', '"'), U&'\0094', '"'), U&'\0096', '-'), U&'\0097', '-') as processop_description,
     replace(replace(replace(replace(
 	    case 
 	    	when processop_id = 25055 then 'Limitations for the parameters are the same as the corresponding limitation specified in \u00A7437.42' --odd character in source data
@@ -138,8 +138,8 @@ select
     case when includes_bmps = '1' then true else false end as includes_bmps,
     source_id,
     sortorder,
-    --TODO: use value from source data when it is available case when alternative_requirement = '1' then true else false end as alternative_requirement,
-    false as alternative_requirement,
+    case when alternative_req = '1' then true else false end as alternative_requirement,
+    case when voluntary_req = '1' then true else false end as voluntary_requirement,
     case when process_addtdetail = '1' then true else false end as process_addtdetail
 from
     elg_database.n4_wastestream_process;
@@ -277,7 +277,7 @@ select
 	processop_id,
 	treatment_id,
 	tech_ref,
-	replace(replace(replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...'), chr(150), '-'), chr(151), '-') as tech_notes,
+	replace(replace(replace(replace(replace(replace(tech_notes, chr(147), '"'), chr(148), '"'), U&'\0085', '...'), chr(150), '-'), chr(151), '-'), U&'\00A7', '\u00A7') as tech_notes,
 	bmp_type,
 	case when zero_discharge = '1' then true else false end as zero_discharge
 from elg_database.n4c_technology_bases_ws;
