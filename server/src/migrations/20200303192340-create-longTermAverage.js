@@ -20,17 +20,17 @@ module.exports = {
     },
     longTermAverageValue: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
       field: 'lta_value'
     },
     longTermAverageUnitId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'lta_units'
     },
     longTermAverageDurationId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       field: 'lim_duration_code'
     },
     dischargeFrequency: {
@@ -44,7 +44,7 @@ module.exports = {
       field: 'tech_ref'
     },
     notes: {
-      type: Sequelize.STRING,
+      type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'notes'
     },

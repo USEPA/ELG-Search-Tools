@@ -18,6 +18,7 @@ let attributes = [
   'wastestreamProcessTitle',
   'wastestreamProcessSecondary',
   'wastestreamProcessCfrSection',
+  [Sequelize.literal("split_part(wp_cfr_sect, '.', 1) || '_1' || split_part(wp_cfr_sect, '.', 2)"), 'cfrSectionAnchor'],
   'wastestreamProcessDescription',
   'wastestreamProcessLimitCalculationDescription',
   ['elg_pollutant_description', 'pollutantDescription'],
@@ -28,6 +29,7 @@ let attributes = [
   'zeroDischarge',
   'limitationDurationDescription',
   'limitationDurationBaseType',
+  'limitationDurationTypeDisplay',
   'limitationUnitCode',
   [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
   'limitationUnitBasis',
@@ -48,7 +50,8 @@ let order = [
   'controlTechnologyDisplayOrder',
   'wastestreamProcessDisplayOrder',
   'pollutantDescription',
-  'limitationDurationDescription'
+  'limitationDurationDescription',
+  'limitationDurationTypeDisplay'
 ];
 
 function wastestreamProcessLimitations(wastestreamProcessId) {
@@ -218,7 +221,9 @@ function fillLongTermAverage(longTermAverage) {
           limitationValue: longTermAverage.limitationValue,
           limitationUnitCode: longTermAverage.limitationUnitCode,
           limitationUnitDescription: longTermAverage.limitationUnitDescription,
-          limitationUnitBasis: longTermAverage.limitationUnitBasis
+          limitationUnitBasis: longTermAverage.limitationUnitBasis,
+          wastestreamProcessTreatmentTechnologySourceTitle: longTermAverage.wastestreamProcessTreatmentTechnologySourceTitle,
+          wastestreamProcessTreatmentTechnologyNotes: longTermAverage.wastestreamProcessTreatmentTechnologyNotes
         });
       })
       .catch(err => {
@@ -236,7 +241,9 @@ function fillLongTermAverage(longTermAverage) {
           limitationValue: longTermAverage.limitationValue,
           limitationUnitCode: longTermAverage.limitationUnitCode,
           limitationUnitDescription: longTermAverage.limitationUnitDescription,
-          limitationUnitBasis: longTermAverage.limitationUnitBasis
+          limitationUnitBasis: longTermAverage.limitationUnitBasis,
+          wastestreamProcessTreatmentTechnologySourceTitle: longTermAverage.wastestreamProcessTreatmentTechnologySourceTitle,
+          wastestreamProcessTreatmentTechnologyNotes: longTermAverage.wastestreamProcessTreatmentTechnologyNotes
         });
       });
   });
@@ -298,10 +305,13 @@ module.exports = {
               'longTermAverageNotes',
               [Sequelize.literal("CASE WHEN lta_source_title IS NOT NULL THEN lta_source_title || CASE WHEN lta_notes IS NOT NULL THEN ': ' || lta_notes ELSE '' END ELSE '' END"), 'longTermAverageSourceTitle'],
               'alternateLimitFlag',
+              'alternateLimitDescription',
               'limitationValue',
               'limitationUnitCode',
               [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
-              'limitationUnitBasis'
+              'limitationUnitBasis',
+              'wastestreamProcessTreatmentTechnologySourceTitle',
+              'wastestreamProcessTreatmentTechnologyNotes'
             ],
             where: {
               limitationId: { [Op.eq]: id }

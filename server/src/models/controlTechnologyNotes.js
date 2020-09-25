@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         field: 'ct_cfr_section'
       },
       notes: {
-        type: DataTypes.STRING(4000),
+        type: DataTypes.STRING(8000),
         allowNull: false,
         field: 'ct_notes'
       },

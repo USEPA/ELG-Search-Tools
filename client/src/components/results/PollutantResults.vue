@@ -2,43 +2,107 @@
   <div>
     <p class="pollutant-subtext">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</p>
     <div class="field is-grouped">
-      <a @click="navigateToLimitationsForMultiplePscs(pollutantData[0])">
-        <span class="fas fa-share-square" />Go to PSC Comparison
-      </a>
+      <button
+        :disabled="selectedPscs.length === 0"
+        :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
+        class="button is-hyperlink cfr-link"
+        @click="navigateToLimitationsForMultiplePscs(pollutantData[0])"
+      >
+        <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
+      </button>
+      <HoverText hoverId="catInfo" :icon="true" style="margin-left:0.25rem">
+        Select PSCs of interest in the first column below.
+      </HoverText>
     </div>
-    <Table
-      :columns="pollColumns"
-      :rows="pollutantData"
-      :should-have-poll-cols="true"
-      :can-compare-pscs="true"
-      :cols-length="6"
-      @onNavigateToLimitations="navigateToLimitations"
-      @shouldDisplayMoreModal="displayMoreModal"
-      @onSelectedPsc="selectedPsc"
-    />
-
-    <Modal v-if="shouldDisplayMoreModal" @close="() => (shouldDisplayMoreModal = false)">
-      <span v-html="currentMoreInfo" />
-    </Modal>
+    <Table :columns="pollColumns" :rows="pollutantData">
+      <template v-slot:cell(selectPsc)="{ item }">
+        <label class="sr-only">Select Point Source Category and click "Compare PSCs" to view limitations.</label>
+        <input
+          class="table-checkbox"
+          type="checkbox"
+          :value="{ pollutantId: item.pollutantId, pointSourceCategoryCode: item.pointSourceCategoryCode }"
+          v-model="selectedPscs"
+        />
+      </template>
+      <template v-slot:cell(pointSourceSubcategories)="{ value }">
+        <span v-if="value !== ''" v-html="value" />
+        <span v-else>--</span>
+      </template>
+      <template v-slot:head(rangeOfPollutantLimitations)="{ label }">
+        <BRow>
+          <BCol cols="12">{{ label }}</BCol>
+        </BRow>
+        <BRow>
+          <BCol cols="2" style="display:inline-block; float: none; width: 17%">Min</BCol>
+          <BCol cols="2" style="display:inline-block; float: none; width: 17%">Max</BCol>
+          <BCol cols="4" style="display:inline-block; float: none; width: 33%">Units</BCol>
+          <BCol cols="4" style="display:inline-block; float: none; width: 33%">Type of Limitation</BCol>
+        </BRow>
+      </template>
+      <template v-slot:cell(rangeOfPollutantLimitations)="{ value }">
+        <span v-if="value !== []">
+          <table>
+            <thead class="sr-only">
+              <th>Min</th>
+              <th>Max</th>
+              <th>Units</th>
+              <th>Type of Limitation</th>
+            </thead>
+            <tbody>
+              <tr v-for="(range, index) in value" :key="index">
+                <td width="17%">
+                  {{ range.minimumLimitationValue }}
+                </td>
+                <td width="17%">
+                  {{ range.maximumLimitationValue }}
+                </td>
+                <td width="33%">
+                  {{ range.limitationUnitCode }}
+                </td>
+                <td width="33%">
+                  <HoverText
+                    :hoverId="`units${range.limitationUnitCode + range.limitationType}`"
+                    :linkText="range.limitationType"
+                    :customStyle="{ width: '125px' }"
+                  >
+                    {{ range.limitationDurationDescription }}
+                  </HoverText>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </span>
+        <span v-else>--</span>
+      </template>
+      <template v-slot:cell(goToLimitations)="{ item }">
+        <a @click="navigateToLimitations(item)">
+          <span class="fas fa-share-square limitation-link"></span>
+        </a>
+      </template>
+    </Table>
   </div>
 </template>
 
 <script>
 import { get } from 'vuex-pathify';
+import HoverText from '@/components/shared/HoverText';
 import Table from '@/components/shared/Table';
-import Modal from '@/components/shared/Modal';
+import { BRow, BCol } from 'bootstrap-vue';
 
 export default {
-  components: { Table, Modal },
+  components: { HoverText, Table, BRow, BCol },
   computed: {
     ...get('search', ['pollutantData']),
   },
   data() {
     return {
-      currentMoreInfo: null,
-      shouldDisplayMoreModal: false,
       selectedPscs: [],
       pollColumns: [
+        {
+          key: 'selectPsc',
+          label: 'Select PSC',
+          sortable: false,
+        },
         {
           key: 'pointSourceCategoryCode',
           label: '40 CFR',
@@ -56,6 +120,11 @@ export default {
           key: 'rangeOfPollutantLimitations',
           label: 'Range of Pollutant Limitations',
           displayAsHTML: true,
+          sortable: false,
+        },
+        {
+          key: 'goToLimitations',
+          label: 'Go to Limitations',
         },
       ],
     };
@@ -77,17 +146,6 @@ export default {
       }
       this.$router.push('/results/limitations');
     },
-    selectedPsc(row, e) {
-      if (e.target.checked) {
-        // add this psc/pollutant combination to the selected list
-        this.selectedPscs.push({ pollutantId: row.pollutantId, pointSourceCategoryCode: row.pointSourceCategoryCode });
-      } else {
-        // remove this psc/pollutant combination from the selected list
-        this.selectedPscs = this.selectedPscs.filter(
-          (psc) => !(psc.pollutantId === row.pollutantId && psc.pointSourceCategoryCode === row.pointSourceCategoryCode)
-        );
-      }
-    },
     async navigateToLimitationsForMultiplePscs(row) {
       if (row.pollutantId) {
         await this.$store.dispatch('limitations/getPollLimitationDataForMultiplePscs', {
@@ -100,17 +158,26 @@ export default {
       }
       this.$router.push('/results/limitations');
     },
-    displayMoreModal(value) {
-      this.currentMoreInfo = null;
-      this.currentMoreInfo = value;
-      this.shouldDisplayMoreModal = true;
-    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 @import '../../../static/variables';
+
+.table-checkbox {
+  height: 16px;
+  width: 16px;
+}
+
+.cfr-link {
+  text-decoration: none;
+  margin: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
 
 .is-link.more {
   margin-left: 3px;

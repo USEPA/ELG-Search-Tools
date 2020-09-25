@@ -15,6 +15,7 @@ const state = {
   selectedTreatmentTechnology: null,
   selectedTreatmentTrain: null,
   // search results data
+  categoryData: null,
   subcategoryData: null,
   pollutantData: null,
   treatmentTechnologyData: null,
@@ -51,8 +52,15 @@ const actions = {
     commit('SET_SUBCATEGORIES', res.data.pointSourceSubcategories);
     commit('SET_IS_FETCHING', false);
   },
-  async getSubcategoryData({ state, commit, dispatch }) {
+  async getPointSourceData({ state, commit, dispatch }) {
     dispatch('clearResultsData');
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get(`api/pointSourceCategory/${state.selectedCategory.pointSourceCategoryCode}`);
+    commit('SET_CATEGORY_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getSubcategoryData({ state, commit }) {
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/pointSourceSubcategory/${state.selectedSubcategory.id}`);
@@ -129,6 +137,7 @@ const actions = {
   },
   clearResultsData({ commit }) {
     // Clear persisted results data to restart results session once user searches again
+    commit('SET_CATEGORY_DATA', null);
     commit('SET_SUBCATEGORY_DATA', null);
     commit('SET_POLLUTANT_DATA', null);
     commit('SET_TREATMENT_TECHNOLOGY_DATA', null);

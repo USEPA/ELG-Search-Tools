@@ -93,6 +93,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'alternative_requirement'
       },
+      wastestreamProcessVoluntaryRequirement: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        field: 'voluntary_requirement'
+      },
       wastestreamProcessAdditionalDetails: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -127,6 +132,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'stat_base_type'
+      },
+      limitationDurationTypeDisplay: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'limit_type_display'
       },
       limitationUnitId: {
         type: DataTypes.INTEGER,

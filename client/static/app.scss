@@ -176,6 +176,7 @@ input,
 
   .message-body {
     color: inherit;
+    height: 100%;
   }
 
   p {
@@ -253,6 +254,21 @@ input,
     line-height: 32px;
     margin-bottom: 0;
     padding: 5px 10px;
+  }
+}
+
+.b-table {
+  .icon-btn {
+    display: inline-block;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    height: inherit;
+    width: inherit;
+
+    .fa-info-circle {
+      color: $blue;
+    }
   }
 }
 

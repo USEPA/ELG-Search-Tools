@@ -56,14 +56,13 @@
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
               <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Technology Bases (CSV File)</p>
             </div>
-            <Table
-              :columns="techBasisCols"
-              :rows="controlTechnology.wastestreamProcessTreatmentTechnologies"
-              :shouldHaveTechBasisCols="true"
-              @onNavigateToLimitations="navigateToLimitations"
-              :isComparingPscs="isComparingPscs"
-              :colsLength="9"
-            />
+            <Table :columns="techBasisCols" :rows="controlTechnology.wastestreamProcessTreatmentTechnologies">
+              <template v-slot:cell(goToLimitations)="{ item }">
+                <a @click="navigateToLimitations(item)">
+                  <span class="fas fa-share-square limitation-link"></span>
+                </a>
+              </template>
+            </Table>
           </div>
         </div>
       </template>
@@ -137,6 +136,10 @@ export default {
         {
           key: 'wastestreamProcessTreatmentTechnologyZeroDischarge',
           label: 'Zero Discharge',
+        },
+        {
+          key: 'goToLimitations',
+          label: 'Go To Limitations',
         },
       ],
     };

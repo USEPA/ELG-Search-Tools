@@ -15,7 +15,7 @@ module.exports = {
     },
     cfrSection: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
       field: 'cfr_sect'
     },
     title: {
@@ -72,6 +72,11 @@ module.exports = {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       field: 'alternative_requirement'
+    },
+    voluntaryRequirement: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      field: 'voluntary_requirement'
     },
     additionalDetail: {
       type: Sequelize.BOOLEAN,

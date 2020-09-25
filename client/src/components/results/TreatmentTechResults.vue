@@ -96,46 +96,38 @@
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
-      <NewTable
+      <Table
         v-if="treatmentLimitationData"
         :columns="limitationColumns"
         :rows="limitations"
         :busy="isFetching"
         :perPage="100"
       >
-        <template v-slot:cell(limitationValue)="{ item }">
-          {{ item.alternateLimitFlag }} {{ item.limitationValue }}
-        </template>
-        <template v-slot:cell(limitationUnitCode)="{ item }">
-          <HoverText
-            :hoverId="`units${item.limitationId}`"
-            :linkText="item.limitationUnitCode"
-            :customStyle="{ width: '200px' }"
-          >
-            {{ item.limitationUnitDescription }}
-          </HoverText>
-        </template>
-        <template v-slot:cell(wastestreamProcessTitle)="{ item }">
+        <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
-          <button class="button is-text icon-btn" @click="shouldDisplayProcess = true">
+          <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
             <span class="fa fa-info-circle"></span>
           </button>
-          <Modal v-if="shouldDisplayProcess" title="Treatment Train Notes" @close="shouldDisplayProcess = false">
+          <Modal
+            v-if="shouldDisplayProcess === index"
+            title="Treatment Train Notes"
+            @close="shouldDisplayProcess = false"
+          >
             <p class="has-text-left">
               <span v-html="item.wastestreamProcessDescription" />
             </p>
           </Modal>
         </template>
-        <template v-slot:cell(treatmentNames)="{ item }">
+        <template v-slot:cell(treatmentNames)="{ index, item }">
           {{ item.treatmentNames }}
           <button
             class="button is-text icon-btn"
-            @click="shouldDisplayNotes = true"
+            @click="shouldDisplayNotes = index"
             title="Click to view Treatment Train Notes"
           >
             <span class="fa fa-info-circle"></span>
           </button>
-          <Modal v-if="shouldDisplayNotes" title="Treatment Train Notes" @close="shouldDisplayNotes = false">
+          <Modal v-if="shouldDisplayNotes === index" title="Treatment Train Notes" @close="shouldDisplayNotes = false">
             <p class="has-text-left">
               <span
                 v-html="
@@ -154,8 +146,9 @@
               <span class="fas fa-share-square limitation-link"></span>
             </a>
           </span>
+          <span v-else>--</span>
         </template>
-      </NewTable>
+      </Table>
     </div>
   </div>
 </template>
@@ -167,11 +160,11 @@ import xor from 'lodash/xor';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
-import NewTable from '@/components/shared/NewTable';
+import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 
 export default {
-  components: { Alert, HoverText, NewTable, Modal, Multiselect },
+  components: { Alert, HoverText, Table, Modal, Multiselect },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -220,6 +213,7 @@ export default {
         {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
+          filterable: true,
         },
         {
           key: 'pollutantDescription',
@@ -242,8 +236,9 @@ export default {
           label: 'Units',
         },
         {
-          key: 'limitationDurationDescription',
+          key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
+          filterable: true,
         },
         // {
         //   key: 'limitationUnitBasis',
@@ -297,14 +292,6 @@ export default {
       background-color: #fff;
     }
   }
-}
-
-.icon-btn {
-  display: inline;
-  padding: 0;
-  margin-top: 0;
-  height: inherit;
-  width: inherit;
 }
 
 .fa-info-circle {

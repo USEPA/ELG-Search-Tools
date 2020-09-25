@@ -31,25 +31,10 @@
         ></Multiselect>
       </div>
       <div class="control">
-        <button
-          class="button is-medium"
-          @click="onSubmit"
-          :disabled="!subcategory && option === 'Point Source Category'"
-        >
-          <span class="fa fas fa-search has-text-white"></span>
+        <button class="button is-medium" @click="onSubmit" :title="isFetching ? 'Loading...' : 'Search'">
+          <span class="sr-only">Search</span>
+          <span :class="`fa has-text-white ${isFetching ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
         </button>
-      </div>
-    </div>
-    <div class="columns subcategory-select">
-      <div class="column">
-        <Multiselect
-          v-if="searchType === 'pointSource' && selectedCategory"
-          v-model="selectedSubcategory"
-          :options="subcategories"
-          placeholder="Select Subcategory"
-          label="comboSubcategory"
-          :loading="isFetchingSubcategories"
-        ></Multiselect>
       </div>
     </div>
   </div>
@@ -73,7 +58,7 @@ export default {
           shouldDisplayCode: true,
           optionsList: 'categories',
           selectedProp: 'selectedCategory',
-          resultAction: 'getSubcategoryData',
+          resultAction: 'getPointSourceData',
         },
         {
           id: 'pollutant',
@@ -97,23 +82,15 @@ export default {
       option: '',
       category: null,
       list: [],
-      subcategory: null,
-      isFetchingSubcategories: false,
       code: null,
-      subcategoryCode: null,
       pollutantId: null,
       treatmentTechnologyId: null,
+      isFetching: false,
     };
   },
   computed: {
-    ...get('search', ['categories', 'subcategories', 'pollutants', 'treatmentTechnologies']),
-    ...sync('search', [
-      'searchType',
-      'selectedCategory',
-      'selectedPollutant',
-      'selectedTreatmentTechnology',
-      'selectedSubcategory',
-    ]),
+    ...get('search', ['categories', 'pollutants', 'treatmentTechnologies']),
+    ...sync('search', ['searchType', 'selectedCategory', 'selectedPollutant', 'selectedTreatmentTechnology']),
     searchTypeObject() {
       return this.searchTypes.find((type) => type.id === this.searchType) || {};
     },
@@ -127,12 +104,6 @@ export default {
   },
   methods: {
     async onSelectOption(value) {
-      if (this.searchType === 'pointSource' && value) {
-        // If user selected a point source category, fetch sub-categories
-        this.isFetchingSubcategories = true;
-        await this.$store.dispatch('search/getPointSourceSubcategories', value.pointSourceCategoryCode);
-        this.isFetchingSubcategories = false;
-      }
       this[this.searchTypeObject.selectedProp] = value;
     },
     getOptionLabel(searchOption) {
@@ -143,15 +114,12 @@ export default {
     },
     clearSelectedValues() {
       // Clear all selected values when search type changes, so they aren't still populated if user switches back to same search type
-      [this.selectedCategory, this.selectedSubcategory, this.selectedPollutant, this.selectedTreatmentTechnology] = [
-        null,
-        null,
-        null,
-        null,
-      ];
+      [this.selectedCategory, this.selectedPollutant, this.selectedTreatmentTechnology] = [null, null, null];
     },
     async onSubmit() {
+      this.isFetching = true;
       await this.$store.dispatch(`search/${this.searchTypeObject.resultAction}`);
+      this.isFetching = false;
       this.$router.push('results');
     },
   },
@@ -163,6 +131,7 @@ export default {
     // Clear treatment train data so it's not pre-selected if user returns to same results page
     this.$store.commit('search/SET_SELECTED_TREATMENT_TRAIN', null);
     this.$store.commit('search/SET_TREATMENT_TRAIN', null);
+    this.$store.commit('search/SET_SELECTED_SUBCATEGORY', null);
   },
 };
 </script>
@@ -178,11 +147,6 @@ button {
 
 .button[disabled] {
   background-color: gray;
-}
-
-.subcategory-select {
-  width: 609px !important;
-  margin-left: 392px;
 }
 
 .field.has-addons {

@@ -7,13 +7,14 @@ module.exports = {
     'l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, ' +
     "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END as zero_discharge, " +
     'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect as wp_cfr_sect, ' +
-    'wp.processop_description, wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.process_addtdetail, ' +
+    'wp.processop_description, wp.processop_notes, wp.lim_calc_desc, wp.alternative_requirement, wp.voluntary_requirement, wp.process_addtdetail, ' +
     'p.pollutant_code, p.pollutant_desc, p.elg_pollutant_description, ' +
-    'ld.limit_duration_code, ld.limit_duration_description, ld.stat_base_type, ' +
+    'ld.limit_duration_code, ld.limit_duration_description, ld.stat_base_type, ld.limit_type_display, ' +
     'lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, ' +
     'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, ' +
     'pss.subcat_id, pss.combo_subcat, pss.subcat_title, pss.subcat_cfr_section, pss.subcat_applicability, pss.subcat_notes, ' +
-    'ct.ct_id, ct.ct_code, ct.ct_order, ct.ct_cfr_section ' +
+    'ct.ct_id, ct.ct_code, ct.ct_order, ct.ct_cfr_section, ' +
+    'rs_wptt.display_title AS wptt_source_title, wptt.tech_notes as wptt_tech_notes ' +
     'from elg_search."Limitation" l inner join elg_search."LimitationDuration" ld on l.lim_duration_code = ld.limit_duration_code ' +
     'left outer join elg_search."LimitationUnit" lu on l.unit_code = lu.unit_code ' +
     'inner join elg_search."Pollutant" p on l.pollutant_code = p.pollutant_code ' +
@@ -25,6 +26,8 @@ module.exports = {
     'inner join elg_search."LimitationDuration" ld_lta on lta.lim_duration_code = ld_lta.limit_duration_code ' +
     'inner join elg_search."LimitationUnit" lu_lta on lta.lta_units = lu_lta.unit_code ' +
     'inner join elg_search."TreatmentTechnology" tt on lta.treatment_id = tt.treatment_id ' +
-    'inner join elg_search."ReferenceSource" rs on lta.tech_ref = rs.source_id'),
+    'inner join elg_search."ReferenceSource" rs on lta.tech_ref = rs.source_id ' +
+    'inner join elg_search."WastestreamProcessTreatmentTechnology" wptt on wp.processop_id = wptt.processop_id and tt.treatment_id = wptt.treatment_id ' +
+    'inner join elg_search."ReferenceSource" rs_wptt on wptt.tech_ref = rs_wptt.source_id'),
   down: (queryInterface, Sequelize) => queryInterface.sequelize.query('DROP VIEW elg_search."ViewLongTermAverage"')
 };
