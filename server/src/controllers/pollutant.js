@@ -6,6 +6,8 @@ const Pollutant = require("../models").Pollutant;
 const Op = require("sequelize").Op;
 const Sequelize = require("sequelize");
 
+const download = require('./download');
+
 module.exports = {
   list(req, res) {
     try {
@@ -39,17 +41,20 @@ module.exports = {
   },
   /**
    * @param {
-   *          {id:string}
-   * } req.params
+   *          {id:string},
+   *          {download:string}
+   * } req.query
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = req.params.id ? req.params.id.split('|') : '';
+      let id = req.query.id ? req.query.id.split('|') : '';
 
       if (id === '') {
         return res.status(400).send("Invalid value passed for id");
       }
+
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
       //get ranges of limitations, then group by PSC
       return ViewLimitation.findAll({
@@ -63,7 +68,8 @@ module.exports = {
           ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
-          [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"]
+          [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
+          [Sequelize.literal("string_agg(distinct combo_subcat, '\n' order by combo_subcat)"), "pointSourceSubcategoriesForDownload"]
         ],
         where: {
           pollutantDescription: { [Op.in]: id }
@@ -132,7 +138,50 @@ module.exports = {
 
           Promise.all(pscPromises)
             .then(pscs => {
-              res.status(200).send(pscs);
+              if (downloadRequested) {
+                download.createDownloadFile('[pointSourceCategories]',
+                  'Point Source Categories',
+                  [
+                    { key: 'pointSourceCategoryCode', label: '40 CFR' },
+                    { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 40 },
+                    { key: 'pointSourceSubcategoriesForDownload', label: 'Subcategories', width: 40, wrapText: true },
+                    { key: 'rangeOfPollutantLimitations', label: 'Range of Pollutant Limitations', width: 40 }
+                  ],
+                  [
+                    { label: 'Pollutant', value: id},
+                    { label: 'Number of PSCs Referencing Pollutant', value: pscs.length}
+                  ],
+                  pscs,
+                  res);
+
+                /*pscs.forEach(function(row) {
+                  worksheet.addRow(downloadColumns.map(function(column) {
+                    if (column.key === 'pointSourceSubcategories') {
+                      return row[column.key].replace(/<br\/>/g, '\n')
+                    }
+                    else if (column.key === 'rangeOfPollutantLimitations') {
+                      let cellValue = ''
+                      row[column.key].forEach(range => {
+                        let rangeValue = range.minimumLimitationValue + '\t' + range.maximumLimitationValue + '\t' + range.limitationUnitCode + '\t' + range.limitationType + '\t'
+                        if (cellValue === '') {
+                          cellValue = rangeValue
+                        }
+                        else {
+                          cellValue = cellValue + '\n' + rangeValue
+                        }
+                      });
+
+                      return cellValue
+                    }
+                    else {
+                      return row[column.key]
+                    }
+                  })).commit();
+                });*/
+              }
+              else {
+                res.status(200).send(pscs);
+              }
             })
             .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
         })
@@ -144,7 +193,8 @@ module.exports = {
   /*
    * @param {
    *          {pollutantId:number},
-   *          {pointSourceCategoryCode:number}
+   *          {pointSourceCategoryCode:number},
+   *          {download:string}
    * } req.query
    */
   limitations(req, res) {
@@ -162,9 +212,33 @@ module.exports = {
         return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
       }
 
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+
       limitation.pollutantLimitations(pollutantIds, pointSourceCategoryCodes)
         .then(limitations => {
-          res.status(200).send(limitations);
+          if (downloadRequested) {
+            download.createDownloadFile('limitations',
+              'Pollutant Limitations',
+              [
+                {key: 'pointSourceCategoryCode', label: 'Point Source Category'},
+                {key: 'controlTechnologyCode', label: 'Level of Control'},
+                {key: 'pollutantDescription', label: 'Pollutant'},
+                {key: 'comboSubcategory', label: 'Subpart'},
+                {key: 'wastestreamProcessTitle', label: 'Process Operation/Wastestream'},
+                {key: 'wastestreamProcessSecondary', label: 'Other Process/Wastestream Detail(s)'},
+                {key: 'limitationDurationTypeDisplay', label: 'Type of Limitation'},
+                {key: 'limitationValue', label: 'Value'},
+                {key: 'limitationUnitCode', label: 'Units'},
+                {key: 'limitationUnitBasis', label: 'Limitation Basis'}
+              ],
+              [
+              ],
+              limitations.limitations,
+              res);
+          }
+          else {
+            res.status(200).send(limitations);
+          }
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     } catch (err) {

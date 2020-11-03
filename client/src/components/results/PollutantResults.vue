@@ -141,6 +141,7 @@ export default {
         await this.$store.dispatch('limitations/getPollutantInfo', {
           pointSourceCategoryCode: row.pointSourceCategoryCode,
           pointSourceCategoryName: row.pointSourceCategoryName,
+          pollutantId: row.pollutantId,
           pollutantDescription: row.pollutantDescription,
         });
       }

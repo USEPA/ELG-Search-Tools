@@ -1,24 +1,51 @@
 const utilities = require('./utilities');
 const limitation = require('./limitation');
+const download = require('./download');
 
 module.exports = {
   /**
    * @param {
-   *          {id:number}
-   * } req.params
+   *          {id:number},
+   *          {download:string}
+   * } req.query
    */
   limitations(req, res) {
     try {
       // check for required query attributes and replace with defaults if missing
-      let id = utilities.parseIdAsInteger(req.params.id);
+      let id = utilities.parseIdAsInteger(req.query.id);
 
       if (id === null) {
         return res.status(400).send('Invalid value passed for id')
       }
 
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+
       limitation.wastestreamProcessLimitations(id)
         .then(limitations => {
-          res.status(200).send(limitations)
+          if (downloadRequested) {
+            download.createDownloadFile('limitations',
+              'Pollutant Limitations',
+              [
+                { key: 'pollutantDescription', label: 'Pollutant', width: 30 },
+                { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation' },
+                { key: 'limitationValue', label: 'Value' },
+                { key: 'limitationUnitCode', label: 'Units', width: 30 },
+                { key: 'limitationUnitBasis', label: 'Limitation Basis' }
+              ],
+              [
+                { label: 'Point Source Category ' + limitations.pointSourceCategoryCode, value: limitations.pointSourceCategoryName },
+                { label: 'Subpart', value: limitations.comboSubcategory },
+                { label: 'CFR Section', value: limitations.cfrSection },
+                { label: 'Level of Control', value: limitations.controlTechnologyCode},
+                { label: 'Process Operation/Wastestream', value: limitations.title },
+                { label: 'Other Process/Wastestream Details', value: limitations.secondary, wrapText: true }
+              ],
+              limitations.limitations,
+              res);
+          }
+          else {
+            res.status(200).send(limitations)
+          }
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     } catch (err) {

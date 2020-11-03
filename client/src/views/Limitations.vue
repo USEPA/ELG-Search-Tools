@@ -83,10 +83,19 @@
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
           <div class="poll-limitation-container">
-            <div class="field is-grouped download-icon-container">
+            <a
+              class="field is-grouped download-icon-container"
+              :href="
+                '/api/pollutantLimitations/?pollutantId=' +
+                  pollutantId +
+                  '&pointSourceCategoryCode=' +
+                  pointSourceCategoryCode +
+                  '&download=true'
+              "
+            >
               <span class="fas fa-download has-text-grey-dark help-icon"></span>
               <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
-            </div>
+            </a>
             <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
               <template v-slot:cell(limitationValue)="{ item }">
                 <span v-if="item.limitationValue">
@@ -159,6 +168,7 @@ export default {
       'limitationData',
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
+      'pollutantId',
       'pollutantDescription',
       'treatmentNames',
       'isComparingPscs',

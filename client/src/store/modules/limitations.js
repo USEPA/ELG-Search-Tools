@@ -4,6 +4,7 @@ import { make } from 'vuex-pathify';
 const state = {
   pointSourceCategoryCode: null,
   pointSourceCategoryName: null,
+  pollutantId: null,
   pollutantDescription: null,
   limitationData: null,
   isFetching: false,
@@ -27,6 +28,7 @@ const mutations = {
     if (payload) {
       state.pointSourceCategoryCode = payload.pointSourceCategoryCode;
       state.pointSourceCategoryName = payload.pointSourceCategoryName;
+      state.pollutantId = payload.pollutantId;
       state.pollutantDescription = payload.pollutantDescription;
       state.treatmentNames = payload.treatmentNames;
     }
@@ -45,7 +47,11 @@ const actions = {
     commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/wastestreamProcessLimitations/${id}`);
+    const res = await axios.get(`api/wastestreamProcessLimitations`, {
+      params: {
+        id,
+      },
+    });
     commit('SET_LIMITATION_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
@@ -99,7 +105,11 @@ const actions = {
     commit('SET_LTA_DATA', null);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/limitation/${id}`);
+    const res = await axios.get(`api/limitation`, {
+      params: {
+        id,
+      },
+    });
     commit('SET_LTA_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
@@ -107,7 +117,11 @@ const actions = {
     commit('SET_LTA_DATA', null);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/limitation/${id}`);
+    const res = await axios.get(`api/limitation`, {
+      params: {
+        id,
+      },
+    });
     commit('SET_LTA_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
