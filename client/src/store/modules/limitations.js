@@ -15,6 +15,7 @@ const state = {
   selectedTreatmentTrain: [],
   selectedTreatmentCategory: [],
   selectedTreatmentPollutant: [],
+  selectedLimitationId: null,
 };
 
 const getters = {
@@ -54,6 +55,7 @@ const actions = {
     });
     commit('SET_LIMITATION_DATA', res.data);
     commit('SET_IS_FETCHING', false);
+    commit('SET_SELECTED_LIMITATION_ID', id);
   },
   async getPollLimitationData({ commit }, { pollutantId, pointSourceCategoryCode }) {
     commit('SET_LIMITATION_DATA', null);
@@ -112,6 +114,7 @@ const actions = {
     });
     commit('SET_LTA_DATA', res.data);
     commit('SET_IS_FETCHING', false);
+    commit('SET_SELECTED_LIMITATION_ID', id);
   },
   async getLongTermAvgDataTechSearch({ commit }, id) {
     commit('SET_LTA_DATA', null);
@@ -124,6 +127,7 @@ const actions = {
     });
     commit('SET_LTA_DATA', res.data);
     commit('SET_IS_FETCHING', false);
+    commit('SET_SELECTED_LIMITATION_ID', id);
   },
   async getTreatmentTechnologyLimitations({ commit, state, rootState }) {
     commit('SET_IS_FETCHING', true);

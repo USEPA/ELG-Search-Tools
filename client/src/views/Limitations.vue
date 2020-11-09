@@ -65,6 +65,7 @@
         </p>
       </div>
     </div>
+    <DownloadLink title="Limitations" :url="`/api/wastestreamProcessLimitations?id=${selectedLimitationId}`" />
     <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
@@ -83,19 +84,7 @@
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
           <div class="poll-limitation-container">
-            <a
-              class="field is-grouped download-icon-container"
-              :href="
-                '/api/pollutantLimitations/?pollutantId=' +
-                  pollutantId +
-                  '&pointSourceCategoryCode=' +
-                  pointSourceCategoryCode +
-                  '&download=true'
-              "
-            >
-              <span class="fas fa-download has-text-grey-dark help-icon"></span>
-              <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
-            </a>
+            <DownloadLink title="Limitations" :url="pollDownloadUrl" />
             <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
               <template v-slot:cell(limitationValue)="{ item }">
                 <span v-if="item.limitationValue">
@@ -159,11 +148,12 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
+import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, Breadcrumbs, Table, ControlTabs, Modal },
+  components: { Alert, Breadcrumbs, Table, ControlTabs, Modal, DownloadLink },
   computed: {
-    ...get('search', ['selectedCategory', 'subcategoryData']),
+    ...get('search', ['selectedCategory', 'subcategoryData', 'selectedPscs']),
     ...get('limitations', [
       'limitationData',
       'pointSourceCategoryCode',
@@ -172,8 +162,18 @@ export default {
       'pollutantDescription',
       'treatmentNames',
       'isComparingPscs',
+      'selectedLimitationId',
     ]),
     ...sync('results', ['activeTab']),
+    pollDownloadUrl() {
+      let pollIds = this.pollutantId;
+      let pscCodes = this.pointSourceCategoryCode;
+      if (this.isComparingPscs) {
+        pollIds = this.selectedPscs.map((psc) => psc.pollutantId).join(',');
+        pscCodes = this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(',');
+      }
+      return `/api/pollutantLimitations/?pollutantId=${pollIds}&pointSourceCategoryCode=${pscCodes}`;
+    },
   },
   data() {
     return {
@@ -288,6 +288,7 @@ button {
 
 .info-box-container {
   margin-top: -1rem;
+  margin-bottom: -0.5rem;
 }
 
 a.button {
@@ -304,11 +305,6 @@ label {
 
 .is-checkradio[type='checkbox'] + label {
   cursor: auto;
-}
-
-.download-icon-container {
-  justify-content: flex-end;
-  margin-bottom: 0;
 }
 
 .poll-limitation-container {

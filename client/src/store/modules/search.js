@@ -14,6 +14,7 @@ const state = {
   selectedPollutant: null,
   selectedTreatmentTechnology: null,
   selectedTreatmentTrain: null,
+  selectedPscs: [], // for comparing PSCs on poll results
   // search results data
   categoryData: null,
   subcategoryData: null,

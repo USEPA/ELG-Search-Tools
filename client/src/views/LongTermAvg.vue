@@ -39,7 +39,7 @@
       mean of the underlying statistical distribution of the daily effluent values used to calculate numeric pollutant
       limitations.
     </Alert>
-    <div class="info-box-container message">
+    <div v-if="longTermAvgData" class="info-box-container message">
       <div class="message-body">
         <p v-if="selectedTreatmentTrain !== null">
           <span class="has-text-weight-bold">Treatment Train:</span> {{ selectedTreatmentTrain.names }}
@@ -63,7 +63,8 @@
         <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
     </div>
-    <Table :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
+    <DownloadLink title="Long Term Averages" :url="`/api/limitation?id=${selectedLimitationId}`" />
+    <Table v-if="longTermAvgData" :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
       <template v-slot:cell(treatmentTechnologyNames)="{ item }">
         {{ item.treatmentTechnologyNames }}
         <button
@@ -123,12 +124,13 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 import HoverText from '@/components/shared/HoverText';
+import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, Breadcrumbs, Table, Modal, HoverText },
+  components: { Alert, Breadcrumbs, Table, Modal, HoverText, DownloadLink },
   computed: {
     ...mapState('search', ['selectedTreatmentTrain']),
-    ...mapState('limitations', ['longTermAvgData']),
+    ...mapState('limitations', ['longTermAvgData', 'selectedLimitationId']),
   },
   data() {
     return {
@@ -185,10 +187,5 @@ button {
 
 .is-link.more {
   margin-left: 3px;
-}
-
-.download-icon-container {
-  justify-content: flex-end;
-  margin-bottom: 0;
 }
 </style>

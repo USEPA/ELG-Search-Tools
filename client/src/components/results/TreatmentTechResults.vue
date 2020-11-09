@@ -96,6 +96,18 @@
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
+      <DownloadLink
+        title="Limitations"
+        :url="
+          `/api/treatmentTechnologyLimitations?id=${
+            treatmentTechnologyData.id
+          }&treatmentId=${selectedTreatmentTrain
+            .map((t) => t.id)
+            .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
+            .map((t) => t.pointSourceCategoryCode)
+            .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`
+        "
+      />
       <Table
         v-if="treatmentLimitationData"
         :columns="limitationColumns"
@@ -162,9 +174,10 @@ import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
+import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, HoverText, Table, Modal, Multiselect },
+  components: { Alert, HoverText, Table, Modal, Multiselect, DownloadLink },
   computed: {
     ...get('search', [
       'selectedCategory',

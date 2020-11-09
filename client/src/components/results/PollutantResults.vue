@@ -1,19 +1,25 @@
 <template>
   <div>
     <p class="pollutant-subtext">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</p>
-    <div class="field is-grouped">
-      <button
-        :disabled="selectedPscs.length === 0"
-        :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
-        class="button is-hyperlink cfr-link"
-        @click="navigateToLimitationsForMultiplePscs(pollutantData[0])"
-      >
-        <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
-      </button>
-      <HoverText hoverId="catInfo" :icon="true" style="margin-left:0.25rem">
-        Select PSCs of interest in the first column below.
-      </HoverText>
+    <div class="columns no-margin">
+      <div class="column">
+        <button
+          :disabled="selectedPscs.length === 0"
+          :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
+          class="button is-hyperlink cfr-link"
+          @click="navigateToLimitationsForMultiplePscs(pollutantData[0])"
+        >
+          <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
+        </button>
+        <HoverText hoverId="catInfo" :icon="true" style="margin-left:0.25rem">
+          Select PSCs of interest in the first column below.
+        </HoverText>
+      </div>
+      <div class="column">
+        <DownloadLink title="Limitations" :url="`/api/pollutant/?id=${selectedPollutant.pollutantId}`" />
+      </div>
     </div>
+
     <Table :columns="pollColumns" :rows="pollutantData">
       <template v-slot:cell(selectPsc)="{ item }">
         <label class="sr-only">Select Point Source Category and click "Compare PSCs" to view limitations.</label>
@@ -84,19 +90,20 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { get, sync } from 'vuex-pathify';
 import HoverText from '@/components/shared/HoverText';
+import DownloadLink from '@/components/shared/DownloadLink';
 import Table from '@/components/shared/Table';
 import { BRow, BCol } from 'bootstrap-vue';
 
 export default {
-  components: { HoverText, Table, BRow, BCol },
+  components: { HoverText, DownloadLink, Table, BRow, BCol },
   computed: {
-    ...get('search', ['pollutantData']),
+    ...get('search', ['pollutantData', 'selectedPollutant']),
+    ...sync('search', ['selectedPscs']),
   },
   data() {
     return {
-      selectedPscs: [],
       pollColumns: [
         {
           key: 'selectPsc',
