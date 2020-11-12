@@ -25,20 +25,22 @@ module.exports = {
       });
 
       let rowNum = 0;
-      headerRows.forEach(function (headerRow) {
+      if (headerRows.length > 0) {
+        headerRows.forEach(function (headerRow) {
+          rowNum++;
+          let row = worksheet.addRow([]);
+          worksheet.getCell(rowNum, 1).value = {
+            richText: [
+              {font: {bold: true}, text: headerRow.label + ': '},
+              {text: headerRow.value}
+            ]
+          };
+          worksheet.mergeCells(rowNum, 1, rowNum, worksheet.columns.length);
+          row.commit();
+        });
         rowNum++;
-        let row = worksheet.addRow([]);
-        worksheet.getCell(rowNum, 1).value = {
-          richText: [
-            {font: { bold: true}, text: headerRow.label + ': '},
-            {text: headerRow.value}
-          ]
-        };
-        worksheet.mergeCells(rowNum, 1, rowNum, worksheet.columns.length);
-        row.commit();
-      });
-      rowNum++;
-      worksheet.addRow([]).commit();
+        worksheet.addRow([]).commit();
+      }
 
       rowNum++;
       let dataHeaderRow = worksheet.addRow(dataColumns.map(function (column) {

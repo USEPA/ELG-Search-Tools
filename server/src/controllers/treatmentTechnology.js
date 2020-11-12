@@ -480,28 +480,34 @@ module.exports = {
       limitation.technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds)
         .then(limitations => {
           if (downloadRequested) {
-            download.createDownloadFile('limitations',
-              'Limitations',
-              [
-                { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 30 },
-                { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
-                { key: 'comboSubcategory', label: 'Subpart', width: 40 },
-                { key: 'controlTechnologyCode', label: 'Level of Control' },
-                { key: 'pollutantDescription', label: 'Pollutant', width: 30 },
-                { key: 'wastestreamProcessTitle', label: 'Process', width: 40 },
-                { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
-                { key: 'limitationValue', label: 'Value'},
-                { key: 'limitationUnitCode', label: 'Units' },
-                { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation'}
-              ],
-              [
-                { label: 'Treatment Technology', value: id},
-                { label: 'Point Source Categories', value: pointSourceCategoryCodes},
-                { label: 'Pollutants', value: pollutantIds},
-                { label: 'Treatment Trains', value: treatmentIds}
-              ],
-              limitations,
-              res);
+            TreatmentTechnologyCode.findOne({
+              where: {
+                id: { [Op.eq]: id }
+              }
+            }).then(treatmentTechnologyCode => {
+              download.createDownloadFile('limitations',
+                'Limitations',
+                [
+                  { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
+                  { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
+                  { key: 'comboSubcategory', label: 'Subpart', width: 70 },
+                  { key: 'controlTechnologyCode', label: 'Level of Control' },
+                  { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
+                  { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
+                  { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
+                  { key: 'limitationValue', label: 'Value'},
+                  { key: 'limitationUnitCode', label: 'Units', width: 90 },
+                  { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
+                ],
+                [
+                  { label: 'Treatment Technology', value: treatmentTechnologyCode.name},
+                  { label: 'Point Source Categories', value: pointSourceCategoryCodes.join(', ')},
+                  { label: 'Pollutants', value: pollutantIds.join(', ')},
+                  { label: 'Treatment Trains', value: (treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))].join(', ') : '')}
+                ],
+                limitations,
+                res);
+            });
           }
           else {
             res.status(200).send(limitations);

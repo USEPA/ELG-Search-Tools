@@ -26,10 +26,10 @@ module.exports = {
             download.createDownloadFile('limitations',
               'Pollutant Limitations',
               [
-                { key: 'pollutantDescription', label: 'Pollutant', width: 30 },
-                { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation' },
+                { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
+                { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 },
                 { key: 'limitationValue', label: 'Value' },
-                { key: 'limitationUnitCode', label: 'Units', width: 30 },
+                { key: 'limitationUnitCode', label: 'Units', width: 90 },
                 { key: 'limitationUnitBasis', label: 'Limitation Basis' }
               ],
               [
@@ -38,7 +38,7 @@ module.exports = {
                 { label: 'CFR Section', value: limitations.cfrSection },
                 { label: 'Level of Control', value: limitations.controlTechnologyCode},
                 { label: 'Process Operation/Wastestream', value: limitations.title },
-                { label: 'Other Process/Wastestream Details', value: limitations.secondary, wrapText: true }
+                { label: 'Other Process/Wastestream Details', value: limitations.secondary.replace(/<strong><u>And<\/u><\/strong>/g, 'AND'), wrapText: true }
               ],
               limitations.limitations,
               res);

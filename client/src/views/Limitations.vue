@@ -65,7 +65,11 @@
         </p>
       </div>
     </div>
-    <DownloadLink title="Limitations" :url="`/api/wastestreamProcessLimitations?id=${selectedLimitationId}`" />
+    <DownloadLink
+      v-if="subcategoryData"
+      title="Limitations"
+      :url="`/api/wastestreamProcessLimitations?id=${selectedLimitationId}`"
+    />
     <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
