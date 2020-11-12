@@ -73,7 +73,9 @@ where
 	'REF_NAICS_CODE',
 	'REF_SIC_CODE',
 	'REF_PSC_NAICS_XWALK',
-	'REF_PSC_SIC_XWALK'))
+	'REF_PSC_SIC_XWALK',
+	'REF_Pollutant_Group',
+	'5D_Pollutant_Groups'))
 select
 	string_agg( replace(replace(replace(regexp_replace(elg_database.ogr_fdw_sql_table(conn, tb.table_name), 'CREATE SERVER (.*);(.*)CREATE FOREIGN TABLE ([a-z0-9\_]+)', E'DROP FOREIGN TABLE IF EXISTS elg_database.\\3;CREATE FOREIGN TABLE elg_database.\\3'), 'myserver', 'elg_database_odbc'), 'fid bigint,', ''), 'geom Geometry(Geometry),', ''), E'\n') as sql
 from
@@ -292,10 +294,11 @@ FROM elg_database.ref_limit_units;
 
 create view elg_database.view_ref_pollutant as
 SELECT
-	pollutant_code,
-	pollutant_desc,
-	coalesce(elg_pollutant_description, pollutant_desc) as elg_pollutant_description
-FROM elg_database.ref_pollutant;
+	p.pollutant_code,
+	p.pollutant_desc,
+	coalesce(p.elg_pollutant_description, p.pollutant_desc) as elg_pollutant_description,
+	replace(pg.pollutant_group, ' ', '') as pollutant_groups
+FROM elg_database.ref_pollutant p left outer join elg_database.n5d_pollutant_groups pg on p.pollutant_code = pg.pollutant_code;
 
 create view elg_database.view_ref_sic_code as 
 SELECT 

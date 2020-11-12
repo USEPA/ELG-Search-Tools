@@ -255,9 +255,7 @@ module.exports = {
       {"processop_id":25015,"treatment_id":39,"pollutant_code":2474},
       {"processop_id":25015,"treatment_id":39,"pollutant_code":2474},
       {"processop_id":25015,"treatment_id":39,"pollutant_code":59},
-      //TODO:{"processop_id":null,"treatment_id":24,"pollutant_code":2700},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":739},
-      //TODO:{"processop_id":null,"treatment_id":24,"pollutant_code":2700},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":739},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":50},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":50},
@@ -610,13 +608,9 @@ module.exports = {
       {"processop_id":25027,"treatment_id":40,"pollutant_code":6},
       {"processop_id":25027,"treatment_id":40,"pollutant_code":2},
       {"processop_id":25027,"treatment_id":40,"pollutant_code":2},
-      //TODO:{"processop_id":null,"treatment_id":24,"pollutant_code":1},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":473},
-      //TODO:{"processop_id":null,"treatment_id":24,"pollutant_code":1},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":473},
-      //TODO:{"processop_id":null,"treatment_id":24,"pollutant_code":1},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":39},
-      //TODO:{"processop_id":null,"treatment_id":24,"pollutant_code":1},
       {"processop_id":25028,"treatment_id":40,"pollutant_code":39},
       {"processop_id":25031,"treatment_id":40,"pollutant_code":2474},
       {"processop_id":25031,"treatment_id":40,"pollutant_code":2474},
@@ -26124,7 +26118,10 @@ module.exports = {
       {"processop_id":64032,"treatment_id":361,"pollutant_code":2697},
       {"processop_id":64032,"treatment_id":361,"pollutant_code":42},
       {"processop_id":64032,"treatment_id":361,"pollutant_code":41},
-      {"processop_id":64032,"treatment_id":361,"pollutant_code":739}];
+      {"processop_id":64032,"treatment_id":361,"pollutant_code":739},
+      {"processop_id":28134,"treatment_id":205,"pollutant_code":432},
+      {"processop_id":28134,"treatment_id":205,"pollutant_code":2716},
+      {"processop_id":28133,"treatment_id":202,"pollutant_code":432}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "WastestreamProcessTreatmentTechnologyPollutant" }, records);
   },

@@ -17,6 +17,11 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: false,
       field: 'elg_pollutant_description'
+    },
+    pollutant_groups: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      field: 'pollutant_groups'
     }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'Pollutant'})
