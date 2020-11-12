@@ -169,6 +169,11 @@ input,
     margin-bottom: 0;
   }
 }
+.columns.no-margin {
+  &, a {
+    margin-bottom: 0;
+  }
+}
 
 .info-box-container {
   display: inline-block;

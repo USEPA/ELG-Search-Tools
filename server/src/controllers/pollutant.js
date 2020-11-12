@@ -6,6 +6,8 @@ const Pollutant = require("../models").Pollutant;
 const Op = require("sequelize").Op;
 const Sequelize = require("sequelize");
 
+const download = require('./download');
+
 module.exports = {
   list(req, res) {
     try {
@@ -39,17 +41,20 @@ module.exports = {
   },
   /**
    * @param {
-   *          {id:string}
-   * } req.params
+   *          {id:string},
+   *          {download:string}
+   * } req.query
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = req.params.id ? req.params.id.split('|') : '';
+      let id = req.query.id ? req.query.id.split('|') : '';
 
       if (id === '') {
         return res.status(400).send("Invalid value passed for id");
       }
+
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
       //get ranges of limitations, then group by PSC
       return ViewLimitation.findAll({
@@ -63,7 +68,8 @@ module.exports = {
           ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
-          [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"]
+          [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
+          [Sequelize.literal("string_agg(distinct combo_subcat, '\n' order by combo_subcat)"), "pointSourceSubcategoriesForDownload"]
         ],
         where: {
           pollutantDescription: { [Op.in]: id }
@@ -77,6 +83,7 @@ module.exports = {
           pointSourceCategories.forEach(function(psc) {
             pscPromises.push(new Promise(function(resolve, reject) {
               let rangeOfPollutantLimitationsAsTable = [];
+              let rangeOfPollutantLimitationsForDownload = [];
 
               ViewLimitation.findAll({
                 group: [
@@ -110,21 +117,24 @@ module.exports = {
                 .then(limitValues => {
                   limitValues.forEach(function (limitValue) {
                     let rangeAsTableRow = new Map();
-                    rangeAsTableRow.minimumLimitationValue= (limitValue.minimumLimitationValue  ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
+                    rangeAsTableRow.minimumLimitationValue = (limitValue.minimumLimitationValue  ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
                     rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue  ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
-                    rangeAsTableRow.limitationUnitCode = limitValue.limitationUnitCode;
+                    rangeAsTableRow.limitationUnitCode = limitValue.limitationUnitCode.trim();
                     rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
                     rangeAsTableRow.limitationDurationDescription = limitValue.limitationDurationDescription
                     rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
+                    rangeOfPollutantLimitationsForDownload.push(rangeAsTableRow.minimumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') - ' + rangeAsTableRow.maximumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') ' + rangeAsTableRow.limitationType);
                   });
 
                   psc.rangeOfPollutantLimitations = rangeOfPollutantLimitationsAsTable;
+                  psc.rangeOfPollutantLimitationsForDownload = rangeOfPollutantLimitationsForDownload.join('\n');
 
                   resolve(psc);
                 })
                 .catch((error) => {
                   console.log(error);
                   psc.rangeOfPollutantLimitations = rangeOfPollutantLimitationsAsTable;
+                  psc.rangeOfPollutantLimitationsForDownload = rangeOfPollutantLimitationsForDownload.join('\n');
                   resolve(psc);
                 });
             }));
@@ -132,7 +142,59 @@ module.exports = {
 
           Promise.all(pscPromises)
             .then(pscs => {
-              res.status(200).send(pscs);
+              if (downloadRequested) {
+                Pollutant.findOne({
+                  group: ["elgDescription"],
+                  attributes: ["elgDescription"],
+                  where: {
+                    description: { [Op.in]: id }
+                  }
+                })
+                  .then(pollutant => {
+                    download.createDownloadFile('[pointSourceCategories]',
+                      'Point Source Categories',
+                      [
+                        { key: 'pointSourceCategoryCode', label: '40 CFR' },
+                        { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
+                        { key: 'pointSourceSubcategoriesForDownload', label: 'Subcategories', width: 40, wrapText: true },
+                        { key: 'rangeOfPollutantLimitationsForDownload', label: 'Range of Pollutant Limitations', width: 220, wrapText: true }
+                      ],
+                      [
+                        { label: 'Pollutant', value: pollutant.elgDescription},
+                        { label: 'Number of PSCs Referencing Pollutant', value: pscs.length}
+                      ],
+                      pscs,
+                      res);
+                  });
+
+                /*pscs.forEach(function(row) {
+                  worksheet.addRow(downloadColumns.map(function(column) {
+                    if (column.key === 'pointSourceSubcategories') {
+                      return row[column.key].replace(/<br\/>/g, '\n')
+                    }
+                    else if (column.key === 'rangeOfPollutantLimitations') {
+                      let cellValue = ''
+                      row[column.key].forEach(range => {
+                        let rangeValue = range.minimumLimitationValue + '\t' + range.maximumLimitationValue + '\t' + range.limitationUnitCode + '\t' + range.limitationType + '\t'
+                        if (cellValue === '') {
+                          cellValue = rangeValue
+                        }
+                        else {
+                          cellValue = cellValue + '\n' + rangeValue
+                        }
+                      });
+
+                      return cellValue
+                    }
+                    else {
+                      return row[column.key]
+                    }
+                  })).commit();
+                });*/
+              }
+              else {
+                res.status(200).send(pscs);
+              }
             })
             .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
         })
@@ -144,7 +206,8 @@ module.exports = {
   /*
    * @param {
    *          {pollutantId:number},
-   *          {pointSourceCategoryCode:number}
+   *          {pointSourceCategoryCode:number},
+   *          {download:string}
    * } req.query
    */
   limitations(req, res) {
@@ -162,9 +225,35 @@ module.exports = {
         return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
       }
 
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+
       limitation.pollutantLimitations(pollutantIds, pointSourceCategoryCodes)
         .then(limitations => {
-          res.status(200).send(limitations);
+          if (downloadRequested) {
+            download.createDownloadFile('limitations',
+              'Pollutant Limitations',
+              [
+                { key: 'pointSourceCategoryCode', label: 'Point Source Category', width: 30 },
+                { key: 'controlTechnologyCode', label: 'Level of Control' },
+                { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
+                { key: 'comboSubcategory', label: 'Subpart', width: 60 },
+                { key: 'wastestreamProcessTitle', label: 'Process Operation/Wastestream', width: 60 },
+                { key: 'wastestreamProcessSecondary', label: 'Other Process/Wastestream Detail(s)', width: 60 },
+                { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 },
+                { key: 'limitationValue', label: 'Value' },
+                { key: 'limitationUnitCode', label: 'Units', width: 90 },
+                { key: 'limitationUnitBasis', label: 'Limitation Basis' }
+              ],
+              [
+                { label: 'Pollutant', value: [...new Set(limitations.map(lim => lim.pollutantDescription))].join(', ') },
+                { label: 'Point Source Categories', value: pointSourceCategoryCodes.join(', ')}
+              ],
+              limitations,
+              res);
+          }
+          else {
+            res.status(200).send(limitations);
+          }
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     } catch (err) {

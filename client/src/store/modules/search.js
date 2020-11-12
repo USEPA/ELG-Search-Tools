@@ -14,6 +14,7 @@ const state = {
   selectedPollutant: null,
   selectedTreatmentTechnology: null,
   selectedTreatmentTrain: null,
+  selectedPscs: [], // for comparing PSCs on poll results
   // search results data
   categoryData: null,
   subcategoryData: null,
@@ -79,7 +80,7 @@ const actions = {
     dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/pollutant/${state.selectedPollutant.pollutantId}`);
+    const res = await axios.get(`api/pollutant/?id=${state.selectedPollutant.pollutantId}`);
     commit('SET_POLLUTANT_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },

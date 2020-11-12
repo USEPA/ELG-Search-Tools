@@ -15,13 +15,13 @@ module.exports = (app, history) => {
 
   app.get('/api/pointSourceSubcategory/:id', controllers.pointSourceSubcategory.read);
 
-  app.get('/api/wastestreamProcessLimitations/:id', controllers.wastestreamProcess.limitations);
+  app.get('/api/wastestreamProcessLimitations', controllers.wastestreamProcess.limitations);
 
   app.get('/api/pollutants', controllers.pollutant.list);
-  app.get('/api/pollutant/:id', controllers.pollutant.read);
+  app.get('/api/pollutant', controllers.pollutant.read);
   app.get('/api/pollutantLimitations', controllers.pollutant.limitations);
 
-  app.get('/api/limitation/:id', controllers.limitation.read);
+  app.get('/api/limitation', controllers.limitation.read);
 
   app.get('/api/treatmentTechnologies', controllers.treatmentTechnology.list);
   app.get('/api/treatmentTechnology/:id', controllers.treatmentTechnology.read);

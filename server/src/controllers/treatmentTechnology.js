@@ -11,6 +11,8 @@ const Pollutant = require("../models").Pollutant;
 const Op = require("sequelize").Op;
 const Sequelize = require("sequelize");
 
+const download = require('./download');
+
 function fillTreatmentTechnology(id, codes) {
   return new Promise(function(resolve, reject) {
     let result = {
@@ -457,7 +459,8 @@ module.exports = {
    *          {id:string},
    *          {treatmentId:number},
    *          {pointSourceCategoryCode:number},
-   *          {pollutantId:string}
+   *          {pollutantId:string},
+   *          {download:string}
    * } req.query
    */
   limitations(req, res) {
@@ -472,10 +475,43 @@ module.exports = {
       let treatmentIds = (req.query.treatmentId ? req.query.treatmentId.split(';') : []);
       let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(';') : []);
       let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
       limitation.technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds)
         .then(limitations => {
-          res.status(200).send(limitations);
+          if (downloadRequested) {
+            TreatmentTechnologyCode.findOne({
+              where: {
+                id: { [Op.eq]: id }
+              }
+            }).then(treatmentTechnologyCode => {
+              download.createDownloadFile('limitations',
+                'Limitations',
+                [
+                  { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
+                  { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
+                  { key: 'comboSubcategory', label: 'Subpart', width: 70 },
+                  { key: 'controlTechnologyCode', label: 'Level of Control' },
+                  { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
+                  { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
+                  { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
+                  { key: 'limitationValue', label: 'Value'},
+                  { key: 'limitationUnitCode', label: 'Units', width: 90 },
+                  { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
+                ],
+                [
+                  { label: 'Treatment Technology', value: treatmentTechnologyCode.name},
+                  { label: 'Point Source Categories', value: pointSourceCategoryCodes.join(', ')},
+                  { label: 'Pollutants', value: pollutantIds.join(', ')},
+                  { label: 'Treatment Trains', value: (treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))].join(', ') : '')}
+                ],
+                limitations,
+                res);
+            });
+          }
+          else {
+            res.status(200).send(limitations);
+          }
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     } catch (err) {

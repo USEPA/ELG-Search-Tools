@@ -9,6 +9,8 @@ const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('..
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
 
+const download = require('./download');
+
 let attributes = [
   'limitationId',
   'controlTechnologyCode',
@@ -73,6 +75,9 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
         result.limitations = limitations;
 
         if (limitations.length > 0) {
+          result.pointSourceCategoryCode = limitations[0].pointSourceCategoryCode;
+          result.pointSourceCategoryName = limitations[0].pointSourceCategoryName;
+          result.comboSubcategory = limitations[0].comboSubcategory;
           result.cfrSection = limitations[0].wastestreamProcessCfrSection;
           result.controlTechnologyCode = limitations[0].controlTechnologyCode;
           result.title = limitations[0].wastestreamProcessTitle;
@@ -256,17 +261,20 @@ module.exports = {
   technologyBasisLimitations,
   /**
    * @param {
-   *          {id:number}
-   * } req.params
+   *          {id:number},
+   *          {download:string}
+   * } req.query
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = utilities.parseIdAsInteger(req.params.id);
+      let id = utilities.parseIdAsInteger(req.query.id);
 
       if (id === null) {
         return res.status(400).send('Invalid value passed for id')
       }
+
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
       return ViewLimitation.findByPk(id, {
         attributes: [
@@ -336,7 +344,33 @@ module.exports = {
                     }
                     return 0;
                   });
-                  res.status(200).send(result);
+
+                  if (downloadRequested) {
+                    download.createDownloadFile('longTermAverages',
+                      'Long Term Averages',
+                      [
+                        { key: 'treatmentTechnologyNames', label: 'Treatment Train', width: 70 },
+                        { key: 'pollutantDescription', label: 'Pollutant' },
+                        { key: 'longTermAverageValue', label: 'LTA Value' },
+                        { key: 'alternateLimitFlag', label: 'Limitation Flag' },
+                        { key: 'limitationValue', label: 'Limitation Value' },
+                        { key: 'limitationUnitBasis', label: 'Limitation Basis' },
+                        { key: 'longTermAverageSourceTitle', label: 'LTA Reference', width: 150 }
+                      ],
+                      [
+                        { label: 'Point Source Category ' + result['pointSourceCategoryCode'], value: result['pointSourceCategoryName'] },
+                        { label: 'Subpart', value: result['comboSubcategory'] },
+                        { label: 'Level of Control', value: result['controlTechnologyCode']},
+                        { label: 'Process Operation/Wastestream', value: result['wastestreamProcessTitle'] },
+                        { label: 'Other Process/Wastestream Details', value: result['wastestreamProcessSecondary'].replace(/<strong><u>And<\/u><\/strong>/g, 'AND') },
+                        { label: 'Pollutant', value: result['pollutantDescription'] }
+                      ],
+                      result['longTermAverages'],
+                      res);
+                  }
+                  else {
+                    res.status(200).send(result);
+                  }
                 });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
