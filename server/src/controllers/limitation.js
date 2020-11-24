@@ -177,6 +177,97 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
   });
 }
 
+function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds) {
+  return new Promise(function(resolve, reject) {
+    TreatmentTechnologyCode.findAll({
+      where: {
+        category: { [Op.iLike]: '%' + id + '%' }
+      }
+    })
+      .then(treatmentTechnologyCodes => {
+        let whereClauseOrList = [];
+        treatmentTechnologyCodes.forEach(function(treatmentTechnologyCode) {
+          whereClauseOrList.push({[Op.and]: Sequelize.literal("lower('" + treatmentTechnologyCode.id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)")});
+        });
+
+        //determine list of relevant treatment ids;
+        // either specific treatment trains selected OR all treatment trains for the selected treatment technology code
+        ViewWastestreamProcessTreatmentTechnology.findAll({
+          attributes: ["treatmentId"],
+          where: {
+            [Op.and]: [
+              {
+                [Op.or]: whereClauseOrList
+              },
+              {
+                [Op.or]: {
+                  treatmentId: {[Op.in]: treatmentIds},
+                  [Op.and]: Sequelize.literal(treatmentIds.length + ' = 0')
+                }
+              }
+            ]
+          },
+          group: ["treatmentId"]
+        })
+          .then(treatmentTechnologies => {
+            treatmentIds = treatmentTechnologies.map(a => a.treatmentId)
+
+            //determine list of wastestream processes that are relevant based on selected treatment trains and selected pollutants
+            ViewWastestreamProcessTreatmentTechnologyPollutant.findAll({
+              attributes: ['wastestreamProcessId'],
+              where: {
+                treatmentId: {[Op.in]: treatmentIds},
+                [Op.or]: {
+                  elgPollutantDescription: {[Op.in]: pollutantIds},
+                  [Op.and]: Sequelize.literal(pollutantIds.length + ' = 0')
+                }
+              },
+              group: ['wastestreamProcessId'],
+            })
+              .then(wastestreamProcesses => {
+                if (wastestreamProcesses.length) {
+                  //determine list of limitations that are relevant based on selected PSCs, selected pollutants, and relevant wastestream processes
+                  ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+                    attributes: attributes.concat(['treatmentCodes', 'treatmentNames', 'wastestreamProcessTreatmentTechnologyNotes', 'wastestreamProcessTreatmentTechnologySourceTitle']),
+                    where: {
+                      [Op.and]: [
+                        {
+                          [Op.or]: whereClauseOrList
+                        },
+                        {
+                          [Op.or]: {
+                            pointSourceCategoryCode: {[Op.in]: pointSourceCategoryCodes},
+                            [Op.and]: Sequelize.literal(pointSourceCategoryCodes.length + ' = 0')
+                          }
+                        },
+                        {
+                          [Op.or]: {
+                            elgPollutantDescription: {[Op.in]: pollutantIds},
+                            [Op.and]: Sequelize.literal(pollutantIds.length + ' = 0')
+                          }
+                        },
+                        {wastestreamProcessId: {[Op.in]: wastestreamProcesses.map(a => a.wastestreamProcessId)}}
+                      ]
+                    },
+                    order: order
+                  })
+                    .then((limitations) => {
+                      resolve(limitations);
+                    })
+                    .catch((error) => reject('Error retrieving limitations: ' + error));
+                } else {
+                  //no possible wastestream process; return empty list of limitations
+                  resolve([]);
+                }
+              })
+              .catch((error) => reject('Error retrieving wastestream processes for limitations: ' + error));
+          })
+          .catch((error) => reject('Error retrieving treatment trains for limitations: ' + error));
+      })
+      .catch((error) => reject("Error! TreatmentTechnologyCode: " + error));
+  });
+}
+
 function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
   return new Promise(function(resolve, reject) {
     ViewWastestreamProcessTreatmentTechnology.findAll({
@@ -258,6 +349,7 @@ module.exports = {
   wastestreamProcessLimitations,
   pollutantLimitations,
   technologyLimitations,
+  technologyCategoryLimitations,
   technologyBasisLimitations,
   /**
    * @param {

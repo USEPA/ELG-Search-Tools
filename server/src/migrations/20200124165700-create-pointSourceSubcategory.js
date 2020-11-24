@@ -68,6 +68,11 @@ module.exports = {
       allowNull: false,
       field: 'reservedflag'
     },
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'PointSourceSubcategory'},
+      ['psc_code']
+    )
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'PointSourceSubcategory'})
 };

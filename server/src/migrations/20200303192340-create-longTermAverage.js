@@ -48,6 +48,11 @@ module.exports = {
       allowNull: true,
       field: 'notes'
     },
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'LongTermAverage'},
+      ['lim_id']
+    )
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'LongTermAverage'})
 };
