@@ -71,7 +71,7 @@ function fillSubcategoryForDefinitions(subcategory) {
 
     let attributes = [
       'term',
-      'definition',
+      [Sequelize.literal("replace(replace(definition, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'definition'],
       'cfrHasAdditionalDetails'
     ];
 

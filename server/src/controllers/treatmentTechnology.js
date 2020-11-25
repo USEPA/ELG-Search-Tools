@@ -354,7 +354,7 @@ module.exports = {
                   'treatmentId',
                   [Sequelize.literal("'" + tts[0].names + "'"), 'treatmentNames'],
                   'treatmentDescription',
-                  'wastestreamProcessTreatmentTechnologyNotes',
+                  [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
                   'wastestreamProcessTreatmentTechnologySourceTitle',
                   'wastestreamProcessTreatmentTechnologyBmpType',
                   'wastestreamProcessTreatmentTechnologyZeroDischarge'
@@ -377,7 +377,7 @@ module.exports = {
                   'treatmentId',
                   [Sequelize.literal("12")],
                   'treatmentDescription',
-                  'wastestreamProcessTreatmentTechnologyNotes',
+                  [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
                   'wastestreamProcessTreatmentTechnologySourceTitle',
                   'wastestreamProcessTreatmentTechnologyBmpType',
                   'wastestreamProcessTreatmentTechnologyZeroDischarge'
