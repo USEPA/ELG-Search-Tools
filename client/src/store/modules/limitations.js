@@ -133,6 +133,19 @@ const actions = {
     commit('SET_IS_FETCHING', true);
 
     let data = null;
+    let url = 'api/treatmentTechnologyLimitations';
+    const params = {
+      id: rootState.search.treatmentTechnologyData.id,
+      treatmentId: state.selectedTreatmentTrain.map((t) => t.id).join(';'),
+      pointSourceCategoryCode: state.selectedTreatmentCategory.map((t) => t.pointSourceCategoryCode).join(';'),
+      pollutantId: state.selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';'),
+    };
+
+    // Adjust URL and ID if treatment category was selected from search
+    if (rootState.search.selectedTreatmentTechnologyCategory) {
+      url = 'api/treatmentTechnologyCategoryLimitations';
+      params.id = rootState.search.selectedTreatmentTechnologyCategory;
+    }
 
     // Only search if one or more criteria has been selected
     if (
@@ -140,14 +153,7 @@ const actions = {
       state.selectedTreatmentCategory.length > 0 ||
       state.selectedTreatmentPollutant.length > 0
     ) {
-      const res = await axios.get('api/treatmentTechnologyLimitations', {
-        params: {
-          id: rootState.search.treatmentTechnologyData.id,
-          treatmentId: state.selectedTreatmentTrain.map((t) => t.id).join(';'),
-          pointSourceCategoryCode: state.selectedTreatmentCategory.map((t) => t.pointSourceCategoryCode).join(';'),
-          pollutantId: state.selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';'),
-        },
-      });
+      const res = await axios.get(url, { params });
 
       data = res.data;
     }

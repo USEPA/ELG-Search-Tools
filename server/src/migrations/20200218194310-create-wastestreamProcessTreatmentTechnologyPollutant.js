@@ -17,6 +17,23 @@ module.exports = {
       allowNull: false,
       field: 'pollutant_code'
     }
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnologyPollutant'},
+      ['processop_id', 'treatment_id'],
+      { name: 'idx_wpttp_pt' }
+    ).then(() => {
+        queryInterface.addIndex(
+          {schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnologyPollutant'},
+          ['processop_id', 'pollutant_code'],
+          { name: 'idx_wpttp_pp' }
+        ).then(() => {
+          queryInterface.addIndex(
+            {schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnologyPollutant'},
+            ['treatment_id']
+          )
+      })
+    })
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnologyPollutant'})
 };

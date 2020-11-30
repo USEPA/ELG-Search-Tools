@@ -30,7 +30,7 @@ function fillControlTechnology(controlTechnology) {
     ControlTechnologyNotes.findAll({
       attributes: [
         'cfrSection',
-        [Sequelize.literal("replace(ct_notes, '\\u00A7', U&'\\00A7')"), 'notes']
+        [Sequelize.literal("replace(replace(ct_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'notes']
       ],
       where: {
         controlTechnologyCode: { [Op.eq]: controlTechnology.controlTechnologyCode },

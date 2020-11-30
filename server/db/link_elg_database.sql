@@ -58,6 +58,7 @@ where
 	'4C_Technology_Bases_WS',
 	'4C_Technology_Bases_WS_Pollutants',
 	'5_Pollutant_Limitations',
+	'5_Pollutant_Limitations_Range',
 	'5B_Pollutant_LTAs',
 	'5C_Weight_Factors',
 	'5C_Weight_Factors_Pollutants',
@@ -131,7 +132,7 @@ select
     replace(replace(replace(replace(replace(replace(replace(processop_description, U&'\00A7', '\u00A7'), chr(145), ''''), chr(146), ''''), U&'\0093', '"'), U&'\0094', '"'), U&'\0096', '-'), U&'\0097', '-') as processop_description,
     replace(replace(replace(replace(
 	    case 
-	    	when processop_id = 25055 then 'Limitations for the parameters are the same as the corresponding limitation specified in \u00A7437.42' --odd character in source data
+	    	when processop_id = 25055 then 'Limitations for the parameters are the same as the corresponding limitation specified in \u00A7437.42(e)' --odd character in source data
 	    	else lim_calc_desc
 	    end	, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as lim_calc_desc,
     replace(replace(replace(replace(replace(processop_notes, U&'\0097', '-'), U&'\0085', '...'), U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"') as processop_notes,
@@ -153,18 +154,18 @@ SELECT
 	pl.lim_id,
 	pl.pollutant_code,
 	case
-		when  pl.lim_id = 17175	THEN	'0.17 + (8 X (no. of hides)/kg RM)'
-	 	when  pl.lim_id = 17176	THEN	'0.21 + (11 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17178	THEN	'0.34 + (8 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17179	THEN	'0.42 + (11 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17204	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17205	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17206	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17207	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17220	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17221	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17222	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
-		when  pl.lim_id = 17223	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70840	THEN	'0.17 + (8 X (no. of hides)/kg RM)'
+	 	when  pl.lim_id = 70841	THEN	'0.21 + (11 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70843	THEN	'0.34 + (8 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70844	THEN	'0.42 + (11 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70869	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70870	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70871	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70872	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70885	THEN	'0.09 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70886	THEN	'0.18 + (3.6 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70887	THEN	'0.11 + (6.2 X (no. of hides)/kg RM)'
+		when  pl.lim_id = 70888	THEN	'0.22 + (6.2 X (no. of hides)/kg RM)'
 		else pl.lim_value
 	end as lim_value, --TODO: check these values in the latest data!
 	pl.lim_value_min,
@@ -227,7 +228,7 @@ select
 	cfr_subsection,
 	replace(replace(replace(term, U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-') as term,
 	replace(replace(replace(replace(replace(case 
-        when cfr_part = 427 and cfr_subsection = '427.71.c' and term = 'Pieces' then 'Floor tile measured in the standard size of 12" X 12" X 3/32 ".'
+        when cfr_part = 427 and cfr_subsection = '427.71.c' and term = 'Pieces' then '(Subpart G) Floor tile measured in the standard size of 12" X 12" X 3/32".'
         when cfr_part = 420 and cfr_subsection = '420.21.d' and term = 'pg/L' then '(Subpart B) Picograms per liter (ppt = 1.0 X 10-12 gm/L).'
         else definition 
        end, U&'\00A7', '\u00A7'), U&'\0093', '"'), U&'\0094', '"'), U&'\0097', '-'), U&'\00B0', '\u00B0') as definition,

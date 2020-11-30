@@ -501,7 +501,9 @@ module.exports = {
       {"treatment_id":522,"treatment_description":null,"treatment_codes":"OW; FILT; REUSE; CLAR"},
       {"treatment_id":523,"treatment_description":null,"treatment_codes":"BMP; MPT; FILT"},
       {"treatment_id":524,"treatment_description":null,"treatment_codes":"BIO; CND"},
-      {"treatment_id":525,"treatment_description":null,"treatment_codes":"CLAR; OW; REUSE"}];
+      {"treatment_id":525,"treatment_description":null,"treatment_codes":"CLAR; OW; REUSE"},
+      {"treatment_id":526,"treatment_description":null,"treatment_codes":"REDX; ChemPre; FI"},
+      {"treatment_id":527,"treatment_description":null,"treatment_codes":"REDX; ChemPre; EQ; FI; REUSE"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "TreatmentTechnology" }, records);
   },
