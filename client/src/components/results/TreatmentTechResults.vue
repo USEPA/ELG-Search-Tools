@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="treatmentTechnologyData">
-      <div class="info-box-container message">
+      <div v-if="selectedTreatmentTechnology" class="info-box-container message">
         <div class="message-body">
           <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
         </div>
@@ -186,6 +186,7 @@ export default {
       'pollutantData',
       'treatmentTechnologyData',
       'treatmentTrain',
+      'selectedTreatmentTechnology',
     ]),
     ...get('limitations', ['treatmentLimitationData']),
     ...sync('results', ['activeTab']),

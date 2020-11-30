@@ -31,9 +31,38 @@
         ></Multiselect>
       </div>
       <div class="control">
-        <button class="button is-medium" @click="onSubmit" :title="isFetching ? 'Loading...' : 'Search'">
+        <button
+          class="button is-medium"
+          @click="onSubmit"
+          :title="isFetching ? 'Loading...' : !currentSearchValue ? 'Select an option to search' : 'Search'"
+          :disabled="!currentSearchValue"
+        >
           <span class="sr-only">Search</span>
           <span :class="`fa has-text-white ${isFetching ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
+        </button>
+      </div>
+    </div>
+    <div v-if="searchType === 'treatmentTech'" class="field has-addons">
+      <div class="control is-expanded secondary-input">
+        <Multiselect
+          :value="selectedTreatmentTechnologyCategory"
+          :options="treatmentTechnologyCategories"
+          placeholder="Select Treatment Technology Category"
+          :disabled="!searchType"
+          @input="onSelectTreatmentCategory"
+        />
+      </div>
+      <div class="control">
+        <button
+          class="button is-medium"
+          @click="onSubmitTreatmentCategory"
+          :title="
+            isFetching ? 'Loading...' : !selectedTreatmentTechnologyCategory ? 'Select an option to search' : 'Search'
+          "
+          :disabled="!selectedTreatmentTechnologyCategory"
+        >
+          <span class="sr-only">Search</span>
+          <span :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
         </button>
       </div>
     </div>
@@ -86,11 +115,18 @@ export default {
       pollutantId: null,
       treatmentTechnologyId: null,
       isFetching: false,
+      isFetchingSecondary: false,
     };
   },
   computed: {
-    ...get('search', ['categories', 'pollutants', 'treatmentTechnologies']),
-    ...sync('search', ['searchType', 'selectedCategory', 'selectedPollutant', 'selectedTreatmentTechnology']),
+    ...get('search', ['categories', 'pollutants', 'treatmentTechnologies', 'treatmentTechnologyCategories']),
+    ...sync('search', [
+      'searchType',
+      'selectedCategory',
+      'selectedPollutant',
+      'selectedTreatmentTechnology',
+      'selectedTreatmentTechnologyCategory',
+    ]),
     searchTypeObject() {
       return this.searchTypes.find((type) => type.id === this.searchType) || {};
     },
@@ -103,8 +139,14 @@ export default {
     },
   },
   methods: {
-    async onSelectOption(value) {
+    onSelectOption(value) {
       this[this.searchTypeObject.selectedProp] = value;
+      // Clear any secondary options (e.g. treatment category)
+      this.selectedTreatmentTechnologyCategory = null;
+    },
+    onSelectTreatmentCategory(value) {
+      this.selectedTreatmentTechnology = null;
+      this.selectedTreatmentTechnologyCategory = value;
     },
     getOptionLabel(searchOption) {
       if (this.searchTypeObject.shouldDisplayCode) {
@@ -122,12 +164,19 @@ export default {
       this.isFetching = false;
       this.$router.push('results');
     },
+    async onSubmitTreatmentCategory() {
+      this.isFetchingSecondary = true;
+      await this.$store.dispatch('search/getTreatmentTechnologyCategoryData');
+      this.isFetchingSecondary = false;
+      this.$router.push('results');
+    },
   },
   created() {
     // Fetch lookup data for dropdown lists
     this.$store.dispatch('search/getPointSourceCategories');
     this.$store.dispatch('search/getPollutants');
     this.$store.dispatch('search/getTreatmentTechnologies');
+    this.$store.dispatch('search/getTreatmentTechnologyCategories');
     // Clear treatment train data so it's not pre-selected if user returns to same results page
     this.$store.commit('search/SET_SELECTED_TREATMENT_TRAIN', null);
     this.$store.commit('search/SET_TREATMENT_TRAIN', null);
@@ -152,9 +201,13 @@ button {
 .field.has-addons {
   height: 44px;
 }
-</style>
 
-<style lang="scss" scoped>
+.control.secondary-input {
+  width: calc(100% - 503px);
+  flex-grow: 0 !important;
+  margin-left: auto;
+}
+
 ::v-deep {
   .multiselect__tags {
     min-height: 45px !important;

@@ -27,6 +27,9 @@
         <span v-else-if="selectedTreatmentTechnology">
           {{ selectedTreatmentTechnology.name }}
         </span>
+        <span v-else-if="selectedTreatmentTechnologyCategory">
+          {{ selectedTreatmentTechnologyCategory }}
+        </span>
         Limitation Results
       </h2>
       <div class="column help-icons">
@@ -43,7 +46,7 @@
 
     <PointSourceResults v-if="selectedCategory" />
     <PollutantResults v-if="selectedPollutant" />
-    <TreatmentTechResults v-if="selectedTreatmentTechnology" />
+    <TreatmentTechResults v-if="selectedTreatmentTechnology || selectedTreatmentTechnologyCategory" />
   </section>
 </template>
 
@@ -57,7 +60,12 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs';
 export default {
   components: { Breadcrumbs, PointSourceResults, PollutantResults, TreatmentTechResults },
   computed: {
-    ...get('search', ['selectedCategory', 'selectedPollutant', 'selectedTreatmentTechnology']),
+    ...get('search', [
+      'selectedCategory',
+      'selectedPollutant',
+      'selectedTreatmentTechnology',
+      'selectedTreatmentTechnologyCategory',
+    ]),
   },
 };
 </script>
