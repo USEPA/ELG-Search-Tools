@@ -43,15 +43,8 @@
           Subpart {{ subcategoryData.comboSubcategory }}
         </h3>
       </div>
-      <div class="column help-icons">
-        <div class="field is-grouped">
-          <span class="fas fa-book has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-        </div>
-        <div class="field is-grouped help-container">
-          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
-        </div>
+      <div class="column">
+        <HelpLinks />
       </div>
     </div>
     <div v-if="subcategoryData" class="info-box-container message">
