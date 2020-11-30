@@ -50,7 +50,7 @@
         @input="onChangeSubcategory"
         class="results-select"
       />
-      <HoverText hoverId="subcatInstructions" icon="true">
+      <HoverText hoverId="subcatInstructions" :icon="true">
         Select a Subcategory for details on the Level of Control (BPT, BAT, BCT, NSPS, PSES, PSNS) and process
         operations/wastestream requirements.
       </HoverText>
