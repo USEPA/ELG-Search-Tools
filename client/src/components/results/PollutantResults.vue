@@ -16,7 +16,16 @@
         </HoverText>
       </div>
       <div class="column">
-        <DownloadLink title="Limitations" :url="`/api/pollutant/?id=${selectedPollutant.pollutantId}`" />
+        <DownloadLink
+          v-if="selectedPollutant"
+          title="Limitations"
+          :url="`/api/pollutant/?id=${selectedPollutant.pollutantId}`"
+        />
+        <DownloadLink
+          v-else-if="selectedPollutantCategory"
+          title="Limitations"
+          :url="`/api/pollutantCategory/?id=${selectedPollutantCategory.id}`"
+        />
       </div>
     </div>
 
@@ -99,7 +108,7 @@ import { BRow, BCol } from 'bootstrap-vue';
 export default {
   components: { HoverText, DownloadLink, Table, BRow, BCol },
   computed: {
-    ...get('search', ['pollutantData', 'selectedPollutant']),
+    ...get('search', ['pollutantData', 'selectedPollutant', 'selectedPollutantCategory']),
     ...sync('search', ['selectedPscs']),
   },
   data() {

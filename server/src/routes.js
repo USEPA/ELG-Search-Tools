@@ -18,7 +18,9 @@ module.exports = (app, history) => {
   app.get('/api/wastestreamProcessLimitations', controllers.wastestreamProcess.limitations);
 
   app.get('/api/pollutants', controllers.pollutant.list);
+  app.get('/api/pollutantCategories', controllers.pollutant.listCategories);
   app.get('/api/pollutant', controllers.pollutant.read);
+  app.get('/api/pollutantCategory', controllers.pollutant.readCategory);
   app.get('/api/pollutantLimitations', controllers.pollutant.limitations);
 
   app.get('/api/limitation', controllers.limitation.read);

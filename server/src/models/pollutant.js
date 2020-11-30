@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'elg_pollutant_description'
       },
-      pollutant_groups: {
+      pollutantGroups: {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'pollutant_groups'

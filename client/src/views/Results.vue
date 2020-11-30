@@ -24,6 +24,9 @@
         <span v-else-if="selectedPollutant">
           {{ selectedPollutant.pollutantDescription }}
         </span>
+        <span v-else-if="selectedPollutantCategory">
+          {{ selectedPollutantCategory.description }}
+        </span>
         <span v-else-if="selectedTreatmentTechnology">
           {{ selectedTreatmentTechnology.name }}
         </span>
@@ -38,7 +41,7 @@
     </div>
 
     <PointSourceResults v-if="selectedCategory" />
-    <PollutantResults v-if="selectedPollutant" />
+    <PollutantResults v-if="selectedPollutant || selectedPollutantCategory" />
     <TreatmentTechResults v-if="selectedTreatmentTechnology || selectedTreatmentTechnologyCategory" />
   </section>
 </template>
@@ -56,6 +59,7 @@ export default {
     ...get('search', [
       'selectedCategory',
       'selectedPollutant',
+      'selectedPollutantCategory',
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),

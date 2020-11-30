@@ -6,6 +6,7 @@ const state = {
   categories: [],
   subcategories: [],
   pollutants: [],
+  pollutantCategories: [],
   treatmentTechnologies: [],
   treatmentTechnologyCategories: [],
   // user-selected values
@@ -13,6 +14,7 @@ const state = {
   selectedCategory: null,
   selectedSubcategory: null,
   selectedPollutant: null,
+  selectedPollutantCategory: null,
   selectedTreatmentTechnology: null,
   selectedTreatmentTechnologyCategory: null,
   selectedTreatmentTrain: null,
@@ -78,11 +80,27 @@ const actions = {
     commit('SET_POLLUTANTS', res.data);
     commit('SET_IS_FETCHING', false);
   },
+  async getPollutantCategories({ commit }) {
+    commit('SET_POLLUTANT_CATEGORIES', []);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/pollutantCategories');
+    commit('SET_POLLUTANT_CATEGORIES', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
   async getPollutantData({ state, commit, dispatch }) {
     dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/pollutant/?id=${state.selectedPollutant.pollutantId}`);
+    commit('SET_POLLUTANT_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getPollutantCategoryData({ state, commit, dispatch }) {
+    dispatch('clearResultsData');
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get(`api/pollutantCategory/?id=${state.selectedPollutantCategory.id}`);
     commit('SET_POLLUTANT_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
