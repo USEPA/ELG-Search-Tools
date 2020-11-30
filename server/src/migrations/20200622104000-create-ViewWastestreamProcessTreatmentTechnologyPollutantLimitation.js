@@ -24,10 +24,9 @@ module.exports = {
     'inner join elg_search."PointSourceCategory" psc on pss.psc_code = psc.psc_code and psc."IncludeInSearchTool" = true ' +
     'left outer join elg_search."LongTermAverage" lta on l.lim_id = lta.lim_id ' +
     'inner join elg_search."WastestreamProcessTreatmentTechnologyPollutant" wpttp on wp.processop_id = wpttp.processop_id and p.pollutant_code = wpttp.pollutant_code ' +
-    'inner join (select tt_sub.treatment_id, tt_sub.treatment_codes, string_agg((select name from elg_search."TreatmentTechnologyCode" where code = treatment_code), \' + \') as treatment_names, tt_sub.treatment_description from elg_search."TreatmentTechnology" tt_sub, regexp_split_to_table(tt_sub.treatment_codes, \'; \') WITH ORDINALITY x(treatment_code, rn) group by tt_sub.treatment_id, tt_sub.treatment_codes, tt_sub.treatment_description order by tt_sub.treatment_codes) tt on wpttp.treatment_id = tt.treatment_id ' +
+    'inner join elg_search."TreatmentTechnology" tt on wpttp.treatment_id = tt.treatment_id ' +
     'inner join elg_search."WastestreamProcessTreatmentTechnology" wptt ON wpttp.processop_id = wptt.processop_id AND wpttp.treatment_id = wptt.treatment_id ' +
     'inner join elg_search."ReferenceSource" rs ON wptt.tech_ref = rs.source_id ' +
-    "cross join regexp_split_to_table(tt.treatment_codes, '; ') WITH ORDINALITY x(treatment_code, treatment_code_rn) " +
     'group by l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, l.alt_lim_description, ' +
     "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END, " +
     'wp.processop_id, wp.processop_title, wp.secondary, wp.sortorder, wp.cfr_sect, ' +

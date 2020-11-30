@@ -51,7 +51,12 @@ module.exports = {
           allowNull: true,
           field: 'most_recent_revision_date'
         }
-      });
+      }).then(() => {
+        queryInterface.addIndex(
+          {schema: 'elg_search', tableName: 'PointSourceCategory'},
+          ['IncludeInSearchTool']
+        )
+      })
     }),
   down: (queryInterface) => queryInterface.dropTable({ schema: "elg_search", tableName: "PointSourceCategory" })
 };

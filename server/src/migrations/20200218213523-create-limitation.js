@@ -78,6 +78,16 @@ module.exports = {
       allowNull: true,
       field: 'pollutant_notes'
     }
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'Limitation'},
+      ['processop_id']
+    ).then(() => {
+      queryInterface.addIndex(
+        {schema: 'elg_search', tableName: 'Limitation'},
+        ['pollutant_code']
+      )
+    })
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'Limitation'})
 };

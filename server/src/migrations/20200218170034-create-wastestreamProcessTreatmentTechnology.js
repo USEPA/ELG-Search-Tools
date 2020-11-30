@@ -32,6 +32,11 @@ module.exports = {
       allowNull: false,
       field: 'zero_discharge'
     }
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology'},
+      ['processop_id', 'treatment_id']
+    )
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology'})
 };

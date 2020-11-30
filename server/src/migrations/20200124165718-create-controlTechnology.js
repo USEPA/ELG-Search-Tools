@@ -58,6 +58,11 @@ module.exports = {
       allowNull: false,
       field: 'includesbmps'
     }
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'ControlTechnology'},
+      ['subcat_id']
+    )
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'ControlTechnology'})
 };
