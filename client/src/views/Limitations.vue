@@ -90,13 +90,6 @@
           <div class="poll-limitation-container">
             <DownloadLink title="Limitations" :url="pollDownloadUrl" />
             <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
-              <template v-slot:cell(limitationValue)="{ item }">
-                <span v-if="item.limitationValue">
-                  {{ item.limitationValue }}
-                </span>
-                <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
-                <span v-else>--</span>
-              </template>
               <template v-slot:cell(goToLta)="{ item }">
                 <span v-if="item.longTermAverageCount > 0">
                   <a @click="shouldDisplayLongTermAvgData(item)">
