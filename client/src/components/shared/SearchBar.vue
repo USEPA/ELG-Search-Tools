@@ -66,6 +66,30 @@
         </button>
       </div>
     </div>
+    <div v-if="searchType === 'pollutant'" class="field has-addons">
+      <div class="control is-expanded secondary-input">
+        <Multiselect
+          :value="selectedPollutantCategory"
+          :options="pollutantCategories"
+          placeholder="Select Pollutant Category"
+          label="description"
+          track-by="id"
+          :disabled="!searchType"
+          @input="onSelectPollutantCategory"
+        />
+      </div>
+      <div class="control">
+        <button
+          class="button is-medium"
+          @click="onSubmitPollutantCategory"
+          :title="isFetching ? 'Loading...' : !selectedPollutantCategory ? 'Select an option to search' : 'Search'"
+          :disabled="!selectedPollutantCategory"
+        >
+          <span class="sr-only">Search</span>
+          <span :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -119,11 +143,18 @@ export default {
     };
   },
   computed: {
-    ...get('search', ['categories', 'pollutants', 'treatmentTechnologies', 'treatmentTechnologyCategories']),
+    ...get('search', [
+      'categories',
+      'pollutants',
+      'pollutantCategories',
+      'treatmentTechnologies',
+      'treatmentTechnologyCategories',
+    ]),
     ...sync('search', [
       'searchType',
       'selectedCategory',
       'selectedPollutant',
+      'selectedPollutantCategory',
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
@@ -142,7 +173,12 @@ export default {
     onSelectOption(value) {
       this[this.searchTypeObject.selectedProp] = value;
       // Clear any secondary options (e.g. treatment category)
+      this.selectedPollutantCategory = null;
       this.selectedTreatmentTechnologyCategory = null;
+    },
+    onSelectPollutantCategory(value) {
+      this.selectedPollutant = null;
+      this.selectedPollutantCategory = value;
     },
     onSelectTreatmentCategory(value) {
       this.selectedTreatmentTechnology = null;
@@ -170,11 +206,18 @@ export default {
       this.isFetchingSecondary = false;
       this.$router.push('results');
     },
+    async onSubmitPollutantCategory() {
+      this.isFetchingSecondary = true;
+      await this.$store.dispatch('search/getPollutantCategoryData');
+      this.isFetchingSecondary = false;
+      this.$router.push('results');
+    },
   },
   created() {
     // Fetch lookup data for dropdown lists
     this.$store.dispatch('search/getPointSourceCategories');
     this.$store.dispatch('search/getPollutants');
+    this.$store.dispatch('search/getPollutantCategories');
     this.$store.dispatch('search/getTreatmentTechnologies');
     this.$store.dispatch('search/getTreatmentTechnologyCategories');
     // Clear treatment train data so it's not pre-selected if user returns to same results page
