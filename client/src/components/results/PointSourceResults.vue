@@ -39,10 +39,6 @@
         </div>
       </div>
     </div>
-    <Alert type="info" class="instructions-alert">
-      Select a Subcategory for details on the Level of Control (BPT, BAT, BCT, NSPS, PSES, PSNS) and process
-      operations/wastestream requirements.
-    </Alert>
     <div class="psc-select">
       <label class="sr-only" for="subcategory">Subpart</label>
       <Multiselect
