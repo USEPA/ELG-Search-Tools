@@ -54,6 +54,10 @@
         @input="onChangeSubcategory"
         class="results-select"
       />
+      <HoverText hoverId="subcatInstructions" icon="true">
+        Select a Subcategory for details on the Level of Control (BPT, BAT, BCT, NSPS, PSES, PSNS) and process
+        operations/wastestream requirements.
+      </HoverText>
     </div>
     <Alert v-if="subcategoryData" type="info" style="margin-bottom:1.25rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
@@ -376,6 +380,11 @@ select {
 
 .psc-select {
   margin-bottom: 1.5rem;
+
+  .hover-info-container {
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+  }
 }
 
 .results-select {
