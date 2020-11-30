@@ -120,11 +120,7 @@
           <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
             <span class="fa fa-info-circle"></span>
           </button>
-          <Modal
-            v-if="shouldDisplayProcess === index"
-            title="Treatment Train Notes"
-            @close="shouldDisplayProcess = false"
-          >
+          <Modal v-if="shouldDisplayProcess === index" title="Description" @close="shouldDisplayProcess = false">
             <p class="has-text-left">
               <span v-html="item.wastestreamProcessDescription" />
             </p>
