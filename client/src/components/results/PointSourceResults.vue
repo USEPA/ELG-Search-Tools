@@ -103,6 +103,7 @@
             :rows="controlTechnology.wastestreamProcesses"
             :busy="isFetching"
             :perPage="100"
+            :emptyText="tableEmptyText"
           >
             <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`head(${fieldKey})`]="data">
               {{ data.label }}
@@ -220,6 +221,15 @@ export default {
     ...get('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
     ...sync('results', ['activeTab']),
     ...sync('search', ['selectedSubcategory']),
+    tableEmptyText() {
+      if (
+        this.selectedCategory.pointSourceCategoryCode === 414 &&
+        ['I', 'J', 'K'].includes(this.subcategoryData.pointSourceSubcategoryCode)
+      ) {
+        return 'Refer to Subcategories B through H for process operations and requirements.';
+      }
+      return undefined;
+    },
   },
   data() {
     return {
