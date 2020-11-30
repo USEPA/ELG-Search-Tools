@@ -126,7 +126,12 @@
           <Multiselect
             v-if="filterableFields.map((f) => f.key).includes(field.key)"
             v-model="filterValues[field.key]"
-            :options="rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v)"
+            :options="
+              rows
+                .map((row) => row[field.key])
+                .filter((v, i, a) => a.indexOf(v) === i && !!v)
+                .sort()
+            "
             :placeholder="`Filter` /* `Select ${field.label}` */"
             select-label=""
             deselect-label=""

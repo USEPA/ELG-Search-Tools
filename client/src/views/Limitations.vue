@@ -90,6 +90,9 @@
           <div class="poll-limitation-container">
             <DownloadLink title="Limitations" :url="pollDownloadUrl" />
             <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
+              <template v-slot:cell(comboSubcategory)="{ item, value }">
+                <span v-if="isComparingPscs">{{ item.pointSourceCategoryCode }}</span> {{ value }}
+              </template>
               <template v-slot:cell(goToLta)="{ item }">
                 <span v-if="item.longTermAverageCount > 0">
                   <a @click="shouldDisplayLongTermAvgData(item)">

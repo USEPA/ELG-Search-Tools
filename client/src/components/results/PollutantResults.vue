@@ -167,6 +167,10 @@ export default {
       this.$router.push('/results/limitations');
     },
   },
+  mounted() {
+    // Clear any previously selected PSCs when page mounts
+    this.selectedPscs = [];
+  },
 };
 </script>
 
