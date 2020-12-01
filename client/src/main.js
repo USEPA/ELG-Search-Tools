@@ -6,6 +6,11 @@ import router from './router';
 import store from './store/index';
 import App from './App';
 
+// Import heavily-used components for global use
+import HelpLinks from './components/shared/HelpLinks';
+
+Vue.component('HelpLinks', HelpLinks);
+
 Vue.config.productionTip = false;
 
 Vue.use(VueAxios, axios);

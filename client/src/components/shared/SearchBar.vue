@@ -1,5 +1,14 @@
 <template>
   <div>
+    <p style="padding-bottom:0.75rem">
+      Please select one of the following search criteria: point source category, pollutant, or treatment technology.
+      Note: depending on the criteria selected, the search result may take time to load.
+    </p>
+    <p>
+      For the pollutant search criteria, you can select an individual pollutant or a pollutant category. For the
+      treatment technology search criteria, you can select an individual treatment technology or a treatment technology
+      category.
+    </p>
     <div class="field has-addons">
       <div class="control">
         <label for="searchType" class="button is-static has-background-grey-lighter has-text-black is-medium">
