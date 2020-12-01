@@ -1,6 +1,6 @@
 <template>
   <a class="download-icon-container has-text-weight-bold" :href="`${apiBaseUrl}${url}&download=true`">
-    <span class="fas fa-download help-icon"></span>
+    <span class="fas fa-download"></span>
     Download {{ title }} (Excel File)
   </a>
 </template>
