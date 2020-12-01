@@ -224,6 +224,7 @@ export default {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
           filterable: true,
+          customFilterSort: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
         },
         {
           key: 'pollutantDescription',

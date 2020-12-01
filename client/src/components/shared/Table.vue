@@ -126,12 +126,7 @@
           <Multiselect
             v-if="filterableFields.map((f) => f.key).includes(field.key)"
             v-model="filterValues[field.key]"
-            :options="
-              rows
-                .map((row) => row[field.key])
-                .filter((v, i, a) => a.indexOf(v) === i && !!v)
-                .sort()
-            "
+            :options="getFilterOptions(field)"
             :placeholder="`Filter` /* `Select ${field.label}` */"
             select-label=""
             deselect-label=""
@@ -283,6 +278,15 @@ export default {
       this.currentModalTitle = title;
       this.currentModalContent = content;
       this.shouldDisplayModal = true;
+    },
+    getFilterOptions(field) {
+      const rawField = this.filterableFields.find((f) => f.key === field.key);
+      let options = this.rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v);
+      // If options need to be sorted in specific way, check for "customFilterSort" prop in field object and sort accordingly
+      if (rawField.customFilterSort) {
+        options = rawField.customFilterSort.filter((val) => options.includes(val));
+      }
+      return options;
     },
   },
   created() {
