@@ -262,6 +262,11 @@ input,
   }
 }
 
+.sr-only {
+  position: static;
+  display: none;
+}
+
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
 // Import vue-multiselect
