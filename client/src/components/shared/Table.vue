@@ -55,11 +55,14 @@
           <HoverText
             v-if="item.alternateLimitFlag && item.alternateLimitFlag !== '<' && item.alternateLimitFlag !== '>='"
             :id="`flagHover${index}`"
-            :linkText="item.limitationValue"
+            :linkText="
+              item.alternateLimitFlag === 'ADJUST' || item.alternateLimitFlag === 'X by Factor'
+                ? item.alternateLimitFlag
+                : item.limitationValue
+            "
           >
-            <div class="cfr-link is-pulled-right">
+            <div v-if="item.pointSourceCategoryCode === 419" class="cfr-link is-pulled-right">
               <a
-                v-if="item.pointSourceCategoryCode === 419"
                 title="Electronic Code of Federal Regulations"
                 :href="`https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.419#se40.31.${item.cfrSectionAnchor}`"
                 target="_blank"
@@ -67,8 +70,11 @@
               >
                 eCFR <span class="fa fa-external-link-alt" />
               </a>
+              <br />
             </div>
-            <br />
+            <div v-if="item.alternateLimitFlag === 'ADJUST' || item.alternateLimitFlag === 'X by Factor'">
+              Limitation Value: {{ item.limitationValue }} {{ item.limitationUnitCode }}
+            </div>
             Limitation Flag: {{ item.alternateLimitFlag }} - {{ item.alternateLimitDescription }}
           </HoverText>
           <span v-else>{{ item.alternateLimitFlag }} {{ item.limitationValue }}</span>
