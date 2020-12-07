@@ -5,7 +5,7 @@ module.exports = {
       {"pollutant_code":3,"pollutant_desc":"pH","elg_pollutant_description":"pH","pollutant_groups":"4"},
       {"pollutant_code":4,"pollutant_desc":"Pentachlorophenol","elg_pollutant_description":"Pentachlorophenol","pollutant_groups":"1"},
       {"pollutant_code":5,"pollutant_desc":"Trichlorophenol","elg_pollutant_description":"Trichlorophenol","pollutant_groups":null},
-      {"pollutant_code":6,"pollutant_desc":"Oil & Grease","elg_pollutant_description":"Oil & Grease","pollutant_groups":"4"},
+      {"pollutant_code":6,"pollutant_desc":"Oil & Grease","elg_pollutant_description":"Oil & grease","pollutant_groups":"4"},
       {"pollutant_code":7,"pollutant_desc":"TCDD","elg_pollutant_description":"TCDD","pollutant_groups":null},
       {"pollutant_code":8,"pollutant_desc":"TCDF","elg_pollutant_description":"TCDF","pollutant_groups":null},
       {"pollutant_code":9,"pollutant_desc":"Chloroform (Trichloromethane)","elg_pollutant_description":"Chloroform (Trichloromethane)","pollutant_groups":"1"},

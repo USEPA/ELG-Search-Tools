@@ -136,7 +136,7 @@ module.exports = {
       {"treatment_id":142,"treatment_description":null,"treatment_codes":"EQ; BIO; CLAR"},
       {"treatment_id":143,"treatment_description":null,"treatment_codes":"EMUL; OW; REDX; ChemPre; OW; ChemPre"},
       {"treatment_id":144,"treatment_description":null,"treatment_codes":"ChemPre; OW; ChemPre"},
-      {"treatment_id":145,"treatment_description":null,"treatment_codes":"EMUL; OW; REDX; ChemPre; OW; ChemPre FI"},
+      {"treatment_id":145,"treatment_description":null,"treatment_codes":"EMUL; OW; REDX; ChemPre; OW; ChemPre; FI"},
       {"treatment_id":146,"treatment_description":null,"treatment_codes":"ChemPre; OW; ChemPre; FI"},
       {"treatment_id":147,"treatment_description":null,"treatment_codes":"REDX; ChemPre; OW; ChemPre"},
       {"treatment_id":148,"treatment_description":null,"treatment_codes":"REDX; ChemPre; OW; ChemPre; FI"},

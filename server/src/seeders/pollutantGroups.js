@@ -5,7 +5,7 @@ module.exports = {
       {"id":3,"group_description":"Nutrient (phosphorus)"},
       {"id":4,"group_description":"Conventional"},
       {"id":5,"group_description":"Solids"},
-      {"id":6,"group_description":"Metal"}];
+      {"id":6,"group_description":"Metals"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "PollutantGroup" }, records);
   },
