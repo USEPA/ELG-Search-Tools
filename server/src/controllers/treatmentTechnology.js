@@ -241,7 +241,12 @@ module.exports = {
         attributes: [ "category" ],
         group: ['category'],
         where: {
-          category: { [Op.ne]: null }
+          category: {
+            [Op.and]: [
+              { [Op.ne]: null },
+              { [Op.ne]: 'Other' }
+            ]
+          }
         },
         order: ["category"]
       })
