@@ -58,7 +58,11 @@ module.exports = {
       data.forEach(function (dataRow) {
         rowNum++;
         let row = worksheet.addRow(dataColumns.map(function (column) {
-          return dataRow[column.key]
+          let cellValue = dataRow[column.key];
+          if (typeof (cellValue) === 'string') {
+            cellValue = cellValue.replace(/<strong><u>And<\/u><\/strong>/g, 'AND');
+          }
+          return cellValue;
         }));
         row.commit();
       });

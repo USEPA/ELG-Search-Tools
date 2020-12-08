@@ -470,7 +470,7 @@ module.exports = {
                 { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
                 { key: 'comboSubcategory', label: 'Subpart', width: 60 },
                 { key: 'wastestreamProcessTitle', label: 'Process Operation/Wastestream', width: 60 },
-                { key: 'wastestreamProcessSecondary', label: 'Other Process/Wastestream Detail(s)', width: 60 },
+                { key: 'wastestreamProcessSecondary', label: 'Other Process/Wastestream Detail(s)', width: 100 },
                 { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 },
                 { key: 'limitationValue', label: 'Value' },
                 { key: 'limitationUnitCode', label: 'Units', width: 90 },
