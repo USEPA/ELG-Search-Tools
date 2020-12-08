@@ -18,7 +18,7 @@ function buildRangeOfLimitations(limitValues) {
       let rangeAsTableRow = new Map();
       rangeAsTableRow.minimumLimitationValue = (limitValue.minimumLimitationValue  ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
       rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue  ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
-      rangeAsTableRow.limitationUnitCode = limitValue.limitationUnitCode.trim();
+      rangeAsTableRow.limitationUnitCode = (limitValue.limitationUnitCode ? limitValue.limitationUnitCode.trim() : null);
       rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
       rangeAsTableRow.limitationDurationDescription = limitValue.limitationDurationDescription
       rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
@@ -156,14 +156,20 @@ module.exports = {
                   "limitationUnitBasis",
                   "limitationUnitCode",
                   "limitationDurationDescription",
-                  [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
-                  [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
+                  [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
+                  [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
                   [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
                   [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then null else lim_value_max end))"), 'maximumLimitationValueText']
                 ],
                 where: {
                   pollutantDescription: { [Op.in]: id },
-                  pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode }
+                  pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode },
+                  alternateLimitFlag: {
+                    [Op.or]: [
+                      { [Op.ne]: 'X by Factor' },
+                      { [Op.eq]: null }
+                    ]
+                  }
                 },
                 order: [
                   "limitationDurationTypeDisplay",
@@ -279,7 +285,7 @@ module.exports = {
       //get ranges of limitations, then group by PSC
       return Pollutant.findAll({
           where: {
-            [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), '; ') AS groups)")
+            [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), ';') AS groups)")
           }
         })
         .then(pollutants => {
@@ -320,14 +326,20 @@ module.exports = {
                       "limitationUnitBasis",
                       "limitationUnitCode",
                       "limitationDurationDescription",
-                      [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
-                      [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then lim_value::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
+                      [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
+                      [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
                       [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
                       [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then null else lim_value_max end))"), 'maximumLimitationValueText']
                     ],
                     where: {
                       pollutantId: { [Op.in]: pollutants.map(a => a.id) },
-                      pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode }
+                      pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode },
+                      alternateLimitFlag: {
+                        [Op.or]: [
+                          { [Op.ne]: 'X by Factor' },
+                          { [Op.eq]: null }
+                        ]
+                      }
                     },
                     order: [
                       "limitationDurationTypeDisplay",
@@ -372,7 +384,7 @@ module.exports = {
                         download.createDownloadFile('[pollutantsAndPointSourceCategories]',
                           'Pollutants and PSCs',
                           [
-                            { key: 'pollutantDescription', label: 'Pollutant' },
+                            { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
                             { key: 'pointSourceCategoryCode', label: '40 CFR' },
                             { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
                             { key: 'pointSourceSubcategoriesForDownload', label: 'Subcategories', width: 40, wrapText: true },

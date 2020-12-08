@@ -86,7 +86,12 @@ module.exports = {
       queryInterface.addIndex(
         {schema: 'elg_search', tableName: 'Limitation'},
         ['pollutant_code']
-      )
+      ).then(() => {
+        queryInterface.addIndex(
+          {schema: 'elg_search', tableName: 'Limitation'},
+          ['alt_lim_flag']
+        )
+      })
     })
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'Limitation'})
