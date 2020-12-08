@@ -1,8 +1,11 @@
 <template>
   <div>
-    <p class="pollutant-subtext">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</p>
+    <p class="pollutant-subtext">
+      Number of PSCs Referencing Pollutant{{ selectedPollutantCategory ? ' Category' : '' }}:
+      {{ new Set(pollutantData.map((row) => row.pointSourceCategoryCode)).size }}
+    </p>
     <div class="columns no-margin">
-      <div class="column">
+      <div v-if="!selectedPollutantCategory" class="column">
         <button
           :disabled="selectedPscs.length === 0"
           :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
@@ -29,7 +32,7 @@
       </div>
     </div>
 
-    <Table :columns="pollColumns" :rows="pollutantData">
+    <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData">
       <template v-slot:cell(selectPsc)="{ item }">
         <label class="sr-only">Select Point Source Category and click "Compare PSCs" to view limitations.</label>
         <input
@@ -118,6 +121,35 @@ export default {
           key: 'selectPsc',
           label: 'Select PSC',
           sortable: false,
+        },
+        {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
+        {
+          key: 'pointSourceSubcategories',
+          label: 'Subcategories',
+          isAbbreviatedList: true,
+        },
+        {
+          key: 'rangeOfPollutantLimitations',
+          label: 'Range of Pollutant Limitations',
+          displayAsHTML: true,
+          sortable: false,
+        },
+        {
+          key: 'goToLimitations',
+          label: 'Go to Limitations',
+        },
+      ],
+      pollCategoryColumns: [
+        {
+          key: 'pollutantDescription',
+          label: 'Pollutant',
         },
         {
           key: 'pointSourceCategoryCode',

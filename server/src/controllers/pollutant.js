@@ -396,31 +396,6 @@ module.exports = {
                           pscs,
                           res);
                       });
-
-                    /*pscs.forEach(function(row) {
-                      worksheet.addRow(downloadColumns.map(function(column) {
-                        if (column.key === 'pointSourceSubcategories') {
-                          return row[column.key].replace(/<br\/>/g, '\n')
-                        }
-                        else if (column.key === 'rangeOfPollutantLimitations') {
-                          let cellValue = ''
-                          row[column.key].forEach(range => {
-                            let rangeValue = range.minimumLimitationValue + '\t' + range.maximumLimitationValue + '\t' + range.limitationUnitCode + '\t' + range.limitationType + '\t'
-                            if (cellValue === '') {
-                              cellValue = rangeValue
-                            }
-                            else {
-                              cellValue = cellValue + '\n' + rangeValue
-                            }
-                          });
-
-                          return cellValue
-                        }
-                        else {
-                          return row[column.key]
-                        }
-                      })).commit();
-                    });*/
                   }
                   else {
                     res.status(200).send(pscs);
