@@ -31,7 +31,7 @@
           {{ selectedTreatmentTechnology.name }}
         </span>
         <span v-else-if="selectedTreatmentTechnologyCategory">
-          {{ selectedTreatmentTechnologyCategory }}
+          {{ selectedTreatmentTechnologyCategory + ' Treatment Category' }}
         </span>
         Limitation Results
       </h2>
