@@ -13,67 +13,6 @@ const Sequelize = require("sequelize");
 
 const download = require('./download');
 
-function fillTreatmentTechnology(id, codes) {
-  return new Promise(function(resolve, reject) {
-    let result = {
-      id: id,
-      codes: codes,
-      names: codes
-    };
-
-    TreatmentTechnologyCode.findAll({
-      where: {
-        [Op.and]: Sequelize.literal("code IN (SELECT codes FROM regexp_split_to_table('" + codes + "', '; ') AS codes)")
-      }
-    })
-      .then(treatmentTechnologyCodes => {
-        result.names = codes.split("; ").map(code => treatmentTechnologyCodes.filter(treatmentTechnologyCode => treatmentTechnologyCode.id === code)[0].name).join(" + ");
-        resolve(result);
-      })
-      .catch(err => {
-        console.error("Failed to retrieve treatment technology names: " + err);
-        resolve(result);
-      });
-  });
-}
-
-function fillControlTechnology(controlTechnologyCode, controlTechnologyIncludesBmps, wastestreamProcessTreatmentTechnologies) {
-  return new Promise(function(resolve, reject) {
-    let ct = {
-      id: controlTechnologyCode,
-      controlTechnologyCode: controlTechnologyCode,
-      pollutants: '',
-      includesBmps: controlTechnologyIncludesBmps,
-      wastestreamProcessTreatmentTechnologies: wastestreamProcessTreatmentTechnologies
-    };
-
-    if (wastestreamProcessTreatmentTechnologies.length) {
-      WastestreamProcessTreatmentTechnologyPollutant.findAll({
-        attributes: ['pollutantId'],
-        where: {
-          [Op.and]: Sequelize.literal("concat(processop_id, '|', treatment_id) in (" + wastestreamProcessTreatmentTechnologies.map(a => "'" + a.wastestreamProcessId + '|' + a.treatmentId + "'").join(',') + ")")
-        }
-      }).then(wastestreamProcessTreatmentTechnologyPollutants => {
-        Pollutant.findAll({
-          attributes: ['elgDescription'],
-          where: {
-            id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
-          },
-          group: ['elgDescription'],
-          order: ['elgDescription']
-        }).then(pollutants => {
-          ct.pollutants = pollutants.map(a => a.elgDescription).join(', ');
-
-          resolve(ct);
-        });
-      });
-    }
-    else {
-      resolve(ct);
-    }
-  });
-}
-
 /**
  * @param {
  *          {treatmentId:number},
@@ -171,32 +110,23 @@ function sendCriteriaList(res, result, treatmentTechnologyCodes) {
               result.pollutants = pollutants;
 
               TreatmentTechnology.findAll({
-                attributes: ["id", "codes"],
+                attributes: ["id", "codes", "names"],
                 where: {
                   [Op.and]: Sequelize.literal("treatment_id::character varying IN (SELECT treatment_ids FROM regexp_split_to_table('" + criteriaList.treatment_id + "', ';') AS treatment_ids)")
                 }
               })
                 .then(treatmentTechnologies => {
-                  let ttPromises = [];
-
-                  treatmentTechnologies.forEach(function(tt) {
-                    ttPromises.push(fillTreatmentTechnology(tt.id, tt.codes));
+                  result.treatmentTrains = treatmentTechnologies.sort(function (a, b) {
+                    if (a.names < b.names) {
+                      return -1;
+                    }
+                    if (a.names > b.names) {
+                      return 1;
+                    }
+                    return 0;
                   });
 
-                  Promise.all(ttPromises)
-                    .then(tts => {
-                      result.treatmentTrains = tts.sort(function (a, b) {
-                        if (a.names < b.names) {
-                          return -1;
-                        }
-                        if (a.names > b.names) {
-                          return 1;
-                        }
-                        return 0;
-                      });
-
-                      res.status(200).send(result);
-                    })
+                  res.status(200).send(result);
                 })
                 .catch((error) => res.status(400).send("Error! TreatmentTechnology:  " + utilities.sanitizeError(error)));
             })
@@ -368,125 +298,6 @@ module.exports = {
           });
       })
       .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
-  },
-  /*
-   * @param {
-   *          {treatmentId:number},
-   *          {pointSourceCategoryCode:number}
-   * } req.query
-   */
-  technologyBases(req, res) {
-    // check for required query attributes and replace with defaults if missing
-    try {
-      let treatmentIds = (req.query.treatmentId ? req.query.treatmentId.split(',') : []);
-      let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(',') : []);
-
-      //validate passed in values
-      if (treatmentIds === [] || treatmentIds.some(function(treatmentId) {return utilities.parseIdAsInteger(treatmentId) === null})) {
-        return res.status(400).send("Invalid value passed for treatmentId");
-      }
-
-      if (pointSourceCategoryCodes === [] || pointSourceCategoryCodes.some(function(psc) {return utilities.parseIdAsInteger(psc) === null})) {
-        return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
-      }
-
-      TreatmentTechnology.findAll({
-        where: { id: { [Op.in]: treatmentIds } }
-      })
-        .then(treatmentTechnologies => {
-          let ttPromises = [];
-
-          treatmentTechnologies.forEach(function(tt) {
-            ttPromises.push(fillTreatmentTechnology(tt.id, tt.codes));
-          });
-
-          Promise.all(ttPromises)
-            .then(tts => {
-              ViewWastestreamProcessTreatmentTechnology.findAll({
-                attributes: [
-                  'pointSourceCategoryCode',
-                  'pointSourceCategoryName',
-                  'pointSourceCategoryCfrSection',
-                  'controlTechnologyCode',
-                  'controlTechnologyIncludesBmps',
-                  'comboSubcategory',
-                  'wastestreamProcessId',
-                  'wastestreamProcessTitle',
-                  'wastestreamProcessSecondary',
-                  'wastestreamProcessCfrSection',
-                  'treatmentId',
-                  [Sequelize.literal("'" + tts[0].names + "'"), 'treatmentNames'],
-                  'treatmentDescription',
-                  [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
-                  'wastestreamProcessTreatmentTechnologySourceTitle',
-                  'wastestreamProcessTreatmentTechnologyBmpType',
-                  'wastestreamProcessTreatmentTechnologyZeroDischarge'
-                ],
-                where: {
-                  treatmentId: { [Op.in]: treatmentIds },
-                  pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes }
-                },
-                group: [
-                  'pointSourceCategoryCode',
-                  'pointSourceCategoryName',
-                  'pointSourceCategoryCfrSection',
-                  'controlTechnologyCode',
-                  'controlTechnologyIncludesBmps',
-                  'comboSubcategory',
-                  'wastestreamProcessId',
-                  'wastestreamProcessTitle',
-                  'wastestreamProcessSecondary',
-                  'wastestreamProcessCfrSection',
-                  'treatmentId',
-                  [Sequelize.literal("12")],
-                  'treatmentDescription',
-                  [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
-                  'wastestreamProcessTreatmentTechnologySourceTitle',
-                  'wastestreamProcessTreatmentTechnologyBmpType',
-                  'wastestreamProcessTreatmentTechnologyZeroDischarge'
-                ],
-                order: [
-                  'pointSourceCategoryCode',
-                  'controlTechnologyCode',
-                  'comboSubcategory',
-                  'wastestreamProcessTitle',
-                  'wastestreamProcessSecondary'
-                ]
-              })
-                .then(wastestreamProcessTreatmentTechnologies => {
-                  let result = new Map();
-                  result.treatmentNames = tts[0].names;
-                  result.pointSourceCategoryCode = wastestreamProcessTreatmentTechnologies[0].pointSourceCategoryCode;
-                  result.pointSourceCategoryName = wastestreamProcessTreatmentTechnologies[0].pointSourceCategoryName;
-
-                  let ctPromises = [];
-
-                  ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'].forEach(function(ctCode) {
-                    let wptts = wastestreamProcessTreatmentTechnologies.filter(function(wptt) { return wptt.controlTechnologyCode === ctCode; });
-                    let ctIncludeBmps = false;
-
-                    if (wptts.length > 0) {
-                      ctIncludeBmps = wptts[0].controlTechnologyIncludesBmps;
-                    }
-
-                    ctPromises.push(
-                      fillControlTechnology(ctCode, ctIncludeBmps, wptts)
-                    );
-                  });
-
-                  Promise.all(ctPromises)
-                    .then(cts => {
-                      result.controlTechnologies = cts;
-                      res.status(200).send(result);
-                    });
-                })
-                .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
-            });
-        })
-        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
-    } catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
-    }
   },
   /*
    * @param {
