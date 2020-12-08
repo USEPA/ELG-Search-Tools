@@ -7,8 +7,6 @@ const WastestreamProcess = require('../models').WastestreamProcess;
 const WastestreamProcessTreatmentTechnology = require('../models').WastestreamProcessTreatmentTechnology;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
-const WastestreamProcessTreatmentTechnologyPollutant = require('../models').WastestreamProcessTreatmentTechnologyPollutant;
-const Pollutant  = require('../models').Pollutant;
 const ViewLimitation  = require('../models').ViewLimitation;
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
@@ -77,65 +75,46 @@ function fillControlTechnology(controlTechnology) {
             wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) }
           }
         }).then(wastestreamProcessTreatmentTechnologies => {
-          if (wastestreamProcessTreatmentTechnologies.length > 0) {
-            TreatmentTechnology.findAll({
-              attributes: ['codes'],
-              where: {
-                id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
-              }
-            }).then(treatmentTechnologies => {
-              TreatmentTechnologyCode.findAll({
-                attributes: ['name'],
-                where: {
-                  code: { [Op.in]: treatmentTechnologies.map(a => a.codes).join('; ').split('; ') }
-                },
-                group: ['name'],
-                order: ['name']
-              })
-                .then((treatmentTechnologyCodes) => {
-                  WastestreamProcessTreatmentTechnologyPollutant.findAll({
-                    attributes: ['pollutantId'],
+          // use limitations to get pollutants
+          ViewLimitation.findAll( {
+            attributes: [
+              [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
+              [Sequelize.col('elg_pollutant_description'), 'elgPollutantDescription']
+            ],
+            where: {
+              wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
+            }
+          })
+            .then(pollutants => {
+              ct['pollutants'] = pollutants.map(a => a.elgPollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
+                return self.indexOf(value) === index;
+              }).join('; ');
+
+              if (wastestreamProcessTreatmentTechnologies.length > 0) {
+                TreatmentTechnology.findAll({
+                  attributes: ['codes'],
+                  where: {
+                    id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
+                  }
+                }).then(treatmentTechnologies => {
+                  TreatmentTechnologyCode.findAll({
+                    attributes: ['name'],
                     where: {
-                      wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
-                      treatmentId: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
-                    }
-                  }).then(wastestreamProcessTreatmentTechnologyPollutants => {
-                    Pollutant.findAll({
-                      attributes: ['elgDescription'],
-                      where: {
-                        id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.map(a => a.pollutantId) }
-                      },
-                      group: ['elgDescription'],
-                      order: ['elgDescription']
-                    }).then(pollutants => {
+                      code: { [Op.in]: treatmentTechnologies.map(a => a.codes).join('; ').split('; ') }
+                    },
+                    group: ['name'],
+                    order: ['name']
+                  })
+                    .then((treatmentTechnologyCodes) => {
                       ct['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join('; ');
-                      ct['pollutants'] = pollutants.map(a => a.elgDescription).join('; ');
 
                       resolve(ct);
                     });
-                  });
-                });
-            })
-          } else {
-            // no treatment technologies are linked to this process
-            // use limitations to get pollutants
-            ViewLimitation.findAll( {
-              attributes: [
-                [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
-                [Sequelize.col('elg_pollutant_description'), 'elgPollutantDescription']
-              ],
-              where: {
-                wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(a => a.id) },
-              }
-            })
-              .then(pollutants => {
-                ct['pollutants'] = pollutants.map(a => a.elgPollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
-                  return self.indexOf(value) === index;
-                }).join('; ');
-
+                })
+              } else {
                 resolve(ct);
-              })
-          }
+              }
+          });
         });
       });
     })

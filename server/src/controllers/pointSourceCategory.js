@@ -189,6 +189,8 @@ module.exports = {
                               res.status(200).send(result);
                             });
                         })
+                      } else {
+                        res.status(200).send(result);
                       }
                     });
                 }).catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
