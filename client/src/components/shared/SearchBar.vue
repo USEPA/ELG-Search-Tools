@@ -201,7 +201,13 @@ export default {
     },
     clearSelectedValues() {
       // Clear all selected values when search type changes, so they aren't still populated if user switches back to same search type
-      [this.selectedCategory, this.selectedPollutant, this.selectedTreatmentTechnology] = [null, null, null];
+      [
+        this.selectedCategory,
+        this.selectedPollutant,
+        this.selectedTreatmentTechnology,
+        this.selectedPollutantCategory,
+        this.selectedTreatmentTechnologyCategory,
+      ] = [null, null, null, null, null];
     },
     async onSubmit() {
       this.isFetching = true;
