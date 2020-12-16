@@ -332,7 +332,7 @@ module.exports = {
                       [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then null else lim_value_max end))"), 'maximumLimitationValueText']
                     ],
                     where: {
-                      pollutantId: { [Op.in]: pollutants.map(a => a.id) },
+                      pollutantId: { [Op.in]: psc.pollutantId.split(',') },
                       pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode },
                       alternateLimitFlag: {
                         [Op.or]: [
