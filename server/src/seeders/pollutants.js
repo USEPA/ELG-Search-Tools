@@ -2738,7 +2738,7 @@ module.exports = {
       {"pollutant_code":2762,"pollutant_desc":"Base fluid retained on cuttings","elg_pollutant_description":"Base fluid retained on cuttings","pollutant_groups":null},
       {"pollutant_code":2763,"pollutant_desc":"Foam","elg_pollutant_description":"Foam","pollutant_groups":null},
       {"pollutant_code":2764,"pollutant_desc":"Floating solids","elg_pollutant_description":"Floating solids","pollutant_groups":null},
-      {"pollutant_code":2766,"pollutant_desc":"Polynuclear Aromatic Hydrocarbons (PAH)","elg_pollutant_description":"83-32-9","pollutant_groups":null},
+      {"pollutant_code":2766,"pollutant_desc":"Polynuclear Aromatic Hydrocarbons (PAH)","elg_pollutant_description":"Polynuclear Aromatic Hydrocarbons (PAH)","pollutant_groups":null},
       {"pollutant_code":2767,"pollutant_desc":"Floating solids and garbage","elg_pollutant_description":"Floating solids and garbage","pollutant_groups":null},
       {"pollutant_code":2768,"pollutant_desc":"Nitrate (as N)","elg_pollutant_description":"Nitrate (as N)","pollutant_groups":"2"},
       {"pollutant_code":2769,"pollutant_desc":"Temperature (heat)","elg_pollutant_description":"Temperature (heat)","pollutant_groups":null},
