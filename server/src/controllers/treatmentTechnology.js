@@ -369,7 +369,9 @@ module.exports = {
                   { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
                   { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
                   { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
-                  { key: 'limitationValue', label: 'Value'},
+                  { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
+                  { key: 'limitationValue', label: 'Limitation Value' },
+                  { key: 'alternateLimitFlag', label: 'Limitation Flag' },
                   { key: 'limitationUnitCode', label: 'Units', width: 90 },
                   { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
                 ],
@@ -428,7 +430,9 @@ module.exports = {
                 { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
                 { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
                 { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
-                { key: 'limitationValue', label: 'Value'},
+                { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
+                { key: 'limitationValue', label: 'Limitation Value' },
+                { key: 'alternateLimitFlag', label: 'Limitation Flag' },
                 { key: 'limitationUnitCode', label: 'Units', width: 90 },
                 { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
               ],

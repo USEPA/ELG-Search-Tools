@@ -447,10 +447,13 @@ module.exports = {
                       'Long Term Averages',
                       [
                         { key: 'treatmentTechnologyNames', label: 'Treatment Train', width: 70 },
+                        { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
                         { key: 'pollutantDescription', label: 'Pollutant' },
                         { key: 'longTermAverageValue', label: 'LTA Value' },
-                        { key: 'alternateLimitFlag', label: 'Limitation Flag' },
+                        { key: 'longTermAverageUnitCode', label: 'LTA Units', width: 90 },
                         { key: 'limitationValue', label: 'Limitation Value' },
+                        { key: 'alternateLimitFlag', label: 'Limitation Flag' },
+                        { key: 'limitationUnitCode', label: 'Limitation Units', width: 90 },
                         { key: 'limitationUnitBasis', label: 'Limitation Basis' },
                         { key: 'longTermAverageSourceTitle', label: 'LTA Reference', width: 150 }
                       ],
@@ -459,7 +462,7 @@ module.exports = {
                         { label: 'Subpart', value: result['comboSubcategory'] },
                         { label: 'Level of Control', value: result['controlTechnologyCode']},
                         { label: 'Process Operation/Wastestream', value: result['wastestreamProcessTitle'] },
-                        { label: 'Other Process/Wastestream Details', value: result['wastestreamProcessSecondary'].replace(/<strong><u>And<\/u><\/strong>/g, 'AND') },
+                        { label: 'Other Process/Wastestream Details', value: result['wastestreamProcessSecondary'].replace(/<strong><u>and<\/u><\/strong>/ig, 'AND') },
                         { label: 'Pollutant', value: result['pollutantDescription'] }
                       ],
                       result['longTermAverages'],

@@ -28,7 +28,8 @@ module.exports = {
               [
                 { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
                 { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 },
-                { key: 'limitationValue', label: 'Value' },
+                { key: 'limitationValue', label: 'Limitation Value' },
+                { key: 'alternateLimitFlag', label: 'Limitation Flag' },
                 { key: 'limitationUnitCode', label: 'Units', width: 90 },
                 { key: 'limitationUnitBasis', label: 'Limitation Basis' }
               ],
@@ -38,7 +39,7 @@ module.exports = {
                 { label: 'CFR Section', value: limitations.cfrSection },
                 { label: 'Level of Control', value: limitations.controlTechnologyCode},
                 { label: 'Process Operation/Wastestream', value: limitations.title },
-                { label: 'Other Process/Wastestream Details', value: limitations.secondary.replace(/<strong><u>And<\/u><\/strong>/g, 'AND'), wrapText: true }
+                { label: 'Other Process/Wastestream Details', value: limitations.secondary.replace(/<strong><u>and<\/u><\/strong>/ig, 'AND'), wrapText: true }
               ],
               limitations.limitations,
               res);

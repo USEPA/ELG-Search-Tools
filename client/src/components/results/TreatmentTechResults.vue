@@ -97,6 +97,18 @@
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
       <DownloadLink
+        v-if="selectedTreatmentTechnologyCategory"
+        title="Limitations"
+        :url="
+          `/api/treatmentTechnologyCategoryLimitations?id=${selectedTreatmentTechnologyCategory}&treatmentId=${selectedTreatmentTrain
+            .map((t) => t.id)
+            .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
+            .map((t) => t.pointSourceCategoryCode)
+            .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`
+        "
+      />
+      <DownloadLink
+        v-else
         title="Limitations"
         :url="
           `/api/treatmentTechnologyLimitations?id=${
@@ -183,6 +195,7 @@ export default {
       'treatmentTechnologyData',
       'treatmentTrain',
       'selectedTreatmentTechnology',
+      'selectedTreatmentTechnologyCategory',
     ]),
     ...get('limitations', ['treatmentLimitationData']),
     ...sync('results', ['activeTab']),

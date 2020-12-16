@@ -60,7 +60,10 @@ module.exports = {
         let row = worksheet.addRow(dataColumns.map(function (column) {
           let cellValue = dataRow[column.key];
           if (typeof (cellValue) === 'string') {
-            cellValue = cellValue.replace(/<strong><u>And<\/u><\/strong>/g, 'AND');
+            cellValue = cellValue.replace(/<strong><u>and<\/u><\/strong>/ig, 'AND');
+            if (cellValue.length > 32000) {
+              cellValue = 'Please use interface to view ' + column.label + '.';
+            }
           }
           return cellValue;
         }));
