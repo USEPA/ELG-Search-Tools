@@ -133,6 +133,7 @@ export default {
         {
           key: 'goToLimitations',
           label: 'Go To Limitations',
+          sortable: false,
         },
       ],
     };

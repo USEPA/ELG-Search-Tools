@@ -79,7 +79,7 @@
       <div class="control is-expanded secondary-input">
         <Multiselect
           :value="selectedPollutantCategory"
-          :options="pollutantCategories"
+          :options="pollCategoriesWithDescriptions"
           placeholder="Select Pollutant Category"
           label="description"
           track-by="id"
@@ -99,6 +99,9 @@
         </button>
       </div>
     </div>
+    <p v-if="searchType === 'pollutant' && selectedPollutantCategory" class="poll-cat-desc">
+      <span class="fa fa-info-circle"></span>Category description: {{ selectedPollutantCategory.fullDesc }}
+    </p>
   </div>
 </template>
 
@@ -149,6 +152,16 @@ export default {
       treatmentTechnologyId: null,
       isFetching: false,
       isFetchingSecondary: false,
+      pollCatDescriptions: {
+        '1': 'All 126 pollutants that EPA currently defines as priority pollutants.',
+        '2':
+          'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
+        '3': 'Parameters include phosphorus and phosphate.',
+        '4': 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, and pH.',
+        '5': 'Suspended and settable solids.',
+        '6':
+          'All metals parameters, including hexavalent or trivalent metals and metals in ionic form. Excludes metal compounds.',
+      },
     };
   },
   computed: {
@@ -176,6 +189,14 @@ export default {
     },
     currentSearchValue() {
       return this[this.searchTypeObject.selectedProp];
+    },
+    pollCategoriesWithDescriptions() {
+      return this.pollutantCategories.map((cat) => {
+        return {
+          ...cat,
+          fullDesc: this.pollCatDescriptions[cat.id],
+        };
+      });
     },
   },
   methods: {
@@ -264,6 +285,16 @@ button {
   width: calc(100% - 503px);
   flex-grow: 0 !important;
   margin-left: auto;
+}
+
+.poll-cat-desc {
+  width: calc(100% - 520px);
+  margin-left: auto;
+  margin-right: 110px;
+
+  .fa {
+    color: $blue;
+  }
 }
 
 ::v-deep {
