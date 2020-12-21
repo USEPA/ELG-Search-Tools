@@ -22,3 +22,4 @@ docker-compose.yml
 
 #source Access database
 /server/db/elg_database.accdb
+/server/db/elg_database.laccdb

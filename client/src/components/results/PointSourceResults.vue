@@ -39,10 +39,6 @@
         </div>
       </div>
     </div>
-    <Alert type="info" class="instructions-alert">
-      Select a Subcategory for details on the Level of Control (BPT, BAT, BCT, NSPS, PSES, PSNS) and process
-      operations/wastestream requirements.
-    </Alert>
     <div class="psc-select">
       <label class="sr-only" for="subcategory">Subpart</label>
       <Multiselect
@@ -54,6 +50,10 @@
         @input="onChangeSubcategory"
         class="results-select"
       />
+      <HoverText hoverId="subcatInstructions" :icon="true">
+        Select a Subcategory for details on the Level of Control (BPT, BAT, BCT, NSPS, PSES, PSNS) and process
+        operations/wastestream requirements.
+      </HoverText>
     </div>
     <Alert v-if="subcategoryData" type="info" style="margin-bottom:1.25rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
@@ -103,6 +103,7 @@
             :rows="controlTechnology.wastestreamProcesses"
             :busy="isFetching"
             :perPage="100"
+            :emptyText="tableEmptyText"
           >
             <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`head(${fieldKey})`]="data">
               {{ data.label }}
@@ -220,6 +221,15 @@ export default {
     ...get('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
     ...sync('results', ['activeTab']),
     ...sync('search', ['selectedSubcategory']),
+    tableEmptyText() {
+      if (
+        this.selectedCategory.pointSourceCategoryCode === 414 &&
+        ['I', 'J', 'K'].includes(this.subcategoryData.pointSourceSubcategoryCode)
+      ) {
+        return 'Refer to Subcategories B through H for process operations and requirements.';
+      }
+      return undefined;
+    },
   },
   data() {
     return {
@@ -262,6 +272,7 @@ export default {
         {
           key: 'goToLimitations',
           label: 'Go to Limitations',
+          sortable: false,
         },
       ],
       headerDescriptions: {
@@ -366,6 +377,11 @@ select {
 
 .psc-select {
   margin-bottom: 1.5rem;
+
+  .hover-info-container {
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+  }
 }
 
 .results-select {

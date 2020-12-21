@@ -15,20 +15,25 @@ module.exports = (app, history) => {
 
   app.get('/api/pointSourceSubcategory/:id', controllers.pointSourceSubcategory.read);
 
-  app.get('/api/wastestreamProcessLimitations/:id', controllers.wastestreamProcess.limitations);
+  app.get('/api/wastestreamProcessLimitations', controllers.wastestreamProcess.limitations);
 
   app.get('/api/pollutants', controllers.pollutant.list);
-  app.get('/api/pollutant/:id', controllers.pollutant.read);
+  app.get('/api/pollutantCategories', controllers.pollutant.listCategories);
+  app.get('/api/pollutant', controllers.pollutant.read);
+  app.get('/api/pollutantCategory', controllers.pollutant.readCategory);
   app.get('/api/pollutantLimitations', controllers.pollutant.limitations);
 
-  app.get('/api/limitation/:id', controllers.limitation.read);
+  app.get('/api/limitation', controllers.limitation.read);
 
   app.get('/api/treatmentTechnologies', controllers.treatmentTechnology.list);
+  app.get('/api/treatmentTechnologyCategories', controllers.treatmentTechnology.listCategories);
   app.get('/api/treatmentTechnology/:id', controllers.treatmentTechnology.read);
-  app.get('/api/treatmentTrain/:id', controllers.treatmentTechnology.treatmentTrain);
+  app.get('/api/treatmentTechnologyCategory/:id', controllers.treatmentTechnology.readCategory);
   app.get('/api/treatmentTechnologyLimitations', controllers.treatmentTechnology.limitations);
-  app.get('/api/technologyBases', controllers.treatmentTechnology.technologyBases);
-  app.get('/api/technologyBasisLimitations', controllers.treatmentTechnology.technologyBasisLimitations);
+  app.get('/api/treatmentTechnologyCategoryLimitations', controllers.treatmentTechnology.categoryLimitations);
+  //app.get('/api/treatmentTrain/:id', controllers.treatmentTechnology.treatmentTrain);
+  //app.get('/api/technologyBases', controllers.treatmentTechnology.technologyBases);
+  //app.get('/api/technologyBasisLimitations', controllers.treatmentTechnology.technologyBasisLimitations);
 
 
   // serve up built Vue files from express server

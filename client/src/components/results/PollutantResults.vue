@@ -1,20 +1,38 @@
 <template>
   <div>
-    <p class="pollutant-subtext">Number of PSCs Referencing Pollutant: {{ pollutantData.length }}</p>
-    <div class="field is-grouped">
-      <button
-        :disabled="selectedPscs.length === 0"
-        :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
-        class="button is-hyperlink cfr-link"
-        @click="navigateToLimitationsForMultiplePscs(pollutantData[0])"
-      >
-        <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
-      </button>
-      <HoverText hoverId="catInfo" :icon="true" style="margin-left:0.25rem">
-        Select PSCs of interest in the first column below.
-      </HoverText>
+    <p class="pollutant-subtext">
+      Number of PSCs Referencing Pollutant{{ selectedPollutantCategory ? ' Category' : '' }}:
+      {{ new Set(pollutantData.map((row) => row.pointSourceCategoryCode)).size }}
+    </p>
+    <div class="columns no-margin">
+      <div v-if="!selectedPollutantCategory" class="column">
+        <button
+          :disabled="selectedPscs.length === 0"
+          :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
+          class="button is-hyperlink cfr-link"
+          @click="navigateToLimitationsForMultiplePscs(pollutantData[0])"
+        >
+          <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
+        </button>
+        <HoverText hoverId="catInfo" :icon="true" style="margin-left:0.25rem">
+          Select PSCs of interest in the first column below.
+        </HoverText>
+      </div>
+      <div class="column">
+        <DownloadLink
+          v-if="selectedPollutant"
+          title="Limitations"
+          :url="`/api/pollutant/?id=${selectedPollutant.pollutantId}`"
+        />
+        <DownloadLink
+          v-else-if="selectedPollutantCategory"
+          title="Limitations"
+          :url="`/api/pollutantCategory/?id=${selectedPollutantCategory.id}`"
+        />
+      </div>
     </div>
-    <Table :columns="pollColumns" :rows="pollutantData">
+
+    <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData">
       <template v-slot:cell(selectPsc)="{ item }">
         <label class="sr-only">Select Point Source Category and click "Compare PSCs" to view limitations.</label>
         <input
@@ -84,19 +102,20 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { get, sync } from 'vuex-pathify';
 import HoverText from '@/components/shared/HoverText';
+import DownloadLink from '@/components/shared/DownloadLink';
 import Table from '@/components/shared/Table';
 import { BRow, BCol } from 'bootstrap-vue';
 
 export default {
-  components: { HoverText, Table, BRow, BCol },
+  components: { HoverText, DownloadLink, Table, BRow, BCol },
   computed: {
-    ...get('search', ['pollutantData']),
+    ...get('search', ['pollutantData', 'selectedPollutant', 'selectedPollutantCategory']),
+    ...sync('search', ['selectedPscs']),
   },
   data() {
     return {
-      selectedPscs: [],
       pollColumns: [
         {
           key: 'selectPsc',
@@ -125,6 +144,37 @@ export default {
         {
           key: 'goToLimitations',
           label: 'Go to Limitations',
+          sortable: false,
+        },
+      ],
+      pollCategoryColumns: [
+        {
+          key: 'pollutantDescription',
+          label: 'Pollutant',
+        },
+        {
+          key: 'pointSourceCategoryCode',
+          label: '40 CFR',
+        },
+        {
+          key: 'pointSourceCategoryName',
+          label: 'Point Source Category',
+        },
+        {
+          key: 'pointSourceSubcategories',
+          label: 'Subcategories',
+          isAbbreviatedList: true,
+        },
+        {
+          key: 'rangeOfPollutantLimitations',
+          label: 'Range of Pollutant Limitations',
+          displayAsHTML: true,
+          sortable: false,
+        },
+        {
+          key: 'goToLimitations',
+          label: 'Go to Limitations',
+          sortable: false,
         },
       ],
     };
@@ -141,6 +191,7 @@ export default {
         await this.$store.dispatch('limitations/getPollutantInfo', {
           pointSourceCategoryCode: row.pointSourceCategoryCode,
           pointSourceCategoryName: row.pointSourceCategoryName,
+          pollutantId: row.pollutantId,
           pollutantDescription: row.pollutantDescription,
         });
       }
@@ -158,6 +209,10 @@ export default {
       }
       this.$router.push('/results/limitations');
     },
+  },
+  mounted() {
+    // Clear any previously selected PSCs when page mounts
+    this.selectedPscs = [];
   },
 };
 </script>

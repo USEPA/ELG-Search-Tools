@@ -169,6 +169,11 @@ input,
     margin-bottom: 0;
   }
 }
+.columns.no-margin {
+  &, a {
+    margin-bottom: 0;
+  }
+}
 
 .info-box-container {
   display: inline-block;
@@ -187,21 +192,6 @@ input,
 
 .container {
   max-width: 68em;
-}
-
-.help-icon {
-  font-size: 20px;
-  margin-right: 5px;
-}
-
-.help-icons {
-  display: flex;
-  justify-content: flex-end;
-  margin: auto;
-}
-
-.help-container {
-  margin-left: 20px;
 }
 
 // Custom tab styles
@@ -270,6 +260,11 @@ input,
       color: $blue;
     }
   }
+}
+
+.sr-only {
+  position: static;
+  display: none;
 }
 
 // Import font-awesome

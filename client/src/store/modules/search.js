@@ -6,14 +6,19 @@ const state = {
   categories: [],
   subcategories: [],
   pollutants: [],
+  pollutantCategories: [],
   treatmentTechnologies: [],
+  treatmentTechnologyCategories: [],
   // user-selected values
   searchType: '',
   selectedCategory: null,
   selectedSubcategory: null,
   selectedPollutant: null,
+  selectedPollutantCategory: null,
   selectedTreatmentTechnology: null,
+  selectedTreatmentTechnologyCategory: null,
   selectedTreatmentTrain: null,
+  selectedPscs: [], // for comparing PSCs on poll results
   // search results data
   categoryData: null,
   subcategoryData: null,
@@ -75,11 +80,27 @@ const actions = {
     commit('SET_POLLUTANTS', res.data);
     commit('SET_IS_FETCHING', false);
   },
+  async getPollutantCategories({ commit }) {
+    commit('SET_POLLUTANT_CATEGORIES', []);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/pollutantCategories');
+    commit('SET_POLLUTANT_CATEGORIES', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
   async getPollutantData({ state, commit, dispatch }) {
     dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/pollutant/${state.selectedPollutant.pollutantId}`);
+    const res = await axios.get(`api/pollutant/?id=${state.selectedPollutant.pollutantId}`);
+    commit('SET_POLLUTANT_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getPollutantCategoryData({ state, commit, dispatch }) {
+    dispatch('clearResultsData');
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get(`api/pollutantCategory/?id=${state.selectedPollutantCategory.id}`);
     commit('SET_POLLUTANT_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
@@ -91,11 +112,27 @@ const actions = {
     commit('SET_TREATMENT_TECHNOLOGIES', res.data);
     commit('SET_IS_FETCHING', false);
   },
+  async getTreatmentTechnologyCategories({ commit }) {
+    commit('SET_TREATMENT_TECHNOLOGY_CATEGORIES', []);
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/treatmentTechnologyCategories');
+    commit('SET_TREATMENT_TECHNOLOGY_CATEGORIES', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
   async getTreatmentTechnologyData({ state, commit, dispatch }) {
     dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(`api/treatmentTechnology/${state.selectedTreatmentTechnology.id}`);
+    commit('SET_TREATMENT_TECHNOLOGY_DATA', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
+  async getTreatmentTechnologyCategoryData({ state, commit, dispatch }) {
+    dispatch('clearResultsData');
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get(`api/treatmentTechnologyCategory/${state.selectedTreatmentTechnologyCategory}`);
     commit('SET_TREATMENT_TECHNOLOGY_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },

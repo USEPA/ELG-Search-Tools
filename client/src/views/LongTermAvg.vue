@@ -23,15 +23,8 @@
           Long-Term Averages
         </h2>
       </div>
-      <div class="column help-icons">
-        <div class="field is-grouped">
-          <span class="fas fa-book has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-        </div>
-        <div class="field is-grouped help-container">
-          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
-        </div>
+      <div class="column">
+        <HelpLinks />
       </div>
     </div>
     <Alert type="info">
@@ -39,7 +32,7 @@
       mean of the underlying statistical distribution of the daily effluent values used to calculate numeric pollutant
       limitations.
     </Alert>
-    <div class="info-box-container message">
+    <div v-if="longTermAvgData" class="info-box-container message">
       <div class="message-body">
         <p v-if="selectedTreatmentTrain !== null">
           <span class="has-text-weight-bold">Treatment Train:</span> {{ selectedTreatmentTrain.names }}
@@ -63,7 +56,8 @@
         <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
     </div>
-    <Table :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
+    <DownloadLink title="Long Term Averages" :url="`/api/limitation?id=${selectedLimitationId}`" />
+    <Table v-if="longTermAvgData" :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
       <template v-slot:cell(treatmentTechnologyNames)="{ item }">
         {{ item.treatmentTechnologyNames }}
         <button
@@ -79,32 +73,13 @@
           <span class="fa fa-info-circle"></span>
         </button>
       </template>
-      <template v-slot:cell(longTermAverageValue)="{ item, index }">
-        {{ item.longTermAverageValue }}
+      <template v-slot:cell(longTermAverageUnitCode)="{ item, index }">
         <HoverText
-          :hoverId="`units${index}`"
+          :hoverId="`ltaUnits${index}`"
           :linkText="item.longTermAverageUnitCode"
           :customStyle="{ width: '200px' }"
         >
           {{ item.longTermAverageUnitDescription }}
-        </HoverText>
-      </template>
-      <template v-slot:cell(alternateLimitFlag)="{ item, index }">
-        <HoverText
-          v-if="item.alternateLimitFlag !== '<' && item.alternateLimitFlag !== '>=' && item.alternateLimitDescription"
-          :hoverId="`limitHover${index}`"
-          :linkText="item.alternateLimitFlag"
-          :customStyle="{ width: '200px' }"
-        >
-          {{ item.alternateLimitDescription }}
-        </HoverText>
-        <span v-else-if="item.alternateLimitFlag">{{ item.alternateLimitFlag }}</span>
-        <span v-else>--</span>
-      </template>
-      <template v-slot:cell(limitationValue)="{ item, index }">
-        {{ item.limitationValue }}
-        <HoverText :hoverId="`units${index}`" :linkText="item.limitationUnitCode" :customStyle="{ width: '200px' }">
-          {{ item.limitationUnitDescription }}
         </HoverText>
       </template>
     </Table>
@@ -123,12 +98,13 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 import HoverText from '@/components/shared/HoverText';
+import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, Breadcrumbs, Table, Modal, HoverText },
+  components: { Alert, Breadcrumbs, Table, Modal, HoverText, DownloadLink },
   computed: {
     ...mapState('search', ['selectedTreatmentTrain']),
-    ...mapState('limitations', ['longTermAvgData']),
+    ...mapState('limitations', ['longTermAvgData', 'selectedLimitationId']),
   },
   data() {
     return {
@@ -149,12 +125,16 @@ export default {
           label: 'LTA Value',
         },
         {
-          key: 'alternateLimitFlag',
-          label: 'Limitation Flag',
+          key: 'longTermAverageUnitCode',
+          label: 'LTA Units',
         },
         {
           key: 'limitationValue',
           label: 'Limitation Value',
+        },
+        {
+          key: 'limitationUnitCode',
+          label: 'Limitation Units',
         },
         {
           key: 'limitationUnitBasis',
@@ -185,10 +165,5 @@ button {
 
 .is-link.more {
   margin-left: 3px;
-}
-
-.download-icon-container {
-  justify-content: flex-end;
-  margin-bottom: 0;
 }
 </style>

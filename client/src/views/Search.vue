@@ -14,17 +14,7 @@
             Click Here to View Disclaimers
           </button>
         </Alert>
-        <p>
-          Please select one of the following search criteria: point source category, pollutant, or treatment technology.
-        </p>
-
         <Modal v-if="shouldShowDisclaimers" title="Disclaimers" @close="() => (shouldShowDisclaimers = false)">
-          <Alert type="warning">
-            Note to EPA Testers: We are currently in the process of populating and performing quality control checks on
-            data in the ELG Database before translating to the web application program. Therefore, the information
-            included in this web application is incomplete. ERG plans on continuing to add and update content in the
-            database and in the web application as EPA conducts reviews on the web application development.
-          </Alert>
           <Alert type="warning">
             EPA intends for the ELG Database to be solely used to access information on the effluent guidelines program
             via guided and customized searches. The ELG Database contains information on the requirements of this
@@ -76,10 +66,6 @@ export default {
 <style lang="scss" scoped>
 h1 {
   text-align: center;
-}
-
-p {
-  font-size: 18px;
 }
 
 .adv-search {

@@ -1,5 +1,14 @@
 <template>
   <div>
+    <p style="padding-bottom:0.75rem">
+      Please select one of the following search criteria: point source category, pollutant, or treatment technology.
+      Note: depending on the criteria selected, the search result may take time to load.
+    </p>
+    <p>
+      For the pollutant search criteria, you can select an individual pollutant or a pollutant category. For the
+      treatment technology search criteria, you can select an individual treatment technology or a treatment technology
+      category.
+    </p>
     <div class="field has-addons">
       <div class="control">
         <label for="searchType" class="button is-static has-background-grey-lighter has-text-black is-medium">
@@ -31,12 +40,68 @@
         ></Multiselect>
       </div>
       <div class="control">
-        <button class="button is-medium" @click="onSubmit" :title="isFetching ? 'Loading...' : 'Search'">
+        <button
+          class="button is-medium"
+          @click="onSubmit"
+          :title="isFetching ? 'Loading...' : !currentSearchValue ? 'Select an option to search' : 'Search'"
+          :disabled="!currentSearchValue"
+        >
           <span class="sr-only">Search</span>
           <span :class="`fa has-text-white ${isFetching ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
         </button>
       </div>
     </div>
+    <div v-if="searchType === 'treatmentTech'" class="field has-addons">
+      <div class="control is-expanded secondary-input">
+        <Multiselect
+          :value="selectedTreatmentTechnologyCategory"
+          :options="treatmentTechnologyCategories"
+          placeholder="Select Treatment Technology Category"
+          :disabled="!searchType"
+          @input="onSelectTreatmentCategory"
+        />
+      </div>
+      <div class="control">
+        <button
+          class="button is-medium"
+          @click="onSubmitTreatmentCategory"
+          :title="
+            isFetching ? 'Loading...' : !selectedTreatmentTechnologyCategory ? 'Select an option to search' : 'Search'
+          "
+          :disabled="!selectedTreatmentTechnologyCategory"
+        >
+          <span class="sr-only">Search</span>
+          <span :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
+        </button>
+      </div>
+    </div>
+    <div v-if="searchType === 'pollutant'" class="field has-addons">
+      <div class="control is-expanded secondary-input">
+        <Multiselect
+          :value="selectedPollutantCategory"
+          :options="pollCategoriesWithDescriptions"
+          placeholder="Select Pollutant Category"
+          label="description"
+          track-by="id"
+          :disabled="!searchType"
+          @input="onSelectPollutantCategory"
+        />
+      </div>
+      <div class="control">
+        <button
+          class="button is-medium"
+          @click="onSubmitPollutantCategory"
+          :title="isFetching ? 'Loading...' : !selectedPollutantCategory ? 'Select an option to search' : 'Search'"
+          :disabled="!selectedPollutantCategory"
+        >
+          <span class="sr-only">Search</span>
+          <span :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
+        </button>
+      </div>
+    </div>
+    <p v-if="searchType === 'pollutant' && selectedPollutantCategory" class="poll-cat-desc">
+      <span class="fa fa-info-circle"></span>Category description: {{ selectedPollutantCategory.fullDesc }}
+    </p>
   </div>
 </template>
 
@@ -86,11 +151,35 @@ export default {
       pollutantId: null,
       treatmentTechnologyId: null,
       isFetching: false,
+      isFetchingSecondary: false,
+      pollCatDescriptions: {
+        '1': 'All 126 pollutants that EPA currently defines as priority pollutants.',
+        '2':
+          'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
+        '3': 'Parameters include phosphorus and phosphate.',
+        '4': 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, and pH.',
+        '5': 'Suspended and settable solids.',
+        '6':
+          'All metals parameters, including hexavalent or trivalent metals and metals in ionic form. Excludes metal compounds.',
+      },
     };
   },
   computed: {
-    ...get('search', ['categories', 'pollutants', 'treatmentTechnologies']),
-    ...sync('search', ['searchType', 'selectedCategory', 'selectedPollutant', 'selectedTreatmentTechnology']),
+    ...get('search', [
+      'categories',
+      'pollutants',
+      'pollutantCategories',
+      'treatmentTechnologies',
+      'treatmentTechnologyCategories',
+    ]),
+    ...sync('search', [
+      'searchType',
+      'selectedCategory',
+      'selectedPollutant',
+      'selectedPollutantCategory',
+      'selectedTreatmentTechnology',
+      'selectedTreatmentTechnologyCategory',
+    ]),
     searchTypeObject() {
       return this.searchTypes.find((type) => type.id === this.searchType) || {};
     },
@@ -101,10 +190,29 @@ export default {
     currentSearchValue() {
       return this[this.searchTypeObject.selectedProp];
     },
+    pollCategoriesWithDescriptions() {
+      return this.pollutantCategories.map((cat) => {
+        return {
+          ...cat,
+          fullDesc: this.pollCatDescriptions[cat.id],
+        };
+      });
+    },
   },
   methods: {
-    async onSelectOption(value) {
+    onSelectOption(value) {
       this[this.searchTypeObject.selectedProp] = value;
+      // Clear any secondary options (e.g. treatment category)
+      this.selectedPollutantCategory = null;
+      this.selectedTreatmentTechnologyCategory = null;
+    },
+    onSelectPollutantCategory(value) {
+      this.selectedPollutant = null;
+      this.selectedPollutantCategory = value;
+    },
+    onSelectTreatmentCategory(value) {
+      this.selectedTreatmentTechnology = null;
+      this.selectedTreatmentTechnologyCategory = value;
     },
     getOptionLabel(searchOption) {
       if (this.searchTypeObject.shouldDisplayCode) {
@@ -114,7 +222,13 @@ export default {
     },
     clearSelectedValues() {
       // Clear all selected values when search type changes, so they aren't still populated if user switches back to same search type
-      [this.selectedCategory, this.selectedPollutant, this.selectedTreatmentTechnology] = [null, null, null];
+      [
+        this.selectedCategory,
+        this.selectedPollutant,
+        this.selectedTreatmentTechnology,
+        this.selectedPollutantCategory,
+        this.selectedTreatmentTechnologyCategory,
+      ] = [null, null, null, null, null];
     },
     async onSubmit() {
       this.isFetching = true;
@@ -122,12 +236,26 @@ export default {
       this.isFetching = false;
       this.$router.push('results');
     },
+    async onSubmitTreatmentCategory() {
+      this.isFetchingSecondary = true;
+      await this.$store.dispatch('search/getTreatmentTechnologyCategoryData');
+      this.isFetchingSecondary = false;
+      this.$router.push('results');
+    },
+    async onSubmitPollutantCategory() {
+      this.isFetchingSecondary = true;
+      await this.$store.dispatch('search/getPollutantCategoryData');
+      this.isFetchingSecondary = false;
+      this.$router.push('results');
+    },
   },
   created() {
     // Fetch lookup data for dropdown lists
     this.$store.dispatch('search/getPointSourceCategories');
     this.$store.dispatch('search/getPollutants');
+    this.$store.dispatch('search/getPollutantCategories');
     this.$store.dispatch('search/getTreatmentTechnologies');
+    this.$store.dispatch('search/getTreatmentTechnologyCategories');
     // Clear treatment train data so it's not pre-selected if user returns to same results page
     this.$store.commit('search/SET_SELECTED_TREATMENT_TRAIN', null);
     this.$store.commit('search/SET_TREATMENT_TRAIN', null);
@@ -152,9 +280,23 @@ button {
 .field.has-addons {
   height: 44px;
 }
-</style>
 
-<style lang="scss" scoped>
+.control.secondary-input {
+  width: calc(100% - 503px);
+  flex-grow: 0 !important;
+  margin-left: auto;
+}
+
+.poll-cat-desc {
+  width: calc(100% - 520px);
+  margin-left: auto;
+  margin-right: 110px;
+
+  .fa {
+    color: $blue;
+  }
+}
+
 ::v-deep {
   .multiselect__tags {
     min-height: 45px !important;

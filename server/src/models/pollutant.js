@@ -17,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'elg_pollutant_description'
+      },
+      pollutantGroups: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'pollutant_groups'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'Pollutant' }

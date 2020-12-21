@@ -13,11 +13,21 @@ module.exports = {
       allowNull: false,
       field: 'treatment_codes'
     },
+    names: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      field: 'treatment_names'
+    },
     description: {
       type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'treatment_description'
     }
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'TreatmentTechnology'},
+      ['treatment_codes']
+    )
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'TreatmentTechnology'})
 };

@@ -24,26 +24,25 @@
         <span v-else-if="selectedPollutant">
           {{ selectedPollutant.pollutantDescription }}
         </span>
+        <span v-else-if="selectedPollutantCategory">
+          {{ selectedPollutantCategory.description }}
+        </span>
         <span v-else-if="selectedTreatmentTechnology">
           {{ selectedTreatmentTechnology.name }}
         </span>
+        <span v-else-if="selectedTreatmentTechnologyCategory">
+          {{ selectedTreatmentTechnologyCategory + ' Treatment Category' }}
+        </span>
         Limitation Results
       </h2>
-      <div class="column help-icons">
-        <div class="field is-grouped">
-          <span class="fas fa-book has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-        </div>
-        <div class="field is-grouped help-container">
-          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
-        </div>
+      <div class="column">
+        <HelpLinks />
       </div>
     </div>
 
     <PointSourceResults v-if="selectedCategory" />
-    <PollutantResults v-if="selectedPollutant" />
-    <TreatmentTechResults v-if="selectedTreatmentTechnology" />
+    <PollutantResults v-if="selectedPollutant || selectedPollutantCategory" />
+    <TreatmentTechResults v-if="selectedTreatmentTechnology || selectedTreatmentTechnologyCategory" />
   </section>
 </template>
 
@@ -57,7 +56,13 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs';
 export default {
   components: { Breadcrumbs, PointSourceResults, PollutantResults, TreatmentTechResults },
   computed: {
-    ...get('search', ['selectedCategory', 'selectedPollutant', 'selectedTreatmentTechnology']),
+    ...get('search', [
+      'selectedCategory',
+      'selectedPollutant',
+      'selectedPollutantCategory',
+      'selectedTreatmentTechnology',
+      'selectedTreatmentTechnologyCategory',
+    ]),
   },
 };
 </script>

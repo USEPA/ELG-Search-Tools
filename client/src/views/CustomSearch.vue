@@ -6,19 +6,8 @@
           Custom Search
         </h1>
       </div>
-      <div class="help-icons">
-        <div class="field is-grouped">
-          <span class="fas fa-book has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-        </div>
-        <div class="field is-grouped">
-          <span class="fas fa-question-circle has-text-grey-dark help-icon help-container"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
-        </div>
-        <div class="field is-grouped help-container">
-          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">About ELG Database</p>
-        </div>
+      <div class="column">
+        <HelpLinks />
       </div>
     </div>
     <div class="columns form-container">

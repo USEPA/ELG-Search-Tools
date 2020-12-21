@@ -43,15 +43,8 @@
           Subpart {{ subcategoryData.comboSubcategory }}
         </h3>
       </div>
-      <div class="column help-icons">
-        <div class="field is-grouped">
-          <span class="fas fa-book has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Glossary</p>
-        </div>
-        <div class="field is-grouped help-container">
-          <span class="fas fa-question-circle has-text-grey-dark help-icon"></span>
-          <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Help</p>
-        </div>
+      <div class="column">
+        <HelpLinks />
       </div>
     </div>
     <div v-if="subcategoryData" class="info-box-container message">
@@ -65,6 +58,11 @@
         </p>
       </div>
     </div>
+    <DownloadLink
+      v-if="subcategoryData"
+      title="Limitations"
+      :url="`/api/wastestreamProcessLimitations?id=${selectedLimitationId}`"
+    />
     <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
@@ -75,25 +73,19 @@
         <span v-else>--</span>
       </template>
     </Table>
-    <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom:1.25rem">
+    <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom:1.5rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
-      "No data available" will be noted.
+      "No data available" will be noted. Filters can be used to limit the data displayed in the results. To remove the
+      filter, select the criteria a second time.
     </Alert>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
         <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
           <div class="poll-limitation-container">
-            <div class="field is-grouped download-icon-container">
-              <span class="fas fa-download has-text-grey-dark help-icon"></span>
-              <p class="has-text-grey-dark is-size-7 has-text-weight-bold">Download Limitations (CSV File)</p>
-            </div>
+            <DownloadLink title="Limitations" :url="pollDownloadUrl" />
             <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
-              <template v-slot:cell(limitationValue)="{ item }">
-                <span v-if="item.limitationValue">
-                  {{ item.limitationValue }}
-                </span>
-                <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
-                <span v-else>--</span>
+              <template v-slot:cell(comboSubcategory)="{ item, value }">
+                <span v-if="isComparingPscs">{{ item.pointSourceCategoryCode }}</span> {{ value }}
               </template>
               <template v-slot:cell(goToLta)="{ item }">
                 <span v-if="item.longTermAverageCount > 0">
@@ -150,20 +142,32 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import Table from '@/components/shared/Table';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Modal from '@/components/shared/Modal';
+import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, Breadcrumbs, Table, ControlTabs, Modal },
+  components: { Alert, Breadcrumbs, Table, ControlTabs, Modal, DownloadLink },
   computed: {
-    ...get('search', ['selectedCategory', 'subcategoryData']),
+    ...get('search', ['selectedCategory', 'subcategoryData', 'selectedPscs']),
     ...get('limitations', [
       'limitationData',
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
+      'pollutantId',
       'pollutantDescription',
       'treatmentNames',
       'isComparingPscs',
+      'selectedLimitationId',
     ]),
     ...sync('results', ['activeTab']),
+    pollDownloadUrl() {
+      let pollIds = this.pollutantId;
+      let pscCodes = this.pointSourceCategoryCode;
+      if (this.isComparingPscs) {
+        pollIds = this.selectedPscs.map((psc) => psc.pollutantId).join(',');
+        pscCodes = this.selectedPscs.map((psc) => psc.pointSourceCategoryCode).join(',');
+      }
+      return `/api/pollutantLimitations/?pollutantId=${pollIds}&pointSourceCategoryCode=${pscCodes}`;
+    },
   },
   data() {
     return {
@@ -199,6 +203,7 @@ export default {
         {
           key: 'goToLta',
           label: 'Go to LTA',
+          sortable: false,
         },
       ],
       pollLimitationCols: [
@@ -240,6 +245,7 @@ export default {
         {
           key: 'goToLta',
           label: 'Go to LTA',
+          sortable: false,
         },
       ],
     };
@@ -278,6 +284,7 @@ button {
 
 .info-box-container {
   margin-top: -1rem;
+  margin-bottom: -0.5rem;
 }
 
 a.button {
@@ -294,11 +301,6 @@ label {
 
 .is-checkradio[type='checkbox'] + label {
   cursor: auto;
-}
-
-.download-icon-container {
-  justify-content: flex-end;
-  margin-bottom: 0;
 }
 
 .poll-limitation-container {

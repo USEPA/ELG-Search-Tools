@@ -55,11 +55,14 @@
           <HoverText
             v-if="item.alternateLimitFlag && item.alternateLimitFlag !== '<' && item.alternateLimitFlag !== '>='"
             :id="`flagHover${index}`"
-            :linkText="item.limitationValue"
+            :linkText="
+              item.alternateLimitFlag === 'ADJUST' || item.alternateLimitFlag === 'X by Factor'
+                ? item.alternateLimitFlag
+                : item.limitationValue
+            "
           >
-            <div class="cfr-link is-pulled-right">
+            <div v-if="item.pointSourceCategoryCode === 419" class="cfr-link is-pulled-right">
               <a
-                v-if="item.pointSourceCategoryCode === 419"
                 title="Electronic Code of Federal Regulations"
                 :href="`https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.419#se40.31.${item.cfrSectionAnchor}`"
                 target="_blank"
@@ -67,8 +70,11 @@
               >
                 eCFR <span class="fa fa-external-link-alt" />
               </a>
+              <br />
             </div>
-            <br />
+            <div v-if="item.alternateLimitFlag === 'ADJUST' || item.alternateLimitFlag === 'X by Factor'">
+              Limitation Value: {{ item.limitationValue }} {{ item.limitationUnitCode }}
+            </div>
             Limitation Flag: {{ item.alternateLimitFlag }} - {{ item.alternateLimitDescription }}
           </HoverText>
           <span v-else>{{ item.alternateLimitFlag }} {{ item.limitationValue }}</span>
@@ -126,7 +132,7 @@
           <Multiselect
             v-if="filterableFields.map((f) => f.key).includes(field.key)"
             v-model="filterValues[field.key]"
-            :options="rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v)"
+            :options="getFilterOptions(field)"
             :placeholder="`Filter` /* `Select ${field.label}` */"
             select-label=""
             deselect-label=""
@@ -278,6 +284,15 @@ export default {
       this.currentModalTitle = title;
       this.currentModalContent = content;
       this.shouldDisplayModal = true;
+    },
+    getFilterOptions(field) {
+      const rawField = this.filterableFields.find((f) => f.key === field.key);
+      let options = this.rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v);
+      // If options need to be sorted in specific way, check for "customFilterSort" prop in field object and sort accordingly
+      if (rawField.customFilterSort) {
+        options = rawField.customFilterSort.filter((val) => options.includes(val));
+      }
+      return options;
     },
   },
   created() {

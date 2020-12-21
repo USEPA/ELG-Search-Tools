@@ -9,6 +9,8 @@ const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('..
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
 
+const download = require('./download');
+
 let attributes = [
   'limitationId',
   'controlTechnologyCode',
@@ -20,7 +22,7 @@ let attributes = [
   'wastestreamProcessCfrSection',
   [Sequelize.literal("split_part(wp_cfr_sect, '.', 1) || '_1' || split_part(wp_cfr_sect, '.', 2)"), 'cfrSectionAnchor'],
   'wastestreamProcessDescription',
-  'wastestreamProcessLimitCalculationDescription',
+  [Sequelize.literal("replace(wp_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'wastestreamProcessLimitCalculationDescription'],
   ['elg_pollutant_description', 'pollutantDescription'],
   'dischargeFrequency',
   'limitationValue',
@@ -35,9 +37,9 @@ let attributes = [
   'limitationUnitBasis',
   'alternateLimitFlag',
   'alternateLimitDescription',
-  'limitRequirementDescription',
+  [Sequelize.literal("replace(replace(alt_lim, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'limitRequirementDescription'],
   [Sequelize.literal("replace(lim_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitationLimitCalculationDescription'],
-  [Sequelize.literal("replace(lim_pollutant_notes, '\\u00A7', U&'\\00A7')"), 'limitationPollutantNotes'],
+  [Sequelize.literal("replace(replace(lim_pollutant_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'limitationPollutantNotes'],
   [Sequelize.literal("case when stat_base_type = 'Average' then lta_count else 0 end"), 'longTermAverageCount'],
   'pointSourceCategoryCode',
   'pointSourceCategoryName'
@@ -73,6 +75,9 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
         result.limitations = limitations;
 
         if (limitations.length > 0) {
+          result.pointSourceCategoryCode = limitations[0].pointSourceCategoryCode;
+          result.pointSourceCategoryName = limitations[0].pointSourceCategoryName;
+          result.comboSubcategory = limitations[0].comboSubcategory;
           result.cfrSection = limitations[0].wastestreamProcessCfrSection;
           result.controlTechnologyCode = limitations[0].controlTechnologyCode;
           result.title = limitations[0].wastestreamProcessTitle;
@@ -136,7 +141,12 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
             if (wastestreamProcesses.length) {
               //determine list of limitations that are relevant based on selected PSCs, selected pollutants, and relevant wastestream processes
               ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
-                attributes: attributes.concat(['treatmentCodes', 'treatmentNames', 'wastestreamProcessTreatmentTechnologyNotes', 'wastestreamProcessTreatmentTechnologySourceTitle']),
+                attributes: attributes.concat([
+                  'treatmentCodes',
+                  'treatmentNames',
+                  [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                  'wastestreamProcessTreatmentTechnologySourceTitle'
+                ]),
                 where: {
                   [Op.and]: [
                     Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"),
@@ -169,6 +179,97 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
           .catch((error) => reject('Error retrieving wastestream processes for limitations: ' + error));
       })
       .catch((error) => reject('Error retrieving treatment trains for limitations: ' + error));
+  });
+}
+
+function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds) {
+  return new Promise(function(resolve, reject) {
+    TreatmentTechnologyCode.findAll({
+      where: {
+        category: { [Op.iLike]: '%' + id + '%' }
+      }
+    })
+      .then(treatmentTechnologyCodes => {
+        let whereClauseOrList = [];
+        treatmentTechnologyCodes.forEach(function(treatmentTechnologyCode) {
+          whereClauseOrList.push({[Op.and]: Sequelize.literal("lower('" + treatmentTechnologyCode.id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)")});
+        });
+
+        //determine list of relevant treatment ids;
+        // either specific treatment trains selected OR all treatment trains for the selected treatment technology code
+        ViewWastestreamProcessTreatmentTechnology.findAll({
+          attributes: ["treatmentId"],
+          where: {
+            [Op.and]: [
+              {
+                [Op.or]: whereClauseOrList
+              },
+              {
+                [Op.or]: {
+                  treatmentId: {[Op.in]: treatmentIds},
+                  [Op.and]: Sequelize.literal(treatmentIds.length + ' = 0')
+                }
+              }
+            ]
+          },
+          group: ["treatmentId"]
+        })
+          .then(treatmentTechnologies => {
+            treatmentIds = treatmentTechnologies.map(a => a.treatmentId)
+
+            //determine list of wastestream processes that are relevant based on selected treatment trains and selected pollutants
+            ViewWastestreamProcessTreatmentTechnologyPollutant.findAll({
+              attributes: ['wastestreamProcessId'],
+              where: {
+                treatmentId: {[Op.in]: treatmentIds},
+                [Op.or]: {
+                  elgPollutantDescription: {[Op.in]: pollutantIds},
+                  [Op.and]: Sequelize.literal(pollutantIds.length + ' = 0')
+                }
+              },
+              group: ['wastestreamProcessId'],
+            })
+              .then(wastestreamProcesses => {
+                if (wastestreamProcesses.length) {
+                  //determine list of limitations that are relevant based on selected PSCs, selected pollutants, and relevant wastestream processes
+                  ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+                    attributes: attributes.concat(['treatmentCodes', 'treatmentNames', 'wastestreamProcessTreatmentTechnologyNotes', 'wastestreamProcessTreatmentTechnologySourceTitle']),
+                    where: {
+                      [Op.and]: [
+                        {
+                          [Op.or]: whereClauseOrList
+                        },
+                        {
+                          [Op.or]: {
+                            pointSourceCategoryCode: {[Op.in]: pointSourceCategoryCodes},
+                            [Op.and]: Sequelize.literal(pointSourceCategoryCodes.length + ' = 0')
+                          }
+                        },
+                        {
+                          [Op.or]: {
+                            elgPollutantDescription: {[Op.in]: pollutantIds},
+                            [Op.and]: Sequelize.literal(pollutantIds.length + ' = 0')
+                          }
+                        },
+                        {wastestreamProcessId: {[Op.in]: wastestreamProcesses.map(a => a.wastestreamProcessId)}}
+                      ]
+                    },
+                    order: order
+                  })
+                    .then((limitations) => {
+                      resolve(limitations);
+                    })
+                    .catch((error) => reject('Error retrieving limitations: ' + error));
+                } else {
+                  //no possible wastestream process; return empty list of limitations
+                  resolve([]);
+                }
+              })
+              .catch((error) => reject('Error retrieving wastestream processes for limitations: ' + error));
+          })
+          .catch((error) => reject('Error retrieving treatment trains for limitations: ' + error));
+      })
+      .catch((error) => reject("Error! TreatmentTechnologyCode: " + error));
   });
 }
 
@@ -253,20 +354,24 @@ module.exports = {
   wastestreamProcessLimitations,
   pollutantLimitations,
   technologyLimitations,
+  technologyCategoryLimitations,
   technologyBasisLimitations,
   /**
    * @param {
-   *          {id:number}
-   * } req.params
+   *          {id:number},
+   *          {download:string}
+   * } req.query
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = utilities.parseIdAsInteger(req.params.id);
+      let id = utilities.parseIdAsInteger(req.query.id);
 
       if (id === null) {
         return res.status(400).send('Invalid value passed for id')
       }
+
+      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
       return ViewLimitation.findByPk(id, {
         attributes: [
@@ -311,7 +416,7 @@ module.exports = {
               [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
               'limitationUnitBasis',
               'wastestreamProcessTreatmentTechnologySourceTitle',
-              'wastestreamProcessTreatmentTechnologyNotes'
+              [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes']
             ],
             where: {
               limitationId: { [Op.eq]: id }
@@ -336,7 +441,36 @@ module.exports = {
                     }
                     return 0;
                   });
-                  res.status(200).send(result);
+
+                  if (downloadRequested) {
+                    download.createDownloadFile('longTermAverages',
+                      'Long Term Averages',
+                      [
+                        { key: 'treatmentTechnologyNames', label: 'Treatment Train', width: 70 },
+                        { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
+                        { key: 'pollutantDescription', label: 'Pollutant' },
+                        { key: 'longTermAverageValue', label: 'LTA Value' },
+                        { key: 'longTermAverageUnitCode', label: 'LTA Units', width: 90 },
+                        { key: 'limitationValue', label: 'Limitation Value' },
+                        { key: 'alternateLimitFlag', label: 'Limitation Flag' },
+                        { key: 'limitationUnitCode', label: 'Limitation Units', width: 90 },
+                        { key: 'limitationUnitBasis', label: 'Limitation Basis' },
+                        { key: 'longTermAverageSourceTitle', label: 'LTA Reference', width: 150 }
+                      ],
+                      [
+                        { label: 'Point Source Category ' + result['pointSourceCategoryCode'], value: result['pointSourceCategoryName'] },
+                        { label: 'Subpart', value: result['comboSubcategory'] },
+                        { label: 'Level of Control', value: result['controlTechnologyCode']},
+                        { label: 'Process Operation/Wastestream', value: result['wastestreamProcessTitle'] },
+                        { label: 'Other Process/Wastestream Details', value: result['wastestreamProcessSecondary'].replace(/<strong><u>and<\/u><\/strong>/ig, 'AND') },
+                        { label: 'Pollutant', value: result['pollutantDescription'] }
+                      ],
+                      result['longTermAverages'],
+                      res);
+                  }
+                  else {
+                    res.status(200).send(result);
+                  }
                 });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));

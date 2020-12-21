@@ -1,27 +1,27 @@
 <template>
   <div>
     <div v-if="treatmentTechnologyData">
-      <div class="info-box-container message">
+      <div v-if="selectedTreatmentTechnology" class="info-box-container message">
         <div class="message-body">
           <p><strong>Treatment Technology Description:</strong> {{ treatmentTechnologyData.description }}</p>
         </div>
       </div>
     </div>
     <Alert type="warning">
-      Disclaimer: The technology basis information in the ELG Database is not comprehensive across all Point Source
-      Categories, Levels of Control, and Process Operations/Wastestreams (Process). The results below will only display
-      the technology bases for which EPA was able to identify readily available information.
+      <strong>Disclaimer:</strong> The technology basis information in the ELG Database is not comprehensive across all
+      Point Source Categories, Levels of Control, and Process Operations/Wastestreams (Process). The results below will
+      only display the technology bases for which EPA was able to identify readily available information.
     </Alert>
     <div v-if="treatmentTechnologyData">
       <Alert type="info">
-        Instructions: The numbers in parentheses next to the Point Source Categories, Pollutants, and Treatment Trains
-        dropdown menu titles indicate the total number of records in the ELG Database related to the selected treatment
-        technology for that search criteria. From the dropdown menus, select one or more criteria to view the search
-        results, including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will
-        automatically update after each criterion is selected. Click the “x” next to a criterion to remove it from the
-        search results. If EPA was able to readily identify the associated pollutant limitation’s long-term average
-        (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to navigate to the long-term
-        average information.
+        <strong>Instructions:</strong> The numbers in parentheses next to the Point Source Categories, Pollutants, and
+        Treatment Trains dropdown menu titles indicate the total number of records in the ELG Database related to the
+        selected treatment technology for that search criteria. From the dropdown menus, select one or more criteria to
+        view the search results, including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table
+        below will automatically update after each criterion is selected. Click the “x” next to a criterion to remove it
+        from the search results. If EPA was able to readily identify the associated pollutant limitation’s long-term
+        average (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to navigate to the
+        long-term average information.
       </Alert>
       <div class="columns">
         <div class="column is-4">
@@ -96,6 +96,30 @@
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
+      <DownloadLink
+        v-if="selectedTreatmentTechnologyCategory"
+        title="Limitations"
+        :url="
+          `/api/treatmentTechnologyCategoryLimitations?id=${selectedTreatmentTechnologyCategory}&treatmentId=${selectedTreatmentTrain
+            .map((t) => t.id)
+            .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
+            .map((t) => t.pointSourceCategoryCode)
+            .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`
+        "
+      />
+      <DownloadLink
+        v-else
+        title="Limitations"
+        :url="
+          `/api/treatmentTechnologyLimitations?id=${
+            treatmentTechnologyData.id
+          }&treatmentId=${selectedTreatmentTrain
+            .map((t) => t.id)
+            .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
+            .map((t) => t.pointSourceCategoryCode)
+            .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`
+        "
+      />
       <Table
         v-if="treatmentLimitationData"
         :columns="limitationColumns"
@@ -108,11 +132,7 @@
           <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
             <span class="fa fa-info-circle"></span>
           </button>
-          <Modal
-            v-if="shouldDisplayProcess === index"
-            title="Treatment Train Notes"
-            @close="shouldDisplayProcess = false"
-          >
+          <Modal v-if="shouldDisplayProcess === index" title="Description" @close="shouldDisplayProcess = false">
             <p class="has-text-left">
               <span v-html="item.wastestreamProcessDescription" />
             </p>
@@ -162,9 +182,10 @@ import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
+import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, HoverText, Table, Modal, Multiselect },
+  components: { Alert, HoverText, Table, Modal, Multiselect, DownloadLink },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -173,6 +194,8 @@ export default {
       'pollutantData',
       'treatmentTechnologyData',
       'treatmentTrain',
+      'selectedTreatmentTechnology',
+      'selectedTreatmentTechnologyCategory',
     ]),
     ...get('limitations', ['treatmentLimitationData']),
     ...sync('results', ['activeTab']),
@@ -214,6 +237,7 @@ export default {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
           filterable: true,
+          customFilterSort: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
         },
         {
           key: 'pollutantDescription',
@@ -247,6 +271,7 @@ export default {
         {
           key: 'goToLta',
           label: 'Go To LTA',
+          sortable: false,
         },
       ],
     };
