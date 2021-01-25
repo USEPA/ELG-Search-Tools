@@ -73,9 +73,10 @@
         <span v-else>--</span>
       </template>
     </Table>
-    <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom:1.25rem">
+    <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom:1.5rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
-      "No data available" will be noted.
+      "No data available" will be noted. Filters can be used to limit the data displayed in the results. To remove the
+      filter, select the criteria a second time.
     </Alert>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
@@ -202,6 +203,7 @@ export default {
         {
           key: 'goToLta',
           label: 'Go to LTA',
+          sortable: false,
         },
       ],
       pollLimitationCols: [
@@ -243,6 +245,7 @@ export default {
         {
           key: 'goToLta',
           label: 'Go to LTA',
+          sortable: false,
         },
       ],
     };

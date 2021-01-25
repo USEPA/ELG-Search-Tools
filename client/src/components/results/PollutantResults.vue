@@ -144,6 +144,7 @@ export default {
         {
           key: 'goToLimitations',
           label: 'Go to Limitations',
+          sortable: false,
         },
       ],
       pollCategoryColumns: [
@@ -173,6 +174,7 @@ export default {
         {
           key: 'goToLimitations',
           label: 'Go to Limitations',
+          sortable: false,
         },
       ],
     };

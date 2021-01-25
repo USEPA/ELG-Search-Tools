@@ -8,20 +8,20 @@
       </div>
     </div>
     <Alert type="warning">
-      Disclaimer: The technology basis information in the ELG Database is not comprehensive across all Point Source
-      Categories, Levels of Control, and Process Operations/Wastestreams (Process). The results below will only display
-      the technology bases for which EPA was able to identify readily available information.
+      <strong>Disclaimer:</strong> The technology basis information in the ELG Database is not comprehensive across all
+      Point Source Categories, Levels of Control, and Process Operations/Wastestreams (Process). The results below will
+      only display the technology bases for which EPA was able to identify readily available information.
     </Alert>
     <div v-if="treatmentTechnologyData">
       <Alert type="info">
-        Instructions: The numbers in parentheses next to the Point Source Categories, Pollutants, and Treatment Trains
-        dropdown menu titles indicate the total number of records in the ELG Database related to the selected treatment
-        technology for that search criteria. From the dropdown menus, select one or more criteria to view the search
-        results, including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will
-        automatically update after each criterion is selected. Click the “x” next to a criterion to remove it from the
-        search results. If EPA was able to readily identify the associated pollutant limitation’s long-term average
-        (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to navigate to the long-term
-        average information.
+        <strong>Instructions:</strong> The numbers in parentheses next to the Point Source Categories, Pollutants, and
+        Treatment Trains dropdown menu titles indicate the total number of records in the ELG Database related to the
+        selected treatment technology for that search criteria. From the dropdown menus, select one or more criteria to
+        view the search results, including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table
+        below will automatically update after each criterion is selected. Click the “x” next to a criterion to remove it
+        from the search results. If EPA was able to readily identify the associated pollutant limitation’s long-term
+        average (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to navigate to the
+        long-term average information.
       </Alert>
       <div class="columns">
         <div class="column is-4">
@@ -271,6 +271,7 @@ export default {
         {
           key: 'goToLta',
           label: 'Go To LTA',
+          sortable: false,
         },
       ],
     };
