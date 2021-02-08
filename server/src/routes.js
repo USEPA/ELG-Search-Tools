@@ -35,6 +35,9 @@ module.exports = (app, history) => {
   //app.get('/api/technologyBases', controllers.treatmentTechnology.technologyBases);
   //app.get('/api/technologyBasisLimitations', controllers.treatmentTechnology.technologyBasisLimitations);
 
+  app.get('/api/multiCriteriaSearchCriteria', controllers.customSearch.multiCriteriaSearchCriteria);
+  app.get('/api/multiCriteriaSearch', controllers.customSearch.multiCriteriaSearch);
+  app.get('/api/keywordSearch', controllers.customSearch.keywordSearch);
 
   // serve up built Vue files from express server
   app.use(history);
