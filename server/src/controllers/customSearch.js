@@ -1,60 +1,39 @@
 const utilities = require('./utilities');
+const limitation = require('./limitation');
 
 const PointSourceCategory = require('../models').PointSourceCategory;
 const SicCode = require('../models').SicCode;
 const NaicsCode = require('../models').NaicsCode;
 const Pollutant = require('../models').Pollutant;
 const PollutantGroup = require('../models').PollutantGroup;
-const ViewLimitation = require('../models').ViewLimitation;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const LimitationUnit = require('../models').LimitationUnit;
+const TreatmentTechnology = require('../models').TreatmentTechnology;
+const WastestreamProcess = require('../models').WastestreamProcess;
 const Op = require('sequelize').Op
 const Sequelize = require("sequelize");
 
-let attributes = [
-  'limitationId',
-  'controlTechnologyCode',
-  'controlTechnologyCfrSection',
-  'comboSubcategory',
-  'wastestreamProcessId',
-  'wastestreamProcessTitle',
-  'wastestreamProcessSecondary',
-  'wastestreamProcessCfrSection',
-  [Sequelize.literal("split_part(wp_cfr_sect, '.', 1) || '_1' || split_part(wp_cfr_sect, '.', 2)"), 'cfrSectionAnchor'],
-  'wastestreamProcessDescription',
-  [Sequelize.literal("replace(wp_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'wastestreamProcessLimitCalculationDescription'],
-  ['elg_pollutant_description', 'pollutantDescription'],
-  'dischargeFrequency',
-  'limitationValue',
-  'minimumValue',
-  'maximumValue',
-  'zeroDischarge',
-  'limitationDurationDescription',
-  'limitationDurationBaseType',
-  'limitationDurationTypeDisplay',
-  'limitationUnitCode',
-  [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
-  'limitationUnitBasis',
-  'alternateLimitFlag',
-  'alternateLimitDescription',
-  [Sequelize.literal("replace(replace(alt_lim, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'limitRequirementDescription'],
-  [Sequelize.literal("replace(lim_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitationLimitCalculationDescription'],
-  [Sequelize.literal("replace(replace(lim_pollutant_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'limitationPollutantNotes'],
-  [Sequelize.literal("case when stat_base_type = 'Average' then lta_count else 0 end"), 'longTermAverageCount'],
-  'pointSourceCategoryCode',
-  'pointSourceCategoryName'
-];
+function parseKeyword(keyword) {
+  let result = [];
 
-let order = [
-  'pointSourceCategoryCode',
-  'pointSourceCategoryName',
-  'comboSubcategory',
-  'controlTechnologyDisplayOrder',
-  'wastestreamProcessDisplayOrder',
-  'pollutantDescription',
-  'limitationDurationDescription',
-  'limitationDurationTypeDisplay'
-];
+  if (keyword) {
+    if (Array.isArray(keyword)) {
+      result = keyword;
+    } else {
+      result = [keyword];
+    }
+  }
+
+  if (result.length > 0) {
+    for (let i = 0, len = result.length; i < len; i++) {
+      result[i] = "%" + result[i] + "%";
+    }
+  } else {
+    result = ["%%"];
+  }
+
+  return result;
+}
 
 module.exports = {
   multiCriteriaSearchCriteria(req, res) {
@@ -151,63 +130,167 @@ module.exports = {
       })
       .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
   },
+  /**
+   * @param {
+   *          {pointSourceCategoryCode:string},
+   *          {sicCode:string},
+   *          {naicsCode:string},
+   *          {pollutantId:string},
+   *          {pollutantGroupId:string},
+   *          {treatmentTechnologyCode:string},
+   *          {treatmentTechnologyGroup:string},
+   *          {rangeLow:number},
+   *          {rangeHigh:number},
+   *          {rangeUnitCode:string},
+   *          {download:string}
+   * } req.query
+   */
   multiCriteriaSearch(req, res) {
-    let pointSourceCategories = req.query.pointSourceCategories;
-    let sicCodes = req.query.sicCodes;
-    let naicsCodes = req.query.naicsCodes;
-    let pollutants = req.query.pollutants;
-    let pollutantGroups = req.query.pollutantGroups;
-    let treatmentTechnologies = req.query.treatmentTechnologies;
-    let treatmentTechnologyGroups = req.query.treatmentTechnologyGroups;
+    let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(';') : []);
+    let sicCodes = (req.query.sicCode ? req.query.sicCode.split(';') : []);
+    let naicsCodes = (req.query.naicsCode ? req.query.naicsCode.split(';') : []);
+    let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
+    let pollutantGroupIds = (req.query.pollutantGroupId ? req.query.pollutantGroupId.split(';') : []);
+    let treatmentTechnologyCodes = (req.query.treatmentTechnologyCode ? req.query.treatmentTechnologyCode.split(';') : []);
+    let treatmentTechnologyGroups = (req.query.treatmentTechnologyGroup ? req.query.treatmentTechnologyGroup.split(';') : []);
     let rangeLow = req.query.rangeLow;
     let rangeHigh = req.query.rangeHigh;
-    let rangeUnits = req.query.rangeUnits;
+    let rangeUnitCode = req.query.rangeUnitCode;
+    let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
-    return ViewLimitation.findAll({
-      attributes: attributes,
-      where: {
-        pollutantDescription: {[Op.iLike]: '%Ammonia%'}
-      },
-      order: order
-    })
+    limitation.multiCriteriaSearchLimitations(
+      pointSourceCategoryCodes,
+      sicCodes,
+      naicsCodes,
+      pollutantIds,
+      pollutantGroupIds,
+      treatmentTechnologyCodes,
+      treatmentTechnologyGroups,
+      rangeLow,
+      rangeHigh,
+      rangeUnitCode
+    )
       .then(limitations => {
-        res.status(200).send({
-          pointSourceCategoryDisplay: '[selected PSCs]',
-          sicCodeDisplay:  '[selected SIC Codes]',
-          naicsCodeDisplay: '[selected NAICS Codes]',
-          pollutantDisplay: '[selected pollutants]',
-          pollutantGroupDisplay: '[selected pollutant categories]',
-          limitationRangeDisplay: '[selected limitation range]',
-          treatmentTechnologyDisplay: '[selected treatment technologies]',
-          treatmentTechnologyGroupDisplay: '[selected treatment technology groups]',
-          limitations: limitations,
-          pointSourceCategories: [{'pointSourceCategoryCode': 415, 'pointSourceCategoryName': 'Inorganic Chemicals Manufacturing'}],
-          pollutants: [{'pollutantDescription': 'Ammonia', pollutantId: 'Ammonia|Ammonia & ammonium- total|Ammonia as N|Ammonia as NH3|Nitrogen, ammonia total (as NH4)'}],
-          treatmentTrains: [{'id': '17', 'codes': 'ChemPre', 'names': 'Chemical Precipitation'}]
-        });
+        if (downloadRequested) {
+          //TODO: implement download
+        }
+        else {
+          PointSourceCategory.findAll({
+            attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
+            where: {
+              pointSourceCategoryCode: {[Op.in]: [...new Set(limitations.map(a => a.pointSourceCategoryCode))]}
+            },
+            order: ['pointSourceCategoryCode']
+          })
+            .then(pscs => {
+              Pollutant.findAll({
+                attributes: [
+                  ['elg_pollutant_description', 'pollutantDescription'],
+                  [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+                ],
+                where: {
+                  elgDescription: {[Op.in]: [...new Set(limitations.map(a => a.pollutantDescription))]}
+                },
+                group: ['elg_pollutant_description'],
+                order: ['elg_pollutant_description']
+              })
+                .then(polls => {
+                  TreatmentTechnology.findAll({
+                    attributes: ["id", "codes", "names"],
+                    where: {
+                      id: {[Op.in]: [...new Set(limitations.map(a => a.treatmentId))]}
+                    },
+                    order: ["names"]
+                  })
+                    .then(treatmentTrains => {
+                      res.status(200).send({
+                        pointSourceCategoryDisplay: pointSourceCategoryCodes.join(', '),
+                        sicCodeDisplay: sicCodes.join(', '),
+                        naicsCodeDisplay: naicsCodes.join(', '),
+                        pollutantDisplay: pollutantIds.join(', '),
+                        pollutantGroupDisplay: pollutantGroupIds.join(', '),
+                        limitationRangeDisplay: (rangeLow ? rangeLow + '-' + rangeHigh + ' (' + rangeUnitCode + ')' : ''),
+                        treatmentTechnologyDisplay: treatmentTechnologyCodes.join(', '),
+                        treatmentTechnologyGroupDisplay: treatmentTechnologyGroups.join(', '),
+                        limitations: limitations,
+                        pointSourceCategories: pscs,
+                        pollutants: polls,
+                        treatmentTrains: treatmentTrains
+                      });
+                    })
+                    .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                })
+                .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+            })
+            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        }
       })
-      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)))
+      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
   },
   keywordSearch(req, res) {
-    let keyword = '%Ammonia%';
-    //let keyword = '%' + req.query.keyword + '%';
+    let keywords = parseKeyword(req.query.keyword);
+    let operator = (req.query.operator ? req.query.operator : 'OR');
+    let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
-    return ViewLimitation.findAll({
-      attributes: attributes,
-      where: {
-        pollutantDescription: {[Op.iLike]: keyword}
-      },
-      order: order
-    })
+    limitation.keywordSearchLimitations(keywords, operator)
       .then(limitations => {
-        res.status(200).send({
-          pointSourceCategories: [{'pointSourceCategoryCode': 415, 'pointSourceCategoryName': 'Inorganic Chemicals Manufacturing'}],
-          pollutants: [{'pollutantDescription': 'Ammonia', pollutantId: 'Ammonia|Ammonia & ammonium- total|Ammonia as N|Ammonia as NH3|Nitrogen, ammonia total (as NH4)'}],
-          wastestreamProcesses: [{id: 64092, title: 'Aluminum Chloride Production'}],
-          treatmentTrains: [{'id': '17', 'codes': 'ChemPre', 'names': 'Chemical Precipitation'}],
-          limitations: limitations
-        });
+        if (downloadRequested) {
+          //TODO: implement download
+        }
+        else {
+          PointSourceCategory.findAll({
+            attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
+            where: {
+              pointSourceCategoryCode: {[Op.in]: [...new Set(limitations.map(a => a.pointSourceCategoryCode))]}
+            },
+            order: ['pointSourceCategoryCode']
+          })
+            .then(pscs => {
+              Pollutant.findAll({
+                attributes: [
+                  ['elg_pollutant_description', 'pollutantDescription'],
+                  [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+                ],
+                where: {
+                  elgDescription: {[Op.in]: [...new Set(limitations.map(a => a.pollutantDescription))]}
+                },
+                group: ['elg_pollutant_description'],
+                order: ['elg_pollutant_description']
+              })
+                .then(polls => {
+                  WastestreamProcess.findAll({
+                    attributes: ["id", "title"],
+                    where: {
+                      id: {[Op.in]: [...new Set(limitations.map(a => a.wastestreamProcessId))]}
+                    },
+                    order: ['title']
+                  })
+                    .then(wastestreamProcesses => {
+                      TreatmentTechnology.findAll({
+                        attributes: ["id", "codes", "names"],
+                        where: {
+                          id: {[Op.in]: [...new Set(limitations.map(a => a.treatmentId))]}
+                        },
+                        order: ["names"]
+                      })
+                        .then(treatmentTrains => {
+                          res.status(200).send({
+                            pointSourceCategories: pscs,
+                            pollutants: polls,
+                            wastestreamProcesses: wastestreamProcesses,
+                            treatmentTrains: treatmentTrains,
+                            limitations: limitations
+                          });
+                        })
+                        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                    })
+                    .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                })
+                .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+            })
+            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        }
       })
-      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)))
+      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
   }
 };

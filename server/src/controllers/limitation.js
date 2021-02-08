@@ -6,6 +6,11 @@ const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
 const ViewWastestreamProcessTreatmentTechnologyPollutant = require('../models').ViewWastestreamProcessTreatmentTechnologyPollutant;
 const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('../models').ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
+
+const PointSourceCategorySicCode = require('../models').PointSourceCategorySicCode;
+const PointSourceCategoryNaicsCode = require('../models').PointSourceCategoryNaicsCode;
+const Pollutant = require('../models').Pollutant;
+
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
 
@@ -350,12 +355,200 @@ function fillLongTermAverage(longTermAverage) {
   });
 }
 
+function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
+                                        sicCodes,
+                                        naicsCodes,
+                                        pollutantIds,
+                                        pollutantGroupIds,
+                                        treatmentTechnologyCodes,
+                                        treatmentTechnologyGroups,
+                                        rangeLow,
+                                        rangeHigh,
+                                        rangeUnitCode) {
+  return new Promise(function(resolve, reject) {
+    if (pointSourceCategoryCodes.length === 0 &&
+        sicCodes.length === 0 &&
+        naicsCodes.length === 0 &&
+        pollutantIds.length === 0 &&
+        pollutantGroupIds.length === 0) //&&
+        //treatmentTechnologyCodes.length === 0 &&
+        //treatmentTechnologyGroups.length === 0)
+    {
+      //no criteria passed
+      resolve([]);
+    }
+    else {
+      let criteriaPromises = [];
+
+      //get PSCs matching criteria
+      let pscs = [];
+      if (pointSourceCategoryCodes.length > 0) {
+        pscs = pointSourceCategoryCodes;
+      } else if (sicCodes.length > 0) {
+        criteriaPromises.push(PointSourceCategorySicCode.findAll({
+          attributes: ["generalPointSourceCategoryCode"],
+          where: {
+            sicCode: {[Op.in]: sicCodes}
+          }
+        })
+          .then(pointSourceCategorySicCodes => {
+            pscs = pointSourceCategorySicCodes.map(a => a.generalPointSourceCategoryCode);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error)));
+      } else if (naicsCodes.length > 0) {
+        criteriaPromises.push(PointSourceCategoryNaicsCode.findAll({
+          attributes: ["pointSourceCategoryCode"],
+          where: {
+            naicsCode: {[Op.in]: naicsCodes}
+          }
+        })
+          .then(pointSourceCategorySicCodes => {
+            pscs = pointSourceCategorySicCodes.map(a => a.pointSourceCategoryCode);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error)));
+      }
+
+      //get pollutants matching criteria
+      let pollutants = [];
+      if (pollutantIds.length > 0) {
+        pollutants = pollutantIds;
+      } else if (pollutantGroupIds.length > 0) {
+        let pollutantGroupWhereClause = {};
+        pollutantGroupIds.forEach(groupId => {
+          pollutantGroupWhereClause.push({[Op.and]: Sequelize.literal("lower('" + groupId + "') IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), ';') AS groups)")})
+        });
+
+        criteriaPromises.push(Pollutant.findAll({
+          attributes: ["elgDescription"],
+          where: {
+            [Op.or]: {
+              pollutantGroupWhereClause
+            }
+          }
+        })
+          .then(polls => {
+            pollutants = polls.map(a => a.elgDescription);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error)));
+      }
+
+      //get technology codes matching criteria
+      let techCodes = [];
+      if (treatmentTechnologyCodes.length > 0) {
+        techCodes = treatmentTechnologyCodes;
+      } else if (treatmentTechnologyGroups.length > 0) {
+        let technologyGroupWhereClause = {};
+        treatmentTechnologyGroups.forEach(group => {
+          technologyGroupWhereClause.push({category: {[Op.iLike]: '%' + group + '%'}})
+        });
+
+        criteriaPromises.push(TreatmentTechnologyCode.findAll({
+          attributes: ["id"],
+          where: {
+            [Op.or]: {
+              technologyGroupWhereClause
+            }
+          }
+        })
+          .then(codes => {
+            techCodes = codes.map(a => a.id);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error)));
+      }
+
+      Promise.all(criteriaPromises)
+        .then(ignore => {
+          /*let rangeWhereClause = {};
+          if (pollutants.length > 0 && rangeLow && rangeHigh && rangeUnitCode) {
+            rangeWhereClause.push({limitationValue: { [Op.between]: [rangeLow, rangeHigh] }});
+            rangeWhereClause.push({limitationUnitCode: { [Op.eq]: rangeUnitCode }});
+          }
+          else {
+            rangeWhereClause.push({[Op.and]: Sequelize.literal("1 = 1")});
+          }*/
+
+          ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+            attributes: attributes.concat(['treatmentId']),
+            where: {
+              [Op.and]: [
+                /*Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"),*/
+                {
+                  [Op.or]: {
+                    pointSourceCategoryCode: {[Op.in]: pscs},
+                    [Op.and]: Sequelize.literal((pointSourceCategoryCodes.length + sicCodes.length + naicsCodes.length) + ' = 0')
+                  }
+                },
+                {
+                  [Op.or]: {
+                    elgPollutantDescription: {[Op.in]: pollutants},
+                    [Op.and]: Sequelize.literal((pollutantIds.length + pollutantGroupIds.length) + ' = 0')
+                  }
+                },
+                /*{
+                  rangeWhereClause
+                },*/
+                /*{wastestreamProcessId: {[Op.in]: wastestreamProcesses.map(a => a.wastestreamProcessId)}}*/
+              ]
+            },
+            order: order
+          })
+            .then(limitations => {
+              resolve(limitations);
+            })
+            .catch((error) => reject('Error retrieving limitations: ' + error));
+        })
+        .catch((error) => reject('Error retrieving limitations: ' + error));
+    }
+  });
+}
+
+function keywordSearchLimitations(keywords, operator) {
+  return new Promise(function(resolve, reject) {
+    if (keywords.length === 1 && keywords[0] === '%%') {
+      resolve([]);
+    }
+    else {
+      if (operator === 'OR') {
+        ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+          attributes: attributes.concat(['treatmentId']),
+          where: {
+            [Op.or]: {
+              //TODO: update to include all possible fields
+              pollutantDescription: {[Op.iLike]: {[Op.any]: keywords}}
+            }
+          },
+          order: order
+        })
+          .then(limitations => {
+            resolve(limitations);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error));
+      } else {
+        ViewLimitation.findAll({
+          attributes: attributes,
+          where: {
+            //TODO: update to include all possible fields
+            pollutantDescription: {[Op.iLike]: {[Op.any]: keywords}}
+          },
+          order: order
+        })
+          .then(limitations => {
+            resolve(limitations);
+          })
+          .catch((error) => reject('Error retrieving limitations: ' + error));
+      }
+    }
+  });
+}
+
 module.exports = {
   wastestreamProcessLimitations,
   pollutantLimitations,
   technologyLimitations,
   technologyCategoryLimitations,
   technologyBasisLimitations,
+  multiCriteriaSearchLimitations,
+  keywordSearchLimitations,
   /**
    * @param {
    *          {id:number},
