@@ -513,8 +513,28 @@ function keywordSearchLimitations(keywords, operator) {
           attributes: attributes.concat(['treatmentId']),
           where: {
             [Op.or]: {
-              //TODO: update to include all possible fields
-              pollutantDescription: {[Op.iLike]: {[Op.any]: keywords}}
+              //Point Source Category
+              pointSourceCategoryName: {[Op.iLike]: {[Op.any]: keywords}},
+              pointSourceSubcategoryTitle: {[Op.iLike]: {[Op.any]: keywords}},
+              //TODO: GeneralProvision title and description
+
+              //Process Operation/Wastestream
+              wastestreamProcessTitle: {[Op.iLike]: {[Op.any]: keywords}},
+              wastestreamProcessSecondary: {[Op.iLike]: {[Op.any]: keywords}},
+              wastestreamProcessDescription: {[Op.iLike]: {[Op.any]: keywords}},
+              wastestreamProcessLimitCalculationDescription: {[Op.iLike]: {[Op.any]: keywords}}, //also considered a Pollutant match
+              wastestreamProcessNotes: {[Op.iLike]: {[Op.any]: keywords}},
+
+              //Pollutant
+              elgPollutantDescription: {[Op.iLike]: {[Op.any]: keywords}},
+              limitRequirementDescription: {[Op.iLike]: {[Op.any]: keywords}},
+              limitationPollutantNotes: {[Op.iLike]: {[Op.any]: keywords}},
+
+              //Treatment Technology/Treatment Train
+              treatmentNames: {[Op.iLike]: {[Op.any]: keywords}},
+              //TODO: TreatmentTechnologyCode description
+              wastestreamProcessTreatmentTechnologyNotes: {[Op.iLike]: {[Op.any]: keywords}},
+              //TODO: LongTermAverage notes //also considered a Pollutant match
             }
           },
           order: order
@@ -524,11 +544,42 @@ function keywordSearchLimitations(keywords, operator) {
           })
           .catch((error) => reject('Error retrieving limitations: ' + error));
       } else {
-        ViewLimitation.findAll({
-          attributes: attributes,
+        //AND search
+        let andList = [];
+
+        keywords.forEach(keyword => {
+          andList.push({
+            [Op.or]: {
+              //Point Source Category
+              pointSourceCategoryName: {[Op.iLike]: keyword},
+              pointSourceSubcategoryTitle: {[Op.iLike]: keyword},
+              //TODO: GeneralProvision title and description
+
+              //Process Operation/Wastestream
+              wastestreamProcessTitle: {[Op.iLike]: keyword},
+              wastestreamProcessSecondary: {[Op.iLike]: keyword},
+              wastestreamProcessDescription: {[Op.iLike]: keyword},
+              wastestreamProcessLimitCalculationDescription: {[Op.iLike]: keyword}, //also considered a Pollutant match
+              wastestreamProcessNotes: {[Op.iLike]: keyword},
+
+              //Pollutant
+              elgPollutantDescription: {[Op.iLike]: keyword},
+              limitRequirementDescription: {[Op.iLike]: keyword},
+              limitationPollutantNotes: {[Op.iLike]: keyword},
+
+              //Treatment Technology/Treatment Train
+              treatmentNames: {[Op.iLike]: keyword},
+              //TODO: TreatmentTechnologyCode description
+              wastestreamProcessTreatmentTechnologyNotes: {[Op.iLike]: keyword},
+              //TODO: LongTermAverage notes //also considered a Pollutant match
+            }
+          });
+        });
+
+        ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+          attributes: attributes.concat(['treatmentId']),
           where: {
-            //TODO: update to include all possible fields
-            pollutantDescription: {[Op.iLike]: {[Op.any]: keywords}}
+            [Op.and]: andList
           },
           order: order
         })

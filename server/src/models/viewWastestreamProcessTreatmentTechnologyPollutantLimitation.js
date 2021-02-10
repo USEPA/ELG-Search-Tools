@@ -199,7 +199,7 @@ module.exports = (sequelize, DataTypes) => {
         field: 'combo_subcat'
       },
       pointSourceSubcategoryTitle: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         field: 'subcat_title'
       },

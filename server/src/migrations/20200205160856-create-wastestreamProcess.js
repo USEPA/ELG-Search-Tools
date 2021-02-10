@@ -87,7 +87,32 @@ module.exports = {
     queryInterface.addIndex(
       {schema: 'elg_search', tableName: 'WastestreamProcess'},
       ['ct_id']
-    )
+    ).then(() => {
+      queryInterface.addIndex(
+        {schema: 'elg_search', tableName: 'WastestreamProcess'},
+        ['processop_title']
+      ).then(() => {
+        queryInterface.addIndex(
+          {schema: 'elg_search', tableName: 'WastestreamProcess'},
+          ['secondary']
+        ).then(() => {
+          queryInterface.addIndex(
+            {schema: 'elg_search', tableName: 'WastestreamProcess'},
+            ['processop_description']
+          )
+        }).then(() => {
+          queryInterface.addIndex(
+            {schema: 'elg_search', tableName: 'WastestreamProcess'},
+            ['lim_calc_desc']
+          ).then(() => {
+            queryInterface.addIndex(
+              {schema: 'elg_search', tableName: 'WastestreamProcess'},
+              ['processop_notes']
+            )
+          })
+        })
+      })
+    })
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'WastestreamProcess'})
 };

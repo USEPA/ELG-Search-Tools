@@ -25,6 +25,8 @@ function parseKeyword(keyword) {
   }
 
   if (result.length > 0) {
+    result = [].concat(...result.map(a => a.split(';') ))
+
     for (let i = 0, len = result.length; i < len; i++) {
       result[i] = "%" + result[i] + "%";
     }
