@@ -90,7 +90,17 @@ module.exports = {
         queryInterface.addIndex(
           {schema: 'elg_search', tableName: 'Limitation'},
           ['alt_lim_flag']
-        )
+        ).then(() => {
+          queryInterface.addIndex(
+            {schema: 'elg_search', tableName: 'Limitation'},
+            ['alt_lim']
+          ).then(() => {
+            queryInterface.addIndex(
+              {schema: 'elg_search', tableName: 'Limitation'},
+              ['pollutant_notes']
+            )
+          })
+        })
       })
     })
   }),

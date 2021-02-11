@@ -4,6 +4,7 @@ const wastestreamProcess = require('./wastestreamProcess');
 const pollutant = require('./pollutant');
 const limitation = require('./limitation');
 const treatmentTechnology = require('./treatmentTechnology');
+const customSearch = require('./customSearch');
 
 module.exports = {
   pointSourceCategory,
@@ -11,5 +12,6 @@ module.exports = {
   wastestreamProcess,
   pollutant,
   limitation,
-  treatmentTechnology
+  treatmentTechnology,
+  customSearch
 };

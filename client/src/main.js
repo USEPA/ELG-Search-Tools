@@ -2,14 +2,23 @@ import Vue from 'vue';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
 import '../static/app.scss';
+import VueSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 import router from './router';
 import store from './store/index';
 import App from './App';
 
 // Import heavily-used components for global use
+import Alert from './components/shared/Alert';
 import HelpLinks from './components/shared/HelpLinks';
+import Modal from './components/shared/Modal';
+import LoadingIndicator from './components/shared/LoadingIndicator';
 
+Vue.component('VueSelect', VueSelect);
+Vue.component('Alert', Alert);
 Vue.component('HelpLinks', HelpLinks);
+Vue.component('Modal', Modal);
+Vue.component('LoadingIndicator', LoadingIndicator);
 
 Vue.config.productionTip = false;
 

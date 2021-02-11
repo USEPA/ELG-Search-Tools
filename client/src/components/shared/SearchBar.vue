@@ -1,117 +1,160 @@
 <template>
   <div>
-    <p style="padding-bottom:0.75rem">
-      Please select one of the following search criteria: point source category, pollutant, or treatment technology.
-      Note: depending on the criteria selected, the search result may take time to load.
+    <p class="instructional-text">
+      <span class="fa fa-info-circle"></span>
+      Select a search type from the tabs below. Note: depending on the criteria selected, the search result may take
+      time to load.
     </p>
-    <p>
-      For the pollutant search criteria, you can select an individual pollutant or a pollutant category. For the
-      treatment technology search criteria, you can select an individual treatment technology or a treatment technology
-      category.
-    </p>
-    <div class="field has-addons">
-      <div class="control">
-        <label for="searchType" class="button is-static has-background-grey-lighter has-text-black is-medium">
-          Browse By:
-        </label>
-      </div>
-      <div class="control">
-        <span class="select is-medium">
-          <select
-            id="searchType"
-            class="has-background-grey-lighter has-text-weight-semibold is-medium"
-            v-model="searchType"
-            @change="clearSelectedValues"
+
+    <ul class="columns tabs aq-tabs">
+      <li
+        v-for="option in searchTypes"
+        :key="option.id"
+        :class="`column ${searchType === option.id ? 'is-active' : ''}`"
+      >
+        <button @click="toggleSearchType(option.id)">
+          {{ option.label }}
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-container">
+      <h3 class="search-header is-size-5 has-text-weight-bold">{{ searchTypeObject.label }} Search</h3>
+
+      <Alert v-if="searchType === 'pollutant'" type="info" :isSlim="true">
+        Select an individual pollutant or a pollutant category.
+      </Alert>
+      <Alert v-if="searchType === 'treatmentTech'" type="info" :isSlim="true">
+        Select an individual treatment technology or a treatment technology.
+      </Alert>
+
+      <MultiCriteria v-if="searchType === 'multiCriteria'" />
+      <Keyword v-else-if="searchType === 'keyword'" />
+      <div v-else class="columns">
+        <div class="column">
+          <label>{{ searchTypeObject.label }}</label>
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <Multiselect
+                :value="currentSearchValue"
+                :options="optionsList"
+                :placeholder="searchType ? `Select ${searchTypeObject.label}` : 'Select search criteria to continue'"
+                :disabled="!searchType"
+                :custom-label="getOptionLabel"
+                @input="onSelectOption"
+                :track-by="searchTypeObject.codeField"
+              ></Multiselect>
+            </div>
+            <div class="control">
+              <button
+                class="button search-btn is-dark is-medium"
+                @click="onSubmit"
+                :title="isFetching ? 'Loading...' : !currentSearchValue ? 'Select an option to search' : 'Search'"
+                :disabled="!currentSearchValue"
+              >
+                <span :class="`fa has-text-white ${isFetching ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
+                <span class="sr-only">Search</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="column">
+          <label v-if="searchType === 'treatmentTech'">Treatment Technology Category</label>
+          <div v-if="searchType === 'treatmentTech'" class="field has-addons">
+            <div class="control is-expanded">
+              <Multiselect
+                :value="selectedTreatmentTechnologyCategory"
+                :options="treatmentTechnologyCategories"
+                placeholder="Select Treatment Technology Category"
+                :disabled="!searchType"
+                @input="onSelectTreatmentCategory"
+              />
+            </div>
+            <div class="control">
+              <button
+                class="button is-dark is-medium"
+                @click="onSubmitTreatmentCategory"
+                :title="
+                  isFetching
+                    ? 'Loading...'
+                    : !selectedTreatmentTechnologyCategory
+                    ? 'Select an option to search'
+                    : 'Search'
+                "
+                :disabled="!selectedTreatmentTechnologyCategory"
+              >
+                <span
+                  :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"
+                ></span>
+                <span class="sr-only">Search</span>
+              </button>
+            </div>
+          </div>
+
+          <label v-if="searchType === 'pollutant'">
+            Pollutant Category
+            <button class="button is-text icon-btn" @click="shouldDisplayPollCatDescriptions = true">
+              <span class="fa fa-info-circle"></span>
+            </button>
+          </label>
+          <div v-if="searchType === 'pollutant'" class="field has-addons">
+            <div class="control is-expanded">
+              <Multiselect
+                :value="selectedPollutantCategory"
+                :options="pollCategoriesWithDescriptions"
+                placeholder="Select Pollutant Category"
+                label="description"
+                track-by="id"
+                :disabled="!searchType"
+                @input="onSelectPollutantCategory"
+              />
+            </div>
+            <div class="control">
+              <button
+                class="button is-dark is-medium"
+                @click="onSubmitPollutantCategory"
+                :title="
+                  isFetching ? 'Loading...' : !selectedPollutantCategory ? 'Select an option to search' : 'Search'
+                "
+                :disabled="!selectedPollutantCategory"
+              >
+                <span
+                  :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"
+                ></span>
+                <span class="sr-only">Search</span>
+              </button>
+            </div>
+          </div>
+          <Modal
+            v-if="shouldDisplayPollCatDescriptions"
+            title="Pollutant Category Descriptions"
+            @close="shouldDisplayPollCatDescriptions = false"
           >
-            <option value="">Select Search Criteria</option>
-            <option v-for="option in searchTypes" :key="option.id" :value="option.id">{{ option.label }}</option>
-          </select>
-        </span>
-      </div>
-      <div class="control is-expanded">
-        <Multiselect
-          :value="currentSearchValue"
-          :options="optionsList"
-          :placeholder="searchType ? `Select ${searchTypeObject.label}` : 'Select search criteria to continue'"
-          :disabled="!searchType"
-          :custom-label="getOptionLabel"
-          @input="onSelectOption"
-          :track-by="searchTypeObject.codeField"
-        ></Multiselect>
-      </div>
-      <div class="control">
-        <button
-          class="button is-medium"
-          @click="onSubmit"
-          :title="isFetching ? 'Loading...' : !currentSearchValue ? 'Select an option to search' : 'Search'"
-          :disabled="!currentSearchValue"
-        >
-          <span class="sr-only">Search</span>
-          <span :class="`fa has-text-white ${isFetching ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
-        </button>
+            <div class="content">
+              <ul>
+                <li v-for="cat in pollutantCategories" :key="cat.id">
+                  <strong>{{ cat.description }}</strong
+                  >: {{ pollCatDescriptions[cat.id] }}
+                </li>
+              </ul>
+            </div>
+          </Modal>
+        </div>
       </div>
     </div>
-    <div v-if="searchType === 'treatmentTech'" class="field has-addons">
-      <div class="control is-expanded secondary-input">
-        <Multiselect
-          :value="selectedTreatmentTechnologyCategory"
-          :options="treatmentTechnologyCategories"
-          placeholder="Select Treatment Technology Category"
-          :disabled="!searchType"
-          @input="onSelectTreatmentCategory"
-        />
-      </div>
-      <div class="control">
-        <button
-          class="button is-medium"
-          @click="onSubmitTreatmentCategory"
-          :title="
-            isFetching ? 'Loading...' : !selectedTreatmentTechnologyCategory ? 'Select an option to search' : 'Search'
-          "
-          :disabled="!selectedTreatmentTechnologyCategory"
-        >
-          <span class="sr-only">Search</span>
-          <span :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
-        </button>
-      </div>
-    </div>
-    <div v-if="searchType === 'pollutant'" class="field has-addons">
-      <div class="control is-expanded secondary-input">
-        <Multiselect
-          :value="selectedPollutantCategory"
-          :options="pollCategoriesWithDescriptions"
-          placeholder="Select Pollutant Category"
-          label="description"
-          track-by="id"
-          :disabled="!searchType"
-          @input="onSelectPollutantCategory"
-        />
-      </div>
-      <div class="control">
-        <button
-          class="button is-medium"
-          @click="onSubmitPollutantCategory"
-          :title="isFetching ? 'Loading...' : !selectedPollutantCategory ? 'Select an option to search' : 'Search'"
-          :disabled="!selectedPollutantCategory"
-        >
-          <span class="sr-only">Search</span>
-          <span :class="`fa has-text-white ${isFetchingSecondary ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
-        </button>
-      </div>
-    </div>
-    <p v-if="searchType === 'pollutant' && selectedPollutantCategory" class="poll-cat-desc">
-      <span class="fa fa-info-circle"></span>Category description: {{ selectedPollutantCategory.fullDesc }}
-    </p>
   </div>
 </template>
 
 <script>
 import { get, sync } from 'vuex-pathify';
 import Multiselect from 'vue-multiselect';
+import MultiCriteria from '@/components/search/MultiCriteria';
+import Keyword from '@/components/search/Keyword';
 
 export default {
   name: 'SearchBar',
-  components: { Multiselect },
+  components: { Multiselect, MultiCriteria, Keyword },
   data() {
     return {
       searchTypes: [
@@ -143,6 +186,14 @@ export default {
           selectedProp: 'selectedTreatmentTechnology',
           resultAction: 'getTreatmentTechnologyData',
         },
+        {
+          id: 'multiCriteria',
+          label: 'Multi-Criteria',
+        },
+        {
+          id: 'keyword',
+          label: 'Keyword',
+        },
       ],
       option: '',
       category: null,
@@ -152,6 +203,7 @@ export default {
       treatmentTechnologyId: null,
       isFetching: false,
       isFetchingSecondary: false,
+      shouldDisplayPollCatDescriptions: false,
       pollCatDescriptions: {
         '1': 'All 126 pollutants that EPA currently defines as priority pollutants.',
         '2':
@@ -200,6 +252,10 @@ export default {
     },
   },
   methods: {
+    toggleSearchType(value) {
+      this.searchType = value;
+      this.clearSelectedValues();
+    },
     onSelectOption(value) {
       this[this.searchTypeObject.selectedProp] = value;
       // Clear any secondary options (e.g. treatment category)
@@ -229,6 +285,8 @@ export default {
         this.selectedPollutantCategory,
         this.selectedTreatmentTechnologyCategory,
       ] = [null, null, null, null, null];
+      this.$store.commit('customSearch/CLEAR_MULTI_CRITERIA_VALUES');
+      this.$store.commit('customSearch/CLEAR_KEYWORD_VALUES');
     },
     async onSubmit() {
       this.isFetching = true;
@@ -256,10 +314,13 @@ export default {
     this.$store.dispatch('search/getPollutantCategories');
     this.$store.dispatch('search/getTreatmentTechnologies');
     this.$store.dispatch('search/getTreatmentTechnologyCategories');
+    this.$store.dispatch('customSearch/getMultiCriteriaLookups');
     // Clear treatment train data so it's not pre-selected if user returns to same results page
     this.$store.commit('search/SET_SELECTED_TREATMENT_TRAIN', null);
     this.$store.commit('search/SET_TREATMENT_TRAIN', null);
     this.$store.commit('search/SET_SELECTED_SUBCATEGORY', null);
+    this.$store.commit('customSearch/SET_MULTI_CRITERIA_RESULTS', null);
+    this.$store.commit('customSearch/SET_KEYWORD_RESULTS', null);
   },
 };
 </script>
@@ -267,28 +328,83 @@ export default {
 <style lang="scss" scoped>
 @import '../../../static/variables';
 
-button {
-  width: 100px;
-  background: $darkBlue;
-  border-color: $darkBlue;
+.instructional-text {
+  padding-bottom: 1rem;
+
+  .fa-info-circle {
+    color: $darkBlue;
+    margin-right: 0.25rem;
+    margin-left: 0.1rem;
+  }
+}
+
+ul.tabs.aq-tabs {
+  margin-bottom: 0;
+  border-bottom: 2px solid $blue;
+
+  li {
+    padding: 0 0.5rem 0 0;
+
+    button {
+      margin-right: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+    }
+
+    &.is-active button {
+      background-color: $blue;
+      color: #fff;
+
+      &:hover {
+        cursor: default;
+      }
+    }
+  }
+}
+
+.tab-container {
+  padding: 1.5rem;
+  border: 2px solid #e6e6e6;
+  border-top: none;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-header {
+  // display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.instructions-message {
+  display: inline-block;
+  font-size: 0.95rem;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.button {
+  height: 100%;
+  margin-bottom: 0;
 }
 
 .button[disabled] {
   background-color: gray;
 }
 
-.field.has-addons {
-  height: 44px;
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: bold;
 }
 
-.control.secondary-input {
-  width: calc(100% - 503px);
-  flex-grow: 0 !important;
-  margin-left: auto;
+.content ul {
+  margin-top: 0;
+  padding-left: 0;
 }
 
 .poll-cat-desc {
-  width: calc(100% - 520px);
+  // width: calc(100% - 520px);
   margin-left: auto;
   margin-right: 110px;
 
@@ -303,8 +419,8 @@ button {
   }
 
   .multiselect__single {
-    white-space: nowrap;
-    overflow: hidden;
+    // white-space: nowrap;
+    // overflow: hidden;
   }
 }
 </style>
