@@ -413,7 +413,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
       if (pollutantIds.length > 0) {
         pollutants = pollutantIds;
       } else if (pollutantGroupIds.length > 0) {
-        let pollutantGroupWhereClause = {};
+        let pollutantGroupWhereClause = [];
         pollutantGroupIds.forEach(groupId => {
           pollutantGroupWhereClause.push({[Op.and]: Sequelize.literal("lower('" + groupId + "') IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), ';') AS groups)")})
         });
@@ -421,9 +421,9 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
         criteriaPromises.push(Pollutant.findAll({
           attributes: ["elgDescription"],
           where: {
-            [Op.or]: {
+            [Op.or]: [
               pollutantGroupWhereClause
-            }
+            ]
           }
         })
           .then(polls => {
@@ -437,7 +437,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
       if (treatmentTechnologyCodes.length > 0) {
         techCodes = treatmentTechnologyCodes;
       } else if (treatmentTechnologyGroups.length > 0) {
-        let technologyGroupWhereClause = {};
+        let technologyGroupWhereClause = [];
         treatmentTechnologyGroups.forEach(group => {
           technologyGroupWhereClause.push({category: {[Op.iLike]: '%' + group + '%'}})
         });
@@ -445,9 +445,9 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
         criteriaPromises.push(TreatmentTechnologyCode.findAll({
           attributes: ["id"],
           where: {
-            [Op.or]: {
+            [Op.or]: [
               technologyGroupWhereClause
-            }
+            ]
           }
         })
           .then(codes => {
