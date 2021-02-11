@@ -495,7 +495,12 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
           }
 
           ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
-            attributes: attributes.concat(['treatmentId']),
+            attributes: attributes.concat(['treatmentId',
+                                           'treatmentCodes',
+                                           'treatmentNames',
+                                           [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                                           'wastestreamProcessTreatmentTechnologySourceTitle',
+                                           ['pollutant_desc', 'pollutantId']]),
             where: {
               [Op.and]: [
                 technologyCodeWhereClause,
@@ -516,7 +521,8 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
   });
 }
 
-function keywordSearchLimitations(keywords, operator) {
+function keywordSearchLimitations(keywords,
+                                  operator) {
   return new Promise(function(resolve, reject) {
     if (keywords.length === 1 && keywords[0] === '%%') {
       resolve([]);
@@ -524,7 +530,12 @@ function keywordSearchLimitations(keywords, operator) {
     else {
       if (operator === 'OR') {
         ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
-          attributes: attributes.concat(['treatmentId']),
+          attributes: attributes.concat(['treatmentId',
+                                         'treatmentCodes',
+                                         'treatmentNames',
+                                         [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                                         'wastestreamProcessTreatmentTechnologySourceTitle',
+                                         ['pollutant_desc', 'pollutantId']]),
           where: {
             [Op.or]: {
               //Point Source Category
@@ -591,7 +602,12 @@ function keywordSearchLimitations(keywords, operator) {
         });
 
         ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
-          attributes: attributes.concat(['treatmentId']),
+          attributes: attributes.concat(['treatmentId',
+                                         'treatmentCodes',
+                                         'treatmentNames',
+                                         [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                                         'wastestreamProcessTreatmentTechnologySourceTitle',
+                                         ['pollutant_desc', 'pollutantId']]),
           where: {
             [Op.and]: andList
           },

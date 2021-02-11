@@ -163,6 +163,10 @@ module.exports = {
     let rangeUnitCode = req.query.rangeUnitCode;
     let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
+    let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
+    let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
+    let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
+
     limitation.multiCriteriaSearchLimitations(
       pointSourceCategoryCodes,
       sicCodes,
@@ -208,6 +212,14 @@ module.exports = {
                     order: ["names"]
                   })
                     .then(treatmentTrains => {
+                      //filter limitations
+                      let pollIds = filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []);
+                      limitations = limitations.filter(limitation =>
+                        (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
+                        (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
+                        (filterPollutantIds.length === 0 || pollIds.includes(limitation.pollutantId))
+                      );
+
                       res.status(200).send({
                         pointSourceCategoryDisplay: pointSourceCategoryCodes.join(', '),
                         sicCodeDisplay: sicCodes.join(', '),
@@ -232,10 +244,24 @@ module.exports = {
       })
       .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
   },
+  /**
+   * @param {
+   *          {keyword:string},
+   *          {operator:string},
+   *          {filterTreatmentId:string},
+   *          {filterPointSourceCategoryCode:string},
+   *          {filterPollutantId:string},
+   *          {download:string}
+   * } req.query
+   */
   keywordSearch(req, res) {
     let keywords = parseKeyword(req.query.keyword);
     let operator = (req.query.operator ? req.query.operator : 'OR');
     let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+
+    let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
+    let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
+    let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
 
     limitation.keywordSearchLimitations(keywords, operator)
       .then(limitations => {
@@ -279,6 +305,13 @@ module.exports = {
                         order: ["names"]
                       })
                         .then(treatmentTrains => {
+                          let pollIds = filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []);
+                          limitations = limitations.filter(limitation =>
+                            (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
+                            (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
+                            (filterPollutantIds.length === 0 || pollIds.includes(limitation.pollutantId))
+                          );
+
                           res.status(200).send({
                             pointSourceCategories: pscs,
                             pollutants: polls,
