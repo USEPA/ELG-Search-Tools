@@ -129,14 +129,11 @@
       <!-- Custom Filters row -->
       <template v-if="filterableFields.length" #top-row="{fields}">
         <td v-for="field in fields" :key="field.key">
-          <Multiselect
+          <VueSelect
             v-if="filterableFields.map((f) => f.key).includes(field.key)"
             v-model="filterValues[field.key]"
             :options="getFilterOptions(field)"
             :placeholder="`Filter` /* `Select ${field.label}` */"
-            select-label=""
-            deselect-label=""
-            open-direction="below"
             class="table-filter"
           />
         </td>
@@ -344,7 +341,7 @@ export default {
     .b-table-top-row {
       td {
         // padding: 0 5px 5px 5px !important;
-        padding: 5px !important;
+        padding: 0 !important;
         border-bottom: 1px solid #ddd !important;
         // border-right: 1px solid #fff !important;
         background-color: #f1f1f1;
@@ -442,6 +439,16 @@ export default {
       }
       .page-link {
         max-width: inherit;
+      }
+    }
+
+    .v-select {
+      margin-bottom: 0;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #fff;
+
+      .vs__selected {
+        max-width: 5px;
       }
     }
   }
