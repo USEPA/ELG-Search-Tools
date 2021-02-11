@@ -26,9 +26,7 @@
           <div class="message-body content">
             <strong>Process Operation(s)/Wastestream(s):</strong>
             <ul>
-              <li v-for="wp in keywordResults.wastestreamProcesses" :key="wp.id">
-                {{ wp.title }}
-              </li>
+              <li v-for="wp in keywordResults.wastestreamProcesses" :key="wp.id" v-html="wp.title"></li>
             </ul>
           </div>
         </div>
