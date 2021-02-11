@@ -8,13 +8,14 @@
             <strong>Point Source Cateogry(ies):</strong>
             <ul>
               <li v-for="psc in keywordResults.pointSourceCategories" :key="psc.pointSourceCategoryCode">
-                <button
+                <!-- <button
                   class="button is-hyperlink"
                   title="View Point Source Category Results"
                   @click="goToPscResults(psc)"
                 >
                   {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
-                </button>
+                </button> -->
+                {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
               </li>
             </ul>
           </div>
@@ -190,11 +191,11 @@ export default {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
       this.$router.push('/results/limitations/longTermAverage');
     },
-    async goToPscResults(psc) {
-      this.$store.commit('search/SET_SELECTED_CATEGORY', psc);
-      await this.$store.dispatch('search/getPointSourceCategories');
-      this.$store.commit('customSearch/SET_KEYWORD_RESULTS', null);
-    },
+    // async goToPscResults(psc) {
+    //   this.$store.commit('search/SET_SELECTED_CATEGORY', psc);
+    //   await this.$store.dispatch('search/getPointSourceCategories');
+    //   this.$store.commit('customSearch/SET_KEYWORD_RESULTS', null);
+    // },
   },
 };
 </script>
