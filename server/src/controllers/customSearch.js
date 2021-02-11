@@ -144,6 +144,9 @@ module.exports = {
    *          {rangeLow:number},
    *          {rangeHigh:number},
    *          {rangeUnitCode:string},
+   *          {filterTreatmentId:string},
+   *          {filterPointSourceCategoryCode:string},
+   *          {filterPollutantId:string},
    *          {download:string}
    * } req.query
    */

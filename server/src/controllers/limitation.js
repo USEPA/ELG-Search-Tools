@@ -370,9 +370,9 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
         sicCodes.length === 0 &&
         naicsCodes.length === 0 &&
         pollutantIds.length === 0 &&
-        pollutantGroupIds.length === 0) //&&
-        //treatmentTechnologyCodes.length === 0 &&
-        //treatmentTechnologyGroups.length === 0)
+        pollutantGroupIds.length === 0 &&
+        treatmentTechnologyCodes.length === 0 &&
+        treatmentTechnologyGroups.length === 0)
     {
       //no criteria passed
       resolve([]);
@@ -458,36 +458,50 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
 
       Promise.all(criteriaPromises)
         .then(ignore => {
-          /*let rangeWhereClause = {};
+          let rangeWhereClause = {[Op.and]: Sequelize.literal("1 = 1")};
           if (pollutants.length > 0 && rangeLow && rangeHigh && rangeUnitCode) {
-            rangeWhereClause.push({limitationValue: { [Op.between]: [rangeLow, rangeHigh] }});
-            rangeWhereClause.push({limitationUnitCode: { [Op.eq]: rangeUnitCode }});
+            rangeWhereClause = {
+              [Op.and]: {
+                limitationValue: { [Op.between]: [rangeLow, rangeHigh] },
+                limitationUnitCode: { [Op.eq]: rangeUnitCode }
+              }
+            };
           }
-          else {
-            rangeWhereClause.push({[Op.and]: Sequelize.literal("1 = 1")});
-          }*/
+
+          let technologyCodeWhereClause = {[Op.and]: Sequelize.literal("1 = 1")};
+          if (techCodes.length > 0) {
+            let technologyCodeOrList = [];
+            techCodes.forEach(techCode => {
+              technologyCodeOrList.push("lower('" + techCode + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)");
+            });
+
+            technologyCodeWhereClause = {
+              [Op.and]: Sequelize.literal("(" + technologyCodeOrList.join(" OR ") + ")")
+            };
+          }
+
+          let pscWhereClause = {[Op.and]: Sequelize.literal("1 = 1")};
+          if(pscs.length > 0) {
+            pscWhereClause = {
+              pointSourceCategoryCode: {[Op.in]: pscs}
+            };
+          }
+
+          let pollutantWhereClause = {[Op.and]: Sequelize.literal("1 = 1")};
+          if(pollutants.length > 0) {
+            pollutantWhereClause = {
+              elgPollutantDescription: {[Op.in]: pollutants}
+            };
+          }
 
           ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
             attributes: attributes.concat(['treatmentId']),
             where: {
               [Op.and]: [
-                /*Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"),*/
-                {
-                  [Op.or]: {
-                    pointSourceCategoryCode: {[Op.in]: pscs},
-                    [Op.and]: Sequelize.literal((pointSourceCategoryCodes.length + sicCodes.length + naicsCodes.length) + ' = 0')
-                  }
-                },
-                {
-                  [Op.or]: {
-                    elgPollutantDescription: {[Op.in]: pollutants},
-                    [Op.and]: Sequelize.literal((pollutantIds.length + pollutantGroupIds.length) + ' = 0')
-                  }
-                },
-                /*{
-                  rangeWhereClause
-                },*/
-                /*{wastestreamProcessId: {[Op.in]: wastestreamProcesses.map(a => a.wastestreamProcessId)}}*/
+                technologyCodeWhereClause,
+                pscWhereClause,
+                pollutantWhereClause,
+                rangeWhereClause
               ]
             },
             order: order
