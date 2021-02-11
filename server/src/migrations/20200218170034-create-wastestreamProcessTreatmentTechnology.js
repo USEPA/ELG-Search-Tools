@@ -38,7 +38,7 @@ module.exports = {
       ['processop_id', 'treatment_id']
     ).then(() => {
       queryInterface.addIndex(
-        {schema: 'elg_search', tableName: 'TreatmentTechnology'},
+        {schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology'},
         ['tech_notes']
       )
     })
