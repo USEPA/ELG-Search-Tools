@@ -13,6 +13,8 @@ const WastestreamProcess = require('../models').WastestreamProcess;
 const Op = require('sequelize').Op
 const Sequelize = require("sequelize");
 
+const download = require('./download');
+
 function parseKeyword(keyword) {
   let result = [];
 
@@ -182,6 +184,26 @@ module.exports = {
       .then(limitations => {
         if (downloadRequested) {
           //TODO: implement download
+          download.createDownloadFile('limitations',
+            'Limitations',
+            [
+              { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
+              { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
+              { key: 'comboSubcategory', label: 'Subpart', width: 70 },
+              { key: 'controlTechnologyCode', label: 'Level of Control' },
+              { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
+              { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
+              { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
+              { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
+              { key: 'limitationValue', label: 'Limitation Value' },
+              { key: 'alternateLimitFlag', label: 'Limitation Flag' },
+              { key: 'limitationUnitCode', label: 'Units', width: 90 },
+              { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
+            ],
+            [
+            ],
+            limitations,
+            res);
         }
         else {
           PointSourceCategory.findAll({
@@ -267,6 +289,27 @@ module.exports = {
       .then(limitations => {
         if (downloadRequested) {
           //TODO: implement download
+          download.createDownloadFile('limitations',
+            'Limitations',
+            [
+              { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
+              { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
+              { key: 'comboSubcategory', label: 'Subpart', width: 70 },
+              { key: 'controlTechnologyCode', label: 'Level of Control' },
+              { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
+              { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
+              { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
+              { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
+              { key: 'limitationValue', label: 'Limitation Value' },
+              { key: 'alternateLimitFlag', label: 'Limitation Flag' },
+              { key: 'limitationUnitCode', label: 'Units', width: 90 },
+              { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
+            ],
+            [
+              { label: 'Keyword(s)', value: keywords.map(a => a.replace(/\%/g, '')).join(" " + operator + " ")}
+            ],
+            limitations,
+            res);
         }
         else {
           PointSourceCategory.findAll({
