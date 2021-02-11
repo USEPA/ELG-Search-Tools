@@ -108,7 +108,7 @@
 </template>
 
 <script>
-import { call, get, sync } from 'vuex-pathify';
+import { call, get } from 'vuex-pathify';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 import DownloadLink from '@/components/shared/DownloadLink';

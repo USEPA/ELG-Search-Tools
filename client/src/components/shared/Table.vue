@@ -157,7 +157,7 @@
 
 <script>
 import { BTable, BPagination } from 'bootstrap-vue';
-import Multiselect from 'vue-multiselect';
+// import Multiselect from 'vue-multiselect';
 import HoverText from './HoverText';
 import Modal from './Modal';
 
@@ -190,7 +190,7 @@ export default {
       default: 'No data available.',
     },
   },
-  components: { BTable, BPagination, Multiselect, HoverText, Modal },
+  components: { BTable, BPagination, HoverText, Modal },
   data() {
     return {
       sortBy: this.defaultSort || '',

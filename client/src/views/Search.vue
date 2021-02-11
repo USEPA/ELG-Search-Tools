@@ -48,11 +48,11 @@ export default {
     Modal,
     SearchBar,
   },
-  methods: {
+  /* methods: {
     onNavigate() {
       this.$router.push('customSearch');
     },
-  },
+  }, */
 };
 </script>
 

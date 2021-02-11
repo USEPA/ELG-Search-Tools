@@ -189,9 +189,9 @@ export default {
     ]),
   },
   methods: {
-    getOptionLabel(option) {
+    /* getOptionLabel(option) {
       return `${option.pointSourceCategoryCode}: ${option.pointSourceCategoryName}`;
-    },
+    }, */
     getResults() {
       this.$store.dispatch('customSearch/getMultiCriteriaResults');
       this.$router.push('/results');

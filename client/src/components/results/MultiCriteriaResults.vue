@@ -157,13 +157,13 @@
 import { call, get, sync } from 'vuex-pathify';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
-import HoverText from '@/components/shared/HoverText';
+// import HoverText from '@/components/shared/HoverText';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, HoverText, Table, Modal, DownloadLink },
+  components: { Alert, Table, Modal, DownloadLink },
   computed: {
     ...get('search', [
       'selectedCategory',

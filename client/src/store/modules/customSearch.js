@@ -113,7 +113,7 @@ const actions = {
     dispatch('search/clearResultsData', null, { root: true });
     commit('SET_IS_FETCHING', true);
     const res = await axios.get('api/multiCriteriaSearch', {
-      params: getters.multiCriteriaSelections,
+      params: getters.multiCriteriaSelections(state),
     });
     commit('SET_MULTI_CRITERIA_RESULTS', res.data);
     commit('SET_IS_FETCHING', true);
