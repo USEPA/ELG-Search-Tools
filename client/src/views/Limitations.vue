@@ -259,7 +259,7 @@ export default {
     },
     async shouldDisplayLongTermAvgData(row) {
       await this.$store.dispatch('limitations/getLongTermAvgData', row.limitationId);
-      await this.$router.push('/results/limitations/longTermAverage');
+      await this.$router.push('/results/limitations/long-term-average');
     },
     getControlTechLimitations(controlTechCode) {
       return this.limitationData.filter((limitation) => limitation.controlTechnologyCode === controlTechCode);

@@ -42,7 +42,6 @@
 
 <script>
 import { get } from 'vuex-pathify';
-import { format } from 'date-fns';
 import Alert from '@/components/shared/Alert';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import LoadingIndicator from '@/components/shared/LoadingIndicator';
@@ -68,7 +67,9 @@ export default {
     rows() {
       return this.cfrCitationHistory.map((row) => ({
         ...row,
-        publicationDate: format(new Date(row.publicationDate), 'MM/dd/yyyy'),
+        publicationDate: row.publicationDate
+          ? row.publicationDate.replace(/(\d\d\d\d)-(\d\d)-(\d\d).*/g, '$2/$3/$1')
+          : null,
       }));
     },
   },

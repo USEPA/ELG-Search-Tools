@@ -41,7 +41,7 @@ section.main-content {
 }
 
 .section {
-  padding: 2rem 0 2rem 0 !important;
+  padding: 2rem 1.5rem !important;
 }
 
 .main-section {
@@ -104,6 +104,21 @@ section.main-content {
   select option {
     color: #363636;
   }
+}
+
+.multiselect__tags {
+  border: 1px solid #d1d1d1;
+
+  .field.has-addons & {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+.multiselect__placeholder,
+.multiselect__content-wrapper,
+.multiselect__input {
+  font-size: 0.95rem;
 }
 
 // Import bulma and plugins
@@ -230,8 +245,42 @@ input,
   }
 }
 
+.v-select {
+  margin-bottom: 0.5rem;
+  background-color: #ffffff;
+
+  button {
+    margin-bottom: unset;
+  }
+
+  .vs__dropdown-toggle {
+    height: 100%;
+    padding-bottom: 0;
+  }
+
+  input.vs__search {
+    margin: 0;
+    padding: 4px;
+
+    &::placeholder {
+      color: #a1a1a1;
+    }
+  }
+
+  .vs__selected {
+    margin-bottom: 4px;
+    background-color: #f6fbfe;
+    font-size: 14px;
+    max-width: 90%;
+  }
+}
+
 .multiselect__option {
   white-space: normal;
+
+  &::after {
+    display: none;
+  }
 }
 
 .multiselect--active {
@@ -247,18 +296,15 @@ input,
   }
 }
 
-.b-table {
-  .icon-btn {
-    display: inline-block;
-    padding: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    height: inherit;
-    width: inherit;
+.icon-btn {
+display: inline-block !important;
+  padding: 0 !important;
+  margin: 0 0 0 0.2rem !important;
+  height: inherit;
+  width: inherit;
 
-    .fa-info-circle {
-      color: $blue;
-    }
+  .fa-info-circle {
+    color: $blue;
   }
 }
 

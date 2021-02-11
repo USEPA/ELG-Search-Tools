@@ -10,7 +10,7 @@ const state = {
   treatmentTechnologies: [],
   treatmentTechnologyCategories: [],
   // user-selected values
-  searchType: '',
+  searchType: 'pointSource',
   selectedCategory: null,
   selectedSubcategory: null,
   selectedPollutant: null,
