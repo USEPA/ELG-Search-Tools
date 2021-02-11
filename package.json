@@ -12,7 +12,7 @@
     "client": "vue-cli-service serve",
     "migrate": "sequelize db:migrate:undo:all && sequelize db:migrate",
     "prod": "node server/src/server.js",
-    "seed": "cross-env NODE_ENV=local sequelize db:seed:all",
+    "seed": "sequelize db:seed:all",
     "server": "nodemon --ignore 'client/*' --inspect server/src/server.js",
     "start": "cross-env NODE_ENV=local concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
     "test": "vue-cli-service test:unit"
