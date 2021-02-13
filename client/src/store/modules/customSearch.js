@@ -56,7 +56,7 @@ const getters = {
     return `/api/multiCriteriaSearch?${new URLSearchParams(getters.multiCriteriaSelections).toString()}`;
   },
   keywordDownloadUrl(state) {
-    return `/api/keywordSearch?${new URLSearchParams({ keyword: state.keyword, operator: state.operator })}`;
+    return `/api/keywordSearch?${new URLSearchParams({ keyword: state.keyword.join(';'), operator: state.operator })}`;
   },
 };
 

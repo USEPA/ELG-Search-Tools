@@ -299,7 +299,7 @@ module.exports = {
       })
       .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
   },
-  /*
+  /**
    * @param {
    *          {treatmentId:number},
    *          {pointSourceCategoryCode:number}
@@ -328,13 +328,17 @@ module.exports = {
       return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
     }
   },
-  /*
+  /**
    * @param {
    *          {id:string},
    *          {treatmentId:number},
    *          {pointSourceCategoryCode:number},
    *          {pollutantId:string},
-   *          {download:string}
+   *          {download:string},
+   *          {offset:number},
+   *          {limit:number},
+   *          {sortCol:string},
+   *          {sortDir:string}
    * } req.query
    */
   limitations(req, res) {
@@ -351,7 +355,12 @@ module.exports = {
       let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
       let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
-      limitation.technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds)
+      let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+      let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+      let sortCol = req.query.sortCol;
+      let sortDir = req.query.sortDir;
+
+      limitation.technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir)
         .then(limitations => {
           if (downloadRequested) {
             TreatmentTechnologyCode.findOne({
@@ -386,7 +395,10 @@ module.exports = {
             });
           }
           else {
-            res.status(200).send(limitations);
+            res.status(200).send({
+              limitations: limitations.slice(offset, (offset+limit)),
+              count: limitations.length
+            });
           }
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
@@ -394,13 +406,17 @@ module.exports = {
       return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
     }
   },
-  /*
+  /**
    * @param {
    *          {id:string},
    *          {treatmentId:number},
    *          {pointSourceCategoryCode:number},
    *          {pollutantId:string},
-   *          {download:string}
+   *          {download:string},
+   *          {offset:number},
+   *          {limit:number},
+   *          {sortCol:string},
+   *          {sortDir:string}
    * } req.query
    */
   categoryLimitations(req, res) {
@@ -417,7 +433,12 @@ module.exports = {
       let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
       let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
-      limitation.technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds)
+      let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+      let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+      let sortCol = req.query.sortCol;
+      let sortDir = req.query.sortDir;
+
+      limitation.technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir)
         .then(limitations => {
           if (downloadRequested) {
             download.createDownloadFile('limitations',
@@ -446,7 +467,10 @@ module.exports = {
               res);
           }
           else {
-            res.status(200).send(limitations);
+            res.status(200).send({
+              limitations: limitations.slice(offset, (offset+limit)),
+              count: limitations.length
+            });
           }
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));

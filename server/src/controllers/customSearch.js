@@ -149,7 +149,11 @@ module.exports = {
    *          {filterTreatmentId:string},
    *          {filterPointSourceCategoryCode:string},
    *          {filterPollutantId:string},
-   *          {download:string}
+   *          {download:string},
+   *          {offset:number},
+   *          {limit:number},
+   *          {sortCol:string},
+   *          {sortDir:string}
    * } req.query
    */
   multiCriteriaSearch(req, res) {
@@ -168,6 +172,11 @@ module.exports = {
     let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
     let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
     let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
+
+    let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+    let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+    let sortCol = req.query.sortCol;
+    let sortDir = req.query.sortDir;
 
     let pointSourceCategoryDisplay = pointSourceCategoryCodes.join(', ');
     let sicCodeDisplay = sicCodes.join(', ');
@@ -236,7 +245,9 @@ module.exports = {
           treatmentTechnologyGroups,
           rangeLow,
           rangeHigh,
-          rangeUnitCode
+          rangeUnitCode,
+          sortCol,
+          sortDir
         )
           .then(limitations => {
             if (downloadRequested) {
@@ -315,10 +326,11 @@ module.exports = {
                             limitationRangeDisplay: limitationRangeDisplay,
                             treatmentTechnologyDisplay: treatmentTechnologyDisplay,
                             treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
-                            limitations: limitations,
+                            limitations: limitations.slice(offset, (offset+limit)),
                             pointSourceCategories: pscs,
                             pollutants: polls,
-                            treatmentTrains: treatmentTrains
+                            treatmentTrains: treatmentTrains,
+                            count: limitations.length
                           });
                         })
                         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
@@ -339,7 +351,10 @@ module.exports = {
    *          {filterTreatmentId:string},
    *          {filterPointSourceCategoryCode:string},
    *          {filterPollutantId:string},
-   *          {download:string}
+   *          {offset:number},
+   *          {limit:number},
+   *          {sortCol:string},
+   *          {sortDir:string}
    * } req.query
    */
   keywordSearch(req, res) {
@@ -351,8 +366,15 @@ module.exports = {
     let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
     let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
 
-    limitation.keywordSearchLimitations(keywords, operator)
-      .then(limitations => {
+    let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+    let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+    let sortCol = req.query.sortCol;
+    let sortDir = req.query.sortDir;
+
+    limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir)
+      .then(result => {
+        let limitations = result.limitations;
+
         if (downloadRequested) {
           download.createDownloadFile('limitations',
             'Limitations',
@@ -380,7 +402,8 @@ module.exports = {
           PointSourceCategory.findAll({
             attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
             where: {
-              pointSourceCategoryCode: {[Op.in]: [...new Set(limitations.map(a => a.pointSourceCategoryCode))]}
+              //pointSourceCategoryCode: {[Op.in]: [...new Set(limitations.map(a => a.pointSourceCategoryCode))]}
+              pointSourceCategoryCode: {[Op.in]: result.pointSourceCategoryCodes}
             },
             order: ['pointSourceCategoryCode']
           })
@@ -391,7 +414,8 @@ module.exports = {
                   [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
                 ],
                 where: {
-                  elgDescription: {[Op.in]: [...new Set(limitations.map(a => a.pollutantDescription))]}
+                  //elgDescription: {[Op.in]: [...new Set(limitations.map(a => a.pollutantDescription))]}
+                  id: {[Op.in]: result.pollutantIds}
                 },
                 group: ['elg_pollutant_description'],
                 order: ['elg_pollutant_description']
@@ -400,18 +424,20 @@ module.exports = {
                   WastestreamProcess.findAll({
                     attributes: [
                       "id",
-                      [Sequelize.literal("processop_title || CASE WHEN trim(secondary) <> '' THEN ' - ' || secondary ELSE '' END"), "title"]
+                      [Sequelize.literal("processop_title || CASE WHEN trim(secondary) <> '' THEN ' - ' || secondary ELSE '' END || ' (' || cfr_sect || ')'"), "title"]
                     ],
                     where: {
-                      id: {[Op.in]: [...new Set(limitations.map(a => a.wastestreamProcessId))]}
+                      //id: {[Op.in]: [...new Set(limitations.map(a => a.wastestreamProcessId))]}
+                      id: {[Op.in]: result.wastestreamProcessIds}
                     },
-                    order: ['title']
+                    order: [Sequelize.literal("processop_title || CASE WHEN trim(secondary) <> '' THEN ' - ' || secondary ELSE '' END || ' (' || cfr_sect || ')'")]
                   })
                     .then(wastestreamProcesses => {
                       TreatmentTechnology.findAll({
                         attributes: ["id", "codes", "names"],
                         where: {
-                          id: {[Op.in]: [...new Set(limitations.map(a => a.treatmentId))]}
+                          //id: {[Op.in]: [...new Set(limitations.map(a => a.treatmentId))]}
+                          id: {[Op.in]: result.treatmentIds}
                         },
                         order: ["names"]
                       })
@@ -428,7 +454,8 @@ module.exports = {
                             pollutants: polls,
                             wastestreamProcesses: wastestreamProcesses,
                             treatmentTrains: treatmentTrains,
-                            limitations: limitations
+                            limitations: limitations.slice(offset, (offset+limit)),
+                            count: limitations.length
                           });
                         })
                         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
