@@ -145,7 +145,7 @@ const actions = {
     commit('SET_IS_FETCHING', false);
     commit('SET_SELECTED_LIMITATION_ID', id);
   },
-  async getTreatmentTechnologyLimitations({ commit, getters, rootState }) {
+  async getTreatmentTechnologyLimitations({ commit, getters }) {
     commit('SET_IS_FETCHING', true);
 
     const res = await axios.get(getters.treatmentLimitationsApiUrl);
