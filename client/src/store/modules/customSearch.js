@@ -52,10 +52,10 @@ const getters = {
       filterTreatmentId: state.filterTreatmentId.join(';'),
     };
   },
-  multiCriteriaDownloadUrl(state, getters) {
+  multiCriteriaApiUrl(state, getters) {
     return `/api/multiCriteriaSearch?${new URLSearchParams(getters.multiCriteriaSelections).toString()}`;
   },
-  keywordDownloadUrl(state) {
+  keywordApiUrl(state) {
     return `/api/keywordSearch?${new URLSearchParams({ keyword: state.keyword.join(';'), operator: state.operator })}`;
   },
 };

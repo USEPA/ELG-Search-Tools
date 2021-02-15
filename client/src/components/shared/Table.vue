@@ -11,10 +11,11 @@
       :show-empty="true"
       :empty-text="emptyText"
       :per-page="perPage"
-      :current-page="currentPage"
+      :api-url.sync="apiUrl"
+      :current-page.sync="currentPage"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
-      @head-clicked="changeSort"
+      @sort-changed="sortChanged"
     >
       <!-- Hard-coded slots that are on multiple instances of table -->
       <template v-slot:head(limitationUnitBasis)="{ label }">
@@ -145,7 +146,13 @@
       </template>
     </BTable>
 
-    <BPagination v-if="perPage" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" :limit="11" />
+    <BPagination
+      v-if="perPage && totalRows > perPage"
+      v-model="currentPage"
+      :total-rows="totalRows"
+      :per-page="perPage"
+      :limit="11"
+    />
 
     <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
       <p class="has-text-left">
@@ -168,7 +175,7 @@ export default {
       required: true,
     },
     rows: {
-      type: Array,
+      type: [Array, Function],
       required: true,
     },
     height: {
@@ -189,6 +196,13 @@ export default {
       type: String,
       default: 'No data available.',
     },
+    count: {
+      type: Number,
+      default: 0,
+    },
+    apiUrl: {
+      type: String,
+    },
   },
   components: { BTable, BPagination, HoverText, Modal },
   data() {
@@ -206,10 +220,16 @@ export default {
     };
   },
   computed: {
+    useServerData() {
+      return typeof this.rows === 'function';
+    },
     filterableFields() {
       return this.columns.filter((col) => col.filterable);
     },
     filtered() {
+      if (this.useServerData) {
+        return this.rows;
+      }
       if (this.rows.length > 0) {
         const filtered = this.rows.filter((item) => {
           return Object.keys(this.filterValues).every((key) =>
@@ -234,7 +254,10 @@ export default {
       this.buildFilterValues();
     },
     rows() {
-      this.totalRows = this.rows.length;
+      this.totalRows = this.count ? this.count : this.rows.length;
+    },
+    count() {
+      this.totalRows = this.count;
     },
     filtered() {
       this.positionFilterRow();
@@ -260,8 +283,11 @@ export default {
       });
     },
     // For some reason, we need an event on header click in order for bootstrap-vue table to trigger sort
-    changeSort(key) {
-      return key;
+    sortChanged() {
+      // Go back to page one when sorting on server-side
+      if (this.useServerData) {
+        this.currentPage = 1;
+      }
     },
     buildFilterValues() {
       const filters = {};
@@ -283,6 +309,7 @@ export default {
       this.shouldDisplayModal = true;
     },
     getFilterOptions(field) {
+      if (this.useServerData) return [];
       const rawField = this.filterableFields.find((f) => f.key === field.key);
       let options = this.rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v);
       // If options need to be sorted in specific way, check for "customFilterSort" prop in field object and sort accordingly
@@ -297,7 +324,7 @@ export default {
     this.buildFilterValues();
   },
   mounted() {
-    this.totalRows = this.rows.length;
+    this.totalRows = this.useServerData ? this.count : this.rows.length;
     this.positionFilterRow();
   },
 };

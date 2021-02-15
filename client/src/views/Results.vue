@@ -47,7 +47,7 @@
     <PollutantResults v-else-if="selectedPollutant || selectedPollutantCategory" />
     <TreatmentTechResults v-else-if="selectedTreatmentTechnology || selectedTreatmentTechnologyCategory" />
     <KeywordResults v-else-if="keyword && keyword.length" />
-    <MultiCriteriaResults v-else-if="multiCriteriaResults" />
+    <MultiCriteriaResults v-else />
   </section>
 </template>
 

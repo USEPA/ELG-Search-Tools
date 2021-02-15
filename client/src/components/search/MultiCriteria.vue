@@ -29,15 +29,6 @@
             {{ option.pointSourceCategoryCode }}: {{ option.pointSourceCategoryName }}
           </template>
         </VueSelect>
-        <!-- <Multiselect
-          id="pointSourceCategory"
-          v-model="pointSourceCategoryCode"
-          :multiple="true"
-          :options="multiCriteriaLookups.pointSourceCategories"
-          placeholder="Select Category"
-          :custom-label="getOptionLabel"
-          track-by="pointSourceCategoryCode"
-        /> -->
         <div class="message message-box">
           <p>OR</p>
           <label>Search by Industry Code</label>
@@ -189,11 +180,7 @@ export default {
     ]),
   },
   methods: {
-    /* getOptionLabel(option) {
-      return `${option.pointSourceCategoryCode}: ${option.pointSourceCategoryName}`;
-    }, */
     getResults() {
-      this.$store.dispatch('customSearch/getMultiCriteriaResults');
       this.$router.push('/results');
     },
   },

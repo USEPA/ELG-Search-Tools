@@ -60,7 +60,6 @@ export default {
       }, 10);
     },
     getResults() {
-      this.$store.dispatch('customSearch/getKeywordResults');
       this.$router.push('/results');
     },
   },

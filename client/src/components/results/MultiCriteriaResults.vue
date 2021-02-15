@@ -55,7 +55,6 @@
             placeholder="Select Category"
             label="pointSourceCategoryName"
             :reduce="(o) => o.pointSourceCategoryCode"
-            @input="getMultiCriteriaResults"
           >
             <template #option="option">
               {{ option.pointSourceCategoryCode }}: {{ option.pointSourceCategoryName }}
@@ -77,7 +76,6 @@
             placeholder="Select Pollutant"
             label="pollutantDescription"
             :reduce="(o) => o.pollutantId"
-            @input="getMultiCriteriaResults"
           />
         </div>
         <div class="column is-4">
@@ -92,20 +90,22 @@
             placeholder="Select Treatment Train"
             label="names"
             :reduce="(o) => o.id"
-            @input="getMultiCriteriaResults"
           />
         </div>
       </div>
       <p v-if="treatmentTrain" class="pollutant-subtext is-size-5">
         Number of PSCs Referencing Treatment Train: {{ treatmentTrain.length }}
       </p>
-      <DownloadLink v-else title="Limitations" :url="multiCriteriaDownloadUrl" />
+      <DownloadLink v-else title="Limitations" :url="multiCriteriaApiUrl" />
+    </div>
+    <div>
       <Table
-        v-if="multiCriteriaResults"
         :columns="limitationColumns"
-        :rows="limitations"
+        :rows="tableProvider"
         :busy="isFetching"
         :perPage="100"
+        :count="multiCriteriaResults ? multiCriteriaResults.count : 0"
+        :apiUrl="multiCriteriaApiUrl"
       >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
@@ -154,7 +154,7 @@
 </template>
 
 <script>
-import { call, get, sync } from 'vuex-pathify';
+import { get, sync } from 'vuex-pathify';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
 // import HoverText from '@/components/shared/HoverText';
@@ -175,7 +175,7 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
-    ...get('customSearch', ['multiCriteriaResults', 'multiCriteriaDownloadUrl']),
+    ...get('customSearch', ['multiCriteriaResults', 'multiCriteriaApiUrl']),
     ...sync('results', ['activeTab']),
     ...sync('search', ['selectedSubcategory']),
     ...sync('limitations', [
@@ -185,17 +185,6 @@ export default {
       'selectedTreatmentPollutant',
     ]),
     ...sync('customSearch', ['filterPointSourceCategoryCode', 'filterPollutantId', 'filterTreatmentId']),
-    limitations() {
-      return this.multiCriteriaResults
-        ? this.multiCriteriaResults.limitations.map((row) => {
-            return {
-              ...row,
-              limitationValue:
-                row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
-            };
-          })
-        : [];
-    },
   },
   data() {
     return {
@@ -217,7 +206,6 @@ export default {
         {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
-          filterable: true,
           customFilterSort: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
         },
         {
@@ -243,7 +231,6 @@ export default {
         {
           key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
-          filterable: true,
         },
         {
           key: 'goToLta',
@@ -254,11 +241,29 @@ export default {
     };
   },
   methods: {
-    ...call('customSearch', ['getMultiCriteriaResults']),
     sortBy,
     onShouldDisplayLongTermAvgData(limitationId) {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
       this.$router.push('/results/limitations/longTermAverage');
+    },
+    async tableProvider(ctx) {
+      try {
+        const response = await this.$http.get(
+          `${ctx.apiUrl}&offset=${ctx.currentPage * ctx.perPage - 100}&sortCol=${ctx.sortBy}&sortDir=${
+            ctx.sortDesc ? 'desc' : 'asc'
+          }`
+        );
+        this.$store.commit('customSearch/SET_MULTI_CRITERIA_RESULTS', response.data);
+        return response.data.limitations.map((row) => {
+          return {
+            ...row,
+            limitationValue:
+              row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
+          };
+        });
+      } catch (error) {
+        return [];
+      }
     },
   },
 };

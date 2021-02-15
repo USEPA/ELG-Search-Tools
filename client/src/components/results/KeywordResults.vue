@@ -56,9 +56,17 @@
         </div>
       </div>
     </div>
-    <div v-if="keywordResults">
-      <DownloadLink title="Limitations" :url="keywordDownloadUrl" />
-      <Table v-if="keywordResults" :columns="limitationColumns" :rows="limitations" :busy="isFetching" :perPage="100">
+    <div>
+      <DownloadLink title="Limitations" :url="keywordApiUrl" />
+      <Table
+        :columns="limitationColumns"
+        :rows="tableProvider"
+        :busy="isFetching"
+        :perPage="100"
+        :useServerPagination="true"
+        :count="keywordResults ? keywordResults.count : 0"
+        :apiUrl="keywordApiUrl"
+      >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
           <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
@@ -114,18 +122,7 @@ import DownloadLink from '@/components/shared/DownloadLink';
 export default {
   components: { Table, Modal, DownloadLink },
   computed: {
-    ...get('customSearch', ['keywordResults', 'keywordDownloadUrl', 'isFetching']),
-    limitations() {
-      return this.keywordResults
-        ? this.keywordResults.limitations.map((row) => {
-            return {
-              ...row,
-              limitationValue:
-                row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
-            };
-          })
-        : [];
-    },
+    ...get('customSearch', ['keywordResults', 'keywordApiUrl', 'isFetching']),
   },
   data() {
     return {
@@ -147,8 +144,6 @@ export default {
         {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
-          filterable: true,
-          customFilterSort: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
         },
         {
           key: 'pollutantDescription',
@@ -173,7 +168,6 @@ export default {
         {
           key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
-          filterable: true,
         },
         {
           key: 'goToLta',
@@ -188,6 +182,25 @@ export default {
     onShouldDisplayLongTermAvgData(limitationId) {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
       this.$router.push('/results/limitations/longTermAverage');
+    },
+    async tableProvider(ctx) {
+      try {
+        const response = await this.$http.get(
+          `${ctx.apiUrl}&offset=${ctx.currentPage * ctx.perPage - 100}&sortCol=${ctx.sortBy}&sortDir=${
+            ctx.sortDesc ? 'desc' : 'asc'
+          }`
+        );
+        this.$store.commit('customSearch/SET_KEYWORD_RESULTS', response.data);
+        return response.data.limitations.map((row) => {
+          return {
+            ...row,
+            limitationValue:
+              row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
+          };
+        });
+      } catch (error) {
+        return [];
+      }
     },
     // async goToPscResults(psc) {
     //   this.$store.commit('search/SET_SELECTED_CATEGORY', psc);
