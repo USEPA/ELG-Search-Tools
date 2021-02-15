@@ -181,7 +181,7 @@ import Modal from '@/components/shared/Modal';
 import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, HoverText, Table, Modal, Multiselect, DownloadLink },
+  components: { Alert, HoverText, Table, Modal, DownloadLink },
   computed: {
     ...get('search', [
       'selectedCategory',
