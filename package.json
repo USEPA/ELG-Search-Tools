@@ -40,7 +40,7 @@
     "nodemon": "^1.18.9",
     "pg": "^7.9.0",
     "register-service-worker": "^1.6.2",
-    "sequelize": "^5.7.0",
+    "sequelize": "^5.19.1",
     "sequelize-cli": "^5.4.0",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",

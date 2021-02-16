@@ -18,6 +18,7 @@ const WastestreamProcess = require('../models').WastestreamProcess;
 const Limitation = require('../models').Limitation;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
 const WastestreamProcessTreatmentTechnology = require('../models').WastestreamProcessTreatmentTechnology;
+const LongTermAverage = require('../models').LongTermAverage;
 
 const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
@@ -313,7 +314,7 @@ function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
 }
 
 function fillLongTermAverage(longTermAverage) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function(resolve, ignore) {
     TreatmentTechnologyCode.findAll({
       where: {
         [Op.and]: Sequelize.literal("code IN (SELECT codes FROM regexp_split_to_table('" + longTermAverage.treatmentTechnologyCodes + "', '; ') AS codes)")
@@ -551,6 +552,233 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
   });
 }
 
+function getMatchingPointSourceCategories(keywords) {
+  return new Promise(function (resolve, reject) {
+    let pscPromises = [];
+    let pscs = [];
+
+    //get psc codes from matching subcategories
+    pscPromises.push(PointSourceSubcategory.findAll({
+      attributes: [ 'pointSourceCategoryCode' ],
+      where: { [Op.or]: { pointSourceSubcategoryTitle: {[Op.iLike]: {[Op.any]: keywords}} } }
+    })
+      .then(subs => { pscs.concat(subs.map(sub => sub.pointSourceCategoryCode)) })
+      .catch((error) => reject('Error retrieving pscs subs: ' + error)));
+
+    //get psc codes from matching provisions
+    pscPromises.push(GeneralProvision.findAll({
+      attributes: [ 'pointSourceCategoryCode' ],
+      where: {
+        [Op.or]: {
+          title: { [Op.iLike]: { [Op.any]: keywords } },
+          description: { [Op.iLike]: { [Op.any]: keywords } },
+        }
+      }
+    })
+      .then(gps => { pscs.concat(gps.map(gp => gp.pointSourceCategoryCode)) })
+      .catch((error) => reject('Error retrieving pscs gps: ' + error)));
+
+    //get matching pscs
+    Promise.all(pscPromises)
+      .then(ignore => {
+        PointSourceCategory.findAll({
+          attributes: [ 'pointSourceCategoryCode', 'pointSourceCategoryName' ],
+          where: {
+            [Op.or]: {
+              pointSourceCategoryName: { [Op.iLike]: { [Op.any]: keywords } },
+              pointSourceCategoryCode: { [Op.in]: pscs }
+            }
+          },
+          order: [ 'pointSourceCategoryCode' ]
+        })
+          .then(matches => {
+            resolve(matches);
+          })
+          .catch((error) => reject('Error retrieving limitations pscs: ' + error));
+      })
+      .catch(error => reject(error));
+  });
+}
+
+function getMatchingWastestreamProcesses(keywords) {
+  return new Promise(function (resolve, reject) {
+    //get matching wps
+    WastestreamProcess.findAll({
+      attributes: [
+        'id',
+        [Sequelize.literal("processop_title || CASE WHEN trim(secondary) <> '' THEN ' - ' || secondary ELSE '' END || ' (' || cfr_sect || ')'"), 'title']
+      ],
+      where: {
+        [Op.or]: {
+          title: {[Op.iLike]: {[Op.any]: keywords}},
+          secondary: {[Op.iLike]: {[Op.any]: keywords}},
+          description: {[Op.iLike]: {[Op.any]: keywords}},
+          limitCalculationDescription: {[Op.iLike]: {[Op.any]: keywords}},
+          notes: {[Op.iLike]: {[Op.any]: keywords}}
+        }
+      },
+      order: [ [Sequelize.literal("processop_title || CASE WHEN trim(secondary) <> '' THEN ' - ' || secondary ELSE '' END || ' (' || cfr_sect || ')'")] ]
+    })
+      .then(matches => {
+        resolve(matches);
+      })
+      .catch((error) => reject('Error retrieving wps: ' + error))
+  });
+}
+
+function getMatchingPollutants(keywords) {
+  return new Promise(function (resolve, reject) {
+    let pollPromises = [];
+    let pollIds = [];
+
+    //get limitation matches
+    pollPromises.push(Limitation.findAll({
+      attributes: [ 'pollutantId' ],
+      where: {
+        [Op.or]: {
+          limitRequirementDescription: {[Op.iLike]: {[Op.any]: keywords}},
+          pollutantNotes: {[Op.iLike]: {[Op.any]: keywords}}
+        }
+      }
+    })
+      .then(limits => {
+        pollIds.concat(limits.map(limit => limit.pollutantId))
+      })
+      .catch((error) => reject('Error retrieving polls limits: ' + error)));
+
+    //get wastestream matches
+    pollPromises.push(WastestreamProcess.findAll({
+      attributes: [ 'id' ],
+      where: { [Op.or]: { limitCalculationDescription: {[Op.iLike]: {[Op.any]: keywords}} } }
+    })
+      .then(wps => {
+        Limitation.findAll({
+          attributes: [ 'pollutantId' ],
+          where: { wastestreamProcessId: { [Op.in]: wps.map(wp => wp.id) } }
+        })
+          .then(limits => {
+            pollIds.concat(limits.map(limit => limit.pollutantId))
+          })
+      })
+      .catch((error) => reject('Error retrieving polls wps: ' + error)));
+
+    //get lta matches
+    pollPromises.push(LongTermAverage.findAll({
+      attributes: [ 'limitationId' ],
+      where: { notes: { [Op.iLike]: {[Op.any]: keywords } } }
+    })
+      .then(ltas => {
+        ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+          attributes: [ 'pollutantId' ],
+          where: { limitationId: { [Op.in]: ltas.map(lta => lta.limitationId) } }
+        })
+          .then(limits => {
+            pollIds.concat(limits.map(limit => limit.pollutantId))
+          })
+          .catch((error) => reject('Error retrieving polls ltas: ' + error))
+      })
+      .catch((error) => reject('Error retrieving polls ltas: ' + error)));
+
+    //get matching polls
+    Promise.all(pollPromises)
+      .then(ignore => {
+        Pollutant.findAll({
+          attributes: [ 'id', 'description', 'elgDescription' ],
+          where: {
+            [Op.or]: {
+              elgDescription: { [Op.iLike]: { [Op.any]: keywords } },
+              id: { [Op.in]: pollIds }
+            }
+          },
+          order: [ 'elgDescription' ]
+        })
+          .then(matches => {
+            resolve(matches);
+          })
+          .catch((error) => reject('Error retrieving polls: ' + error));
+      })
+      .catch(error => reject(error));
+  });
+}
+
+function getMatchingTreatmentTrains(keywords) {
+  return new Promise(function (resolve, reject) {
+    let ttPromises = [];
+    let ttIds = [];
+
+    //get tech code matches
+    ttPromises.push(TreatmentTechnologyCode.findAll({
+      attributes: [ 'id' ],
+      where: { description: { [Op.iLike]: { [Op.any]: keywords} } }
+    }).then(ttcs => {
+      let ttWhereClause = {};
+      let treatmentTechnologyCodeOrClause = ttcs.map(ttc => Sequelize.literal("lower('" + ttc.id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"));
+
+      TreatmentTechnology.findAll({
+        attributes: [ 'id' ],
+        where: {
+          ...ttWhereClause,
+          [Op.or]: treatmentTechnologyCodeOrClause,
+        }
+      })
+        .then(tts => {
+          ttIds.concat(tts.map(tt => tt.treatmentId));
+        }).catch((error) => reject('Error retrieving limitations tts: ' + error));
+    }).catch((error) => reject('Error retrieving limitations ttsByName: ' + error)));
+
+    //get wastestream matches
+    ttPromises.push(WastestreamProcessTreatmentTechnology.findAll({
+      attributes: [ 'treatmentId' ],
+      where: {
+        [Op.or]: {
+          notes: { [Op.iLike]: {[Op.any]: keywords } }
+        }
+      }
+    })
+      .then(wptts => {
+        ttIds.concat(wptts.map(wptt => wptt.treatmentId))
+      })
+      .catch((error) => reject('Error retrieving tts wptts: ' + error)));
+
+    //get lta matches
+    ttPromises.push(LongTermAverage.findAll({
+      attributes: [ 'limitationId' ],
+      where: { notes: { [Op.iLike]: {[Op.any]: keywords } } }
+    })
+      .then(ltas => {
+        ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+          attributes: [ 'pollutantId' ],
+          where: { limitationId: { [Op.in]: ltas.map(lta => lta.limitationId) } }
+        })
+          .then(limits => {
+            ttIds.concat(limits.map(limit => limit.treatmentId))
+          })
+          .catch((error) => reject('Error retrieving tts ltas: ' + error))
+      })
+      .catch((error) => reject('Error retrieving tts ltas: ' + error)));
+
+    //get matching tts
+    Promise.all(ttPromises)
+      .then(ignore => {
+        TreatmentTechnology.findAll({
+          attributes: [ 'id', 'codes', 'names' ],
+          where: {
+            [Op.or]: {
+              names: { [Op.iLike]: { [Op.any]: keywords } },
+              id: { [Op.in]: ttIds }
+            }
+          },
+          order: [ 'names' ]
+        })
+          .then(matches => {
+            resolve(matches);
+          })
+          .catch((error) => reject('Error retrieving polls: ' + error));
+      })
+      .catch(error => reject(error));
+  });
+}
+
 function keywordSearchLimitations(keywords,
                                   operator,
                                   sortCol,
@@ -564,114 +792,16 @@ function keywordSearchLimitations(keywords,
         let criteriaPromises = [];
 
         let pointSourceCategoryCodes = [];
-        criteriaPromises.push(PointSourceCategory.findAll({
-          where: {
-            [Op.or]: {
-              pointSourceCategoryName: {[Op.iLike]: {[Op.any]: keywords}},
-            }
-          }
-        })
-          .then(pscs => {
-              pointSourceCategoryCodes = pscs.map(psc => psc.pointSourceCategoryCode)
-            })
-          .catch((error) => reject('Error retrieving limitations pscs: ' + error)));
+        criteriaPromises.push(getMatchingPointSourceCategories(keywords).then(pscs => { pointSourceCategoryCodes = pscs }));
 
-        criteriaPromises.push(PointSourceSubcategory.findAll({
-          where: {
-            [Op.or]: {
-              pointSourceSubcategoryTitle: {[Op.iLike]: {[Op.any]: keywords}},
-            }
-          }
-        })
-          .then(subs => {
-            pointSourceCategoryCodes.concat(subs.map(sub => sub.pointSourceCategoryCode))
-          })
-          .catch((error) => reject('Error retrieving limitations subs: ' + error)));
+        let wastestreamProcesses = [];
+        criteriaPromises.push(getMatchingWastestreamProcesses(keywords).then(wps => { wastestreamProcesses = wps }));
 
-        criteriaPromises.push(GeneralProvision.findAll({
-          attributes: [ 'pointSourceCategoryCode' ],
-          where: {
-            [Op.or]: {
-              title: {[Op.iLike]: {[Op.any]: keywords}},
-              description: {[Op.iLike]: {[Op.any]: keywords}},
-            }
-          }
-        })
-          .then(gps => {
-            pointSourceCategoryCodes.concat(gps.map(gp => gp.pointSourceCategoryCode))
-          })
-          .catch((error) => reject('Error retrieving limitations gps: ' + error)));
+        let pollutants = [];
+        criteriaPromises.push(getMatchingPollutants(keywords).then(polls => { pollutants = polls }));
 
-        let wastestreamProcessIds = [];
-        criteriaPromises.push(WastestreamProcess.findAll({
-          where: {
-            [Op.or]: {
-              title: {[Op.iLike]: {[Op.any]: keywords}},
-              secondary: {[Op.iLike]: {[Op.any]: keywords}},
-              description: {[Op.iLike]: {[Op.any]: keywords}},
-              limitCalculationDescription: {[Op.iLike]: {[Op.any]: keywords}}, //TODO: also considered a Pollutant match
-              notes: {[Op.iLike]: {[Op.any]: keywords}}
-            }
-          }
-        })
-          .then(wps => {
-            wastestreamProcessIds = wps.map(wp => wp.id)
-          })
-          .catch((error) => reject('Error retrieving limitations wps: ' + error)));
-
-        let pollutantIds = [];
-        criteriaPromises.push(Pollutant.findAll({
-          where: {
-            [Op.or]: {
-              elgDescription: {[Op.iLike]: {[Op.any]: keywords}}
-            }
-          }
-        })
-          .then(polls => {
-            pollutantIds = polls.map(poll => poll.id)
-          })
-          .catch((error) => reject('Error retrieving limitations polls: ' + error)));
-
-        criteriaPromises.push(Limitation.findAll({
-          where: {
-            [Op.or]: {
-              limitRequirementDescription: {[Op.iLike]: {[Op.any]: keywords}},
-              pollutantNotes: {[Op.iLike]: {[Op.any]: keywords}}
-            }
-          }
-        })
-          .then(limits => {
-            pollutantIds.concat(limits.map(limit => limit.pollutantId))
-          })
-          .catch((error) => reject('Error retrieving limitations limits: ' + error)));
-
-        let treatmentIds = [];
-        criteriaPromises.push(TreatmentTechnology.findAll({
-          where: {
-            [Op.or]: {
-              names: {[Op.iLike]: {[Op.any]: keywords}},
-              //TODO: TreatmentTechnologyCode description
-              //TODO: LongTermAverage notes //also considered a Pollutant match
-            }
-          }
-        })
-          .then(tts => {
-            treatmentIds = tts.map(tt => tt.id)
-          })
-          .catch((error) => reject('Error retrieving limitations tts: ' + error)));
-
-        criteriaPromises.push(WastestreamProcessTreatmentTechnology.findAll({
-          attributes: ['treatmentId'],
-          where: {
-            [Op.or]: {
-              notes: {[Op.iLike]: {[Op.any]: keywords}}
-            }
-          }
-        })
-          .then(wptts => {
-            treatmentIds.concat(wptts.map(wptt => wptt.treatmentId))
-          })
-          .catch((error) => reject('Error retrieving limitations wptts: ' + error)));
+        let treatmentTrains = [];
+        criteriaPromises.push(getMatchingTreatmentTrains(keywords).then(tts => { treatmentTrains = tts }));
 
         Promise.all(criteriaPromises)
           .then(ignore => {
@@ -685,16 +815,16 @@ function keywordSearchLimitations(keywords,
               where: {
                 [Op.or]: {
                   //Point Source Category
-                  pointSourceCategoryCode: {[Op.in]: pointSourceCategoryCodes},
+                  pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes.map(psc => psc.pointSourceCategoryCode) },
 
                   //Process Operation/Wastestream
-                  wastestreamProcessId: {[Op.in]: wastestreamProcessIds},
+                  wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(wp => wp.id) },
 
                   //Pollutant
-                  pollutantId: {[Op.in]: pollutantIds},
+                  pollutantId: { [Op.in]: pollutants.map(poll => poll.id) },
 
                   //Treatment Technology/Treatment Train
-                  treatmentId: {[Op.in]: treatmentIds},
+                  treatmentId: { [Op.in]: treatmentTrains.map(tt => tt.id) },
                 }
               },
               order: parseSort(sortCol, sortDir)
@@ -703,9 +833,9 @@ function keywordSearchLimitations(keywords,
                 resolve({
                   limitations: limitations,
                   pointSourceCategoryCodes: pointSourceCategoryCodes,
-                  wastestreamProcessIds: wastestreamProcessIds,
-                  pollutantIds: pollutantIds,
-                  treatmentIds: treatmentIds
+                  wastestreamProcesses: wastestreamProcesses,
+                  pollutants: pollutants,
+                  treatmentTrains: treatmentTrains
                 });
               })
               .catch((error) => reject('Error retrieving limitations: ' + error));
@@ -713,59 +843,104 @@ function keywordSearchLimitations(keywords,
 
       } else {
         //AND search
+        let andListPromises = [];
         let andList = [];
 
+        let allPointSourceCategoryCodes = [];
+        let allWastestreamProcesses = [];
+        let allPollutants = [];
+        let allTreatmentTrains = [];
+
         keywords.forEach(keyword => {
-          andList.push({
-            [Op.or]: {
-              //Point Source Category
-              pointSourceCategoryName: {[Op.iLike]: keyword},
-              pointSourceSubcategoryTitle: {[Op.iLike]: keyword},
-              //TODO: GeneralProvision title and description
+          andListPromises.push(new Promise(function(resolve, ignore) {
+            let criteriaPromises = [];
 
-              //Process Operation/Wastestream
-              wastestreamProcessTitle: {[Op.iLike]: keyword},
-              wastestreamProcessSecondary: {[Op.iLike]: keyword},
-              wastestreamProcessDescription: {[Op.iLike]: keyword},
-              wastestreamProcessLimitCalculationDescription: {[Op.iLike]: keyword}, //also considered a Pollutant match
-              wastestreamProcessNotes: {[Op.iLike]: keyword},
+            let pointSourceCategoryCodes = [];
+            criteriaPromises.push(getMatchingPointSourceCategories([keyword]).then(pscs => { pointSourceCategoryCodes = pscs }));
 
-              //Pollutant
-              elgPollutantDescription: {[Op.iLike]: keyword},
-              limitRequirementDescription: {[Op.iLike]: keyword},
-              limitationPollutantNotes: {[Op.iLike]: keyword},
+            let wastestreamProcesses = [];
+            criteriaPromises.push(getMatchingWastestreamProcesses([keyword]).then(wps => { wastestreamProcesses = wps }));
 
-              //Treatment Technology/Treatment Train
-              treatmentNames: {[Op.iLike]: keyword},
-              //TODO: TreatmentTechnologyCode description
-              wastestreamProcessTreatmentTechnologyNotes: {[Op.iLike]: keyword},
-              //TODO: LongTermAverage notes //also considered a Pollutant match
-            }
-          });
+            let pollutants = [];
+            criteriaPromises.push(getMatchingPollutants([keyword]).then(polls => { pollutants = polls }));
+
+            let treatmentTrains = [];
+            criteriaPromises.push(getMatchingTreatmentTrains([keyword]).then(tts => { treatmentTrains = tts }));
+
+            Promise.all(criteriaPromises)
+              .then(ignore => {
+                function appendMatches(existingItems, newItems, idField) {
+                  let existingIds = existingItems.map(a => a[idField]);
+                  return existingItems.concat(newItems.filter(b => !existingIds.includes(b[idField])));
+                }
+
+                allPointSourceCategoryCodes = appendMatches(allPointSourceCategoryCodes, pointSourceCategoryCodes, 'pointSourceCategoryCode');
+                allWastestreamProcesses = appendMatches(allWastestreamProcesses, wastestreamProcesses, 'id');
+                allPollutants = appendMatches(allPollutants, pollutants, 'id');
+                allTreatmentTrains = appendMatches(allTreatmentTrains, treatmentTrains, 'id');
+
+                andList.push({
+                  [Op.or]: {
+                    //Point Source Category
+                    pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes.map(psc => psc.pointSourceCategoryCode) },
+
+                    //Process Operation/Wastestream
+                    wastestreamProcessId: { [Op.in]: wastestreamProcesses.map(wp => wp.id) },
+
+                    //Pollutant
+                    pollutantId: { [Op.in]: pollutants.map(poll => poll.id) },
+
+                    //Treatment Technology/Treatment Train
+                    treatmentId: { [Op.in]: treatmentTrains.map(tt => tt.id) },
+                  }
+                });
+
+                resolve(andList);
+              });
+          }));
         });
 
-        ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
-          attributes: attributes.concat(['treatmentId',
-                                         'treatmentCodes',
-                                         'treatmentNames',
-                                         [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
-                                         'wastestreamProcessTreatmentTechnologySourceTitle',
-                                         ['pollutant_desc', 'pollutantId']]),
-          where: {
-            [Op.and]: andList
-          },
-          order: parseSort(sortCol, sortDir)
-        })
-          .then(limitations => {
-            resolve({
-              limitations: limitations,
-              pointSourceCategoryCodes: [],
-              wastestreamProcessIds: [],
-              pollutantIds: [],
-              treatmentIds: []
-            });
-          })
-          .catch((error) => reject('Error retrieving limitations: ' + error));
+        Promise.all(andListPromises)
+          .then(ignore => {
+            ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+              attributes: attributes.concat(['treatmentId',
+                'treatmentCodes',
+                'treatmentNames',
+                [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                'wastestreamProcessTreatmentTechnologySourceTitle',
+                ['pollutant_desc', 'pollutantId']]),
+              where: {
+                [Op.and]: andList
+              },
+              order: parseSort(sortCol, sortDir)
+            })
+              .then(limitations => {
+                resolve({
+                  limitations: limitations,
+                  pointSourceCategoryCodes: allPointSourceCategoryCodes.sort((a, b) => {
+                    if (a.pointSourceCategoryCode < b.pointSourceCategoryCode) { return -1 }
+                    if (a.pointSourceCategoryCode > b.pointSourceCategoryCode) { return 1 }
+                    return 0
+                  }),
+                  wastestreamProcesses: allWastestreamProcesses.sort((a, b) => {
+                    if (a.title < b.title) { return -1 }
+                    if (a.title > b.title) { return 1 }
+                    return 0
+                  }),
+                  pollutants: allPollutants.sort((a, b) => {
+                    if (a.elgDescription < b.elgDescription) { return -1 }
+                    if (a.elgDescription > b.elgDescription) { return 1 }
+                    return 0
+                  }),
+                  treatmentTrains: allTreatmentTrains.sort((a, b) => {
+                    if (a.names < b.names) { return -1 }
+                    if (a.names > b.names) { return 1 }
+                    return 0
+                  })
+                });
+              })
+              .catch((error) => reject('Error retrieving limitations: ' + error));
+          });
       }
     }
   });

@@ -9,7 +9,6 @@ const PollutantGroup = require('../models').PollutantGroup;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const LimitationUnit = require('../models').LimitationUnit;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
-const WastestreamProcess = require('../models').WastestreamProcess;
 const Op = require('sequelize').Op
 const Sequelize = require("sequelize");
 
@@ -167,16 +166,6 @@ module.exports = {
     let rangeLow = req.query.rangeLow;
     let rangeHigh = req.query.rangeHigh;
     let rangeUnitCode = req.query.rangeUnitCode;
-    let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
-
-    let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
-    let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
-    let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
-
-    let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-    let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
-    let sortCol = req.query.sortCol;
-    let sortDir = req.query.sortDir;
 
     let pointSourceCategoryDisplay = pointSourceCategoryCodes.join(', ');
     let sicCodeDisplay = sicCodes.join(', ');
@@ -186,6 +175,11 @@ module.exports = {
     let limitationRangeDisplay = (rangeLow ? rangeLow + '-' + rangeHigh + ' (' + rangeUnitCode + ')' : '');
     let treatmentTechnologyDisplay = treatmentTechnologyCodes.join(', ');
     let treatmentTechnologyGroupDisplay = treatmentTechnologyGroups.join(', ');
+
+    let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+
+    let sortCol = req.query.sortCol;
+    let sortDir = req.query.sortDir;
 
     //build criteria display values
     let criteriaDisplayPromises = [];
@@ -281,6 +275,13 @@ module.exports = {
                 res);
             }
             else {
+              let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
+              let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
+              let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
+
+              let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+              let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+
               PointSourceCategory.findAll({
                 attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
                 where: {
@@ -309,14 +310,6 @@ module.exports = {
                         order: ["names"]
                       })
                         .then(treatmentTrains => {
-                          //filter limitations
-                          let pollIds = filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []);
-                          limitations = limitations.filter(limitation =>
-                            (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
-                            (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
-                            (filterPollutantIds.length === 0 || pollIds.includes(limitation.pollutantId))
-                          );
-
                           res.status(200).send({
                             pointSourceCategoryDisplay: pointSourceCategoryDisplay,
                             sicCodeDisplay: sicCodeDisplay,
@@ -326,7 +319,11 @@ module.exports = {
                             limitationRangeDisplay: limitationRangeDisplay,
                             treatmentTechnologyDisplay: treatmentTechnologyDisplay,
                             treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
-                            limitations: limitations.slice(offset, (offset+limit)),
+                            limitations: limitations.filter(limitation =>
+                              (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
+                              (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
+                              (filterPollutantIds.length === 0 || result.pollutants.map(poll => poll.id).includes(limitation.pollutantId))
+                            ).slice(offset, (offset+limit)),
                             pointSourceCategories: pscs,
                             pollutants: polls,
                             treatmentTrains: treatmentTrains,
@@ -360,14 +357,9 @@ module.exports = {
   keywordSearch(req, res) {
     let keywords = parseKeyword(req.query.keyword);
     let operator = (req.query.operator ? req.query.operator : 'OR');
+
     let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
-    let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
-    let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
-    let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
-
-    let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-    let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
     let sortCol = req.query.sortCol;
     let sortDir = req.query.sortDir;
 
@@ -399,70 +391,35 @@ module.exports = {
             res);
         }
         else {
-          PointSourceCategory.findAll({
-            attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
-            where: {
-              //pointSourceCategoryCode: {[Op.in]: [...new Set(limitations.map(a => a.pointSourceCategoryCode))]}
-              pointSourceCategoryCode: {[Op.in]: result.pointSourceCategoryCodes}
-            },
-            order: ['pointSourceCategoryCode']
+          Pollutant.findAll({
+            attributes: [
+              ['elg_pollutant_description', 'pollutantDescription'],
+              [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+            ],
+            where: { id: { [Op.in]: result.pollutants.map(poll => poll.id ) } },
+            group: ['elg_pollutant_description'],
+            order: ['elg_pollutant_description']
           })
-            .then(pscs => {
-              Pollutant.findAll({
-                attributes: [
-                  ['elg_pollutant_description', 'pollutantDescription'],
-                  [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
-                ],
-                where: {
-                  //elgDescription: {[Op.in]: [...new Set(limitations.map(a => a.pollutantDescription))]}
-                  id: {[Op.in]: result.pollutantIds}
-                },
-                group: ['elg_pollutant_description'],
-                order: ['elg_pollutant_description']
-              })
-                .then(polls => {
-                  WastestreamProcess.findAll({
-                    attributes: [
-                      "id",
-                      [Sequelize.literal("processop_title || CASE WHEN trim(secondary) <> '' THEN ' - ' || secondary ELSE '' END || ' (' || cfr_sect || ')'"), "title"]
-                    ],
-                    where: {
-                      //id: {[Op.in]: [...new Set(limitations.map(a => a.wastestreamProcessId))]}
-                      id: {[Op.in]: result.wastestreamProcessIds}
-                    },
-                    order: [Sequelize.literal("processop_title || CASE WHEN trim(secondary) <> '' THEN ' - ' || secondary ELSE '' END || ' (' || cfr_sect || ')'")]
-                  })
-                    .then(wastestreamProcesses => {
-                      TreatmentTechnology.findAll({
-                        attributes: ["id", "codes", "names"],
-                        where: {
-                          //id: {[Op.in]: [...new Set(limitations.map(a => a.treatmentId))]}
-                          id: {[Op.in]: result.treatmentIds}
-                        },
-                        order: ["names"]
-                      })
-                        .then(treatmentTrains => {
-                          let pollIds = filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []);
-                          limitations = limitations.filter(limitation =>
-                            (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
-                            (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
-                            (filterPollutantIds.length === 0 || pollIds.includes(limitation.pollutantId))
-                          );
+            .then(polls => {
+              let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
+              let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
+              let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
 
-                          res.status(200).send({
-                            pointSourceCategories: pscs,
-                            pollutants: polls,
-                            wastestreamProcesses: wastestreamProcesses,
-                            treatmentTrains: treatmentTrains,
-                            limitations: limitations.slice(offset, (offset+limit)),
-                            count: limitations.length
-                          });
-                        })
-                        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                    })
-                    .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                })
-                .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+              let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+              let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+
+              res.status(200).send({
+                pointSourceCategories: result.pointSourceCategoryCodes,
+                pollutants: polls,
+                wastestreamProcesses: result.wastestreamProcesses,
+                treatmentTrains: result.treatmentTrains,
+                limitations: result.limitations.filter(limitation =>
+                  (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
+                  (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
+                  (filterPollutantIds.length === 0 || result.pollutants.map(poll => poll.id).includes(limitation.pollutantId))
+                ).slice(offset, (offset+limit)),
+                count: limitations.length
+              });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         }
