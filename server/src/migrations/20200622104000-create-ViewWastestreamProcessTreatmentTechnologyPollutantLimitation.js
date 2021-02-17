@@ -24,8 +24,8 @@ module.exports = {
     'inner join elg_search."PointSourceSubcategory" pss on ct.subcat_id = pss.subcat_id ' +
     'inner join elg_search."PointSourceCategory" psc on pss.psc_code = psc.psc_code and psc."IncludeInSearchTool" = true ' +
     'left outer join elg_search."LongTermAverage" lta on l.lim_id = lta.lim_id ' +
-    'left outer join elg_search."TreatmentTechnology" tt on l.treatment_id = tt.treatment_id ' +
-    'left outer join elg_search."WastestreamProcessTreatmentTechnology" wptt ON l.processop_id = wptt.processop_id and l.treatment_id = wptt.treatment_id ' +
+    'left outer join elg_search."WastestreamProcessTreatmentTechnology" wptt ON l.processop_id = wptt.processop_id ' +
+    'left outer join elg_search."TreatmentTechnology" tt on wptt.treatment_id = tt.treatment_id ' +
     'left outer join elg_search."ReferenceSource" rs ON wptt.tech_ref = rs.source_id ' +
     'group by l.lim_id, l.discharge_frequency, l.lim_value, l.lim_value_min, l.lim_value_max, l.alt_lim_flag, l.alt_lim, l.alt_lim_description, ' +
     "CASE WHEN l.zero_discharge = '1' THEN true ELSE false END, " +

@@ -271,10 +271,18 @@ export default {
         );
         this.$store.commit('limitations/SET_TREATMENT_LIMITATION_DATA', response.data);
         return response.data.limitations.map((row) => {
+          let limitationValueDisplay = row.limitationValue;
+
+          if (limitationValueDisplay === null) {
+            limitationValueDisplay =
+              row.minimumValue !== null && row.maximumValue !== null
+                ? `${row.minimumValue} - ${row.maximumValue}`
+                : row.minimumValue;
+          }
+
           return {
             ...row,
-            limitationValue:
-              row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
+            limitationValue: limitationValueDisplay,
           };
         });
       } catch (error) {

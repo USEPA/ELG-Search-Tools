@@ -99,7 +99,10 @@
             </Modal>
           </span>
         </span>
-        <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
+        <span v-else-if="item.minimumValue && item.maximumValue">
+          {{ item.minimumValue }} - {{ item.maximumValue }}
+        </span>
+        <span v-else-if="item.minimumValue">{{ item.minimumValue }}</span>
         <span v-else-if="!item.limitationValue && item.alternateLimitFlag">
           <HoverText :id="`flagHover${index}`" :linkText="item.alternateLimitFlag">
             {{ item.alternateLimitDescription }}

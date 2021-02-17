@@ -142,7 +142,7 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
         treatmentIds = treatmentTechnologies.map(a => a.treatmentId)
 
         //determine list of wastestream processes that are relevant based on selected treatment trains and selected pollutants
-        ViewWastestreamProcessTreatmentTechnologyPollutant.findAll({
+        ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
           attributes: ['wastestreamProcessId'],
           where: {
             treatmentId: {[Op.in]: treatmentIds},
@@ -234,7 +234,7 @@ function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCode
             treatmentIds = treatmentTechnologies.map(a => a.treatmentId)
 
             //determine list of wastestream processes that are relevant based on selected treatment trains and selected pollutants
-            ViewWastestreamProcessTreatmentTechnologyPollutant.findAll({
+            ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
               attributes: ['wastestreamProcessId'],
               where: {
                 treatmentId: {[Op.in]: treatmentIds},
