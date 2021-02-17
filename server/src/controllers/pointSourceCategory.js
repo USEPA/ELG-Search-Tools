@@ -15,7 +15,7 @@ const Op = require('sequelize').Op
 const Sequelize = require("sequelize");
 
 function fillSubcategoryForCfr(subcategory) {
-  return new Promise( function(resolve, reject) {
+  return new Promise( function(resolve, ignore) {
     let sub = {
       'id': subcategory.id,
       'pointSourceCategoryCode': subcategory.pointSourceCategoryCode,
@@ -59,7 +59,7 @@ function fillSubcategoryForCfr(subcategory) {
 }
 
 function fillSubcategoryForDefinitions(subcategory) {
-  return new Promise( function(resolve, reject) {
+  return new Promise( function(resolve, ignore) {
     let sub = {
       'id': subcategory.id,
       'pointSourceCategoryCode': subcategory.pointSourceCategoryCode,
@@ -70,7 +70,8 @@ function fillSubcategoryForDefinitions(subcategory) {
     let attributes = [
       'term',
       [Sequelize.literal("replace(replace(definition, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'definition'],
-      'cfrHasAdditionalDetails'
+      'cfrHasAdditionalDetails',
+      'typoFlagDefinition'
     ];
 
     let subCategoryIdWhereClause = { [Op.eq]: sub.id }

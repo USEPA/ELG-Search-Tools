@@ -77,7 +77,12 @@ module.exports = {
       type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'pollutant_notes'
-    }
+    },
+    typoFlagLimitationValue: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'typo_flag_lim_value'
+    },
   }).then(() => {
     queryInterface.addIndex(
       {schema: 'elg_search', tableName: 'Limitation'},

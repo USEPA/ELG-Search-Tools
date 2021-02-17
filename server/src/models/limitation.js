@@ -77,7 +77,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(4000),
         allowNull: true,
         field: 'pollutant_notes'
-      }
+      },
+      typoFlagLimitationValue: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'typo_flag_lim_value'
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'Limitation' }
   );

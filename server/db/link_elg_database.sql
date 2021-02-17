@@ -114,7 +114,8 @@ select
     loc,
     ct_cfr_section,
     replace(replace(replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), U&'\0097', '-'), U&'\00B5', '\u00B5') as ct_notes,
-    case when loc_display = '1' then true else false end as loc_display
+    case when loc_display = '1' then true else false end as loc_display,
+    typo_flag_ct_notes 
 from
     elg_database.n3a_control_technology_notes;
 
@@ -143,7 +144,9 @@ select
     sortorder,
     case when alternative_req = '1' then true else false end as alternative_requirement,
     case when voluntary_req = '1' then true else false end as voluntary_requirement,
-    case when process_addtdetail = '1' then true else false end as process_addtdetail
+    case when process_addtdetail = '1' then true else false end as process_addtdetail,
+    typo_flag_lim_calc_description,
+    typo_flag_po_notes 
 from
     elg_database.n4_wastestream_process;
 
@@ -195,7 +198,8 @@ SELECT
 	pl.dataentry_psc_code,
 	pl.qc_initials,
 	pl.treatment_id,
-	alf.description as alt_lim_description
+	alf.description as alt_lim_description,
+	pl.typo_flag_lim_value 
 FROM elg_database.n5_pollutant_limitations pl left outer join elg_database.key_alt_lim_flag alf on pl.alt_lim_flag = alf.flag;
 
 create view elg_database.view_key_ttcodes as
@@ -236,7 +240,8 @@ select
 	case when additional_detail_cfr_flag = '1' then true else false end as additional_detail_cfr_flag,
 	source_id,
 	qc_flag,
-	qc_notes
+	qc_notes,
+	typo_flag_definition 
 from elg_database.a_definition;
 
 create view elg_database.view_a_generalprovisions as

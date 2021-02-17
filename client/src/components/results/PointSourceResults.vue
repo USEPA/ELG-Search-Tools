@@ -49,6 +49,8 @@
         :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
         @input="onChangeSubcategory"
         class="results-select"
+        id="subcategory"
+        name="subcategory"
       />
       <HoverText hoverId="subcatInstructions" :icon="true">
         Select a Subcategory for details on the Level of Control (BPT, BAT, BCT, NSPS, PSES, PSNS) and process
@@ -164,12 +166,26 @@
                   <div v-if="item.limitCalculationDescription">
                     <hr />
                     <h3 class="has-text-weight-bold">Limit Calculation Description</h3>
-                    <p>{{ item.limitCalculationDescription }}</p>
+                    <p>
+                      {{ item.limitCalculationDescription }}
+                      <span v-if="item.typoFlagLimitCalculationDescription">
+                        <br />
+                        <span class="fa fa-exclamation-triangle"></span>
+                        <span style="font-style: italic">{{ item.typoFlagLimitCalculationDescription }}</span>
+                      </span>
+                    </p>
                   </div>
                   <div v-if="item.notes">
                     <hr />
                     <h3 class="has-text-weight-bold">Notes</h3>
-                    <p>{{ item.notes }}</p>
+                    <p>
+                      {{ item.notes }}
+                      <span v-if="item.typoFlagNotes">
+                        <br />
+                        <span class="fa fa-exclamation-triangle"></span>
+                        <span style="font-style: italic">{{ item.typoFlagNotes }}</span>
+                      </span>
+                    </p>
                   </div>
                 </div>
               </Modal>
@@ -417,5 +433,9 @@ select {
 
 .is-gray-background {
   background-color: $gray;
+}
+
+.fa-exclamation-triangle {
+  color: $danger;
 }
 </style>

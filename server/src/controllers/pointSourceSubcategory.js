@@ -12,7 +12,7 @@ const Op = require('sequelize').Op;
 const Sequelize = require("sequelize");
 
 function fillControlTechnology(controlTechnology) {
-  return new Promise( function(resolve, reject) {
+  return new Promise( function(resolve, ignore) {
     let ct = {
       'id': controlTechnology.id,
       'controlTechnologyCode': controlTechnology.controlTechnologyCode,
@@ -60,7 +60,9 @@ function fillControlTechnology(controlTechnology) {
           'alternativeRequirement',
           'voluntaryRequirement',
           'additionalDetail',
-          [Sequelize.literal("split_part(cfr_sect, '.', 1) || '_1' || split_part(cfr_sect, '.', 2)"), 'cfrSectionAnchor']
+          [Sequelize.literal("split_part(cfr_sect, '.', 1) || '_1' || split_part(cfr_sect, '.', 2)"), 'cfrSectionAnchor'],
+          'typoFlagLimitCalculationDescription',
+          'typoFlagNotes'
         ],
         where: {
           controlTechnologyId: { [Op.eq]: controlTechnology.id }

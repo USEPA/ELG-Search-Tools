@@ -57,7 +57,12 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true,
       field: 'qc_notes'
-    }
+    },
+    typoFlagDefinition: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'typo_flag_definition'
+    },
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'Definition'})
 };

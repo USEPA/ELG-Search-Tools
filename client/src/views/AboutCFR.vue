@@ -123,6 +123,11 @@
           <p v-for="definition in subcategory.definitions" :key="definition.term">
             <span class="has-text-weight-bold">{{ definition.term }}: </span>
             {{ definition.definition }}
+            <span v-if="definition.typoFlagDefinition">
+              <br />
+              <span class="fa fa-exclamation-triangle"></span>
+              <span style="font-style: italic">{{ definition.typoFlagDefinition }}</span>
+            </span>
           </p>
         </div>
         <div v-else class="card-content">
@@ -197,10 +202,7 @@ export default {
       return provisionsWithData;
     },
     isActive(selected, provisionType) {
-      if ((!selected && provisionType === 'applicabilityProvisions') || selected === provisionType) {
-        return true;
-      }
-      return false;
+      return (!selected && provisionType === 'applicabilityProvisions') || selected === provisionType;
     },
   },
   mounted() {
@@ -291,5 +293,9 @@ export default {
       justify-content: flex-start;
     }
   }
+}
+
+.fa-exclamation-triangle {
+  color: $danger;
 }
 </style>

@@ -47,6 +47,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'additional_detail_cfr_flag'
       },
+      typoFlagDefinition: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'typo_flag_definition'
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ViewDefinition'}
   )

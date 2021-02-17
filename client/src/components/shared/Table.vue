@@ -79,6 +79,25 @@
             Limitation Flag: {{ item.alternateLimitFlag }} - {{ item.alternateLimitDescription }}
           </HoverText>
           <span v-else>{{ item.alternateLimitFlag }} {{ item.limitationValue }}</span>
+          <span v-if="item.typoFlagLimitationValue">
+            <button
+              class="button is-text icon-btn"
+              @click="shouldDisplayTypoFlagLimitationValue = index"
+              title="Click to view limitation value flag"
+            >
+              <span class="fa fa-exclamation-triangle"></span>
+            </button>
+            <Modal
+              v-if="shouldDisplayTypoFlagLimitationValue === index"
+              @close="shouldDisplayTypoFlagLimitationValue = false"
+            >
+              <div class="info-modal has-text-left">
+                <span style="font-style: italic">
+                  {{ item.typoFlagLimitationValue }}
+                </span>
+              </div>
+            </Modal>
+          </span>
         </span>
         <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
         <span v-else-if="!item.limitationValue && item.alternateLimitFlag">
@@ -103,7 +122,16 @@
             <div v-if="item.wastestreamProcessLimitCalculationDescription">
               <hr />
               <h3 class="has-text-weight-bold">Limitation Calculation Description</h3>
-              <p>{{ item.wastestreamProcessLimitCalculationDescription }}</p>
+              <p>
+                {{ item.wastestreamProcessLimitCalculationDescription }}
+                <span v-if="item.wastestreamProcessTypoFlagLimitCalculationDescription">
+                  <br />
+                  <span class="fa fa-exclamation-triangle"></span>
+                  <span style="font-style: italic">
+                    {{ item.wastestreamProcessTypoFlagLimitCalculationDescription }}
+                  </span>
+                </span>
+              </p>
             </div>
             <div v-if="item.limitRequirementDescription">
               <hr />
@@ -213,6 +241,7 @@ export default {
       currentPage: 1,
       totalRows: 0,
       shouldDisplayLimitationType: false,
+      shouldDisplayTypoFlagLimitationValue: false,
       filterValues: {},
       shouldDisplayModal: false,
       currentModalTitle: null,
@@ -353,6 +382,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+@import '../../../static/variables';
 .table-container {
   ::v-deep {
     .b-table-sticky-header {
@@ -479,5 +509,9 @@ export default {
       }
     }
   }
+}
+
+.fa-exclamation-triangle {
+  color: $danger;
 }
 </style>
