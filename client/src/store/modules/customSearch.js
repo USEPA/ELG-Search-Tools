@@ -40,7 +40,7 @@ const getters = {
       pointSourceCategoryCode: state.pointSourceCategoryCode.join(';'),
       sicCode: state.sicCode.join(';'),
       naicsCode: state.naicsCode.join(';'),
-      pollutantId: state.pollutantId.join(';'),
+      pollutantId: encodeURIComponent(state.pollutantId.join(';')),
       pollutantGroupId: state.pollutantGroupId.join(';'),
       rangeLow: state.rangeLow,
       rangeHigh: state.rangeHigh,

@@ -22,7 +22,7 @@
         <DownloadLink
           v-if="selectedPollutant"
           title="Limitations"
-          :url="`/api/pollutant/?id=${selectedPollutant.pollutantId}`"
+          :url="`/api/pollutant/?id=${encodeURIComponent(selectedPollutant.pollutantId)}`"
         />
         <DownloadLink
           v-else-if="selectedPollutantCategory"
