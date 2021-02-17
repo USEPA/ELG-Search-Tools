@@ -18,6 +18,11 @@ module.exports = {
       allowNull: false,
       field: 'pollutant_code'
     },
+    treatmentId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'treatment_id'
+    },
     limitationDurationId: {
       type: Sequelize.INTEGER,
       allowNull: false,

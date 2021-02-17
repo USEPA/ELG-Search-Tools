@@ -18,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'pollutant_code'
       },
+      treatmentId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'treatment_id'
+      },
       limitationDurationId: {
         type: DataTypes.INTEGER,
         allowNull: false,
