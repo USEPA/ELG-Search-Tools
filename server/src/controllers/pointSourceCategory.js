@@ -418,6 +418,8 @@ module.exports = {
                 pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
               },
               order: [
+                [Sequelize.literal("case when split_part(cfr_section, '.', 1) = psc::text then trim(split_part(cfr_section, '.', 1))::numeric else 999999 end")],
+                [Sequelize.literal("case when split_part(cfr_section, '.', 1) = psc::text then trim(split_part(cfr_section, '.', 2))::numeric else 999999 end")],
                 'cfrSection',
                 'publicationDate'
               ]
