@@ -4,7 +4,6 @@ const ViewLimitation = require('../models').ViewLimitation;
 const ViewLongTermAverage = require('../models').ViewLongTermAverage;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
-const ViewWastestreamProcessTreatmentTechnologyPollutant = require('../models').ViewWastestreamProcessTreatmentTechnologyPollutant;
 const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('../models').ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
 
 const PointSourceCategorySicCode = require('../models').PointSourceCategorySicCode;
@@ -444,7 +443,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
       //get pollutants matching criteria
       let pollutants = [];
       if (pollutantIds.length > 0) {
-        pollutants = pollutantIds;
+        pollutants = pollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []);
       } else if (pollutantGroupIds.length > 0) {
         let pollutantGroupWhereClause = [];
         pollutantGroupIds.forEach(groupId => {
@@ -523,7 +522,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
           let pollutantWhereClause = {[Op.and]: Sequelize.literal("1 = 1")};
           if(pollutants.length > 0) {
             pollutantWhereClause = {
-              elgPollutantDescription: {[Op.in]: pollutants}
+              pollutantDescription: {[Op.in]: pollutants}
             };
           }
 

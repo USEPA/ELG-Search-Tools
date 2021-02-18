@@ -150,9 +150,9 @@
               <span
                 v-html="
                   item.wastestreamProcessTreatmentTechnologyNotes +
-                    ' (' +
-                    item.wastestreamProcessTreatmentTechnologySourceTitle +
-                    ')'
+                    (item.wastestreamProcessTreatmentTechnologySourceTitle
+                      ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
+                      : '')
                 "
               />
             </p>
@@ -278,6 +278,10 @@ export default {
               row.minimumValue !== null && row.maximumValue !== null
                 ? `${row.minimumValue} - ${row.maximumValue}`
                 : row.minimumValue;
+          }
+
+          if (limitationValueDisplay === null) {
+            limitationValueDisplay = '--';
           }
 
           return {

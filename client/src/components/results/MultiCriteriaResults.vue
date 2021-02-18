@@ -132,9 +132,9 @@
               <span
                 v-html="
                   item.wastestreamProcessTreatmentTechnologyNotes +
-                    ' (' +
-                    item.wastestreamProcessTreatmentTechnologySourceTitle +
-                    ')'
+                    (item.wastestreamProcessTreatmentTechnologySourceTitle
+                      ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
+                      : '')
                 "
               />
             </p>
@@ -255,10 +255,22 @@ export default {
         );
         this.$store.commit('customSearch/SET_MULTI_CRITERIA_RESULTS', response.data);
         return response.data.limitations.map((row) => {
+          let limitationValueDisplay = row.limitationValue;
+
+          if (limitationValueDisplay === null) {
+            limitationValueDisplay =
+              row.minimumValue !== null && row.maximumValue !== null
+                ? `${row.minimumValue} - ${row.maximumValue}`
+                : row.minimumValue;
+          }
+
+          if (limitationValueDisplay === null) {
+            limitationValueDisplay = '--';
+          }
+
           return {
             ...row,
-            limitationValue:
-              row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
+            limitationValue: limitationValueDisplay,
           };
         });
       } catch (error) {

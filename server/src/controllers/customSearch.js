@@ -14,6 +14,21 @@ const Sequelize = require("sequelize");
 
 const download = require('./download');
 
+const downloadDataColumns = [
+  { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
+  { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
+  { key: 'comboSubcategory', label: 'Subpart', width: 70 },
+  { key: 'controlTechnologyCode', label: 'Level of Control' },
+  { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
+  { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
+  { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
+  { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
+  { key: 'limitationValue', label: 'Limitation Value' },
+  { key: 'alternateLimitFlag', label: 'Limitation Flag' },
+  { key: 'limitationUnitCode', label: 'Units', width: 90 },
+  { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
+];
+
 function parseKeyword(keyword) {
   let result = [];
 
@@ -36,6 +51,21 @@ function parseKeyword(keyword) {
   }
 
   return result;
+}
+
+function filterLimitations(limitations, query) {
+  let filterTreatmentIds = (query.filterTreatmentId ? query.filterTreatmentId.split(';') : []);
+  let filterPointSourceCategoryCodes = (query.filterPointSourceCategoryCode ? query.filterPointSourceCategoryCode.split(';') : []);
+  let filterPollutantIds = (query.filterPollutantId ? query.filterPollutantId.split(';') : []);
+
+  let offset = (isNaN(query.offset)) ? 0 : Number(query.offset);
+  let limit = (isNaN(query.limit)) ? 100 : Number(query.limit);
+
+  return limitations.filter(limitation =>
+    (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId ? limitation.treatmentId.toString() : '')) &&
+    (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
+    (filterPollutantIds.length === 0 || filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []).includes(limitation.pollutantId))
+  ).slice(offset, (offset+limit));
 }
 
 module.exports = {
@@ -63,16 +93,13 @@ module.exports = {
                     ['elg_pollutant_description', 'pollutantDescription'],
                     [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
                   ],
-                  /*where: {
-                    id: { [Op.in]: pollutants.map(a => a.pollutantId) }
-                  },*/
+                  where: {
+                    [Op.and]: [Sequelize.literal('pollutant_code in (SELECT DISTINCT pollutant_code FROM elg_search."ViewLimitation")')]
+                  },
                   group: ['elg_pollutant_description']
                 })
                   .then(pollutants => {
                     PollutantGroup.findAll({
-                      /*where: {
-                        id: { [Op.in]: polls.pollutantGroups.split(';') }
-                      },*/
                       order: ['description']
                     })
                       .then(pollutantGroups => {
@@ -81,9 +108,9 @@ module.exports = {
                             "id",
                             "name"
                           ],
-                          /*where: {
-                            id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentCodes).join('; ').split('; ') }
-                          },*/
+                          where: {
+                            [Op.and]: [Sequelize.literal('code in (select regexp_split_to_table(treatment_codes, \'; \') from elg_search."ViewWastestreamProcessTreatmentTechnology")')]
+                          },
                           order: ["name"]
                         })
                           .then(treatmentTechnologyCodes => {
@@ -159,7 +186,7 @@ module.exports = {
     let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(';') : []);
     let sicCodes = (req.query.sicCode ? req.query.sicCode.split(';') : []);
     let naicsCodes = (req.query.naicsCode ? req.query.naicsCode.split(';') : []);
-    let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
+    let pollutantIds = (req.query.pollutantId ? decodeURIComponent(req.query.pollutantId).split(';') : []);
     let pollutantGroupIds = (req.query.pollutantGroupId ? req.query.pollutantGroupId.split(';') : []);
     let treatmentTechnologyCodes = (req.query.treatmentTechnologyCode ? req.query.treatmentTechnologyCode.split(';') : []);
     let treatmentTechnologyGroups = (req.query.treatmentTechnologyGroup ? req.query.treatmentTechnologyGroup.split(';') : []);
@@ -247,20 +274,7 @@ module.exports = {
             if (downloadRequested) {
               download.createDownloadFile('limitations',
                 'Limitations',
-                [
-                  { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
-                  { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
-                  { key: 'comboSubcategory', label: 'Subpart', width: 70 },
-                  { key: 'controlTechnologyCode', label: 'Level of Control' },
-                  { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
-                  { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
-                  { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
-                  { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
-                  { key: 'limitationValue', label: 'Limitation Value' },
-                  { key: 'alternateLimitFlag', label: 'Limitation Flag' },
-                  { key: 'limitationUnitCode', label: 'Units', width: 90 },
-                  { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
-                ],
+                downloadDataColumns,
                 [
                   { label: 'Point Source Category', value: pointSourceCategoryDisplay },
                   { label: 'NAICS Code', value: sicCodeDisplay },
@@ -275,13 +289,6 @@ module.exports = {
                 res);
             }
             else {
-              let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
-              let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
-              let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
-
-              let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-              let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
-
               PointSourceCategory.findAll({
                 attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
                 where: {
@@ -319,11 +326,7 @@ module.exports = {
                             limitationRangeDisplay: limitationRangeDisplay,
                             treatmentTechnologyDisplay: treatmentTechnologyDisplay,
                             treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
-                            limitations: limitations.filter(limitation =>
-                              (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
-                              (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
-                              (filterPollutantIds.length === 0 || result.pollutants.map(poll => poll.id).includes(limitation.pollutantId))
-                            ).slice(offset, (offset+limit)),
+                            limitations: filterLimitations(limitations, req.query),
                             pointSourceCategories: pscs,
                             pollutants: polls,
                             treatmentTrains: treatmentTrains,
@@ -370,20 +373,7 @@ module.exports = {
         if (downloadRequested) {
           download.createDownloadFile('limitations',
             'Limitations',
-            [
-              { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
-              { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
-              { key: 'comboSubcategory', label: 'Subpart', width: 70 },
-              { key: 'controlTechnologyCode', label: 'Level of Control' },
-              { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
-              { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
-              { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
-              { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
-              { key: 'limitationValue', label: 'Limitation Value' },
-              { key: 'alternateLimitFlag', label: 'Limitation Flag' },
-              { key: 'limitationUnitCode', label: 'Units', width: 90 },
-              { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
-            ],
+            downloadDataColumns,
             [
               { label: 'Keyword(s)', value: keywords.map(a => a.replace(/\%/g, '')).join(" " + operator + " ")}
             ],
@@ -401,23 +391,12 @@ module.exports = {
             order: ['elg_pollutant_description']
           })
             .then(polls => {
-              let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
-              let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
-              let filterPollutantIds = (req.query.filterPollutantId ? req.query.filterPollutantId.split(';') : []);
-
-              let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-              let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
-
               res.status(200).send({
                 pointSourceCategories: result.pointSourceCategoryCodes,
                 pollutants: polls,
                 wastestreamProcesses: result.wastestreamProcesses,
                 treatmentTrains: result.treatmentTrains,
-                limitations: result.limitations.filter(limitation =>
-                  (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId.toString())) &&
-                  (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
-                  (filterPollutantIds.length === 0 || result.pollutants.map(poll => poll.id).includes(limitation.pollutantId))
-                ).slice(offset, (offset+limit)),
+                limitations: filterLimitations(limitations, req.query),
                 count: limitations.length
               });
             })
