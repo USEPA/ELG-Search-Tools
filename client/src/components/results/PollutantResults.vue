@@ -57,13 +57,18 @@
 
     <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData.pscs">
       <template v-slot:cell(selectPsc)="{ item }">
-        <label class="sr-only">Select Point Source Category and click "Compare PSCs" to view limitations.</label>
         <input
+          :id="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`"
           class="table-checkbox"
           type="checkbox"
           :value="{ pollutantId: item.pollutantId, pointSourceCategoryCode: item.pointSourceCategoryCode }"
           v-model="selectedPscs"
         />
+        <label :for="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`">
+          <span class="sr-only">
+            Select Point Source Category and click "Compare PSCs" to view limitations.
+          </span>
+        </label>
       </template>
       <template v-slot:cell(pointSourceSubcategories)="{ value }">
         <span v-if="value !== ''" v-html="value" />
@@ -313,5 +318,9 @@ select {
 
 .is-gray-background {
   background-color: $gray;
+}
+
+input[type='checkbox'] {
+  display: none;
 }
 </style>

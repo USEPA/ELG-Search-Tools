@@ -1,64 +1,121 @@
 <template>
   <div>
     <LoadingIndicator v-if="isFetching" />
-    <div v-else-if="keywordResults" class="columns is-multiline">
-      <div class="column is-6">
-        <div class="info-box-container message">
-          <div class="message-body content">
-            <strong>Point Source Cateogry(ies):</strong>
-            <ul>
-              <li v-for="psc in keywordResults.pointSourceCategories" :key="psc.pointSourceCategoryCode">
-                <!-- <button
+
+    <div v-else-if="keywordResults">
+      <div class="message is-slim">
+        <div class="message-body content">
+          <strong>Keywords:</strong>
+          {{ keyword.join(', ') }}
+        </div>
+      </div>
+
+      <h3 class="is-size-5 has-text-weight-bold">
+        Summary of Keyword Hits
+        <HoverText hoverId="keywordHitsInfo" :icon="true">
+          Keyword hits are summarized by type of information stored in the ELG database. The Keyword Results Table
+          presents the pollutant limitation results associated with the keyword search.
+        </HoverText>
+      </h3>
+      <div class="columns is-multiline keyword-hits">
+        <div class="column is-6">
+          <strong>
+            Point Source Category(ies):
+            <HoverText hoverId="pscKeywordInfo" :icon="true">
+              Keyword found in point source category title, subcategory title, or applicability statements.
+            </HoverText>
+          </strong>
+          <div class="info-box-container message">
+            <div class="message-body content">
+              <p v-if="keywordResults.pointSourceCategories.length === 0">
+                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+                Results Table.
+              </p>
+              <ul>
+                <li v-for="psc in keywordResults.pointSourceCategories" :key="psc.pointSourceCategoryCode">
+                  <!-- <button
                   class="button is-hyperlink"
                   title="View Point Source Category Results"
                   @click="goToPscResults(psc)"
                 >
                   {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
                 </button> -->
-                {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
-              </li>
-            </ul>
+                  {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="column is-6">
-        <div class="info-box-container message">
-          <div class="message-body content">
-            <strong>Process Operation(s)/Wastestream(s):</strong>
-            <ul>
-              <li v-for="wp in keywordResults.wastestreamProcesses" :key="wp.id" v-html="wp.title"></li>
-            </ul>
+        <div class="column is-6">
+          <strong>
+            Process Operation(s)/Wastestream(s):
+            <HoverText hoverId="processKeywordInfo" :icon="true">
+              Keyword found in process operation/wastestream title, description, or narrative requirements.
+            </HoverText>
+          </strong>
+          <div class="info-box-container message">
+            <div class="message-body content">
+              <p v-if="keywordResults.wastestreamProcesses.length === 0">
+                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+                Results Table.
+              </p>
+              <ul>
+                <li v-for="wp in keywordResults.wastestreamProcesses" :key="wp.id" v-html="wp.title"></li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="column is-6">
-        <div class="info-box-container message">
-          <div class="message-body content">
-            <strong>Pollutant(s):</strong>
-            <ul>
-              <li v-for="poll in keywordResults.pollutants" :key="poll.pollutantId">
-                {{ poll.pollutantDescription }}
-              </li>
-            </ul>
+        <div class="column is-6">
+          <strong>
+            Pollutant(s):
+            <HoverText hoverId="pollKeywordInfo" :icon="true">
+              Keyword found in limitation requirement.
+            </HoverText>
+          </strong>
+          <div class="info-box-container message">
+            <div class="message-body content">
+              <p v-if="keywordResults.pollutants.length === 0">
+                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+                Results Table.
+              </p>
+              <ul>
+                <li v-for="poll in keywordResults.pollutants" :key="poll.pollutantId">
+                  {{ poll.pollutantDescription }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="column is-6">
-        <div class="info-box-container message">
-          <div class="message-body content">
-            <strong>Treatment Technology(ies):</strong>
-            <ul>
-              <li v-for="train in keywordResults.treatmentTrains" :key="train.id">
-                {{ train.names }}
-              </li>
-            </ul>
+        <div class="column is-6">
+          <strong>
+            Treatment Technology(ies):
+            <HoverText hoverId="treatmentKeywordInfo" :icon="true">
+              Keyword found in treatment technology name or description.
+            </HoverText>
+          </strong>
+          <div class="info-box-container message">
+            <div class="message-body content">
+              <p v-if="keywordResults.treatmentTrains.length === 0">
+                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+                Results Table.
+              </p>
+              <ul>
+                <li v-for="train in keywordResults.treatmentTrains" :key="train.id">
+                  {{ train.names }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div>
-      <DownloadLink title="Limitations" :url="keywordApiUrl" />
+      <h3 class="is-size-5 has-text-weight-bold table-header">
+        Keyword Results Table
+      </h3>
+      <DownloadLink title="Limitations" :url="keywordApiUrl" class="download-link" />
       <Table
+        class="keyword-table"
         :columns="limitationColumns"
         :rows="tableProvider"
         :busy="isFetching"
@@ -118,11 +175,12 @@ import { call, get } from 'vuex-pathify';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 import DownloadLink from '@/components/shared/DownloadLink';
+import HoverText from '@/components/shared/HoverText';
 
 export default {
-  components: { Table, Modal, DownloadLink },
+  components: { Table, Modal, DownloadLink, HoverText },
   computed: {
-    ...get('customSearch', ['keywordResults', 'keywordApiUrl', 'isFetching']),
+    ...get('customSearch', ['keyword', 'keywordResults', 'keywordApiUrl', 'isFetching']),
   },
   data() {
     return {
@@ -181,7 +239,7 @@ export default {
     ...call('customSearch', ['getKeywordResults']),
     onShouldDisplayLongTermAvgData(limitationId) {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
-      this.$router.push('/results/limitations/longTermAverage');
+      this.$router.push('/results/limitations/long-term-average');
     },
     async tableProvider(ctx) {
       try {
@@ -226,6 +284,22 @@ export default {
 <style lang="scss" scoped>
 @import '../../../static/variables';
 
+h3 {
+  margin-bottom: 1rem;
+}
+
+.table-header {
+  display: inline-block;
+}
+
+.download-link {
+  float: right;
+}
+
+.keyword-table {
+  clear: both;
+}
+
 .button {
   width: 100%;
   margin-top: 0.5rem;
@@ -256,14 +330,27 @@ section p {
   padding-bottom: 0 !important;
 }
 
+.keyword-hits {
+  margin-bottom: 1rem;
+}
+
+.message.is-slim {
+  display: inline-block;
+
+  .message-body {
+    padding: 0.5rem 1rem;
+  }
+}
+
 .info-box-container {
   height: 100%;
-  max-height: 250px;
+  max-height: 130px;
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
   overflow: hidden;
 
   .message-body {
+    padding: 1rem;
     overflow: auto;
   }
 
@@ -273,10 +360,15 @@ section p {
     font-size: 15px;
   }
 
+  p {
+    font-style: italic;
+    font-size: 15px;
+  }
+
   ul {
     padding-left: 0;
     padding-bottom: 0;
-    margin-top: 0.5rem;
+    margin-top: 0;
     margin-bottom: 0;
 
     li {

@@ -260,7 +260,7 @@ export default {
     sortBy,
     onShouldDisplayLongTermAvgData(limitationId) {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
-      this.$router.push('/results/limitations/longTermAverage');
+      this.$router.push('/results/limitations/long-term-average');
     },
     async tableProvider(ctx) {
       try {

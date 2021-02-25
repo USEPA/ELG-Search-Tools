@@ -25,7 +25,7 @@
         Select an individual pollutant or a pollutant category.
       </Alert>
       <Alert v-if="searchType === 'treatmentTech'" type="info" :isSlim="true">
-        Select an individual treatment technology or a treatment technology.
+        Select an individual treatment technology or a treatment technology category.
       </Alert>
 
       <MultiCriteria v-if="searchType === 'multiCriteria'" />

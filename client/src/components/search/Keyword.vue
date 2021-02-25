@@ -1,9 +1,9 @@
 <template>
   <div>
     <Alert type="info" :isSlim="true">
-      Instructions: type in keywords or phrases, using quotes for exact words (e.g., “blast furnace”). Type OR between
-      multiple words if you want results that include any of the keywords. Type AND between words if you only want
-      results that contain all of the keywords.
+      Instructions: type in keywords or phrases and press Enter to save after each word or phrase. Select the OR
+      operator if you want results that include any of the keywords. Select the AND operator if you only want results
+      that contain all keywords.
     </Alert>
     <form class="columns" @submit="getResults">
       <div class="column">
