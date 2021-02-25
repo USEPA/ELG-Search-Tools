@@ -5,7 +5,7 @@
       :fields="tableColumns"
       :items="filtered"
       :sticky-header="height"
-      :busy="busy"
+      :busy.sync="isBusy"
       :striped="true"
       :responsive="true"
       :show-empty="true"
@@ -17,6 +17,15 @@
       :sort-desc.sync="sortDesc"
       @sort-changed="sortChanged"
     >
+      <template slot="empty">
+        <div v-if="isBusy" class="text-center">
+          <LoadingIndicator />
+        </div>
+        <div v-else class="text-center">
+          {{ emptyText }}
+        </div>
+      </template>
+
       <!-- Hard-coded slots that are on multiple instances of table -->
       <template v-slot:head(limitationUnitBasis)="{ label }">
         {{ label }}
@@ -198,6 +207,7 @@ import { BTable, BPagination } from 'bootstrap-vue';
 // import Multiselect from 'vue-multiselect';
 import HoverText from './HoverText';
 import Modal from './Modal';
+import LoadingIndicator from './LoadingIndicator';
 
 export default {
   props: {
@@ -235,7 +245,7 @@ export default {
       type: String,
     },
   },
-  components: { BTable, BPagination, HoverText, Modal },
+  components: { BTable, BPagination, HoverText, Modal, LoadingIndicator },
   data() {
     return {
       sortBy: this.defaultSort || '',
@@ -249,6 +259,7 @@ export default {
       shouldDisplayModal: false,
       currentModalTitle: null,
       currentModalContent: null,
+      isBusy: this.busy,
     };
   },
   computed: {
