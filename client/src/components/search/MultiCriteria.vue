@@ -42,8 +42,8 @@
             label="sicDescription"
             :reduce="(o) => o.sicCode"
           >
-            <template #option="option"> {{ option.sicCode }}: {{ option.sicDescription }} </template>
-            <template #selected-option="option"> {{ option.sicCode }}: {{ option.sicDescription }} </template>
+            <template #option="option"> {{ option.sicCodeDisplay }}: {{ option.sicDescription }} </template>
+            <template #selected-option="option"> {{ option.sicCodeDisplay }}: {{ option.sicDescription }} </template>
           </VueSelect>
 
           <label for="naicsCode" class="sr-only"></label>
@@ -56,8 +56,10 @@
             label="naicsDescription"
             :reduce="(o) => o.naicsCode"
           >
-            <template #option="option"> {{ option.naicsCode }}: {{ option.naicsDescription }} </template>
-            <template #selected-option="option"> {{ option.naicsCode }}: {{ option.naicsDescription }} </template>
+            <template #option="option"> {{ option.naicsCodeDisplay }}: {{ option.naicsDescription }} </template>
+            <template #selected-option="option">
+              {{ option.naicsCodeDisplay }}: {{ option.naicsDescription }}
+            </template>
           </VueSelect>
         </div>
       </div>

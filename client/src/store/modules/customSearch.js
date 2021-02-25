@@ -48,7 +48,7 @@ const getters = {
       treatmentTechnologyCode: state.treatmentTechnologyCode.join(';'),
       treatmentTechnologyGroup: state.treatmentTechnologyGroup.join(';'),
       filterPointSourceCategoryCode: state.filterPointSourceCategoryCode.join(';'),
-      filterPollutantId: state.filterPollutantId.join(';'),
+      filterPollutantId: encodeURIComponent(state.filterPollutantId.join(';')),
       filterTreatmentId: state.filterTreatmentId.join(';'),
     };
   },

@@ -9,6 +9,7 @@ const PollutantGroup = require('../models').PollutantGroup;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const LimitationUnit = require('../models').LimitationUnit;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
+
 const Op = require('sequelize').Op
 const Sequelize = require("sequelize");
 
@@ -53,21 +54,6 @@ function parseKeyword(keyword) {
   return result;
 }
 
-function filterLimitations(limitations, query) {
-  let filterTreatmentIds = (query.filterTreatmentId ? query.filterTreatmentId.split(';') : []);
-  let filterPointSourceCategoryCodes = (query.filterPointSourceCategoryCode ? query.filterPointSourceCategoryCode.split(';') : []);
-  let filterPollutantIds = (query.filterPollutantId ? query.filterPollutantId.split(';') : []);
-
-  let offset = (isNaN(query.offset)) ? 0 : Number(query.offset);
-  let limit = (isNaN(query.limit)) ? 100 : Number(query.limit);
-
-  return limitations.filter(limitation =>
-    (filterTreatmentIds.length === 0 || filterTreatmentIds.includes(limitation.treatmentId ? limitation.treatmentId.toString() : '')) &&
-    (filterPointSourceCategoryCodes.length === 0 || filterPointSourceCategoryCodes.includes(limitation.pointSourceCategoryCode.toString())) &&
-    (filterPollutantIds.length === 0 || filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []).includes(limitation.pollutantId))
-  ).slice(offset, (offset+limit));
-}
-
 module.exports = {
   multiCriteriaSearchCriteria(req, res) {
     return PointSourceCategory.findAll({
@@ -79,13 +65,33 @@ module.exports = {
     })
       .then((pointSourceCategories) => {
         SicCode.findAll({
-          attributes: ['sicCode', 'sicDescription'],
-          order: ['sicCode'],
+          attributes: [
+            'sicCode',
+            [Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g')"), 'sicCodeDisplay'],
+            'sicDescription'
+          ],
+          where: {
+            [Op.and]: Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g') <> ''")
+          },
+          order: [
+            [Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g')")],
+            'sicDescription'
+          ],
         })
           .then(sicCodes => {
             NaicsCode.findAll({
-              attributes: ['naicsCode', 'naicsDescription'],
-              order: ['naicsCode'],
+              attributes: [
+                'naicsCode',
+                [Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g')"), 'naicsCodeDisplay'],
+                'naicsDescription'
+              ],
+              where: {
+                [Op.and]: Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g') <> ''")
+              },
+              order: [
+                [Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g')")],
+                'naicsDescription'
+              ],
             })
               .then(naicsCodes => {
                 Pollutant.findAll({
@@ -130,6 +136,9 @@ module.exports = {
                               .then(treatmentTechnologyGroups => {
                                 LimitationUnit.findAll({
                                   attributes: [ "code", "description" ],
+                                  where: {
+                                    basis: { [Op.eq]: 'Concentration' }
+                                  },
                                   order: ["code"]
                                 })
                                   .then(limitationUnits => {
@@ -208,6 +217,9 @@ module.exports = {
     let sortCol = req.query.sortCol;
     let sortDir = req.query.sortDir;
 
+    let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+    let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+
     //build criteria display values
     let criteriaDisplayPromises = [];
 
@@ -222,13 +234,25 @@ module.exports = {
       }));
 
     criteriaDisplayPromises.push(SicCode.findAll({
-      where: { sicCode: { [Op.in]: sicCodes } },
+      attributes: [
+        [Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g')"), 'sicCode'],
+        'sicDescription'
+      ],
+      where: {
+        [Op.and]: Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g') IN (" + sicCodes.map(a => "'" + a + "'").concat('NULL') + ")")
+      },
       order: [ 'sicCode' ]
     })
       .then(codes => { sicCodeDisplay = codes.map(a => a.sicCode + ': ' + a.sicDescription).join(', '); }));
 
     criteriaDisplayPromises.push(NaicsCode.findAll({
-      where: { naicsCode: { [Op.in]: naicsCodes } },
+      attributes: [
+        [Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g')"), 'naicsCode'],
+        'naicsDescription'
+      ],
+      where: {
+        [Op.and]: Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g') IN (" + naicsCodes.map(a => "'" + a + "'").concat('NULL') + ")")
+      },
       order: [ 'naicsCode' ]
     })
       .then(codes => { naicsCodeDisplay = codes.map(a => a.naicsCode + ': ' + a.naicsDescription).join(', '); }));
@@ -256,22 +280,24 @@ module.exports = {
 
     Promise.all(criteriaDisplayPromises)
       .then(ignore => {
-        limitation.multiCriteriaSearchLimitations(
-          pointSourceCategoryCodes,
-          sicCodes,
-          naicsCodes,
-          pollutantIds,
-          pollutantGroupIds,
-          treatmentTechnologyCodes,
-          treatmentTechnologyGroups,
-          rangeLow,
-          rangeHigh,
-          rangeUnitCode,
-          sortCol,
-          sortDir
-        )
-          .then(limitations => {
-            if (downloadRequested) {
+        if (downloadRequested) {
+          limitation.multiCriteriaSearchLimitations(
+            pointSourceCategoryCodes,
+            sicCodes,
+            naicsCodes,
+            pollutantIds,
+            pollutantGroupIds,
+            treatmentTechnologyCodes,
+            treatmentTechnologyGroups,
+            rangeLow,
+            rangeHigh,
+            rangeUnitCode,
+            sortCol,
+            sortDir,
+            0,
+            null
+          )
+            .then(limitations => {
               download.createDownloadFile('limitations',
                 'Limitations',
                 downloadDataColumns,
@@ -285,14 +311,37 @@ module.exports = {
                   { label: 'Treatment Technology', value: treatmentTechnologyDisplay },
                   { label: 'Treatment Technology Category', value: treatmentTechnologyGroupDisplay }
                 ],
-                limitations,
+                limitations.rows,
                 res);
-            }
-            else {
+            })
+            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        }
+        else {
+          //first, get results without filter criteria to get all possible values for the filters
+          limitation.multiCriteriaSearchLimitations(
+            pointSourceCategoryCodes,
+            sicCodes,
+            naicsCodes,
+            pollutantIds,
+            pollutantGroupIds,
+            treatmentTechnologyCodes,
+            treatmentTechnologyGroups,
+            rangeLow,
+            rangeHigh,
+            rangeUnitCode,
+            sortCol,
+            sortDir,
+            offset,
+            limit,
+            [],
+            [],
+            []
+          )
+            .then(allLimitations => {
               PointSourceCategory.findAll({
                 attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
                 where: {
-                  pointSourceCategoryCode: {[Op.in]: [...new Set(limitations.map(a => a.pointSourceCategoryCode))]}
+                  pointSourceCategoryCode: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.pointSourceCategoryCode))]}
                 },
                 order: ['pointSourceCategoryCode']
               })
@@ -303,7 +352,7 @@ module.exports = {
                       [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
                     ],
                     where: {
-                      elgDescription: {[Op.in]: [...new Set(limitations.map(a => a.pollutantDescription))]}
+                      elgDescription: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.pollutantDescription))]}
                     },
                     group: ['elg_pollutant_description'],
                     order: ['elg_pollutant_description']
@@ -312,35 +361,81 @@ module.exports = {
                       TreatmentTechnology.findAll({
                         attributes: ["id", "codes", "names"],
                         where: {
-                          id: {[Op.in]: [...new Set(limitations.map(a => a.treatmentId))]}
+                          id: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.treatmentId))]}
                         },
                         order: ["names"]
                       })
                         .then(treatmentTrains => {
-                          res.status(200).send({
-                            pointSourceCategoryDisplay: pointSourceCategoryDisplay,
-                            sicCodeDisplay: sicCodeDisplay,
-                            naicsCodeDisplay: naicsCodeDisplay,
-                            pollutantDisplay: pollutantDisplay,
-                            pollutantGroupDisplay: pollutantGroupDisplay,
-                            limitationRangeDisplay: limitationRangeDisplay,
-                            treatmentTechnologyDisplay: treatmentTechnologyDisplay,
-                            treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
-                            limitations: filterLimitations(limitations, req.query),
-                            pointSourceCategories: pscs,
-                            pollutants: polls,
-                            treatmentTrains: treatmentTrains,
-                            count: limitations.length
-                          });
+                          //then, get the filtered results to be displayed (if filters were passed)
+                          let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
+                          let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
+                          let filterPollutantIds = (req.query.filterPollutantId ? decodeURIComponent(req.query.filterPollutantId).split(';') : []);
+
+                          if (filterTreatmentIds.length > 0 || filterPointSourceCategoryCodes.length > 0 || filterPollutantIds.length > 0) {
+                            limitation.multiCriteriaSearchLimitations(
+                              pointSourceCategoryCodes,
+                              sicCodes,
+                              naicsCodes,
+                              pollutantIds,
+                              pollutantGroupIds,
+                              treatmentTechnologyCodes,
+                              treatmentTechnologyGroups,
+                              rangeLow,
+                              rangeHigh,
+                              rangeUnitCode,
+                              sortCol,
+                              sortDir,
+                              offset,
+                              limit,
+                              filterTreatmentIds,
+                              filterPointSourceCategoryCodes,
+                              filterPollutantIds
+                            )
+                              .then(filteredLimitations => {
+                                res.status(200).send({
+                                  pointSourceCategoryDisplay: pointSourceCategoryDisplay,
+                                  sicCodeDisplay: sicCodeDisplay,
+                                  naicsCodeDisplay: naicsCodeDisplay,
+                                  pollutantDisplay: pollutantDisplay,
+                                  pollutantGroupDisplay: pollutantGroupDisplay,
+                                  limitationRangeDisplay: limitationRangeDisplay,
+                                  treatmentTechnologyDisplay: treatmentTechnologyDisplay,
+                                  treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
+                                  limitations: filteredLimitations.rows,
+                                  pointSourceCategories: pscs,
+                                  pollutants: polls,
+                                  treatmentTrains: treatmentTrains,
+                                  count: filteredLimitations.count
+                                });
+                              })
+                              .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                          }
+                          else {
+                            res.status(200).send({
+                              pointSourceCategoryDisplay: pointSourceCategoryDisplay,
+                              sicCodeDisplay: sicCodeDisplay,
+                              naicsCodeDisplay: naicsCodeDisplay,
+                              pollutantDisplay: pollutantDisplay,
+                              pollutantGroupDisplay: pollutantGroupDisplay,
+                              limitationRangeDisplay: limitationRangeDisplay,
+                              treatmentTechnologyDisplay: treatmentTechnologyDisplay,
+                              treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
+                              limitations: allLimitations.rows,
+                              pointSourceCategories: pscs,
+                              pollutants: polls,
+                              treatmentTrains: treatmentTrains,
+                              count: allLimitations.count
+                            });
+                          }
                         })
                         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
                     })
                     .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
                 })
                 .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-            }
-          })
-          .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+            })
+            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        }
       })
       .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
   },
@@ -366,21 +461,26 @@ module.exports = {
     let sortCol = req.query.sortCol;
     let sortDir = req.query.sortDir;
 
-    limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir)
-      .then(result => {
-        let limitations = result.limitations;
-
-        if (downloadRequested) {
+    if (downloadRequested) {
+      limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir, 0, null)
+        .then(result => {
           download.createDownloadFile('limitations',
             'Limitations',
             downloadDataColumns,
             [
               { label: 'Keyword(s)', value: keywords.map(a => a.replace(/\%/g, '')).join(" " + operator + " ")}
             ],
-            limitations,
+            result.limitations.rows,
             res);
-        }
-        else {
+        })
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+    }
+    else {
+      let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+      let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+
+      limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir, offset, limit)
+        .then(result => {
           Pollutant.findAll({
             attributes: [
               ['elg_pollutant_description', 'pollutantDescription'],
@@ -396,13 +496,13 @@ module.exports = {
                 pollutants: polls,
                 wastestreamProcesses: result.wastestreamProcesses,
                 treatmentTrains: result.treatmentTrains,
-                limitations: filterLimitations(limitations, req.query),
-                count: limitations.length
+                limitations: result.limitations.rows,
+                count: result.limitations.count
               });
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-        }
-      })
-      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        })
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+    }
   }
 };

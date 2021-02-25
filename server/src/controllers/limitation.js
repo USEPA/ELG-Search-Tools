@@ -396,7 +396,12 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
                                         rangeHigh,
                                         rangeUnitCode,
                                         sortCol,
-                                        sortDir) {
+                                        sortDir,
+                                        offset,
+                                        limit,
+                                        filterTreatmentIds = [],
+                                        filterPointSourceCategoryCodes = [],
+                                        filterPollutantIds = []) {
   return new Promise(function(resolve, reject) {
     if (pointSourceCategoryCodes.length === 0 &&
         sicCodes.length === 0 &&
@@ -451,7 +456,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
         });
 
         criteriaPromises.push(Pollutant.findAll({
-          attributes: ["elgDescription"],
+          attributes: ["description"],
           where: {
             [Op.or]: [
               pollutantGroupWhereClause
@@ -459,7 +464,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
           }
         })
           .then(polls => {
-            pollutants = polls.map(a => a.elgDescription);
+            pollutants = polls.map(a => a.description);
           })
           .catch((error) => reject('Error retrieving limitations: ' + error)));
       }
@@ -513,20 +518,50 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
           }
 
           let pscWhereClause = {[Op.and]: Sequelize.literal("1 = 1")};
-          if(pscs.length > 0) {
+          if (pscs.length > 0 && filterPointSourceCategoryCodes.length > 0) {
             pscWhereClause = {
-              pointSourceCategoryCode: {[Op.in]: pscs}
+              pointSourceCategoryCode: {
+                [Op.and]: [
+                  { [Op.in]: pscs },
+                  { [Op.in]: filterPointSourceCategoryCodes }
+                ]
+              }
+            };
+          }
+          else if(pscs.length > 0) {
+            pscWhereClause = {
+              pointSourceCategoryCode: { [Op.in]: pscs }
+            };
+          }
+          else if(filterPointSourceCategoryCodes.length > 0) {
+            pscWhereClause = {
+              pointSourceCategoryCode: { [Op.in]: filterPointSourceCategoryCodes }
             };
           }
 
           let pollutantWhereClause = {[Op.and]: Sequelize.literal("1 = 1")};
-          if(pollutants.length > 0) {
+          if (pollutants.length > 0 && filterPollutantIds.length > 0) {
             pollutantWhereClause = {
-              pollutantDescription: {[Op.in]: pollutants}
+              pollutantDescription: {
+                [Op.and]: [
+                  { [Op.in]: pollutants },
+                  { [Op.in]: filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []) }
+                ]
+              }
+            };
+          }
+          else if(pollutants.length > 0) {
+            pollutantWhereClause = {
+              pollutantDescription: { [Op.in]: pollutants }
+            };
+          }
+          else if(filterPollutantIds.length > 0) {
+            pollutantWhereClause = {
+              pollutantDescription: { [Op.in]: filterPollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []) }
             };
           }
 
-          ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+          ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAndCountAll({
             attributes: attributes.concat(['treatmentId',
                                            'treatmentCodes',
                                            'treatmentNames',
@@ -538,10 +573,18 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
                 technologyCodeWhereClause,
                 pscWhereClause,
                 pollutantWhereClause,
-                rangeWhereClause
+                rangeWhereClause,
+                {
+                  [Op.or]: [
+                    { treatmentId: { [Op.in]: filterTreatmentIds } },
+                    Sequelize.literal(filterTreatmentIds.length + " = 0")
+                  ]
+                }
               ]
             },
-            order: parseSort(sortCol, sortDir)
+            order: parseSort(sortCol, sortDir),
+            offset: offset,
+            limit: limit
           })
             .then(limitations => {
               resolve(limitations);
@@ -686,6 +729,7 @@ function getMatchingPollutants(keywords) {
         Pollutant.findAll({
           attributes: [ 'id', 'description', 'elgDescription' ],
           where: {
+            [Op.and]: [Sequelize.literal('pollutant_code in (SELECT DISTINCT pollutant_code FROM elg_search."ViewLimitation")')],
             [Op.or]: {
               elgDescription: { [Op.iLike]: { [Op.any]: keywords } },
               id: { [Op.in]: pollIds }
@@ -783,7 +827,9 @@ function getMatchingTreatmentTrains(keywords) {
 function keywordSearchLimitations(keywords,
                                   operator,
                                   sortCol,
-                                  sortDir) {
+                                  sortDir,
+                                  offset,
+                                  limit) {
   return new Promise(function(resolve, reject) {
     if (keywords.length === 1 && keywords[0] === '%%') {
       resolve([]);
@@ -806,7 +852,7 @@ function keywordSearchLimitations(keywords,
 
         Promise.all(criteriaPromises)
           .then(ignore => {
-            ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+            ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAndCountAll({
               attributes: attributes.concat(['treatmentId',
                 'treatmentCodes',
                 'treatmentNames',
@@ -828,7 +874,9 @@ function keywordSearchLimitations(keywords,
                   treatmentId: { [Op.in]: treatmentTrains.map(tt => tt.id) },
                 }
               },
-              order: parseSort(sortCol, sortDir)
+              order: parseSort(sortCol, sortDir),
+              offset: offset,
+              limit: limit
             })
               .then(limitations => {
                 resolve({
@@ -903,7 +951,7 @@ function keywordSearchLimitations(keywords,
 
         Promise.all(andListPromises)
           .then(ignore => {
-            ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+            ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAndCountAll({
               attributes: attributes.concat(['treatmentId',
                 'treatmentCodes',
                 'treatmentNames',
@@ -913,7 +961,9 @@ function keywordSearchLimitations(keywords,
               where: {
                 [Op.and]: andList
               },
-              order: parseSort(sortCol, sortDir)
+              order: parseSort(sortCol, sortDir),
+              offset: offset,
+              limit: limit
             })
               .then(limitations => {
                 resolve({
