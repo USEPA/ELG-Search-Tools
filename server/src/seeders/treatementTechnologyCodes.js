@@ -269,7 +269,17 @@ module.exports = {
         "code":"MF",
         "category":"Membrane",
         "variations":"Includes microfiltration, ultrafiltration and other engineered materials",
-        "description":"Includes microfiltration, ultrafiltration and other engineered materials. Includes filtration methods that remove particles as small as 100 nanometers (nm) (microfiltration) and 10 nm (ultrafiltration). Many molecules are within this size range."}];
+        "description":"Includes microfiltration, ultrafiltration and other engineered materials. Includes filtration methods that remove particles as small as 100 nanometers (nm) (microfiltration) and 10 nm (ultrafiltration). Many molecules are within this size range."},
+      {"name":"Ultrafiltration",
+        "code":"UF",
+        "category":"Membrane",
+        "variations":null,
+        "description":"Ultrafiltration removes particles as small as 10 nm."},
+      {"name":"Low Hydraulic Residence Time Biological Reduction",
+        "code":"LRTR",
+        "category":"Biological",
+        "variations":null,
+        "description":"A biological treatment system that targets removal of selenium and nitrate/nitrite using fixed-film bioreactors. The LRTR system is designed to operate with a residence of approximately 1 to 4 hours."}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "TreatmentTechnologyCode" }, records);
   },

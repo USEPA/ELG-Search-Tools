@@ -474,7 +474,8 @@ module.exports = {
       {"source_id":502,"source_title":"Pharmaceutical Manufacturing Category Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards; Final Rule","display_title":"64 FR 10391 (Part 439 - Pharmaceutical Manufacturing Category)"},
       {"source_id":503,"source_title":"Pharmaceutical Manufacturing Category Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards; Correcting Amendments","display_title":"64 FR 48103 (Part 439 - Pharmaceutical Manufacturing Category)"},
       {"source_id":504,"source_title":"Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards for the Pharmaceutical Manufacturing Point Source Category","display_title":"68 FR 12266 (Part 439 - Pharmaceutical Manufacturing Category)"},
-      {"source_id":505,"source_title":"Partial Withdrawal of Direct Final Rule; Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards for the Pharmaceutical Manufacturing Point Source Category","display_title":"68 FR 34831 (Part 439 - Pharmaceutical Manufacturing Category)"}];
+      {"source_id":505,"source_title":"Partial Withdrawal of Direct Final Rule; Effluent Limitations Guidelines, Pretreatment Standards, and New Source Performance Standards for the Pharmaceutical Manufacturing Point Source Category","display_title":"68 FR 34831 (Part 439 - Pharmaceutical Manufacturing Category)"},
+      {"source_id":506,"source_title":"Steam Electric Reconsideration Rule","display_title":"85 FR 64650 (Part 423 - Steam Electric Power Generating Category)"}];
 
     return queryInterface.bulkInsert({ schema: "elg_search", tableName: "ReferenceSource" }, records);
   },

@@ -2292,7 +2292,6 @@ module.exports = {
       {"pollutant_code":2313,"pollutant_desc":"Solids, tot. volatile percent removal","elg_pollutant_description":"Solids, tot. volatile percent removal","pollutant_groups":null},
       {"pollutant_code":2314,"pollutant_desc":"Solids, total","elg_pollutant_description":"Solids, total","pollutant_groups":null},
       {"pollutant_code":2315,"pollutant_desc":"Solids, total diss., percent by weight","elg_pollutant_description":"Solids, total diss., percent by weight","pollutant_groups":null},
-      {"pollutant_code":2316,"pollutant_desc":"Solids, total dissolved","elg_pollutant_description":"TDS (total dissolved solids)","pollutant_groups":null},
       {"pollutant_code":2317,"pollutant_desc":"Solids, total fixed","elg_pollutant_description":"Solids, total fixed","pollutant_groups":null},
       {"pollutant_code":2318,"pollutant_desc":"Solids, total non- volatile, non-fixed","elg_pollutant_description":"Solids, total non- volatile, non-fixed","pollutant_groups":null},
       {"pollutant_code":2319,"pollutant_desc":"Solids, total susp. per batch","elg_pollutant_description":"Solids, total susp. per batch","pollutant_groups":null},
