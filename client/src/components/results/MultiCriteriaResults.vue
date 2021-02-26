@@ -7,10 +7,10 @@
             <strong>Point Source Category:</strong> {{ multiCriteriaResults.pointSourceCategoryDisplay }}
           </p>
           <p v-if="multiCriteriaResults.sicCodeDisplay">
-            <strong>NAICS Code:</strong> {{ multiCriteriaResults.sicCodeDisplay }}
+            <strong>SIC Code:</strong> {{ multiCriteriaResults.sicCodeDisplay }}
           </p>
           <p v-if="multiCriteriaResults.naicsCodeDisplay">
-            <strong>SIC Code:</strong> {{ multiCriteriaResults.naicsCodeDisplay }}
+            <strong>NAICS Code:</strong> {{ multiCriteriaResults.naicsCodeDisplay }}
           </p>
           <p v-if="multiCriteriaResults.pollutantDisplay">
             <strong>Pollutant:</strong> {{ multiCriteriaResults.pollutantDisplay }}

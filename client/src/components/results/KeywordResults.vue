@@ -112,6 +112,9 @@
     <div>
       <h3 class="is-size-5 has-text-weight-bold table-header">
         Keyword Results Table
+        <HoverText hoverId="keywordResultsTableInfo" :icon="true">
+          The Keyword Results Table presents pollutant limitations associated with the criteria.
+        </HoverText>
       </h3>
       <DownloadLink title="Limitations" :url="keywordApiUrl" class="download-link" />
       <Table
