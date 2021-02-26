@@ -97,10 +97,46 @@
             <tbody>
               <tr v-for="(range, index) in value" :key="index">
                 <td style="width: 17%">
-                  {{ range.minimumLimitationValue }}
+                  <HoverText
+                    v-if="
+                      range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
+                    "
+                    :id="`flagHover${index}`"
+                    :linkText="
+                      range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'
+                        ? range.alternateLimitFlag
+                        : range.minimumLimitationValue
+                    "
+                  >
+                    <div v-if="range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'">
+                      Limitation Value: {{ range.minimumLimitationValue }} {{ range.limitationUnitCode }}
+                    </div>
+                    Limitation Flag: {{ range.alternateLimitFlag }} - {{ range.alternateLimitDescription }}
+                  </HoverText>
+                  <span v-else>
+                    {{ range.minimumLimitationValue }}
+                  </span>
                 </td>
                 <td style="width: 17%">
-                  {{ range.maximumLimitationValue }}
+                  <HoverText
+                    v-if="
+                      range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
+                    "
+                    :id="`flagHover${index}`"
+                    :linkText="
+                      range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'
+                        ? range.alternateLimitFlag
+                        : range.maximumLimitationValue
+                    "
+                  >
+                    <div v-if="range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'">
+                      Limitation Value: {{ range.maximumLimitationValue }} {{ range.limitationUnitCode }}
+                    </div>
+                    Limitation Flag: {{ range.alternateLimitFlag }} - {{ range.alternateLimitDescription }}
+                  </HoverText>
+                  <span v-else>
+                    {{ range.maximumLimitationValue }}
+                  </span>
                 </td>
                 <td style="width: 33%">
                   {{ range.limitationUnitCode }}

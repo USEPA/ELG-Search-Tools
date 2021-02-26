@@ -12,15 +12,17 @@ const download = require('./download');
 
 /**
  *
- * @param {Object[]} limitValues
- * @param {number} limitValues.minimumLimitationValue
- * @param {number} limitValues.maximumLimitationValue
+ * @param {[]} limitValues
+ * @param {} limitValues.minimumLimitationValue
+ * @param {} limitValues.maximumLimitationValue
  * @param {string} limitValues.minimumLimitationValueText
  * @param {string} limitValues.maximumLimitationValueText
  * @param {string} limitValues.limitationUnitCode
- * @param {object} limitValues.limitationUnitBasis
+ * @param {} limitValues.limitationUnitBasis
  * @param {string} limitValues.limitationDurationTypeDisplay
  * @param {string} limitValues.limitationDurationDescription
+ * @param {string} limitValues.alternateLimitFlag
+ * @param {string} limitValues.alternateLimitDescription
  * @returns {Promise<unknown>}
  */
 function buildRangeOfLimitations(limitValues) {
@@ -29,14 +31,22 @@ function buildRangeOfLimitations(limitValues) {
     let rangeOfPollutantLimitationsForDownload = [];
 
     limitValues.forEach(function (limitValue) {
-      let rangeAsTableRow = new Map();
-      rangeAsTableRow.minimumLimitationValue = (limitValue.minimumLimitationValue  ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
-      rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue  ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
-      rangeAsTableRow.limitationUnitCode = (limitValue.limitationUnitCode ? limitValue.limitationUnitCode.trim() : null);
-      rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
-      rangeAsTableRow.limitationDurationDescription = limitValue.limitationDurationDescription
-      rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
-      rangeOfPollutantLimitationsForDownload.push(rangeAsTableRow.minimumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') - ' + rangeAsTableRow.maximumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') ' + rangeAsTableRow.limitationType);
+      if (limitValue.minimumLimitationValue !== null || limitValue.maximumLimitationValue !== null) {
+        let rangeAsTableRow = new Map();
+        rangeAsTableRow.minimumLimitationValue = (limitValue.minimumLimitationValue ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
+        rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
+        rangeAsTableRow.limitationUnitCode = (limitValue.limitationUnitCode ? limitValue.limitationUnitCode.trim() : null);
+        rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
+        rangeAsTableRow.limitationDurationDescription = limitValue.limitationDurationDescription
+        rangeAsTableRow.alternateLimitFlag = limitValue.alternateLimitFlag
+        rangeAsTableRow.alternateLimitDescription = limitValue.alternateLimitDescription
+        rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
+        rangeOfPollutantLimitationsForDownload.push(
+          (rangeAsTableRow.alternateLimitFlag ? rangeAsTableRow.alternateLimitFlag : '') + rangeAsTableRow.minimumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') - ' +
+          (rangeAsTableRow.alternateLimitFlag ? rangeAsTableRow.alternateLimitFlag : '') + rangeAsTableRow.maximumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') ' +
+          rangeAsTableRow.limitationType
+        );
+      }
     });
 
     resolve({rangeOfPollutantLimitations: rangeOfPollutantLimitationsAsTable, rangeOfPollutantLimitationsForDownload: rangeOfPollutantLimitationsForDownload.join('\n')});
@@ -163,13 +173,17 @@ module.exports = {
                   "limitationDurationTypeDisplay",
                   "limitationUnitBasis",
                   "limitationUnitCode",
-                  "limitationDurationDescription"
+                  "limitationDurationDescription",
+                  "alternateLimitFlag",
+                  "alternateLimitDescription"
                 ],
                 attributes: [
                   "limitationDurationTypeDisplay",
                   "limitationUnitBasis",
                   "limitationUnitCode",
                   "limitationDurationDescription",
+                  "alternateLimitFlag",
+                  "alternateLimitDescription",
                   [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
                   [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
                   [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
@@ -189,7 +203,9 @@ module.exports = {
                   "limitationDurationTypeDisplay",
                   "limitationUnitBasis",
                   "limitationUnitCode",
-                  "limitationDurationDescription"
+                  "limitationDurationDescription",
+                  "alternateLimitFlag",
+                  "alternateLimitDescription"
                 ],
                 raw: true
               })
@@ -337,13 +353,17 @@ module.exports = {
                       "limitationDurationTypeDisplay",
                       "limitationUnitBasis",
                       "limitationUnitCode",
-                      "limitationDurationDescription"
+                      "limitationDurationDescription",
+                      "alternateLimitFlag",
+                      "alternateLimitDescription"
                     ],
                     attributes: [
                       "limitationDurationTypeDisplay",
                       "limitationUnitBasis",
                       "limitationUnitCode",
                       "limitationDurationDescription",
+                      "alternateLimitFlag",
+                      "alternateLimitDescription",
                       [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
                       [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
                       [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
@@ -363,7 +383,9 @@ module.exports = {
                       "limitationDurationTypeDisplay",
                       "limitationUnitBasis",
                       "limitationUnitCode",
-                      "limitationDurationDescription"
+                      "limitationDurationDescription",
+                      "alternateLimitFlag",
+                      "alternateLimitDescription"
                     ],
                     raw: true
                   })
