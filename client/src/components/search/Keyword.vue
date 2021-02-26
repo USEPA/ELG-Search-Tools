@@ -5,7 +5,7 @@
       operator if you want results that include any of the keywords. Select the AND operator if you only want results
       that contain all keywords.
     </Alert>
-    <form class="columns" @submit="getResults">
+    <form class="columns" @submit="getResults($event)">
       <div class="column">
         <label for="keywords">Keywords</label>
         <div class="field has-addons">
@@ -18,7 +18,11 @@
               multiple
               required
               @option:created="keywordAdded"
-            />
+            >
+              <template #search="{attributes, events}">
+                <input id="keywords" class="vs__search" :required="!keyword" v-bind="attributes" v-on="events" />
+              </template>
+            </VueSelect>
           </div>
           <div class="control">
             <button type="submit" class="button is-dark is-medium">
@@ -59,7 +63,15 @@ export default {
         document.getElementById('keywords').select();
       }, 10);
     },
-    getResults() {
+    getResults(e) {
+      // prevent default form submission (resolves browser "form is not connected" console errors)
+      e.preventDefault();
+
+      // If user has typed into the input box but not pressed Enter, still pass the entered value
+      const inputValue = document.getElementById('keywords').value;
+      if (inputValue) {
+        this.keyword = [...this.keyword, inputValue];
+      }
       this.$router.push('/results');
     },
   },
