@@ -57,7 +57,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
         field: 'qc_notes'
-      }
+      },
+      typoFlagDefinition: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'typo_flag_definition'
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'Definition'}
   )

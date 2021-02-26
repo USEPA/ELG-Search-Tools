@@ -5,17 +5,27 @@
       :fields="tableColumns"
       :items="filtered"
       :sticky-header="height"
-      :busy="busy"
+      :busy.sync="isBusy"
       :striped="true"
       :responsive="true"
       :show-empty="true"
       :empty-text="emptyText"
       :per-page="perPage"
-      :current-page="currentPage"
+      :api-url.sync="apiUrl"
+      :current-page.sync="currentPage"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
-      @head-clicked="changeSort"
+      @sort-changed="sortChanged"
     >
+      <template slot="empty">
+        <div v-if="isBusy" class="text-center">
+          <LoadingIndicator />
+        </div>
+        <div v-else class="text-center">
+          {{ emptyText }}
+        </div>
+      </template>
+
       <!-- Hard-coded slots that are on multiple instances of table -->
       <template v-slot:head(limitationUnitBasis)="{ label }">
         {{ label }}
@@ -78,8 +88,30 @@
             Limitation Flag: {{ item.alternateLimitFlag }} - {{ item.alternateLimitDescription }}
           </HoverText>
           <span v-else>{{ item.alternateLimitFlag }} {{ item.limitationValue }}</span>
+          <span v-if="item.typoFlagLimitationValue">
+            <button
+              class="button is-text icon-btn"
+              @click="shouldDisplayTypoFlagLimitationValue = index"
+              title="Click to view limitation value flag"
+            >
+              <span class="fa fa-exclamation-triangle"></span>
+            </button>
+            <Modal
+              v-if="shouldDisplayTypoFlagLimitationValue === index"
+              @close="shouldDisplayTypoFlagLimitationValue = false"
+            >
+              <div class="info-modal has-text-left">
+                <span style="font-style: italic">
+                  {{ item.typoFlagLimitationValue }}
+                </span>
+              </div>
+            </Modal>
+          </span>
         </span>
-        <span v-else-if="item.minimumValue">{{ item.minimumValue }} - {{ item.maximumValue }}</span>
+        <span v-else-if="item.minimumValue && item.maximumValue">
+          {{ item.minimumValue }} - {{ item.maximumValue }}
+        </span>
+        <span v-else-if="item.minimumValue">{{ item.minimumValue }}</span>
         <span v-else-if="!item.limitationValue && item.alternateLimitFlag">
           <HoverText :id="`flagHover${index}`" :linkText="item.alternateLimitFlag">
             {{ item.alternateLimitDescription }}
@@ -102,7 +134,16 @@
             <div v-if="item.wastestreamProcessLimitCalculationDescription">
               <hr />
               <h3 class="has-text-weight-bold">Limitation Calculation Description</h3>
-              <p>{{ item.wastestreamProcessLimitCalculationDescription }}</p>
+              <p>
+                {{ item.wastestreamProcessLimitCalculationDescription }}
+                <span v-if="item.wastestreamProcessTypoFlagLimitCalculationDescription">
+                  <br />
+                  <span class="fa fa-exclamation-triangle"></span>
+                  <span style="font-style: italic">
+                    {{ item.wastestreamProcessTypoFlagLimitCalculationDescription }}
+                  </span>
+                </span>
+              </p>
             </div>
             <div v-if="item.limitRequirementDescription">
               <hr />
@@ -129,14 +170,11 @@
       <!-- Custom Filters row -->
       <template v-if="filterableFields.length" #top-row="{fields}">
         <td v-for="field in fields" :key="field.key">
-          <Multiselect
+          <VueSelect
             v-if="filterableFields.map((f) => f.key).includes(field.key)"
             v-model="filterValues[field.key]"
             :options="getFilterOptions(field)"
             :placeholder="`Filter` /* `Select ${field.label}` */"
-            select-label=""
-            deselect-label=""
-            open-direction="below"
             class="table-filter"
           />
         </td>
@@ -148,7 +186,13 @@
       </template>
     </BTable>
 
-    <BPagination v-if="perPage" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" :limit="11" />
+    <BPagination
+      v-if="perPage && totalRows > perPage"
+      v-model="currentPage"
+      :total-rows="totalRows"
+      :per-page="perPage"
+      :limit="11"
+    />
 
     <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
       <p class="has-text-left">
@@ -160,9 +204,10 @@
 
 <script>
 import { BTable, BPagination } from 'bootstrap-vue';
-import Multiselect from 'vue-multiselect';
+// import Multiselect from 'vue-multiselect';
 import HoverText from './HoverText';
 import Modal from './Modal';
+import LoadingIndicator from './LoadingIndicator';
 
 export default {
   props: {
@@ -171,7 +216,7 @@ export default {
       required: true,
     },
     rows: {
-      type: Array,
+      type: [Array, Function],
       required: true,
     },
     height: {
@@ -192,8 +237,15 @@ export default {
       type: String,
       default: 'No data available.',
     },
+    count: {
+      type: Number,
+      default: 0,
+    },
+    apiUrl: {
+      type: String,
+    },
   },
-  components: { BTable, BPagination, Multiselect, HoverText, Modal },
+  components: { BTable, BPagination, HoverText, Modal, LoadingIndicator },
   data() {
     return {
       sortBy: this.defaultSort || '',
@@ -202,17 +254,25 @@ export default {
       currentPage: 1,
       totalRows: 0,
       shouldDisplayLimitationType: false,
+      shouldDisplayTypoFlagLimitationValue: false,
       filterValues: {},
       shouldDisplayModal: false,
       currentModalTitle: null,
       currentModalContent: null,
+      isBusy: this.busy,
     };
   },
   computed: {
+    useServerData() {
+      return typeof this.rows === 'function';
+    },
     filterableFields() {
       return this.columns.filter((col) => col.filterable);
     },
     filtered() {
+      if (this.useServerData) {
+        return this.rows;
+      }
       if (this.rows.length > 0) {
         const filtered = this.rows.filter((item) => {
           return Object.keys(this.filterValues).every((key) =>
@@ -237,7 +297,10 @@ export default {
       this.buildFilterValues();
     },
     rows() {
-      this.totalRows = this.rows.length;
+      this.totalRows = this.count ? this.count : this.rows.length;
+    },
+    count() {
+      this.totalRows = this.count;
     },
     filtered() {
       this.positionFilterRow();
@@ -263,8 +326,11 @@ export default {
       });
     },
     // For some reason, we need an event on header click in order for bootstrap-vue table to trigger sort
-    changeSort(key) {
-      return key;
+    sortChanged() {
+      // Go back to page one when sorting on server-side
+      if (this.useServerData) {
+        this.currentPage = 1;
+      }
     },
     buildFilterValues() {
       const filters = {};
@@ -286,6 +352,7 @@ export default {
       this.shouldDisplayModal = true;
     },
     getFilterOptions(field) {
+      if (this.useServerData) return [];
       const rawField = this.filterableFields.find((f) => f.key === field.key);
       let options = this.rows.map((row) => row[field.key]).filter((v, i, a) => a.indexOf(v) === i && !!v);
       // If options need to be sorted in specific way, check for "customFilterSort" prop in field object and sort accordingly
@@ -300,7 +367,7 @@ export default {
     this.buildFilterValues();
   },
   mounted() {
-    this.totalRows = this.rows.length;
+    this.totalRows = this.useServerData ? this.count : this.rows.length;
     this.positionFilterRow();
   },
 };
@@ -329,6 +396,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+@import '../../../static/variables';
 .table-container {
   ::v-deep {
     .b-table-sticky-header {
@@ -344,7 +412,7 @@ export default {
     .b-table-top-row {
       td {
         // padding: 0 5px 5px 5px !important;
-        padding: 5px !important;
+        padding: 0 !important;
         border-bottom: 1px solid #ddd !important;
         // border-right: 1px solid #fff !important;
         background-color: #f1f1f1;
@@ -444,6 +512,20 @@ export default {
         max-width: inherit;
       }
     }
+
+    .v-select {
+      margin-bottom: 0;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #fff;
+
+      .vs__selected {
+        max-width: 5px;
+      }
+    }
   }
+}
+
+.fa-exclamation-triangle {
+  color: $danger;
 }
 </style>

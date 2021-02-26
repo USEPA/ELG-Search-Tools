@@ -121,7 +121,16 @@
         <h3 v-if="currentRow.wastestreamProcessLimitCalculationDescription">
           <strong>Limitation Calculation Description</strong>
         </h3>
-        <p>{{ currentRow.wastestreamProcessLimitCalculationDescription }}</p>
+        <p>
+          {{ currentRow.wastestreamProcessLimitCalculationDescription }}
+          <span v-if="item.wastestreamProcessTypoFlagLimitCalculationDescription">
+            <br />
+            <span class="fa fa-exclamation-triangle"></span>
+            <span style="font-style: italic">
+              {{ item.wastestreamProcessTypoFlagLimitCalculationDescription }}
+            </span>
+          </span>
+        </p>
         <h3 v-if="currentRow.limitRequirementDescription">
           <strong>Limitation Requirement Description</strong>
         </h3>
@@ -259,7 +268,7 @@ export default {
     },
     async shouldDisplayLongTermAvgData(row) {
       await this.$store.dispatch('limitations/getLongTermAvgData', row.limitationId);
-      await this.$router.push('/results/limitations/longTermAverage');
+      await this.$router.push('/results/limitations/long-term-average');
     },
     getControlTechLimitations(controlTechCode) {
       return this.limitationData.filter((limitation) => limitation.controlTechnologyCode === controlTechCode);
@@ -308,5 +317,9 @@ label {
 }
 .poll-limit-tab-content {
   margin-top: 0 !important;
+}
+
+.fa-exclamation-triangle {
+  color: $danger;
 }
 </style>

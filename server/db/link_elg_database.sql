@@ -114,7 +114,8 @@ select
     loc,
     ct_cfr_section,
     replace(replace(replace(replace(replace(ct_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), U&'\0097', '-'), U&'\00B5', '\u00B5') as ct_notes,
-    case when loc_display = '1' then true else false end as loc_display
+    case when loc_display = '1' then true else false end as loc_display,
+    typo_flag_ct_notes 
 from
     elg_database.n3a_control_technology_notes;
 
@@ -143,7 +144,9 @@ select
     sortorder,
     case when alternative_req = '1' then true else false end as alternative_requirement,
     case when voluntary_req = '1' then true else false end as voluntary_requirement,
-    case when process_addtdetail = '1' then true else false end as process_addtdetail
+    case when process_addtdetail = '1' then true else false end as process_addtdetail,
+    typo_flag_lim_calc_description,
+    typo_flag_po_notes 
 from
     elg_database.n4_wastestream_process;
 
@@ -173,10 +176,10 @@ SELECT
 	pl.alt_lim_flag,
 	case 
 		when pl.lim_id = 6799 then 'As referenced in 423.16(e)' --odd character in source data
-		when pl.lim_id = 52831 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Co'
-		when pl.lim_id = 52867 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Co'
+		when pl.lim_id = 52831 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Content of Oil by HPLC/UV," December 1992, which is published as an appendix to subpart A of this part and in "Analytic Methods for the Oil and Gas Extraction Point Source Category," EPA-821-R-11-004. See \u00A7435.11(uu).'
+		when pl.lim_id = 52867 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Content of Oil by HPLC/UV," December 1992, which is published as an appendix to subpart A of this part and in "Analytic Methods for the Oil and Gas Extraction Point Source Category," EPA-821-R-11-004. See \u00A7435.11(uu).'
 		else replace(replace(replace(replace(replace(pl.alt_lim, U&'\00A7', '\u00A7'), U&'\00B0', '\u00B0'), U&'\0093', '"'), U&'\0094', '"'), U&'\00D7', 'X') 
-	end as alt_lim, 
+	end as alt_lim,  --TODO: check these values in the latest data!
 	pl.lim_duration_code,
 	pl.discharge_frequency,
 	pl.unit_code,
@@ -191,11 +194,26 @@ SELECT
 	pl.qc_flag,
 	pl.qc_notes,
 	pl.zero_discharge,
-	replace(replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), '�', 'u'), U&'\00A0', ' '), U&'\00B5', '\u00B5') as pollutant_notes,
+	CASE
+		when pl.lim_id = 70840 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.17 + 17.6 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70841 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.21 + 24.2 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70843 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.34 + 17.6 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70844 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.42 + 24.2 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70869 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.09 + 7.9 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70870 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.11 + 13.6 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70871 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.18 + 7.9 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70872 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.22 + 13.6 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70885 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.09 + 17.6 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70886 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.18 + 17.6 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70887 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.11 + 24.2 X (no. of hides)/lbs RM).'
+		when pl.lim_id = 70888 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.22 + 24.2 X (no. of hides)/lbs RM).'
+		else replace(replace(replace(replace(replace(replace(replace(pl.pollutant_notes, U&'\00A7', '\u00A7'), chr(147), '"'), chr(148), '"'), '�', 'u'), U&'\00A0', ' '), U&'\00B5', '\u00B5'), U&'\00D7', 'X') 
+	end as pollutant_notes,  --TODO: check these values in the latest data!
 	pl.dataentry_psc_code,
 	pl.qc_initials,
 	pl.treatment_id,
-	alf.description as alt_lim_description
+	alf.description as alt_lim_description,
+	pl.typo_flag_lim_value 
 FROM elg_database.n5_pollutant_limitations pl left outer join elg_database.key_alt_lim_flag alf on pl.alt_lim_flag = alf.flag;
 
 create view elg_database.view_key_ttcodes as
@@ -236,7 +254,8 @@ select
 	case when additional_detail_cfr_flag = '1' then true else false end as additional_detail_cfr_flag,
 	source_id,
 	qc_flag,
-	qc_notes
+	qc_notes,
+	typo_flag_definition 
 from elg_database.a_definition;
 
 create view elg_database.view_a_generalprovisions as

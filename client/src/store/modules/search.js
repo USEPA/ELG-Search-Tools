@@ -10,7 +10,7 @@ const state = {
   treatmentTechnologies: [],
   treatmentTechnologyCategories: [],
   // user-selected values
-  searchType: '',
+  searchType: 'pointSource',
   selectedCategory: null,
   selectedSubcategory: null,
   selectedPollutant: null,
@@ -92,7 +92,7 @@ const actions = {
     dispatch('clearResultsData');
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/pollutant/?id=${state.selectedPollutant.pollutantId}`);
+    const res = await axios.get(`api/pollutant/?id=${encodeURIComponent(state.selectedPollutant.pollutantId)}`);
     commit('SET_POLLUTANT_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },

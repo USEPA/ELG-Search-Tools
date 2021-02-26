@@ -36,7 +36,12 @@ module.exports = {
     queryInterface.addIndex(
       {schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology'},
       ['processop_id', 'treatment_id']
-    )
+    ).then(() => {
+      queryInterface.addIndex(
+        {schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology'},
+        ['tech_notes']
+      )
+    })
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'WastestreamProcessTreatmentTechnology'})
 };

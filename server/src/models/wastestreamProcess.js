@@ -82,7 +82,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         field: 'process_addtdetail'
-      }
+      },
+      typoFlagLimitCalculationDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'typo_flag_lim_calc_description'
+      },
+      typoFlagNotes: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'typo_flag_po_notes'
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'WastestreamProcess' }
   );

@@ -18,6 +18,11 @@ module.exports = {
       allowNull: false,
       field: 'pollutant_code'
     },
+    treatmentId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'treatment_id'
+    },
     limitationDurationId: {
       type: Sequelize.INTEGER,
       allowNull: false,
@@ -77,7 +82,12 @@ module.exports = {
       type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'pollutant_notes'
-    }
+    },
+    typoFlagLimitationValue: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'typo_flag_lim_value'
+    },
   }).then(() => {
     queryInterface.addIndex(
       {schema: 'elg_search', tableName: 'Limitation'},
@@ -90,7 +100,17 @@ module.exports = {
         queryInterface.addIndex(
           {schema: 'elg_search', tableName: 'Limitation'},
           ['alt_lim_flag']
-        )
+        ).then(() => {
+          queryInterface.addIndex(
+            {schema: 'elg_search', tableName: 'Limitation'},
+            ['alt_lim']
+          ).then(() => {
+            queryInterface.addIndex(
+              {schema: 'elg_search', tableName: 'Limitation'},
+              ['pollutant_notes']
+            )
+          })
+        })
       })
     })
   }),

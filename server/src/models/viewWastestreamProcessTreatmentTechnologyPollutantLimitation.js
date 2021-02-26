@@ -18,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'lim_value'
       },
+      typoFlagLimitationValue: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'typo_flag_lim_value'
+      },
       minimumValue: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -87,6 +92,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(4000),
         allowNull: false,
         field: 'wp_lim_calc_desc'
+      },
+      wastestreamProcessTypoFlagLimitCalculationDescription: {
+        type: DataTypes.STRING(4000),
+        allowNull: false,
+        field: 'wp_typo_flag_lim_calc_description'
       },
       wastestreamProcessAlternativeRequirement: {
         type: DataTypes.BOOLEAN,
@@ -199,7 +209,7 @@ module.exports = (sequelize, DataTypes) => {
         field: 'combo_subcat'
       },
       pointSourceSubcategoryTitle: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         field: 'subcat_title'
       },

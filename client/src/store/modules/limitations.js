@@ -20,6 +20,22 @@ const state = {
 
 const getters = {
   ...make.getters(state),
+  treatmentLimitationsApiUrl(state, getters, rootState) {
+    let url = 'api/treatmentTechnologyLimitations';
+    const params = {
+      id: rootState.search.treatmentTechnologyData.id,
+      treatmentId: state.selectedTreatmentTrain.map((t) => t.id).join(';'),
+      pointSourceCategoryCode: state.selectedTreatmentCategory.map((t) => t.pointSourceCategoryCode).join(';'),
+      pollutantId: state.selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';'),
+    };
+
+    if (rootState.search.selectedTreatmentTechnologyCategory) {
+      url = 'api/treatmentTechnologyCategoryLimitations';
+      params.id = rootState.search.selectedTreatmentTechnologyCategory;
+    }
+
+    return `${url}?${new URLSearchParams(params)}`;
+  },
 };
 
 const mutations = {
@@ -129,36 +145,12 @@ const actions = {
     commit('SET_IS_FETCHING', false);
     commit('SET_SELECTED_LIMITATION_ID', id);
   },
-  async getTreatmentTechnologyLimitations({ commit, state, rootState }) {
+  async getTreatmentTechnologyLimitations({ commit, getters }) {
     commit('SET_IS_FETCHING', true);
 
-    let data = null;
-    let url = 'api/treatmentTechnologyLimitations';
-    const params = {
-      id: rootState.search.treatmentTechnologyData.id,
-      treatmentId: state.selectedTreatmentTrain.map((t) => t.id).join(';'),
-      pointSourceCategoryCode: state.selectedTreatmentCategory.map((t) => t.pointSourceCategoryCode).join(';'),
-      pollutantId: state.selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';'),
-    };
+    const res = await axios.get(getters.treatmentLimitationsApiUrl);
 
-    // Adjust URL and ID if treatment category was selected from search
-    if (rootState.search.selectedTreatmentTechnologyCategory) {
-      url = 'api/treatmentTechnologyCategoryLimitations';
-      params.id = rootState.search.selectedTreatmentTechnologyCategory;
-    }
-
-    // Only search if one or more criteria has been selected
-    if (
-      state.selectedTreatmentTrain.length > 0 ||
-      state.selectedTreatmentCategory.length > 0 ||
-      state.selectedTreatmentPollutant.length > 0
-    ) {
-      const res = await axios.get(url, { params });
-
-      data = res.data;
-    }
-
-    commit('SET_TREATMENT_LIMITATION_DATA', data);
+    commit('SET_TREATMENT_LIMITATION_DATA', res.data);
     commit('SET_IS_FETCHING', false);
   },
 };

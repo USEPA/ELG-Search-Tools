@@ -20,20 +20,23 @@
         <span v-if="selectedCategory">
           Point Source Category
           {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
+          Limitation Results
         </span>
-        <span v-else-if="selectedPollutant">
-          {{ selectedPollutant.pollutantDescription }}
-        </span>
+        <span v-else-if="selectedPollutant"> {{ selectedPollutant.pollutantDescription }} Limitation Results </span>
         <span v-else-if="selectedPollutantCategory">
-          {{ selectedPollutantCategory.description }}
+          {{ selectedPollutantCategory.description }} Limitation Results
         </span>
-        <span v-else-if="selectedTreatmentTechnology">
-          {{ selectedTreatmentTechnology.name }}
-        </span>
+        <span v-else-if="selectedTreatmentTechnology"> {{ selectedTreatmentTechnology.name }} Limitation Results </span>
         <span v-else-if="selectedTreatmentTechnologyCategory">
           {{ selectedTreatmentTechnologyCategory + ' Treatment Category' }}
+          Limitation Results
         </span>
-        Limitation Results
+        <span v-else-if="keyword && keyword.length">
+          Keyword Search Results
+        </span>
+        <span v-else>
+          Multi-Criteria Search Results
+        </span>
       </h2>
       <div class="column">
         <HelpLinks />
@@ -41,8 +44,10 @@
     </div>
 
     <PointSourceResults v-if="selectedCategory" />
-    <PollutantResults v-if="selectedPollutant || selectedPollutantCategory" />
-    <TreatmentTechResults v-if="selectedTreatmentTechnology || selectedTreatmentTechnologyCategory" />
+    <PollutantResults v-else-if="selectedPollutant || selectedPollutantCategory" />
+    <TreatmentTechResults v-else-if="selectedTreatmentTechnology || selectedTreatmentTechnologyCategory" />
+    <KeywordResults v-else-if="keyword && keyword.length" />
+    <MultiCriteriaResults v-else />
   </section>
 </template>
 
@@ -52,9 +57,18 @@ import PointSourceResults from '@/components/results/PointSourceResults';
 import PollutantResults from '@/components/results/PollutantResults';
 import TreatmentTechResults from '@/components/results/TreatmentTechResults';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
+import MultiCriteriaResults from '@/components/results/MultiCriteriaResults';
+import KeywordResults from '@/components/results/KeywordResults';
 
 export default {
-  components: { Breadcrumbs, PointSourceResults, PollutantResults, TreatmentTechResults },
+  components: {
+    Breadcrumbs,
+    PointSourceResults,
+    PollutantResults,
+    TreatmentTechResults,
+    MultiCriteriaResults,
+    KeywordResults,
+  },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -63,6 +77,7 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
+    ...get('customSearch', ['multiCriteriaResults', 'keyword']),
   },
 };
 </script>

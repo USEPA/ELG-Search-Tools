@@ -1,5 +1,5 @@
 <template>
-  <div :class="'message ' + getClass()">
+  <div :class="`message ${getClass()} ${isSlim ? 'slim' : ''}`">
     <div class="message-body">
       <span :class="'fa is-size-3 ' + getIcon()"></span>
       <span v-if="isMessageHTML" class="alert-message has-text-weight-semibold" :is="contentComp"></span>
@@ -23,6 +23,11 @@ export default {
       default: 'error',
     },
     isMessageHTML: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isSlim: {
       type: Boolean,
       required: false,
       default: false,
@@ -97,6 +102,20 @@ export default {
 
     .alert-message {
       margin: auto 0;
+    }
+  }
+
+  &.slim {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+
+    .message-body {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .fa {
+      font-size: 1.25rem !important;
     }
   }
 }

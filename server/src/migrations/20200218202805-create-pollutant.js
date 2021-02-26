@@ -23,6 +23,11 @@ module.exports = {
       allowNull: true,
       field: 'pollutant_groups'
     }
+  }).then(() => {
+    queryInterface.addIndex(
+      {schema: 'elg_search', tableName: 'Pollutant'},
+      ['elg_pollutant_description']
+    )
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'Pollutant'})
 };

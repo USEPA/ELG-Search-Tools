@@ -1,16 +1,39 @@
 <template>
   <div>
-    <p class="pollutant-subtext">
-      Number of PSCs Referencing Pollutant{{ selectedPollutantCategory ? ' Category' : '' }}:
-      {{ new Set(pollutantData.map((row) => row.pointSourceCategoryCode)).size }}
-    </p>
+    <div class="columns">
+      <div class="column">
+        <Alert type="info">
+          <p>
+            Number of PSCs Referencing Pollutant{{ selectedPollutantCategory ? ' Category' : '' }}:
+            {{ new Set(pollutantData.pscs.map((row) => row.pointSourceCategoryCode)).size }}
+          </p>
+        </Alert>
+      </div>
+      <div class="column">
+        <Alert v-if="!selectedPollutantCategory && pollutantData.ranges.length > 0" type="info">
+          Range of Pollutant Limitations (Concentration):
+          <HoverText hoverId="rangeInstructions" :icon="true">
+            The pollutant limitation ranges across point source categories includes concentration-based limitations for
+            the limitation types listed and not a complete range of all ELG limitations for the pollutant. For example,
+            the range excludes quantity-based limitations and excludes ELGs where limitations differ for continuous and
+            noncontinuous discharges (i.e., a subset of limitations at 40 CFR 430 and 40 CFR 464).
+          </HoverText>
+          <br />
+          <ul style="padding-bottom: 0">
+            <li v-for="range in pollutantData.ranges" :key="range" style="list-style-type: disc">
+              {{ range }}
+            </li>
+          </ul>
+        </Alert>
+      </div>
+    </div>
     <div class="columns no-margin">
       <div v-if="!selectedPollutantCategory" class="column">
         <button
           :disabled="selectedPscs.length === 0"
           :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
           class="button is-hyperlink cfr-link"
-          @click="navigateToLimitationsForMultiplePscs(pollutantData[0])"
+          @click="navigateToLimitationsForMultiplePscs(pollutantData.pscs[0])"
         >
           <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
         </button>
@@ -22,7 +45,7 @@
         <DownloadLink
           v-if="selectedPollutant"
           title="Limitations"
-          :url="`/api/pollutant/?id=${selectedPollutant.pollutantId}`"
+          :url="`/api/pollutant/?id=${encodeURIComponent(selectedPollutant.pollutantId)}`"
         />
         <DownloadLink
           v-else-if="selectedPollutantCategory"
@@ -32,15 +55,20 @@
       </div>
     </div>
 
-    <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData">
+    <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData.pscs">
       <template v-slot:cell(selectPsc)="{ item }">
-        <label class="sr-only">Select Point Source Category and click "Compare PSCs" to view limitations.</label>
         <input
+          :id="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`"
           class="table-checkbox"
           type="checkbox"
           :value="{ pollutantId: item.pollutantId, pointSourceCategoryCode: item.pointSourceCategoryCode }"
           v-model="selectedPscs"
         />
+        <label :for="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`">
+          <span class="sr-only">
+            Select Point Source Category and click "Compare PSCs" to view limitations.
+          </span>
+        </label>
       </template>
       <template v-slot:cell(pointSourceSubcategories)="{ value }">
         <span v-if="value !== ''" v-html="value" />
@@ -68,16 +96,52 @@
             </thead>
             <tbody>
               <tr v-for="(range, index) in value" :key="index">
-                <td width="17%">
-                  {{ range.minimumLimitationValue }}
+                <td style="width: 17%">
+                  <HoverText
+                    v-if="
+                      range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
+                    "
+                    :id="`flagHover${index}`"
+                    :linkText="
+                      range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'
+                        ? range.alternateLimitFlag
+                        : range.minimumLimitationValue
+                    "
+                  >
+                    <div v-if="range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'">
+                      Limitation Value: {{ range.minimumLimitationValue }} {{ range.limitationUnitCode }}
+                    </div>
+                    Limitation Flag: {{ range.alternateLimitFlag }} - {{ range.alternateLimitDescription }}
+                  </HoverText>
+                  <span v-else>
+                    {{ range.minimumLimitationValue }}
+                  </span>
                 </td>
-                <td width="17%">
-                  {{ range.maximumLimitationValue }}
+                <td style="width: 17%">
+                  <HoverText
+                    v-if="
+                      range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
+                    "
+                    :id="`flagHover${index}`"
+                    :linkText="
+                      range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'
+                        ? range.alternateLimitFlag
+                        : range.maximumLimitationValue
+                    "
+                  >
+                    <div v-if="range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'">
+                      Limitation Value: {{ range.maximumLimitationValue }} {{ range.limitationUnitCode }}
+                    </div>
+                    Limitation Flag: {{ range.alternateLimitFlag }} - {{ range.alternateLimitDescription }}
+                  </HoverText>
+                  <span v-else>
+                    {{ range.maximumLimitationValue }}
+                  </span>
                 </td>
-                <td width="33%">
+                <td style="width: 33%">
                   {{ range.limitationUnitCode }}
                 </td>
-                <td width="33%">
+                <td style="width: 33%">
                   <HoverText
                     :hoverId="`units${range.limitationUnitCode + range.limitationType}`"
                     :linkText="range.limitationType"
@@ -290,5 +354,9 @@ select {
 
 .is-gray-background {
   background-color: $gray;
+}
+
+input[type='checkbox'] {
+  display: none;
 }
 </style>

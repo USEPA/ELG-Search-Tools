@@ -72,7 +72,12 @@ module.exports = {
     queryInterface.addIndex(
       {schema: 'elg_search', tableName: 'PointSourceSubcategory'},
       ['psc_code']
-    )
+    ).then(() => {
+      queryInterface.addIndex(
+        {schema: 'elg_search', tableName: 'PointSourceSubcategory'},
+        ['subcat_title']
+      )
+    })
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'PointSourceSubcategory'})
 };

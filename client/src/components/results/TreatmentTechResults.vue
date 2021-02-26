@@ -34,18 +34,21 @@
               </HoverText>
             </label>
           </strong>
-          <Multiselect
-            id="categories"
-            :value="selectedTreatmentCategory"
+          <VueSelect
+            inputId="categories"
+            v-model="selectedTreatmentCategory"
             :options="sortBy(treatmentTechnologyData.pointSourceCategories, ['pointSourceCategoryCode'])"
             :multiple="true"
             placeholder="Select Category"
-            :custom-label="(option) => `${option.pointSourceCategoryCode}: ${option.pointSourceCategoryName}`"
-            select-label=""
-            deselect-label=""
-            @select="onChangeCategory"
-            @remove="onChangeCategory"
-          />
+            label="pointSourceCategoryName"
+          >
+            <template #option="option">
+              {{ option.pointSourceCategoryCode }}: {{ option.pointSourceCategoryName }}
+            </template>
+            <template #selected-option="option">
+              {{ option.pointSourceCategoryCode }}: {{ option.pointSourceCategoryName }}
+            </template>
+          </VueSelect>
         </div>
         <div class="column is-4">
           <strong>
@@ -57,17 +60,13 @@
               </HoverText>
             </label>
           </strong>
-          <Multiselect
-            id="pollutants"
-            :value="selectedTreatmentPollutant"
+          <VueSelect
+            inputId="pollutants"
+            v-model="selectedTreatmentPollutant"
             :options="treatmentTechnologyData.pollutants"
             :multiple="true"
             placeholder="Select Pollutant"
             label="pollutantDescription"
-            select-label=""
-            deselect-label=""
-            @select="onChangePollutant"
-            @remove="onChangePollutant"
           />
         </div>
         <div class="column is-4">
@@ -79,17 +78,13 @@
               </HoverText>
             </label>
           </strong>
-          <Multiselect
-            id="treatmentTrains"
-            :value="selectedTreatmentTrain"
+          <VueSelect
+            inputId="treatmentTrains"
+            v-model="selectedTreatmentTrain"
             :options="treatmentTechnologyData.treatmentTrains"
             :multiple="true"
             placeholder="Select Treatment Train"
             label="names"
-            select-label=""
-            deselect-label=""
-            @select="onChangeTrain"
-            @remove="onChangeTrain"
           />
         </div>
       </div>
@@ -120,12 +115,15 @@
             .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`
         "
       />
+    </div>
+    <div>
       <Table
-        v-if="treatmentLimitationData"
         :columns="limitationColumns"
-        :rows="limitations"
+        :rows="tableProvider"
         :busy="isFetching"
         :perPage="100"
+        :count="treatmentLimitationData ? treatmentLimitationData.count : 0"
+        :apiUrl="treatmentLimitationsApiUrl"
       >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
@@ -152,9 +150,9 @@
               <span
                 v-html="
                   item.wastestreamProcessTreatmentTechnologyNotes +
-                    ' (' +
-                    item.wastestreamProcessTreatmentTechnologySourceTitle +
-                    ')'
+                    (item.wastestreamProcessTreatmentTechnologySourceTitle
+                      ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
+                      : '')
                 "
               />
             </p>
@@ -175,8 +173,6 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
-import Multiselect from 'vue-multiselect';
-import xor from 'lodash/xor';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
 import HoverText from '@/components/shared/HoverText';
@@ -185,7 +181,7 @@ import Modal from '@/components/shared/Modal';
 import DownloadLink from '@/components/shared/DownloadLink';
 
 export default {
-  components: { Alert, HoverText, Table, Modal, Multiselect, DownloadLink },
+  components: { Alert, HoverText, Table, Modal, DownloadLink },
   computed: {
     ...get('search', [
       'selectedCategory',
@@ -197,7 +193,7 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
-    ...get('limitations', ['treatmentLimitationData']),
+    ...get('limitations', ['treatmentLimitationData', 'treatmentLimitationsApiUrl']),
     ...sync('results', ['activeTab']),
     ...sync('search', ['selectedSubcategory']),
     ...sync('limitations', [
@@ -206,15 +202,6 @@ export default {
       'selectedTreatmentCategory',
       'selectedTreatmentPollutant',
     ]),
-    limitations() {
-      return this.treatmentLimitationData.map((row) => {
-        return {
-          ...row,
-          limitationValue:
-            row.limitationValue !== null ? row.limitationValue : `${row.minimumValue} - ${row.maximumValue}`,
-        };
-      });
-    },
   },
   data() {
     return {
@@ -236,8 +223,6 @@ export default {
         {
           key: 'controlTechnologyCode',
           label: 'Level of Control',
-          filterable: true,
-          customFilterSort: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
         },
         {
           key: 'pollutantDescription',
@@ -262,12 +247,7 @@ export default {
         {
           key: 'limitationDurationTypeDisplay',
           label: 'Type of Limitation',
-          filterable: true,
         },
-        // {
-        //   key: 'limitationUnitBasis',
-        //   label: 'Limitation Basis',
-        // },
         {
           key: 'goToLta',
           label: 'Go To LTA',
@@ -278,27 +258,45 @@ export default {
   },
   methods: {
     sortBy,
-    onChangeTrain(value) {
-      this.selectedTreatmentTrain = xor(this.selectedTreatmentTrain, [value]);
-      this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
-    },
-    onChangeCategory(value) {
-      this.selectedTreatmentCategory = xor(this.selectedTreatmentCategory, [value]);
-      this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
-    },
-    onChangePollutant(value) {
-      this.selectedTreatmentPollutant = xor(this.selectedTreatmentPollutant, [value]);
-      this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
-    },
     onShouldDisplayLongTermAvgData(limitationId) {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
-      this.$router.push('/results/limitations/longTermAverage');
+      this.$router.push('/results/limitations/long-term-average');
+    },
+    async tableProvider(ctx) {
+      try {
+        const response = await this.$http.get(
+          `${ctx.apiUrl}&offset=${ctx.currentPage * ctx.perPage - 100}&sortCol=${ctx.sortBy}&sortDir=${
+            ctx.sortDesc ? 'desc' : 'asc'
+          }`
+        );
+        this.$store.commit('limitations/SET_TREATMENT_LIMITATION_DATA', response.data);
+        return response.data.limitations.map((row) => {
+          let limitationValueDisplay = row.limitationValue;
+
+          if (limitationValueDisplay === null) {
+            limitationValueDisplay =
+              row.minimumValue !== null && row.maximumValue !== null
+                ? `${row.minimumValue} - ${row.maximumValue}`
+                : row.minimumValue;
+          }
+
+          if (limitationValueDisplay === null) {
+            limitationValueDisplay = '--';
+          }
+
+          return {
+            ...row,
+            limitationValue: limitationValueDisplay,
+          };
+        });
+      } catch (error) {
+        return [];
+      }
     },
   },
-  // TODO: add back in when pagination is handled on the back-end
-  // mounted() {
-  //   this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
-  // },
+  mounted() {
+    // this.$store.dispatch('limitations/getTreatmentTechnologyLimitations');
+  },
 };
 </script>
 
