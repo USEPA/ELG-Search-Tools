@@ -317,7 +317,7 @@ module.exports = {
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         }
         else {
-          //first, get results without filter criteria to get all possible values for the filters
+          //first, get results without filter and row limit criteria to get all possible values for the filters
           limitation.multiCriteriaSearchLimitations(
             pointSourceCategoryCodes,
             sicCodes,
@@ -331,8 +331,8 @@ module.exports = {
             rangeUnitCode,
             sortCol,
             sortDir,
-            offset,
-            limit,
+            0,
+            null,
             [],
             [],
             []
