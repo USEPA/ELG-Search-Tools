@@ -1,6 +1,7 @@
 module.exports = {
   up(queryInterface) {
-    return queryInterface.sequelize.query('CREATE TABLE elg_search."LimitationKeywordSearch" AS ' +
+    return queryInterface.sequelize.query("select 1;");
+    /*queryInterface.sequelize.query('CREATE TABLE elg_search."LimitationKeywordSearch" AS ' +
       'SELECT lim_id, psc_code, processop_id, pollutant_code, treatment_id, ' +
       '       subcat_title, genprov_section_title, genprov_desc, psc_name, ' +
       '       processop_title, secondary, processop_description, wp_lim_calc_desc, processop_notes, ' +
@@ -31,7 +32,7 @@ module.exports = {
       ' ON elg_search."LimitationKeywordSearch" USING GIN (tt_vector);' +
       'CREATE INDEX "LimitationKeywordSearch_all_tsv" ' +
       ' ON elg_search."LimitationKeywordSearch" USING GIN (all_vector);'
-     );
+     );*/
   },
   //down: (queryInterface) => {}
 };
