@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(4000),
         allowNull: true,
         field: 'treatment_description'
+      },
+      descriptions: {
+        type: DataTypes.STRING(4000),
+        allowNull: true,
+        field: 'treatment_descriptions'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'TreatmentTechnology' }

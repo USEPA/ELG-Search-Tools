@@ -239,7 +239,7 @@ module.exports = {
         'sicDescription'
       ],
       where: {
-        [Op.and]: Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g') IN (" + sicCodes.map(a => "'" + a + "'").concat('NULL') + ")")
+        [Op.and]: Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g') IN (" + sicCodes.map(a => "'" + a + "'").concat('NULL') + ")") //TODO: use replacements
       },
       order: [ 'sicCode' ]
     })
@@ -251,7 +251,7 @@ module.exports = {
         'naicsDescription'
       ],
       where: {
-        [Op.and]: Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g') IN (" + naicsCodes.map(a => "'" + a + "'").concat('NULL') + ")")
+        [Op.and]: Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g') IN (" + naicsCodes.map(a => "'" + a + "'").concat('NULL') + ")") //TODO: use replacements
       },
       order: [ 'naicsCode' ]
     })

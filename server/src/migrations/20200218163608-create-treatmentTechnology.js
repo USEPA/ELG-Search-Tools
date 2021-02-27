@@ -22,6 +22,11 @@ module.exports = {
       type: Sequelize.STRING(4000),
       allowNull: true,
       field: 'treatment_description'
+    },
+    descriptions: {
+      type: Sequelize.STRING(4000),
+      allowNull: true,
+      field: 'treatment_descriptions'
     }
   }).then(() => {
     queryInterface.addIndex(
