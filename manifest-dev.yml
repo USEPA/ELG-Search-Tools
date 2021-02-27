@@ -4,7 +4,7 @@
      instances: 1
      memory: 512M
      disk_quota: 1GB
-     timeout: 180
+     timeout: 3000
      buildpacks:
       - nodejs_buildpack
      command: npm run prod
