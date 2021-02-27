@@ -1,6 +1,6 @@
 module.exports = {
-  /*up(queryInterface) {
-    return queryInterface.sequelize.query('reindex database elg_search');
-  },*/
+  up(queryInterface) {
+    return queryInterface.sequelize.query('reindex schema elg_search');
+  },
   //down: (queryInterface) => {}
 };
