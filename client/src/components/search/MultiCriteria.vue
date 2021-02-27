@@ -7,7 +7,7 @@
       Select one or more criteria (Point Source Category(ies), Pollutant(s), and Treatment Technology(ies) dropdown
       menus) to include in the search results. You can also search by entering an industry code (SIC or NAICS),
       Pollutant Category, or Treatment Technology Category. Click the “x” next to a criterion to remove it from the
-      search results.
+      search results. Multi-Criteria Search results present the pollutant limitations associated with the criteria.
     </Alert>
     <form class="columns" @submit="getResults">
       <div class="column is-4">
@@ -31,7 +31,13 @@
         </VueSelect>
         <div class="message message-box">
           <p>OR</p>
-          <label>Search by Industry Code</label>
+          <label>
+            Search by Industry Code
+            <HoverText hoverId="keywordIndustryInfo" :icon="true">
+              The SIC and NAICS codes are generally associated with the industry but the applicability statement(s) in
+              the CFR are the legal basis for regulated facilities.
+            </HoverText>
+          </label>
           <label for="sicCode" class="sr-only">SIC Code</label>
           <VueSelect
             inputId="sicCode"
@@ -64,7 +70,17 @@
         </div>
       </div>
       <div class="column is-4">
-        <label for="pollutant">Pollutants</label>
+        <label for="pollutant">
+          Pollutants
+          <button
+            type="button"
+            class="button is-text icon-btn"
+            title="Click to view Pollutant Category descriptions"
+            @click="shouldDisplayPollCatDescriptions = true"
+          >
+            <span class="fa fa-info-circle"></span>
+          </button>
+        </label>
         <VueSelect
           id="pollutant"
           v-model="pollutantId"
@@ -85,7 +101,13 @@
           :reduce="(o) => o.id"
         />
         <div class="message message-box limitation-range">
-          <p>Only include Pollutants with limitation range (concentration basis only):</p>
+          <p>
+            Only include Pollutants with limitation range (concentration basis only):
+            <HoverText hoverId="unitsInfo" :icon="true">
+              Units of measurement as presented in CFR. The units applicable to a pollutant limitation may differ
+              between Point Source Categories.
+            </HoverText>
+          </p>
           <div class="limitation-inputs">
             <input
               v-model="rangeLow"
@@ -120,6 +142,20 @@
               :disabled="!pollutantGroupId.length && !pollutantId.length"
             />
           </div>
+          <Modal
+            v-if="shouldDisplayPollCatDescriptions"
+            title="Pollutant Category Descriptions"
+            @close="shouldDisplayPollCatDescriptions = false"
+          >
+            <div class="content">
+              <ul>
+                <li v-for="cat in multiCriteriaLookups.pollutantGroups" :key="cat.id">
+                  <strong>{{ cat.description }}</strong
+                  >: {{ pollCatDescriptions[cat.id] }}
+                </li>
+              </ul>
+            </div>
+          </Modal>
         </div>
       </div>
       <div class="column is-4">
@@ -164,6 +200,17 @@ export default {
   data() {
     return {
       isFetching: false,
+      shouldDisplayPollCatDescriptions: false,
+      pollCatDescriptions: {
+        '1': 'All 126 pollutants that EPA currently defines as priority pollutants.',
+        '2':
+          'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
+        '3': 'Parameters include phosphorus and phosphate.',
+        '4': 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, and pH.',
+        '5': 'Suspended and settable solids.',
+        '6':
+          'All metals parameters, including hexavalent or trivalent metals and metals in ionic form. Excludes metal compounds.',
+      },
     };
   },
   computed: {
@@ -223,6 +270,11 @@ label {
     background-color: #fbfbfb;
     cursor: not-allowed;
   }
+}
+
+.content ul {
+  margin-top: 0;
+  padding-left: 0;
 }
 
 ::v-deep .multiselect {

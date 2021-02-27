@@ -13,12 +13,14 @@ import Alert from './components/shared/Alert';
 import HelpLinks from './components/shared/HelpLinks';
 import Modal from './components/shared/Modal';
 import LoadingIndicator from './components/shared/LoadingIndicator';
+import HoverText from './components/shared/HoverText';
 
 Vue.component('VueSelect', VueSelect);
 Vue.component('Alert', Alert);
 Vue.component('HelpLinks', HelpLinks);
 Vue.component('Modal', Modal);
 Vue.component('LoadingIndicator', LoadingIndicator);
+Vue.component('HoverText', HoverText);
 
 Vue.config.productionTip = false;
 
