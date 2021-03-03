@@ -319,7 +319,7 @@ module.exports = {
       //get ranges of limitations, then group by PSC
       return Pollutant.findAll({
           where: {
-            [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), ';') AS groups)")
+            [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), ';') AS groups)") //TODO: use replacements
           }
         })
         .then(pollutants => {
