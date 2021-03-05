@@ -496,7 +496,8 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
           if (pollutants.length > 0 && rangeLow && rangeHigh && rangeUnitCode) {
             rangeWhereClause = {
               [Op.and]: {
-                limitationValue: { [Op.between]: [rangeLow, rangeHigh] },
+                [Op.and]: Sequelize.literal("case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end " +
+                    "BETWEEN " + rangeLow + " AND " + rangeHigh), //TODO: use replacements
                 limitationUnitCode: { [Op.eq]: rangeUnitCode }
               }
             };

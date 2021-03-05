@@ -366,12 +366,12 @@ module.exports = {
                         order: ["names"]
                       })
                         .then(treatmentTrains => {
-                          //then, get the filtered results to be displayed (if filters were passed)
+                          //then, get the filtered results to be displayed
                           let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
                           let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
                           let filterPollutantIds = (req.query.filterPollutantId ? decodeURIComponent(req.query.filterPollutantId).split(';') : []);
 
-                          if (filterTreatmentIds.length > 0 || filterPointSourceCategoryCodes.length > 0 || filterPollutantIds.length > 0) {
+                          //if (filterTreatmentIds.length > 0 || filterPointSourceCategoryCodes.length > 0 || filterPollutantIds.length > 0) {
                             limitation.multiCriteriaSearchLimitations(
                               pointSourceCategoryCodes,
                               sicCodes,
@@ -409,7 +409,7 @@ module.exports = {
                                 });
                               })
                               .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                          }
+                          /*}
                           else {
                             res.status(200).send({
                               pointSourceCategoryDisplay: pointSourceCategoryDisplay,
@@ -426,7 +426,7 @@ module.exports = {
                               treatmentTrains: treatmentTrains,
                               count: allLimitations.count
                             });
-                          }
+                          }*/
                         })
                         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
                     })
