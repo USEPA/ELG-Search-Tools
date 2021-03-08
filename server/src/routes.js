@@ -39,6 +39,8 @@ module.exports = (app, history) => {
   app.get('/api/multiCriteriaSearch', controllers.customSearch.multiCriteriaSearch);
   app.get('/api/keywordSearch', controllers.customSearch.keywordSearch);
 
+  app.get('/api/glossary', controllers.glossary.list);
+
   // serve up built Vue files from express server
   app.use(history);
   app.use(express.static(path.resolve(__dirname, '../../client/dist/')));

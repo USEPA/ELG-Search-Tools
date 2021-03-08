@@ -5,6 +5,7 @@ const pollutant = require('./pollutant');
 const limitation = require('./limitation');
 const treatmentTechnology = require('./treatmentTechnology');
 const customSearch = require('./customSearch');
+const glossary = require('./glossary');
 
 module.exports = {
   pointSourceCategory,
@@ -13,5 +14,6 @@ module.exports = {
   pollutant,
   limitation,
   treatmentTechnology,
-  customSearch
+  customSearch,
+  glossary
 };
