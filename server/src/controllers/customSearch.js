@@ -371,62 +371,43 @@ module.exports = {
                           let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
                           let filterPollutantIds = (req.query.filterPollutantId ? decodeURIComponent(req.query.filterPollutantId).split(';') : []);
 
-                          //if (filterTreatmentIds.length > 0 || filterPointSourceCategoryCodes.length > 0 || filterPollutantIds.length > 0) {
-                            limitation.multiCriteriaSearchLimitations(
-                              pointSourceCategoryCodes,
-                              sicCodes,
-                              naicsCodes,
-                              pollutantIds,
-                              pollutantGroupIds,
-                              treatmentTechnologyCodes,
-                              treatmentTechnologyGroups,
-                              rangeLow,
-                              rangeHigh,
-                              rangeUnitCode,
-                              sortCol,
-                              sortDir,
-                              offset,
-                              limit,
-                              filterTreatmentIds,
-                              filterPointSourceCategoryCodes,
-                              filterPollutantIds
-                            )
-                              .then(filteredLimitations => {
-                                res.status(200).send({
-                                  pointSourceCategoryDisplay: pointSourceCategoryDisplay,
-                                  sicCodeDisplay: sicCodeDisplay,
-                                  naicsCodeDisplay: naicsCodeDisplay,
-                                  pollutantDisplay: pollutantDisplay,
-                                  pollutantGroupDisplay: pollutantGroupDisplay,
-                                  limitationRangeDisplay: limitationRangeDisplay,
-                                  treatmentTechnologyDisplay: treatmentTechnologyDisplay,
-                                  treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
-                                  limitations: filteredLimitations.rows,
-                                  pointSourceCategories: pscs,
-                                  pollutants: polls,
-                                  treatmentTrains: treatmentTrains,
-                                  count: filteredLimitations.count
-                                });
-                              })
-                              .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                          /*}
-                          else {
-                            res.status(200).send({
-                              pointSourceCategoryDisplay: pointSourceCategoryDisplay,
-                              sicCodeDisplay: sicCodeDisplay,
-                              naicsCodeDisplay: naicsCodeDisplay,
-                              pollutantDisplay: pollutantDisplay,
-                              pollutantGroupDisplay: pollutantGroupDisplay,
-                              limitationRangeDisplay: limitationRangeDisplay,
-                              treatmentTechnologyDisplay: treatmentTechnologyDisplay,
-                              treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
-                              limitations: allLimitations.rows,
-                              pointSourceCategories: pscs,
-                              pollutants: polls,
-                              treatmentTrains: treatmentTrains,
-                              count: allLimitations.count
-                            });
-                          }*/
+                          limitation.multiCriteriaSearchLimitations(
+                            pointSourceCategoryCodes,
+                            sicCodes,
+                            naicsCodes,
+                            pollutantIds,
+                            pollutantGroupIds,
+                            treatmentTechnologyCodes,
+                            treatmentTechnologyGroups,
+                            rangeLow,
+                            rangeHigh,
+                            rangeUnitCode,
+                            sortCol,
+                            sortDir,
+                            offset,
+                            limit,
+                            filterTreatmentIds,
+                            filterPointSourceCategoryCodes,
+                            filterPollutantIds
+                          )
+                            .then(filteredLimitations => {
+                              res.status(200).send({
+                                pointSourceCategoryDisplay: pointSourceCategoryDisplay,
+                                sicCodeDisplay: sicCodeDisplay,
+                                naicsCodeDisplay: naicsCodeDisplay,
+                                pollutantDisplay: pollutantDisplay,
+                                pollutantGroupDisplay: pollutantGroupDisplay,
+                                limitationRangeDisplay: limitationRangeDisplay,
+                                treatmentTechnologyDisplay: treatmentTechnologyDisplay,
+                                treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
+                                limitations: filteredLimitations.rows,
+                                pointSourceCategories: pscs,
+                                pollutants: polls,
+                                treatmentTrains: treatmentTrains,
+                                count: filteredLimitations.count
+                              });
+                            })
+                            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
                         })
                         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
                     })
@@ -437,7 +418,7 @@ module.exports = {
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         }
       })
-      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+      .catch((error) => res.status(400).send('Error parsing criteria! ' + utilities.sanitizeError(error)));
   },
   /**
    * @param {

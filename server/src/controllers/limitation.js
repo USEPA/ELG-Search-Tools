@@ -409,7 +409,10 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
         treatmentTechnologyGroups.length === 0)
     {
       //no criteria passed
-      resolve([]);
+      resolve({
+        rows: [],
+        count: 0
+      });
     }
     else {
       let criteriaPromises = [];
