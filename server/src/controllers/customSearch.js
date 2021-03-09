@@ -195,7 +195,13 @@ module.exports = {
     let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(';') : []);
     let sicCodes = (req.query.sicCode ? req.query.sicCode.split(';') : []);
     let naicsCodes = (req.query.naicsCode ? req.query.naicsCode.split(';') : []);
-    let pollutantIds = (req.query.pollutantId ? decodeURIComponent(req.query.pollutantId).split(';') : []);
+    let pollutantIds = [];
+    try {
+      pollutantIds = (req.query.pollutantId ? decodeURIComponent(req.query.pollutantId).split(';') : []);
+    }
+    catch (error) {
+      console.log('pollutantId decodeURIComponent error: ' + error);
+    }
     let pollutantGroupIds = (req.query.pollutantGroupId ? req.query.pollutantGroupId.split(';') : []);
     let treatmentTechnologyCodes = (req.query.treatmentTechnologyCode ? req.query.treatmentTechnologyCode.split(';') : []);
     let treatmentTechnologyGroups = (req.query.treatmentTechnologyGroup ? req.query.treatmentTechnologyGroup.split(';') : []);
@@ -369,7 +375,13 @@ module.exports = {
                           //then, get the filtered results to be displayed
                           let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
                           let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
-                          let filterPollutantIds = (req.query.filterPollutantId ? decodeURIComponent(req.query.filterPollutantId).split(';') : []);
+                          let filterPollutantIds = [];
+                          try {
+                            filterPollutantIds = (req.query.filterPollutantId ? decodeURIComponent(req.query.filterPollutantId).split(';') : []);
+                          }
+                          catch (error) {
+                            console.log('filterPollutantIds decodeURIComponent error: ' + error);
+                          }
 
                           limitation.multiCriteriaSearchLimitations(
                             pointSourceCategoryCodes,
