@@ -16,8 +16,7 @@
         </router-link>
       </div>
     </div>
-    <div class="columns">
-      <div class="column is-8">
+    <div>
         <h2 v-if="subcategoryData" class="is-size-4 has-text-weight-bold">
           Point Source Category {{ selectedCategory.pointSourceCategoryCode }}:
           {{ selectedCategory.pointSourceCategoryName }} Limitations
@@ -42,10 +41,6 @@
         <h3 v-if="subcategoryData" class="subtitle is-size-5 has-text-weight-light">
           Subpart {{ subcategoryData.comboSubcategory }}
         </h3>
-      </div>
-      <div class="column">
-        <HelpLinks />
-      </div>
     </div>
     <div v-if="subcategoryData" class="info-box-container message">
       <div class="message-body">

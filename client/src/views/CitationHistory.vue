@@ -23,17 +23,11 @@
           </router-link>
         </div>
       </div>
-      <div class="columns elg-header-container">
-        <div class="column is-10">
+      <div class="elg-header-container">
           <h2 class="is-size-4 has-text-weight-bold title">
             About CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
           </h2>
           <h3 class="is-size-5 subtitle">CFR Citation History</h3>
-        </div>
-
-        <div class="column">
-          <HelpLinks />
-        </div>
       </div>
       <Table :columns="columns" :rows="rows" />
     </div>

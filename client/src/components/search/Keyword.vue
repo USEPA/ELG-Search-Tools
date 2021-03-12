@@ -1,9 +1,10 @@
 <template>
   <div>
     <Alert type="info" :isSlim="true">
-      Instructions: type in keywords or phrases and press Enter to save after each word or phrase. Select the OR
+      Instructions: type in keywords or phrases and press the Enter key after to save each word or phrase. Select the OR
       operator if you want results that include any of the keywords. Select the AND operator if you only want results
-      that contain all keywords.
+      that contain all keywords. The Keyword Search results present the pollutant limitations associated with the
+      criteria.
     </Alert>
     <form class="columns" @submit="getResults($event)">
       <div class="column">
