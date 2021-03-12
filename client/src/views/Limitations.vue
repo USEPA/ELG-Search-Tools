@@ -17,30 +17,30 @@
       </div>
     </div>
     <div>
-        <h2 v-if="subcategoryData" class="is-size-4 has-text-weight-bold">
-          Point Source Category {{ selectedCategory.pointSourceCategoryCode }}:
-          {{ selectedCategory.pointSourceCategoryName }} Limitations
-        </h2>
-        <h2 v-if="!subcategoryData && limitationData" class="is-size-4 has-text-weight-bold">
-          {{ pollutantDescription }}
-          {{ treatmentNames }}
-          Limitations
-        </h2>
-        <h3
-          v-if="!subcategoryData && limitationData && pointSourceCategoryCode"
-          class="subtitle is-size-5 has-text-weight-light"
-        >
-          Point Source Category {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
-        </h3>
-        <h3
-          v-if="!subcategoryData && limitationData && !pointSourceCategoryCode"
-          class="subtitle is-size-5 has-text-weight-light"
-        >
-          Point Source Categories {{ getPscs(limitationData) }}
-        </h3>
-        <h3 v-if="subcategoryData" class="subtitle is-size-5 has-text-weight-light">
-          Subpart {{ subcategoryData.comboSubcategory }}
-        </h3>
+      <h2 v-if="subcategoryData" class="is-size-4 has-text-weight-bold">
+        Point Source Category {{ selectedCategory.pointSourceCategoryCode }}:
+        {{ selectedCategory.pointSourceCategoryName }} Limitations
+      </h2>
+      <h2 v-if="!subcategoryData && limitationData" class="is-size-4 has-text-weight-bold">
+        {{ pollutantDescription }}
+        {{ treatmentNames }}
+        Limitations
+      </h2>
+      <h3
+        v-if="!subcategoryData && limitationData && pointSourceCategoryCode"
+        class="subtitle is-size-5 has-text-weight-light"
+      >
+        Point Source Category {{ pointSourceCategoryCode }}: {{ pointSourceCategoryName }}
+      </h3>
+      <h3
+        v-if="!subcategoryData && limitationData && !pointSourceCategoryCode"
+        class="subtitle is-size-5 has-text-weight-light"
+      >
+        Point Source Categories {{ getPscs(limitationData) }}
+      </h3>
+      <h3 v-if="subcategoryData" class="subtitle is-size-5 has-text-weight-light">
+        Subpart {{ subcategoryData.comboSubcategory }}
+      </h3>
     </div>
     <div v-if="subcategoryData" class="info-box-container message">
       <div class="message-body">

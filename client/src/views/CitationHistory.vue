@@ -24,10 +24,10 @@
         </div>
       </div>
       <div class="elg-header-container">
-          <h2 class="is-size-4 has-text-weight-bold title">
-            About CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
-          </h2>
-          <h3 class="is-size-5 subtitle">CFR Citation History</h3>
+        <h2 class="is-size-4 has-text-weight-bold title">
+          About CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
+        </h2>
+        <h3 class="is-size-5 subtitle">CFR Citation History</h3>
       </div>
       <Table :columns="columns" :rows="rows" />
     </div>
