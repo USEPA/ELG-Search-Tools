@@ -18,9 +18,9 @@
       </div>
     </div>
     <div class="elg-header-container">
-        <h2 class="is-size-4 has-text-weight-bold page-heading">
-          Long-Term Averages
-        </h2>
+      <h2 class="is-size-4 has-text-weight-bold page-heading">
+        Long-Term Averages
+      </h2>
     </div>
     <Alert type="info">
       A long-term average (LTA) is the average pollutant concentration that is achieved over a period of time. It is the
