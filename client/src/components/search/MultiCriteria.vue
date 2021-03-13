@@ -113,6 +113,7 @@
               v-model="rangeLow"
               type="number"
               min="0"
+              step="any"
               :disabled="!pollutantGroupId.length && !pollutantId.length"
               :title="
                 !pollutantGroupId.length && !pollutantId.length
@@ -125,6 +126,7 @@
               v-model="rangeHigh"
               type="number"
               min="0"
+              step="any"
               :disabled="!pollutantGroupId.length && !pollutantId.length"
               :title="
                 !pollutantGroupId.length && !pollutantId.length
