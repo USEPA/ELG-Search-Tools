@@ -1,12 +1,13 @@
 <template>
   <div id="app">
+    <Glossary />
     <div class="app-container">
       <main class="main-section">
         <header class="header">
           <div class="container">
             <h1>Effluent Limitations Guidelines and Standards (ELG) Database</h1>
             <div class="help-links">
-              <a href="#" class="has-text-weight-bold">
+              <a class="has-text-weight-bold js-glossary-toggle">
                 <span class="fas fa-book"></span>
                 Glossary
               </a>
@@ -26,8 +27,11 @@
 </template>
 
 <script>
+import Glossary from './components/shared/Glossary';
+
 export default {
   name: 'App',
+  components: { Glossary },
 };
 </script>
 
