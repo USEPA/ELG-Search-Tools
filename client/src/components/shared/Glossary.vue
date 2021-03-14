@@ -42,15 +42,22 @@ export default {
           .filter((item) => item.ActiveStatus !== 'Deleted')
           .map((item) => {
             const term = item.Name;
-            // Editorial Note field should contain the definition with any necessary html markup
-            const definition = item.Attributes.filter((attr) => {
-              return attr.Name === 'Editorial Note';
-            })[0].Value;
+            // Check Editorial Note field first if definition requires html markup
+            const editorialNote = item.Attributes.find((attr) => attr.Name === 'EditorialNote');
+            const term1 = item.Attributes.find((attr) => attr.Name === 'Def1');
+            const definition = editorialNote ? editorialNote.Value : term1.Value;
             return { term, definition };
           });
 
         // filter out duplicate terms from the web service
-        terms = terms.filter((item, index) => terms.findIndex((term) => term.term === item.term) === index);
+        terms = terms
+          .filter((item, index) => terms.findIndex((term) => term.term === item.term) === index)
+          .map((termObject) => {
+            return {
+              term: termObject.term.replace('>', '&gt;').replace('<', '&lt;'),
+              definition: termObject.definition,
+            };
+          });
 
         this.isFetchingTerms = false;
 
