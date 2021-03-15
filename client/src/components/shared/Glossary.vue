@@ -65,7 +65,7 @@ export default {
         new Glossary(terms); // eslint-disable-line
       })
       .catch((error) => {
-        console.error(error);
+        console.error(error); // eslint-disable-line
         this.shouldDisplayError = true;
         this.isFetchingTerms = false;
       });
