@@ -141,11 +141,11 @@
           </Modal>
         </template>
         <template v-slot:cell(goToLta)="{ item }">
-          <span v-if="item.longTermAverageCount > 0">
+          <div v-if="item.longTermAverageCount > 0" style="min-width:38px">
             <a @click="onShouldDisplayLongTermAvgData(item.limitationId)">
               <span class="fas fa-share-square limitation-link"></span>
             </a>
-          </span>
+          </div>
           <span v-else>--</span>
         </template>
       </Table>
