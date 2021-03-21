@@ -305,6 +305,9 @@ export default {
     filtered() {
       this.positionFilterRow();
     },
+    busy() {
+      this.isBusy = this.busy;
+    },
   },
   methods: {
     buildTableColumns() {

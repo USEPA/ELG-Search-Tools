@@ -113,6 +113,7 @@
               v-model="rangeLow"
               type="number"
               min="0"
+              step="any"
               :disabled="!pollutantGroupId.length && !pollutantId.length"
               :title="
                 !pollutantGroupId.length && !pollutantId.length
@@ -125,6 +126,7 @@
               v-model="rangeHigh"
               type="number"
               min="0"
+              step="any"
               :disabled="!pollutantGroupId.length && !pollutantId.length"
               :title="
                 !pollutantGroupId.length && !pollutantId.length
@@ -206,10 +208,10 @@ export default {
         '2':
           'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
         '3': 'Parameters include phosphorus and phosphate.',
-        '4': 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, and pH.',
+        '4': 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, pH, and oil & grease.',
         '5': 'Suspended and settable solids.',
         '6':
-          'All metals parameters, including hexavalent or trivalent metals and metals in ionic form. Excludes metal compounds.',
+          'All metals parameters, including hexavalent or trivalent metals and metals in ionic form (e.g., hexavalent chromium and aluminum, ion) and metals on the CWA priority pollutant list. Excludes metal compounds (e.g., calcium chloride).',
       },
     };
   },

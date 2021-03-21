@@ -67,6 +67,7 @@ jobs:
           command: |
             cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
             cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
+            cf set-env $APP_NAME-green "ELG_GLOSSARY_AUTH" "$ELG_GLOSSARY_AUTH" > /dev/null
       - run:
           name: Start application on Cloud.gov and clean routes
           command: |
@@ -125,6 +126,7 @@ jobs:
             cf push --no-start $APP_NAME-green -f manifest-staging.yml -p . -n $APP_NAME-green
             cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
             cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
+            cf set-env $APP_NAME-green "ELG_GLOSSARY_AUTH" "$ELG_GLOSSARY_AUTH" > /dev/null
       - run:
           name: Start application on Cloud.gov and clean routes
           command: |

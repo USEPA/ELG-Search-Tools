@@ -1,20 +1,14 @@
 <template>
   <section class="section">
     <p>
-      The goal of the ELG Database is to provide the Agency and other interested parties easy access to information
-      relevant to the effluent limitations guidelines and standards (ELGs) program. The ELG Database includes the ELGs
-      as promulgated in the Code of Federal Regulations (CFR); CFR citation history (links the dates and federal
-      register notices (FRN) to the corresponding CFR section); and readily available technology bases/pollutant
-      long-term averages associated with the promulgated regulations.
+      The ELG database allows easy access to information relevant to the effluent limitations guidelines and standards
+      (ELGs) program. The ELG Database includes the ELGs as promulgated in the Code of Federal Regulations (CFR); CFR
+      citation history (links the dates and federal register notices (FRN) to the corresponding CFR section); and
+      readily available technology bases/pollutant long-term averages associated with the promulgated regulations.
     </p>
     <button class="button is-hyperlink" @click="shouldShowDisclaimers = true">
       <span class="fa fa-exclamation-triangle"></span> Click Here to View Disclaimers
     </button>
-    <!-- <Alert type="warning">
-      <button class="button is-hyperlink" @click="shouldShowDisclaimers = true">
-        Click Here to View Disclaimers
-      </button>
-    </Alert> -->
     <Modal v-if="shouldShowDisclaimers" title="Disclaimers" @close="() => (shouldShowDisclaimers = false)">
       <Alert type="warning">
         EPA intends for the ELG Database to be solely used to access information on the effluent guidelines program via
