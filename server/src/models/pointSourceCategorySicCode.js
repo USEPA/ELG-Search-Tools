@@ -17,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'specific_psc_code'
       },
+      sicCodeAsNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'sic_code'
+      }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'PointSourceCategorySicCode' }
   );

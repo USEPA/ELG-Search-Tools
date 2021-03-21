@@ -19,15 +19,12 @@
           </router-link>
         </div>
       </div>
-      <div class="columns elg-header-container">
-        <div class="column is-10 page-heading">
+      <div class="elg-header-container">
+        <div class="page-heading">
           <h2 class="is-size-4 has-text-weight-bold">
             About 40 CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
           </h2>
           <h3 class="is-size-5 subtitle">Applicability, General Requirements, and Definitions</h3>
-        </div>
-        <div class="column">
-          <HelpLinks />
         </div>
       </div>
       <Alert type="info">

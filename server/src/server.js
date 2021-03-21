@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 const cors = require('cors');
 const history = require('connect-history-api-fallback');
 const config = require('./config/config');
@@ -10,9 +11,36 @@ const logger = require("../utilities/logger.js");
 const app = express();
 const log = logger.logger;
 
+app.disable('x-powered-by');
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
+app.use(
+  helmet.hsts({
+    maxAge: 31536000,
+  }),
+);
+
 app.use(bodyParser.json());
 app.use(cors());
 
+
+/****************************************************************
+ Instruct web browsers to disable caching
+ ****************************************************************/
+app.use(function (req, res, next) {
+  res.setHeader('Surrogate-Control', 'no-store');
+  res.setHeader(
+    'Cache-Control',
+    'no-store, no-cache, must-revalidate, proxy-revalidate',
+  );
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 
 /****************************************************************
  Which environment

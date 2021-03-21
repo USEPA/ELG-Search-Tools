@@ -29,9 +29,9 @@ module.exports = {
         "unit_desc":"grams per 1,000 kilograms",
         "unit_basis":"Quantity"},
       {"unit_code":8,
-        "unit":"ug/L",
+        "unit":"µg/L",
         "unit_desc":"micrograms per liter",
-        "unit_basis":"Concentration"},
+        "unit_basis":"Concentration"}, //TODO: manually update to µg/L after each generation of seeder files!
       {"unit_code":9,
         "unit":"ng/L",
         "unit_desc":"nanograms per liter",

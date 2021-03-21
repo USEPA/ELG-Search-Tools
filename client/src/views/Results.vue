@@ -15,7 +15,7 @@
         </router-link>
       </div>
     </div>
-    <div class="columns elg-header-container">
+    <div class="elg-header-container">
       <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
         <span v-if="selectedCategory">
           Point Source Category
@@ -38,9 +38,6 @@
           Multi-Criteria Search Results
         </span>
       </h2>
-      <div class="column">
-        <HelpLinks />
-      </div>
     </div>
 
     <PointSourceResults v-if="selectedCategory" />
