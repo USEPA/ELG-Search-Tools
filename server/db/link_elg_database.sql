@@ -323,5 +323,28 @@ FROM elg_database.ref_pollutant p left outer join elg_database.n5d_pollutant_gro
 create view elg_database.view_ref_sic_code as 
 SELECT 
 	sic, 
-	replace(replace(sic_desc, chr(145), ''''), chr(146), '''') as sic_desc
+	replace(replace(sic_desc, chr(145), ''''), chr(146), '''') as sic_desc,
+	nullif(regexp_replace(sic, '[^0-9]', '', 'g'), '') as sic_code
 FROM elg_database.ref_sic_code;
+
+create view elg_database.view_ref_naics_code as 
+SELECT 
+	naics, 
+	naics_desc,
+	nullif(regexp_replace(naics, '[^0-9]', '', 'g'), '') as naics_code
+FROM elg_database.ref_naics_code;
+
+create view elg_database.view_ref_psc_sic_xwalk as 
+SELECT 
+	sic, 
+	general_psc_code,
+	specific_psc_code,
+	nullif(regexp_replace(sic, '[^0-9]', '', 'g'), '') as sic_code
+FROM elg_database.ref_psc_sic_xwalk;
+
+create view elg_database.view_ref_psc_naics_xwalk as 
+SELECT 
+	naics, 
+	psc_code,
+	nullif(regexp_replace(naics, '[^0-9]', '', 'g'), '') as naics_code
+FROM elg_database.ref_psc_naics_xwalk;

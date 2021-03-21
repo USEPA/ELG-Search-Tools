@@ -12,6 +12,11 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true,
       field: 'naics_desc'
+    },
+    naicsCodeAsNumber: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'naics_code'
     }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'NaicsCode'})

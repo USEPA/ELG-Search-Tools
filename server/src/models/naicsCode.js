@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'naics_desc'
       },
+      naicsCodeAsNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'naics_code'
+      }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'NaicsCode' }
   );

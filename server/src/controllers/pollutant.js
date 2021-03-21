@@ -317,11 +317,15 @@ module.exports = {
       let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
       //get ranges of limitations, then group by PSC
-      return Pollutant.findAll({
-          where: {
-            [Op.and]: Sequelize.literal("lower('" + id + "') IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), ';') AS groups)") //TODO: use replacements
-          }
-        })
+      return Pollutant.sequelize.query(
+        'SELECT pollutant_code as "id" ' +
+            ' FROM elg_search."Pollutant" ' +
+            " WHERE lower(?) IN (SELECT groups FROM regexp_split_to_table(lower(pollutant_groups), ';') AS groups)",
+        {
+          replacements: [id],
+          type: Sequelize.QueryTypes.SELECT
+        }
+      )
         .then(pollutants => {
           ViewLimitation.findAll({
             group: [

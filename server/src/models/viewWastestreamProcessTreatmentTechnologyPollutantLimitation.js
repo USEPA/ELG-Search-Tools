@@ -18,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'lim_value'
       },
+      limitationValueAsNumber: {
+        type: DataTypes.NUMBER,
+        allowNull: true,
+        field: 'lim_value_numeric'
+      },
       typoFlagLimitationValue: {
         type: DataTypes.STRING(4000),
         allowNull: true,

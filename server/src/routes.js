@@ -31,9 +31,6 @@ module.exports = (app, history) => {
   app.get('/api/treatmentTechnologyCategory/:id', controllers.treatmentTechnology.readCategory);
   app.get('/api/treatmentTechnologyLimitations', controllers.treatmentTechnology.limitations);
   app.get('/api/treatmentTechnologyCategoryLimitations', controllers.treatmentTechnology.categoryLimitations);
-  //app.get('/api/treatmentTrain/:id', controllers.treatmentTechnology.treatmentTrain);
-  //app.get('/api/technologyBases', controllers.treatmentTechnology.technologyBases);
-  //app.get('/api/technologyBasisLimitations', controllers.treatmentTechnology.technologyBasisLimitations);
 
   app.get('/api/multiCriteriaSearchCriteria', controllers.customSearch.multiCriteriaSearchCriteria);
   app.get('/api/multiCriteriaSearch', controllers.customSearch.multiCriteriaSearch);

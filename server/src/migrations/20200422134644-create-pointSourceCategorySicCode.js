@@ -16,6 +16,11 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: true,
       field: 'specific_psc_code'
+    },
+    sicCodeAsNumber: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      field: 'sic_code'
     }
   }),
   down: (queryInterface) => queryInterface.dropTable({schema: 'elg_search', tableName: 'PointSourceCategorySicCode'})

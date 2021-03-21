@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'sic_desc'
       },
+      sicCodeAsNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        field: 'sic_code'
+      }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'SicCode' }
   );
