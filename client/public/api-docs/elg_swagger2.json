@@ -999,6 +999,38 @@
           }
         }
       }
+    },
+    "/api/glossary": {
+      "get": {
+        "summary": "Glossary",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Glossary"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/glossary.list"
+            }
+          }
+        }
+      }
+    },
+    "/api/help": {
+      "get": {
+        "summary": "Help",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Help"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/glossary.help"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1276,6 +1308,32 @@
       "required": ["Dummy"]
     },
     "customSearch.keywordSearch": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "glossary.list": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "glossary.help": {
       "type": "object",
       "description": "Placeholder",
       "properties": {

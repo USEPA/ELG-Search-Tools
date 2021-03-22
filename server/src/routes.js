@@ -38,6 +38,8 @@ module.exports = (app, history) => {
 
   app.get('/api/glossary', controllers.glossary.list);
 
+  app.get('/api/help', controllers.glossary.help);
+
   // serve up built Vue files from express server
   app.use(history);
   app.use(express.static(path.resolve(__dirname, '../../client/dist/')));
