@@ -52,7 +52,7 @@ jobs:
           name: Setup Cloud Foundry CLI
           command: |
             cd ..
-            curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
+            curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=v7&source=github'
             sudo dpkg -i cf-cli_amd64.deb
             cf -v
             cf api https://api.fr.cloud.gov
@@ -61,27 +61,13 @@ jobs:
       - run:
           name: Deploy application to Cloud.gov
           command: |
-            cf push --no-start $APP_NAME-green -f manifest-dev.yml -p . -n green
+            cf push $APP_NAME --strategy rolling -f ../manifest-dev.yml -p . -t 180
       - run:
           name: Set application-level variables
           command: |
-            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
-            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
-            cf set-env $APP_NAME-green "ELG_GLOSSARY_AUTH" "$ELG_GLOSSARY_AUTH" > /dev/null
-      - run:
-          name: Start application on Cloud.gov and clean routes
-          command: |
-            cf start $APP_NAME-green
-            cf unmap-route $APP_NAME-green $APP_DOMAIN -n green
-            cf delete-route app.cloud.gov -n green -f
-      - run:
-          name: Re-route green to blue and then remove blue
-          command: |
-            cf map-route $APP_NAME-green $APP_DOMAIN -n $APP_NAME
-            cf unmap-route $APP_NAME $APP_DOMAIN -n $APP_NAME
-            cf stop $APP_NAME
-            cf delete $APP_NAME -f
-            cf rename $APP_NAME-green $APP_NAME
+            cf set-env $APP_NAME "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
+            cf set-env $APP_NAME "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
+            cf set-env $APP_NAME "ELG_GLOSSARY_AUTH" "$ELG_GLOSSARY_AUTH" > /dev/null
 
   stage-branch:
     working_directory: ~/project/app # directory where steps will run
@@ -114,7 +100,7 @@ jobs:
       - run:
           name: Setup Cloud Foundry CLI
           command: |
-            curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
+            curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=v7&source=github'
             sudo dpkg -i cf-cli_amd64.deb
             cf -v
             cf api https://api.fr.cloud.gov
@@ -123,24 +109,10 @@ jobs:
       - run:
           name: Deploy application to Cloud.gov
           command: |
-            cf push --no-start $APP_NAME-green -f manifest-staging.yml -p . -n $APP_NAME-green
-            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
-            cf set-env $APP_NAME-green "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
-            cf set-env $APP_NAME-green "ELG_GLOSSARY_AUTH" "$ELG_GLOSSARY_AUTH" > /dev/null
-      - run:
-          name: Start application on Cloud.gov and clean routes
-          command: |
-            cf start $APP_NAME-green
-            cf unmap-route $APP_NAME-green $APP_DOMAIN -n $APP_NAME-green
-            cf delete-route app.cloud.gov -n $APP_NAME-green -f
-      - run:
-          name: Re-route green to blue and then remove blue
-          command: |
-            cf map-route $APP_NAME-green $APP_DOMAIN -n $APP_NAME
-            cf unmap-route $APP_NAME $APP_DOMAIN -n $APP_NAME
-            cf stop $APP_NAME
-            cf delete $APP_NAME -f
-            cf rename $APP_NAME-green $APP_NAME
+            cf push $APP_NAME --strategy rolling -f ../manifest-staging.yml -p . -t 180
+            cf set-env $APP_NAME "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
+            cf set-env $APP_NAME "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
+            cf set-env $APP_NAME "ELG_GLOSSARY_AUTH" "$ELG_GLOSSARY_AUTH" > /dev/null
 
 workflows:
   version: 2
