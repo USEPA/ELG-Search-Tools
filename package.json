@@ -58,7 +58,6 @@
     "@types/express": "^4.17.11",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-plugin-eslint": "^4.5.11",
-    "@vue/cli-plugin-pwa": "^4.5.11",
     "@vue/cli-plugin-unit-jest": "^4.5.11",
     "@vue/cli-service": "^4.5.11",
     "@vue/eslint-config-airbnb": "^5.3.0",
