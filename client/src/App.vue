@@ -75,7 +75,7 @@ export default {
         page = 19;
       }
 
-      return `${basePath}#page=${page}`;
+      return `${basePath}${page ? `#page=${page}` : ''}`;
     },
   },
 };
