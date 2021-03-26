@@ -13,7 +13,7 @@
        npm run seed
        npm run prod
      env:
-        NODE_ENV: production
+        NODE_ENV: staging
         SUB_PATH: /elg
         LOGGER_LEVEL: ERROR
         OPTIMIZE_MEMORY: true

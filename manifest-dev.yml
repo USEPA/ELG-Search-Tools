@@ -13,7 +13,7 @@
        npm run seed
        npm run prod
      env:
-        NODE_ENV: production
+        NODE_ENV: development
         SUB_PATH: /elg
         LOGGER_LEVEL: DEBUG
         OPTIMIZE_MEMORY: true
