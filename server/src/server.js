@@ -49,9 +49,6 @@ let isLocal = false;
 let isDevelopment = false;
 let isStaging = false;
 
-// Default env to production if none is provided
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
-
 if (process.env.NODE_ENV) {
   isLocal = "local" === process.env.NODE_ENV.toLowerCase();
   isDevelopment = "development" === process.env.NODE_ENV.toLowerCase();
