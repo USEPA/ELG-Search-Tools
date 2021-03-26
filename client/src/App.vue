@@ -11,7 +11,7 @@
                 <span class="fas fa-book"></span>
                 Glossary
               </a>
-              <a href="#" class="has-text-weight-bold">
+              <a :href="helpLink" target="_blank" class="has-text-weight-bold">
                 <span class="fas fa-question-circle"></span>
                 Help
               </a>
@@ -27,11 +27,57 @@
 </template>
 
 <script>
+import { get } from 'vuex-pathify';
 import Glossary from './components/shared/Glossary';
 
 export default {
   name: 'App',
   components: { Glossary },
+  computed: {
+    ...get('search', [
+      'selectedCategory',
+      'selectedSubcategory',
+      'selectedPollutant',
+      'selectedPollutantCategory',
+      'selectedTreatmentTechnology',
+      'selectedTreatmentTechnologyCategory',
+    ]),
+    ...get('customSearch', ['keyword']),
+    ...get('limitations', ['subcategoryData']),
+    helpLink() {
+      const basePath = `${this.$http.defaults.baseURL}/api/help`;
+      const currentPath = this.$route.path;
+
+      let page;
+      if (currentPath === '/results') {
+        if (this.selectedCategory) {
+          page = 5;
+        } else if (this.selectedPollutant) {
+          page = 9;
+        } else if (this.selectedPollutantCategory) {
+          page = 10;
+        } else if (this.selectedTreatmentTechnology || this.selectedTreatmentTechnologyCategory) {
+          page = 13;
+        } else if (this.keyword && this.keyword.length) {
+          page = 17;
+        } else {
+          page = 15;
+        }
+      } else if (currentPath === '/results/limitations') {
+        if (this.subcategoryData) {
+          page = 8;
+        } else {
+          page = 11;
+        }
+      } else if (currentPath.includes('/results/about-cfr')) {
+        page = 7;
+      } else if (currentPath === '/results/limitations/long-term-average') {
+        page = 19;
+      }
+
+      return `${basePath}#page=${page}`;
+    },
+  },
 };
 </script>
 
