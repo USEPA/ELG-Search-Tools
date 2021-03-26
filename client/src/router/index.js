@@ -43,6 +43,7 @@ const router = new Router({
     },
   ],
   mode: 'history',
+  base: process.env.NODE_ENV === 'production' ? '/elg' : '/',
   scrollBehavior(to, from, savedPosition) {
     // Logic to scroll to hash links when route changes
     if (to.hash) {
