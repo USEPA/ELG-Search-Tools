@@ -13,7 +13,7 @@
        npm run seed
        npm run prod
      env:
-        NODE_ENV: staging
+        NODE_ENV: production
         LOGGER_LEVEL: ERROR
         OPTIMIZE_MEMORY: true
      services:
