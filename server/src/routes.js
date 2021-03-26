@@ -5,7 +5,7 @@ const controllers = require('./controllers/index.js');
 
 const router = express.Router();
 // Set /elg path for production environments (app is served from subpath)
-const basePath = process.env.NODE_ENV === 'production' ? '/elg' : '';
+const basePath = process.env.SUB_PATH ? process.env.SUB_PATH : '';
 
 module.exports = (app, history) => {
   router.get('/', (req, res) => res.status(200).sendFile(path.resolve(__dirname, '../api-docs/elg_swagger2.json')));
