@@ -22,4 +22,5 @@ module.exports = {
       return args;
     });
   },
+  publicPath: '/elg',
 };
