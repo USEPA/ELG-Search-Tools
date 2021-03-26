@@ -49,7 +49,8 @@ let isLocal = false;
 let isDevelopment = false;
 let isStaging = false;
 
-console.log('server.js - ' + process.env.NODE_ENV);
+// Default env to production if none is provided
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
 if (process.env.NODE_ENV) {
   isLocal = "local" === process.env.NODE_ENV.toLowerCase();

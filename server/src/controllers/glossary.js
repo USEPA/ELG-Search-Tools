@@ -2,6 +2,8 @@ const utilities = require('./utilities');
 
 const https = require('https');
 
+const fs = require('fs');
+
 module.exports = {
   list(req, res) {
     try {
@@ -49,6 +51,22 @@ module.exports = {
       }
     } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
+    }
+  },
+  help (req, res) {
+    try {
+      const path = require('path');
+      const fileName = path.join(__dirname, '..\\..\\api-docs\\ELG Database Users Guide.pdf');
+
+      const file = fs.createReadStream(fileName);
+      const stat = fs.statSync(fileName);
+      res.setHeader('Content-Length', stat.size);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename=ELG Database Users Guide.pdf');
+      file.pipe(res);
+    }
+    catch (err) {
+      res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   }
 };

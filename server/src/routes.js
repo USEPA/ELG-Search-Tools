@@ -3,42 +3,50 @@ const express = require('express');
 
 const controllers = require('./controllers/index.js');
 
+const router = express.Router();
+// Set /elg path for production environments (app is served from subpath)
+const basePath = process.env.NODE_ENV === 'production' ? '/elg' : '';
+
 module.exports = (app, history) => {
-  app.get('/api', (req, res) =>
-    res.status(200).sendFile(path.resolve(__dirname, '../api-docs/elg_swagger2.json'))
-  );
-  app.get('/api/pointSourceCategories', controllers.pointSourceCategory.list);
-  app.get('/api/pointSourceCategory/:id', controllers.pointSourceCategory.read);
-  app.get('/api/pointSourceCategoryCfr/:id', controllers.pointSourceCategory.cfr);
-  app.get('/api/pointSourceCategoryDefinitions/:id', controllers.pointSourceCategory.definitions);
-  app.get('/api/pointSourceCategoryCitationHistory/:id', controllers.pointSourceCategory.citationHistory);
+  router.get('/', (req, res) => res.status(200).sendFile(path.resolve(__dirname, '../api-docs/elg_swagger2.json')));
+  router.get('/pointSourceCategories', controllers.pointSourceCategory.list);
+  router.get('/pointSourceCategory/:id', controllers.pointSourceCategory.read);
+  router.get('/pointSourceCategoryCfr/:id', controllers.pointSourceCategory.cfr);
+  router.get('/pointSourceCategoryDefinitions/:id', controllers.pointSourceCategory.definitions);
+  router.get('/pointSourceCategoryCitationHistory/:id', controllers.pointSourceCategory.citationHistory);
 
-  app.get('/api/pointSourceSubcategory/:id', controllers.pointSourceSubcategory.read);
+  router.get('/pointSourceSubcategory/:id', controllers.pointSourceSubcategory.read);
 
-  app.get('/api/wastestreamProcessLimitations', controllers.wastestreamProcess.limitations);
+  router.get('/wastestreamProcessLimitations', controllers.wastestreamProcess.limitations);
 
-  app.get('/api/pollutants', controllers.pollutant.list);
-  app.get('/api/pollutantCategories', controllers.pollutant.listCategories);
-  app.get('/api/pollutant', controllers.pollutant.read);
-  app.get('/api/pollutantCategory', controllers.pollutant.readCategory);
-  app.get('/api/pollutantLimitations', controllers.pollutant.limitations);
+  router.get('/pollutants', controllers.pollutant.list);
+  router.get('/pollutantCategories', controllers.pollutant.listCategories);
+  router.get('/pollutant', controllers.pollutant.read);
+  router.get('/pollutantCategory', controllers.pollutant.readCategory);
+  router.get('/pollutantLimitations', controllers.pollutant.limitations);
 
-  app.get('/api/limitation', controllers.limitation.read);
+  router.get('/limitation', controllers.limitation.read);
 
-  app.get('/api/treatmentTechnologies', controllers.treatmentTechnology.list);
-  app.get('/api/treatmentTechnologyCategories', controllers.treatmentTechnology.listCategories);
-  app.get('/api/treatmentTechnology/:id', controllers.treatmentTechnology.read);
-  app.get('/api/treatmentTechnologyCategory/:id', controllers.treatmentTechnology.readCategory);
-  app.get('/api/treatmentTechnologyLimitations', controllers.treatmentTechnology.limitations);
-  app.get('/api/treatmentTechnologyCategoryLimitations', controllers.treatmentTechnology.categoryLimitations);
+  router.get('/treatmentTechnologies', controllers.treatmentTechnology.list);
+  router.get('/treatmentTechnologyCategories', controllers.treatmentTechnology.listCategories);
+  router.get('/treatmentTechnology/:id', controllers.treatmentTechnology.read);
+  router.get('/treatmentTechnologyCategory/:id', controllers.treatmentTechnology.readCategory);
+  router.get('/treatmentTechnologyLimitations', controllers.treatmentTechnology.limitations);
+  router.get('/treatmentTechnologyCategoryLimitations', controllers.treatmentTechnology.categoryLimitations);
 
-  app.get('/api/multiCriteriaSearchCriteria', controllers.customSearch.multiCriteriaSearchCriteria);
-  app.get('/api/multiCriteriaSearch', controllers.customSearch.multiCriteriaSearch);
-  app.get('/api/keywordSearch', controllers.customSearch.keywordSearch);
+  router.get('/multiCriteriaSearchCriteria', controllers.customSearch.multiCriteriaSearchCriteria);
+  router.get('/multiCriteriaSearch', controllers.customSearch.multiCriteriaSearch);
+  router.get('/keywordSearch', controllers.customSearch.keywordSearch);
 
-  app.get('/api/glossary', controllers.glossary.list);
+  router.get('/glossary', controllers.glossary.list);
 
-  // serve up built Vue files from express server
-  app.use(history);
-  app.use(express.static(path.resolve(__dirname, '../../client/dist/')));
+  router.get('/help', controllers.glossary.help);
+
+  app.use(`${basePath}/api`, router);
+
+  // serve up built Vue files from express server (need to use regex to add trailing slash or else static serve won't work)
+  const pathRegex = new RegExp(`^\\${basePath}$`);
+  app.all(pathRegex, (req, res) => res.redirect(`${basePath}/`));
+  app.use(`${basePath}/`, history);
+  app.use(`${basePath}/`, express.static(path.resolve(__dirname, '../../client/dist/')));
 };
