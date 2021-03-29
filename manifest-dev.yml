@@ -8,10 +8,6 @@
      buildpacks:
       - nodejs_buildpack
      command: npm run prod
-     command: |
-       npm run migrate
-       npm run seed
-       npm run prod
      env:
         NODE_ENV: development
         SUB_PATH: /elg
