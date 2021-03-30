@@ -15,5 +15,6 @@
         OPTIMIZE_MEMORY: true
      services:
       - elg-db-service
+      - elg-s3-service
      routes:
       - route: owapps-stage.app.cloud.gov/elg
