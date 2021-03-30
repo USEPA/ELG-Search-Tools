@@ -46,7 +46,7 @@ export default {
     ...get('limitations', ['subcategoryData']),
     helpLink() {
       const basePath = `${this.$http.defaults.baseURL}/api/help`;
-      const currentPath = this.$route.path;
+      const currentPath = this.$route.path.replace('/elg', '');
 
       let page;
       if (currentPath === '/results') {
@@ -75,7 +75,7 @@ export default {
         page = 19;
       }
 
-      return `${basePath}#page=${page}`;
+      return `${basePath}${page ? `#page=${page}` : ''}`;
     },
   },
 };

@@ -1,3 +1,6 @@
+const logger = require("../../utilities/logger.js");
+const log = logger.logger;
+
 let isLocal = false;
 let isDevelopment = false;
 let isStaging = false;
@@ -20,10 +23,10 @@ if (process.env.NODE_ENV) {
 }
 
 if (isLocal) {
-  console.log("Since local, using a localhost Postgres database.");
+  log.info("Since local, using a localhost Postgres database.");
 } else {
   if (process.env.VCAP_SERVICES) {
-    console.log("Using VCAP_SERVICES Information to connect to Postgres.");
+    log.info("Using VCAP_SERVICES Information to connect to Postgres.");
     vcap_services = JSON.parse(process.env.VCAP_SERVICES);
     db = {
       database: "postgres",
@@ -36,9 +39,7 @@ if (isLocal) {
       }
     };
   } else {
-    console.log(
-      "VCAP_SERVICES Information not found. Attempting connection to localhost..."
-    );
+    log.info("VCAP_SERVICES Information not found. Attempting connection to localhost...");
   }
 }
 
