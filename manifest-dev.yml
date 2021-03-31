@@ -8,10 +8,6 @@
      buildpacks:
       - nodejs_buildpack
      command: npm run prod
-     command: |
-       npm run migrate
-       npm run seed
-       npm run prod
      env:
         NODE_ENV: development
         SUB_PATH: /elg
@@ -19,5 +15,6 @@
         OPTIMIZE_MEMORY: true
      services:
       - elg-db-service
+      - elg-s3-service
      routes:
       - route: owapps-dev.app.cloud.gov/elg
