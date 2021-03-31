@@ -41,9 +41,9 @@ export default {
       'selectedPollutantCategory',
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
+      'subcategoryData',
     ]),
     ...get('customSearch', ['keyword']),
-    ...get('limitations', ['subcategoryData']),
     helpLink() {
       const basePath = `${this.$http.defaults.baseURL}/api/help`;
       const currentPath = this.$route.path.replace('/elg', '');

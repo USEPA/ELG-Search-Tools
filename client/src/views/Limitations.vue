@@ -287,7 +287,6 @@ button {
 }
 
 .info-box-container {
-  margin-top: -1rem;
   margin-bottom: -0.5rem;
 }
 

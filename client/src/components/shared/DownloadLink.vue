@@ -20,7 +20,7 @@ export default {
   },
   data() {
     return {
-      apiBaseUrl: process.env.NODE_ENV === 'production' ? '' : process.env.VUE_APP_API_URL,
+      apiBaseUrl: process.env.NODE_ENV === 'production' ? '/elg' : process.env.VUE_APP_API_URL,
     };
   },
 };
