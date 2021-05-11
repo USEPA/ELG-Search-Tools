@@ -66,7 +66,7 @@
         <span v-if="item.limitationValue">
           <HoverText
             v-if="item.alternateLimitFlag && item.alternateLimitFlag !== '<' && item.alternateLimitFlag !== '>='"
-            :id="`flagHover${index}`"
+            :id="`flagMinHover${index}`"
             :linkText="
               item.alternateLimitFlag === 'ADJUST' || item.alternateLimitFlag === 'X by Factor'
                 ? item.alternateLimitFlag
