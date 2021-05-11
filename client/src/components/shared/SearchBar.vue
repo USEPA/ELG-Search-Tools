@@ -35,15 +35,29 @@
           <label>{{ searchTypeObject.label }}</label>
           <div class="field has-addons">
             <div class="control is-expanded">
-              <Multiselect
+              <VueSelect
+                class="search-select"
+                :inputId="searchTypeObject.id"
                 :value="currentSearchValue"
                 :options="optionsList"
                 :placeholder="searchType ? `Select ${searchTypeObject.label}` : 'Select search criteria to continue'"
                 :disabled="!searchType"
-                :custom-label="getOptionLabel"
                 @input="onSelectOption"
-                :track-by="searchTypeObject.codeField"
-              ></Multiselect>
+                :label="searchTypeObject.labelField"
+              >
+                <template #option="option">
+                  <span v-if="searchTypeObject.shouldDisplayCode">
+                    {{ option[searchTypeObject.codeField] }} : {{ option[searchTypeObject.labelField] }}
+                  </span>
+                  <span v-else>{{ option[searchTypeObject.labelField] }}</span>
+                </template>
+                <template #selected-option="option">
+                  <span v-if="searchTypeObject.shouldDisplayCode">
+                    {{ option[searchTypeObject.codeField] }} : {{ option[searchTypeObject.labelField] }}
+                  </span>
+                  <span v-else>{{ option[searchTypeObject.labelField] }}</span>
+                </template>
+              </VueSelect>
             </div>
             <div class="control">
               <button
@@ -63,11 +77,12 @@
           <label v-if="searchType === 'treatmentTech'">Treatment Technology Category</label>
           <div v-if="searchType === 'treatmentTech'" class="field has-addons">
             <div class="control is-expanded">
-              <Multiselect
+              <VueSelect
+                inputId="treatmentTechnologyCategory"
+                class="search-select"
                 :value="selectedTreatmentTechnologyCategory"
                 :options="treatmentTechnologyCategories"
                 placeholder="Select Treatment Technology Category"
-                :disabled="!searchType"
                 @input="onSelectTreatmentCategory"
               />
             </div>
@@ -100,13 +115,13 @@
           </label>
           <div v-if="searchType === 'pollutant'" class="field has-addons">
             <div class="control is-expanded">
-              <Multiselect
+              <VueSelect
+                inputId="pollutantCategory"
+                class="search-select"
                 :value="selectedPollutantCategory"
                 :options="pollCategoriesWithDescriptions"
-                placeholder="Select Pollutant Category"
                 label="description"
-                track-by="id"
-                :disabled="!searchType"
+                placeholder="Select Pollutant Category"
                 @input="onSelectPollutantCategory"
               />
             </div>
@@ -148,13 +163,12 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
-import Multiselect from 'vue-multiselect';
 import MultiCriteria from '@/components/search/MultiCriteria';
 import Keyword from '@/components/search/Keyword';
 
 export default {
   name: 'SearchBar',
-  components: { Multiselect, MultiCriteria, Keyword },
+  components: { MultiCriteria, Keyword },
   data() {
     return {
       searchTypes: [
@@ -414,13 +428,21 @@ label {
 }
 
 ::v-deep {
-  .multiselect__tags {
-    min-height: 45px !important;
-  }
+  .search-select {
+    min-height: 40px;
+    height: 100%;
 
-  .multiselect__single {
-    // white-space: nowrap;
-    // overflow: hidden;
+    &.vs--open .vs__selected {
+      top: 0.4rem;
+    }
+
+    .vs__selected {
+      font-size: 1rem;
+    }
+
+    &.vs--single input.vs__search {
+      width: 1px;
+    }
   }
 }
 </style>

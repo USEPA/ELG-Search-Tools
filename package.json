@@ -46,7 +46,6 @@
     "sequelize-cli": "^5.5.1",
     "vue": "^2.6.12",
     "vue-axios": "^2.1.4",
-    "vue-multiselect": "^2.1.6",
     "vue-router": "^3.5.1",
     "vue-select": "^3.11.2",
     "vuex": "^3.6.2",

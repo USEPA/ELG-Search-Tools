@@ -278,17 +278,4 @@ label {
   margin-top: 0;
   padding-left: 0;
 }
-
-::v-deep .multiselect {
-  margin-bottom: 0.5rem;
-
-  &.multiselect--disabled {
-    .multiselect__tags,
-    .multiselect__select,
-    .multiselect__single {
-      background-color: #fbfbfb;
-      cursor: not-allowed;
-    }
-  }
-}
 </style>

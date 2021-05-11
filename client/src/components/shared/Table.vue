@@ -204,7 +204,6 @@
 
 <script>
 import { BTable, BPagination } from 'bootstrap-vue';
-// import Multiselect from 'vue-multiselect';
 import HoverText from './HoverText';
 import Modal from './Modal';
 import LoadingIndicator from './LoadingIndicator';
@@ -375,28 +374,6 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-.table-filter {
-  .multiselect--active,
-  .multiselect__input,
-  .multiselect__element,
-  .multiselect__single {
-    font-size: 14px;
-    padding-right: 0;
-    padding-bottom: 3px;
-    padding-top: 3px;
-  }
-
-  .multiselect__tags {
-    padding-right: 0;
-  }
-
-  .multiselect__content-wrapper {
-    min-width: 150px;
-  }
-}
-</style>
 
 <style lang="scss" scoped>
 @import '../../../static/variables';

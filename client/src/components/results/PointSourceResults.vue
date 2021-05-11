@@ -41,17 +41,19 @@
     </div>
     <div class="psc-select">
       <label class="sr-only" for="subcategory">Subpart</label>
-      <Multiselect
-        :value="selectedSubcategory"
+      <VueSelect
+        class="results-select"
+        inputId="subcategory"
+        name="subcategory"
+        v-model="selectedSubcategory"
+        @input="onChangeSubcategory"
         :options="categoryData.pointSourceSubcategories"
         placeholder="Select Subcategory"
         label="comboSubcategory"
-        :custom-label="(option) => 'Subpart ' + option.comboSubcategory"
-        @input="onChangeSubcategory"
-        class="results-select"
-        id="subcategory"
-        name="subcategory"
-      />
+      >
+        <template #option="option"> Subpart {{ option.comboSubcategory }} </template>
+        <template #selected-option="option"> Subpart {{ option.comboSubcategory }} </template>
+      </VueSelect>
       <HoverText hoverId="subcatInstructions" :icon="true">
         Select a Subcategory for details on the Level of Control (BPT, BAT, BCT, NSPS, PSES, PSNS) and process
         operations/wastestream requirements.
@@ -224,7 +226,6 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
-import Multiselect from 'vue-multiselect';
 import Alert from '@/components/shared/Alert';
 import ControlTabs from '@/components/shared/ControlTabs';
 import Table from '@/components/shared/Table';
@@ -232,7 +233,7 @@ import Modal from '@/components/shared/Modal';
 import HoverText from '@/components/shared/HoverText';
 
 export default {
-  components: { Alert, ControlTabs, Table, Modal, Multiselect, HoverText },
+  components: { Alert, ControlTabs, Table, Modal, HoverText },
   computed: {
     ...get('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
     ...sync('results', ['activeTab']),
@@ -404,6 +405,13 @@ select {
   display: inline-block;
   width: auto;
   min-width: 500px;
+  height: 2.5rem;
+
+  ::v-deep {
+    .vs__selected {
+      font-size: 1rem;
+    }
+  }
 
   &.treatment-select {
     min-width: 650px;
