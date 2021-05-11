@@ -31,6 +31,7 @@
         {{ label }}
         <button
           class="button is-text icon-btn"
+          aria-label="View limitation unit basis info"
           @click.stop="
             openModal(
               '',
@@ -45,6 +46,7 @@
         {{ label }}
         <button
           class="button is-text icon-btn"
+          aria-label="View long term average info"
           @click.stop="openModal('', 'If no LTA data are available for the pollutant, no link will be shown.')"
         >
           <span class="fa fa-info-circle"></span>
@@ -53,7 +55,7 @@
 
       <template v-slot:cell(limitationUnitCode)="{ item }">
         <HoverText
-          :hoverId="`units${item.limitationId}`"
+          :hoverId="`units${item.limitationId}-${item.treatmentId}`"
           :linkText="item.limitationUnitCode"
           :customStyle="{ width: '200px' }"
         >
@@ -91,6 +93,7 @@
           <span v-if="item.typoFlagLimitationValue">
             <button
               class="button is-text icon-btn"
+              aria-label="Click to view limitaiton value flag"
               @click="shouldDisplayTypoFlagLimitationValue = index"
               title="Click to view limitation value flag"
             >
@@ -123,6 +126,7 @@
         {{ item.limitationDurationTypeDisplay }}
         <button
           class="button is-text icon-btn"
+          aria-label="Click to view Type of Limitation"
           @click="shouldDisplayLimitationType = index"
           title="Click to view Type of Limitation"
         >

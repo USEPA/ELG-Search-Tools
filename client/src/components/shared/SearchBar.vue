@@ -109,7 +109,12 @@
 
           <label v-if="searchType === 'pollutant'">
             Pollutant Category
-            <button type="button" class="button is-text icon-btn" @click="shouldDisplayPollCatDescriptions = true">
+            <button
+              type="button"
+              class="button is-text icon-btn"
+              aria-label="More Info"
+              @click="shouldDisplayPollCatDescriptions = true"
+            >
               <span class="fa fa-info-circle"></span>
             </button>
           </label>

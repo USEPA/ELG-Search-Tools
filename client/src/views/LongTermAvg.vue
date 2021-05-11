@@ -64,6 +64,7 @@
             )
           "
           title="Click to view Treatment Train Notes"
+          aria-label="Click to view Treatment Train Notes"
         >
           <span class="fa fa-info-circle"></span>
         </button>
