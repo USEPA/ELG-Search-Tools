@@ -830,93 +830,119 @@ module.exports = {
         ]
       })
         .then((limitation) => {
-          let result = new Map();
-          result['pollutantDescription'] = limitation.elgPollutantDescription;
-          result['pointSourceCategoryCode'] = limitation.pointSourceCategoryCode;
-          result['pointSourceCategoryName'] = limitation.pointSourceCategoryName;
-          result['comboSubcategory'] = limitation.comboSubcategory;
-          result['controlTechnologyCode'] = limitation.controlTechnologyCode;
-          result['controlTechnologyCfrSection'] = limitation.controlTechnologyCfrSection;
-          result['wastestreamProcessTitle'] = limitation.wastestreamProcessTitle;
-          result['wastestreamProcessSecondary'] = limitation.wastestreamProcessSecondary;
-          result['wastestreamProcessCfrSection'] = limitation.wastestreamProcessCfrSection;
-          result['longTermAverages'] = [];
+          let result =  {
+            pollutantDescription: null,
+            pointSourceCategoryCode: null,
+            pointSourceCategoryName: null,
+            comboSubcategory: null,
+            controlTechnologyCode: null,
+            controlTechnologyCfrSection: null,
+            wastestreamProcessTitle: null,
+            wastestreamProcessSecondary: null,
+            wastestreamProcessCfrSection: null,
+            longTermAverages: []
+          }
 
-          ViewLongTermAverage.findAll({
-            attributes: [
-              'treatmentTechnologyCodes',
-              ['elg_pollutant_description', 'pollutantDescription'],
-              'longTermAverageValue',
-              'longTermAverageUnitCode',
-              [Sequelize.literal("replace(lta_unit_desc, '\\u00A7', U&'\\00A7')"), 'longTermAverageUnitDescription'],
-              'longTermAverageUnitBasis',
-              'longTermAverageNotes',
-              [Sequelize.literal("CASE WHEN lta_source_title IS NOT NULL THEN lta_source_title || CASE WHEN lta_notes IS NOT NULL THEN ': ' || lta_notes ELSE '' END ELSE '' END"), 'longTermAverageSourceTitle'],
-              'alternateLimitFlag',
-              'alternateLimitDescription',
-              'limitationValue',
-              'limitationUnitCode',
-              [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
-              'limitationUnitBasis',
-              'wastestreamProcessTreatmentTechnologySourceTitle',
-              [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes']
-            ],
-            where: {
-              limitationId: { [Op.eq]: id }
-            },
-            order: ['treatmentTechnologyCodes', 'pollutantDescription']
-          })
-            .then((longTermAverages) => {
-              let ltaPromises = [];
+          if (limitation !== null) {
+            result['pollutantDescription'] = limitation.elgPollutantDescription;
+            result['pointSourceCategoryCode'] = limitation.pointSourceCategoryCode;
+            result['pointSourceCategoryName'] = limitation.pointSourceCategoryName;
+            result['comboSubcategory'] = limitation.comboSubcategory;
+            result['controlTechnologyCode'] = limitation.controlTechnologyCode;
+            result['controlTechnologyCfrSection'] = limitation.controlTechnologyCfrSection;
+            result['wastestreamProcessTitle'] = limitation.wastestreamProcessTitle;
+            result['wastestreamProcessSecondary'] = limitation.wastestreamProcessSecondary;
+            result['wastestreamProcessCfrSection'] = limitation.wastestreamProcessCfrSection;
 
-              longTermAverages.forEach(function(lta) {
-                ltaPromises.push(fillLongTermAverage(lta));
-              });
+            ViewLongTermAverage.findAll({
+              attributes: [
+                'treatmentTechnologyCodes',
+                ['elg_pollutant_description', 'pollutantDescription'],
+                'longTermAverageValue',
+                'longTermAverageUnitCode',
+                [Sequelize.literal("replace(lta_unit_desc, '\\u00A7', U&'\\00A7')"), 'longTermAverageUnitDescription'],
+                'longTermAverageUnitBasis',
+                'longTermAverageNotes',
+                [Sequelize.literal("CASE WHEN lta_source_title IS NOT NULL THEN lta_source_title || CASE WHEN lta_notes IS NOT NULL THEN ': ' || lta_notes ELSE '' END ELSE '' END"), 'longTermAverageSourceTitle'],
+                'alternateLimitFlag',
+                'alternateLimitDescription',
+                'limitationValue',
+                'limitationUnitCode',
+                [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
+                'limitationUnitBasis',
+                'wastestreamProcessTreatmentTechnologySourceTitle',
+                [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes']
+              ],
+              where: {
+                limitationId: {[Op.eq]: id}
+              },
+              order: ['treatmentTechnologyCodes', 'pollutantDescription']
+            })
+                .then((longTermAverages) => {
+                  let ltaPromises = [];
 
-              Promise.all(ltaPromises)
-                .then(ltas => {
-                  result['longTermAverages'] = ltas.sort(function(a, b) {
-                    if (a.treatmentTechnologyNames < b.treatmentTechnologyNames) {
-                      return -1;
-                    }
-                    if (a.treatmentTechnologyNames > b.treatmentTechnologyNames) {
-                      return 1;
-                    }
-                    return 0;
+                  longTermAverages.forEach(function (lta) {
+                    ltaPromises.push(fillLongTermAverage(lta));
                   });
 
-                  if (downloadRequested) {
-                    download.createDownloadFile('longTermAverages',
-                      'Long Term Averages',
-                      [
-                        { key: 'treatmentTechnologyNames', label: 'Treatment Train', width: 70 },
-                        { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
-                        { key: 'pollutantDescription', label: 'Pollutant' },
-                        { key: 'longTermAverageValue', label: 'LTA Value' },
-                        { key: 'longTermAverageUnitCode', label: 'LTA Units', width: 90 },
-                        { key: 'limitationValue', label: 'Limitation Value' },
-                        { key: 'alternateLimitFlag', label: 'Limitation Flag' },
-                        { key: 'limitationUnitCode', label: 'Limitation Units', width: 90 },
-                        { key: 'limitationUnitBasis', label: 'Limitation Basis' },
-                        { key: 'longTermAverageSourceTitle', label: 'LTA Reference', width: 150 }
-                      ],
-                      [
-                        { label: 'Point Source Category ' + result['pointSourceCategoryCode'], value: result['pointSourceCategoryName'] },
-                        { label: 'Subpart', value: result['comboSubcategory'] },
-                        { label: 'Level of Control', value: result['controlTechnologyCode']},
-                        { label: 'Process Operation/Wastestream', value: result['wastestreamProcessTitle'] },
-                        { label: 'Other Process/Wastestream Details', value: result['wastestreamProcessSecondary'].replace(/<strong><u>and<\/u><\/strong>/ig, 'AND') },
-                        { label: 'Pollutant', value: result['pollutantDescription'] }
-                      ],
-                      result['longTermAverages'],
-                      res);
-                  }
-                  else {
-                    res.status(200).send(result);
-                  }
-                });
-            })
-            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                  Promise.all(ltaPromises)
+                      .then(ltas => {
+                        result['longTermAverages'] = ltas.sort(function (a, b) {
+                          if (a.treatmentTechnologyNames < b.treatmentTechnologyNames) {
+                            return -1;
+                          }
+                          if (a.treatmentTechnologyNames > b.treatmentTechnologyNames) {
+                            return 1;
+                          }
+                          return 0;
+                        });
+
+                        if (downloadRequested) {
+                          download.createDownloadFile('longTermAverages',
+                              'Long Term Averages',
+                              [
+                                {key: 'treatmentTechnologyNames', label: 'Treatment Train', width: 70},
+                                {
+                                  key: 'wastestreamProcessTreatmentTechnologyNotes',
+                                  label: 'Treatment Train Notes',
+                                  width: 100,
+                                  wrapText: true
+                                },
+                                {key: 'pollutantDescription', label: 'Pollutant'},
+                                {key: 'longTermAverageValue', label: 'LTA Value'},
+                                {key: 'longTermAverageUnitCode', label: 'LTA Units', width: 90},
+                                {key: 'limitationValue', label: 'Limitation Value'},
+                                {key: 'alternateLimitFlag', label: 'Limitation Flag'},
+                                {key: 'limitationUnitCode', label: 'Limitation Units', width: 90},
+                                {key: 'limitationUnitBasis', label: 'Limitation Basis'},
+                                {key: 'longTermAverageSourceTitle', label: 'LTA Reference', width: 150}
+                              ],
+                              [
+                                {
+                                  label: 'Point Source Category ' + result['pointSourceCategoryCode'],
+                                  value: result['pointSourceCategoryName']
+                                },
+                                {label: 'Subpart', value: result['comboSubcategory']},
+                                {label: 'Level of Control', value: result['controlTechnologyCode']},
+                                {label: 'Process Operation/Wastestream', value: result['wastestreamProcessTitle']},
+                                {
+                                  label: 'Other Process/Wastestream Details',
+                                  value: result['wastestreamProcessSecondary'].replace(/<strong><u>and<\/u><\/strong>/ig, 'AND')
+                                },
+                                {label: 'Pollutant', value: result['pollutantDescription']}
+                              ],
+                              result['longTermAverages'],
+                              res);
+                        } else {
+                          res.status(200).send(result);
+                        }
+                      });
+                })
+                .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+          }
+          else {
+            res.status(200).send(result);
+          }
         })
         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
     } catch (err) {
