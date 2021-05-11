@@ -45,7 +45,7 @@
           {{ longTermAvgData.wastestreamProcessTitle }}
         </p>
         <p>
-          <span class="has-text-weight-bold">Other Process/Wastestream Details:</span>
+          <span class="has-text-weight-bold">Other Process/Wastestream Details: </span>
           <span v-html="longTermAvgData.wastestreamProcessSecondary"></span>
         </p>
         <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
@@ -161,5 +161,13 @@ button {
 
 .is-link.more {
   margin-left: 3px;
+}
+
+.page-heading {
+  margin-bottom: 0.75rem;
+}
+
+.info-box-container {
+  margin-bottom: 0;
 }
 </style>

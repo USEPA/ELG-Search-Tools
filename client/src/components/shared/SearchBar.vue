@@ -387,7 +387,7 @@ ul.tabs.aq-tabs {
   padding: 1.5rem;
   border: 2px solid #e6e6e6;
   border-top: none;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .search-header {

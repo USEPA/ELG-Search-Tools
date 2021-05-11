@@ -170,7 +170,8 @@ input,
   }
 }
 .columns.no-margin {
-  &, a {
+  &,
+  a {
     margin-bottom: 0;
   }
 }
@@ -248,7 +249,7 @@ input,
     padding: 4px;
 
     &::placeholder {
-      color: #a1a1a1;
+      color: #777771;
     }
   }
 
@@ -261,7 +262,7 @@ input,
 }
 
 .icon-btn {
-display: inline-block !important;
+  display: inline-block !important;
   padding: 0 !important;
   margin: 0 0 0 0.2rem !important;
   height: inherit;
