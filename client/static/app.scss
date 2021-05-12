@@ -106,21 +106,6 @@ section.main-content {
   }
 }
 
-.multiselect__tags {
-  border: 1px solid #d1d1d1;
-
-  .field.has-addons & {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-}
-
-.multiselect__placeholder,
-.multiselect__content-wrapper,
-.multiselect__input {
-  font-size: 0.95rem;
-}
-
 // Import bulma and plugins
 @import '../../node_modules/bulma/bulma';
 @import '../../node_modules/bulma-checkradio/dist/css/bulma-checkradio.min.css';
@@ -185,7 +170,8 @@ input,
   }
 }
 .columns.no-margin {
-  &, a {
+  &,
+  a {
     margin-bottom: 0;
   }
 }
@@ -263,7 +249,7 @@ input,
     padding: 4px;
 
     &::placeholder {
-      color: #a1a1a1;
+      color: #777771;
     }
   }
 
@@ -275,29 +261,8 @@ input,
   }
 }
 
-.multiselect__option {
-  white-space: normal;
-
-  &::after {
-    display: none;
-  }
-}
-
-.multiselect--active {
-  .multiselect__tags {
-    padding: 0;
-  }
-
-  .multiselect__input {
-    min-height: 32px;
-    line-height: 32px;
-    margin-bottom: 0;
-    padding: 5px 10px;
-  }
-}
-
 .icon-btn {
-display: inline-block !important;
+  display: inline-block !important;
   padding: 0 !important;
   margin: 0 0 0 0.2rem !important;
   height: inherit;
@@ -315,5 +280,3 @@ display: inline-block !important;
 
 // Import font-awesome
 @import '../../node_modules/@fortawesome/fontawesome-free/css/all.min.css';
-// Import vue-multiselect
-@import '../../node_modules/vue-multiselect/dist/vue-multiselect.min.css';

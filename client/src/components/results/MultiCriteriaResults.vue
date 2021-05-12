@@ -109,7 +109,7 @@
       >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
-          <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
+          <button class="button is-text icon-btn" aria-label="View Process info" @click="shouldDisplayProcess = index">
             <span class="fa fa-info-circle"></span>
           </button>
           <Modal v-if="shouldDisplayProcess === index" title="Description" @close="shouldDisplayProcess = false">
@@ -123,6 +123,7 @@
           <button
             class="button is-text icon-btn"
             @click="shouldDisplayNotes = index"
+            aria-label="Click to view Treatment Train Notes"
             title="Click to view Treatment Train Notes"
           >
             <span class="fa fa-info-circle"></span>
@@ -157,7 +158,6 @@
 import { get, sync } from 'vuex-pathify';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert';
-// import HoverText from '@/components/shared/HoverText';
 import Table from '@/components/shared/Table';
 import Modal from '@/components/shared/Modal';
 import DownloadLink from '@/components/shared/DownloadLink';

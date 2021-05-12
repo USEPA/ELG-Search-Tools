@@ -11,12 +11,11 @@
         <LoadingIndicator />
       </div>
       <input
-        v-else
+        v-show="!shouldDisplayError && !isFetchingTerms"
         class="js-glossary-search form-control"
         type="search"
         placeholder="Search for a term..."
         aria-label="Search for a glossary term..."
-        tabindex="0"
       />
       <ul class="js-glossary-list"></ul>
     </div>

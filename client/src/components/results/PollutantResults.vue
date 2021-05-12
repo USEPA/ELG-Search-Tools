@@ -85,7 +85,7 @@
           <BCol cols="4" style="display:inline-block; float: none; width: 33%">Type of Limitation</BCol>
         </BRow>
       </template>
-      <template v-slot:cell(rangeOfPollutantLimitations)="{ value }">
+      <template v-slot:cell(rangeOfPollutantLimitations)="{ value, item }">
         <span v-if="value !== []">
           <table>
             <thead class="sr-only">
@@ -101,7 +101,7 @@
                     v-if="
                       range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
                     "
-                    :id="`flagHover${index}`"
+                    :id="`flagMinHover${item.pollutantId}-${item.pointSourceCategoryCode}${index}`"
                     :linkText="
                       range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'
                         ? range.alternateLimitFlag
@@ -122,7 +122,7 @@
                     v-if="
                       range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
                     "
-                    :id="`flagHover${index}`"
+                    :id="`flagMaxHover${item.pollutantId}-${item.pointSourceCategoryCode}${index}`"
                     :linkText="
                       range.alternateLimitFlag === 'ADJUST' || range.alternateLimitFlag === 'X by Factor'
                         ? range.alternateLimitFlag
@@ -143,7 +143,7 @@
                 </td>
                 <td style="width: 33%">
                   <HoverText
-                    :hoverId="`units${range.limitationUnitCode + range.limitationType}`"
+                    :hoverId="`unitsHover${item.pollutantId}-${item.pointSourceCategoryCode}-${index}`"
                     :linkText="range.limitationType"
                     :customStyle="{ width: '125px' }"
                   >

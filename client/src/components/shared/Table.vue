@@ -31,6 +31,7 @@
         {{ label }}
         <button
           class="button is-text icon-btn"
+          aria-label="View limitation unit basis info"
           @click.stop="
             openModal(
               '',
@@ -45,6 +46,7 @@
         {{ label }}
         <button
           class="button is-text icon-btn"
+          aria-label="View long term average info"
           @click.stop="openModal('', 'If no LTA data are available for the pollutant, no link will be shown.')"
         >
           <span class="fa fa-info-circle"></span>
@@ -53,7 +55,7 @@
 
       <template v-slot:cell(limitationUnitCode)="{ item }">
         <HoverText
-          :hoverId="`units${item.limitationId}`"
+          :hoverId="`units${item.limitationId}-${item.treatmentId}`"
           :linkText="item.limitationUnitCode"
           :customStyle="{ width: '200px' }"
         >
@@ -64,7 +66,7 @@
         <span v-if="item.limitationValue">
           <HoverText
             v-if="item.alternateLimitFlag && item.alternateLimitFlag !== '<' && item.alternateLimitFlag !== '>='"
-            :id="`flagHover${index}`"
+            :id="`flagMinHover${index}`"
             :linkText="
               item.alternateLimitFlag === 'ADJUST' || item.alternateLimitFlag === 'X by Factor'
                 ? item.alternateLimitFlag
@@ -91,6 +93,7 @@
           <span v-if="item.typoFlagLimitationValue">
             <button
               class="button is-text icon-btn"
+              aria-label="Click to view limitaiton value flag"
               @click="shouldDisplayTypoFlagLimitationValue = index"
               title="Click to view limitation value flag"
             >
@@ -123,6 +126,7 @@
         {{ item.limitationDurationTypeDisplay }}
         <button
           class="button is-text icon-btn"
+          aria-label="Click to view Type of Limitation"
           @click="shouldDisplayLimitationType = index"
           title="Click to view Type of Limitation"
         >
@@ -204,7 +208,6 @@
 
 <script>
 import { BTable, BPagination } from 'bootstrap-vue';
-// import Multiselect from 'vue-multiselect';
 import HoverText from './HoverText';
 import Modal from './Modal';
 import LoadingIndicator from './LoadingIndicator';
@@ -375,28 +378,6 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-.table-filter {
-  .multiselect--active,
-  .multiselect__input,
-  .multiselect__element,
-  .multiselect__single {
-    font-size: 14px;
-    padding-right: 0;
-    padding-bottom: 3px;
-    padding-top: 3px;
-  }
-
-  .multiselect__tags {
-    padding-right: 0;
-  }
-
-  .multiselect__content-wrapper {
-    min-width: 150px;
-  }
-}
-</style>
 
 <style lang="scss" scoped>
 @import '../../../static/variables';

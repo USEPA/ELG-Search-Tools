@@ -127,7 +127,11 @@
       >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
-          <button class="button is-text icon-btn" @click="shouldDisplayProcess = index">
+          <button
+            class="button is-text icon-btn"
+            aria-label="Click to view Process description"
+            @click="shouldDisplayProcess = index"
+          >
             <span class="fa fa-info-circle"></span>
           </button>
           <Modal v-if="shouldDisplayProcess === index" title="Description" @close="shouldDisplayProcess = false">
@@ -140,6 +144,7 @@
           {{ item.treatmentNames }}
           <button
             class="button is-text icon-btn"
+            aria-label="Click to view Treatment Train Notes"
             @click="shouldDisplayNotes = index"
             title="Click to view Treatment Train Notes"
           >
