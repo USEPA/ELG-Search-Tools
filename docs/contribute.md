@@ -1,14 +1,13 @@
 **General Information**
 
-We currently use three git-based branches to support development on the project. The associated continuous build, test and deployment configuration for the project is available in [DevOps.md](devops.md).
+We currently use three git-based branches to support development on the project.
 
 - develop = we use a feature branch strategy to submit code changes to this branch. Merges will be auto deployed to the Development environment.
-- staging = we use this environment for user acceptance testing (UAT). Authorized GitHub project users can issue a pull request against the staging branch from the develop branch to have the code automatically deployed to the staging environment. 
+- staging = we use this environment for user acceptance testing (UAT). Authorized GitHub project users can issue a pull request against the staging branch from the develop branch to have the code automatically deployed to the staging environment.
 - master = Only a designated GitHub gatekeeper for the project (e.g. Brad Cooper) can/should issue pull requests from staging against the master branch. Merges will be auto deployed to the Production environment.
 
 &nbsp;
 &nbsp;
-
 
 **Instructions for contributing via git**
 
@@ -34,4 +33,4 @@ git push origin feature/your-branch-name
 ```
 
 - Then you can make a pull request by finding your branch on the
-  [ELG GitHub repository](https://github.com/Eastern-Research-Group/ELG-Search-Tools/branches )
+  [ELG GitHub repository](https://github.com/Eastern-Research-Group/ELG-Search-Tools/branches)
