@@ -48,7 +48,7 @@
         <p><span class="has-text-weight-bold">Level of Control:</span> {{ limitationData.controlTechnologyCode }}</p>
         <p><span class="has-text-weight-bold">Process Operation/Wastestream:</span> {{ limitationData.title }}</p>
         <p>
-          <span class="has-text-weight-bold">Other Process/Wastestream Details:</span>
+          <span class="has-text-weight-bold">Other Process/Wastestream Details: </span>
           <span v-html="limitationData.secondary"></span>
         </p>
       </div>
@@ -284,10 +284,6 @@ button {
 .subtitle {
   font-family: inherit;
   margin-bottom: 0.75rem;
-}
-
-.info-box-container {
-  margin-bottom: -0.5rem;
 }
 
 a.button {

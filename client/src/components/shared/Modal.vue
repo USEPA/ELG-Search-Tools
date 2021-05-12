@@ -1,7 +1,7 @@
 <template>
   <div class="modal is-active">
     <div class="modal-background" @click="$emit('close')"></div>
-    <div class="modal-card" @keydown.native.esc="close" role="dialog" aria-modal="true">
+    <div class="modal-card" @keydown.esc="$emit('close')" role="dialog" aria-modal="true" tabindex="0">
       <header :class="`modal-card-head ${title ? '' : 'no-title'}`">
         <p class="modal-card-title">{{ title }}</p>
         <button class="delete is-small" aria-label="close" @click="$emit('close')"></button>

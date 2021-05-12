@@ -217,6 +217,10 @@ export default {
 <style lang="scss" scoped>
 @import '../../static/variables';
 
+.subtitle {
+  margin-bottom: 1rem;
+}
+
 // Card styles
 .card {
   margin-bottom: 1.5rem;
