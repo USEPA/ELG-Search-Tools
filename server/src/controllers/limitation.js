@@ -368,7 +368,7 @@ function parseSort(sortCol, sortDir, queryColumns) {
   let result = [];
 
   if (sortCol && queryColumns.includes(sortCol)) {
-    if (!sortDir || !['ASC','DESC'].includes(sortDir)) {
+    if (!sortDir || !['ASC','DESC'].includes(sortDir.toUpperCase())) {
       result = [[sortCol, "ASC"]];
     } else {
       result = [[sortCol, sortDir]];
