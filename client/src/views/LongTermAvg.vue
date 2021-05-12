@@ -22,7 +22,11 @@
         Long-Term Averages
       </h2>
     </div>
-    <Alert type="info">
+    <Alert v-if="!longTermAvgData" type="error">
+      You must come to this page from a results page.
+      <router-link to="/" class="has-text-dark">Return Home</router-link> to run a search and view long term averages.
+    </Alert>
+    <Alert v-else type="info">
       A long-term average (LTA) is the average pollutant concentration that is achieved over a period of time. It is the
       mean of the underlying statistical distribution of the daily effluent values used to calculate numeric pollutant
       limitations.
@@ -51,7 +55,11 @@
         <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
     </div>
-    <DownloadLink title="Long Term Averages" :url="`/api/limitation?id=${selectedLimitationId}`" />
+    <DownloadLink
+      v-if="longTermAvgData"
+      title="Long Term Averages"
+      :url="`/api/limitation?id=${selectedLimitationId}`"
+    />
     <Table v-if="longTermAvgData" :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
       <template v-slot:cell(treatmentTechnologyNames)="{ item }">
         {{ item.treatmentTechnologyNames }}

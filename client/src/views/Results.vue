@@ -34,7 +34,7 @@
         <span v-else-if="keyword && keyword.length">
           Keyword Search Results
         </span>
-        <span v-else>
+        <span v-else-if="searchType === 'multiCriteria'">
           Multi-Criteria Search Results
         </span>
       </h2>
@@ -44,7 +44,11 @@
     <PollutantResults v-else-if="selectedPollutant || selectedPollutantCategory" />
     <TreatmentTechResults v-else-if="selectedTreatmentTechnology || selectedTreatmentTechnologyCategory" />
     <KeywordResults v-else-if="keyword && keyword.length" />
-    <MultiCriteriaResults v-else />
+    <MultiCriteriaResults v-else-if="searchType === 'multiCriteria'" />
+    <Alert v-else type="error">
+      You must come to this page from the Search page.
+      <router-link to="/" class="has-text-dark">Return Home</router-link> to run a search and view results.
+    </Alert>
   </section>
 </template>
 
@@ -68,6 +72,7 @@ export default {
   },
   computed: {
     ...get('search', [
+      'searchType',
       'selectedCategory',
       'selectedPollutant',
       'selectedPollutantCategory',
