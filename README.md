@@ -2,7 +2,7 @@
 
 The ELG database allows easy access to information relevant to the effluent limitations guidelines and standards (ELGs) program. The ELG Database includes the ELGs as promulgated in the Code of Federal Regulations (CFR); CFR citation history (links the dates and federal register notices (FRN) to the corresponding CFR section); and readily available technology bases/pollutant long-term averages associated with the promulgated regulations.
 
-<p style="text-align:center">
+<p align="center">
       <img height="50%" width="50%" src="/docs/img/landing-page.png" alt="Screenshot of Landing Page">
 </p>
 
