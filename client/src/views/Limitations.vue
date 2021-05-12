@@ -1,5 +1,12 @@
 <template>
-  <section class="section">
+  <section v-if="!limitationData" class="section">
+    <Alert type="error"
+      >You must come to this page from a results page.
+      <router-link to="/" class="has-text-dark">Return Home</router-link> to run a search and select limitations to
+      view.</Alert
+    >
+  </section>
+  <section v-else class="section">
     <div class="columns elg-breadcrumbs-container">
       <div class="column">
         <Breadcrumbs
