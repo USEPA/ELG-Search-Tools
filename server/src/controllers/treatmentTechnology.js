@@ -243,7 +243,7 @@ module.exports = {
       })
         .then(treatmentTechnologyCodes => {
           let result = new Map();
-          result["category"] = (treatmentTechnologyCodes.length === 0 ? 'Invalid Treatment Technology Category' : id)
+          result["category"] = (treatmentTechnologyCodes.length === 0 ? 'Invalid Treatment Technology Category' : treatmentTechnologyCodes[0].category)
           result["treatmentTechnologyCodes"] = treatmentTechnologyCodes;
 
           sendCriteriaList(res, result, treatmentTechnologyCodes);
