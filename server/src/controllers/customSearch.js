@@ -65,7 +65,7 @@ module.exports = {
     })
       .then((pointSourceCategories) => {
         SicCode.findAll({
-          attributes: [ 'sicCode', ['sic_code', 'sicCodeDisplay'], 'sicDescription' ],
+          attributes: [ 'sicCode', ["lpad(sic_code::text, 4, '0')", 'sicCodeDisplay'], 'sicDescription' ],
           where: {
             sicCodeAsNumber: { [Op.ne]: null },
             [Op.and]: Sequelize.literal("sic = sic_code::text"),
