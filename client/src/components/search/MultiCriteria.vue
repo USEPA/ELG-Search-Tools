@@ -44,13 +44,9 @@
             v-model="sicCode"
             placeholder="Type or select SIC Code"
             :multiple="true"
-            :options="multiCriteriaLookups.sicCodes"
-            label="sicDescription"
+            :options="sicCodeOptions"
             :reduce="(o) => o.sicCode"
-          >
-            <template #option="option"> {{ option.sicCodeDisplay }}: {{ option.sicDescription }} </template>
-            <template #selected-option="option"> {{ option.sicCodeDisplay }}: {{ option.sicDescription }} </template>
-          </VueSelect>
+          />
 
           <label for="naicsCode" class="sr-only"></label>
           <VueSelect
@@ -58,15 +54,9 @@
             v-model="naicsCode"
             placeholder="Type or select NAICS Code"
             :multiple="true"
-            :options="multiCriteriaLookups.naicsCodes"
-            label="naicsDescription"
+            :options="naicsCodeOptions"
             :reduce="(o) => o.naicsCode"
-          >
-            <template #option="option"> {{ option.naicsCodeDisplay }}: {{ option.naicsDescription }} </template>
-            <template #selected-option="option">
-              {{ option.naicsCodeDisplay }}: {{ option.naicsDescription }}
-            </template>
-          </VueSelect>
+          />
         </div>
       </div>
       <div class="column is-4">
@@ -229,6 +219,18 @@ export default {
       'treatmentTechnologyCode',
       'treatmentTechnologyGroup',
     ]),
+    sicCodeOptions() {
+      return this.multiCriteriaLookups.sicCodes.map((sic) => ({
+        ...sic,
+        label: `${sic.sicCodeDisplay}: ${sic.sicDescription}`,
+      }));
+    },
+    naicsCodeOptions() {
+      return this.multiCriteriaLookups.naicsCodes.map((naics) => ({
+        ...naics,
+        label: `${naics.naicsCodeDisplay}: ${naics.naicsDescription}`,
+      }));
+    },
   },
   methods: {
     getResults() {
