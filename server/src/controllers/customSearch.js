@@ -65,10 +65,11 @@ module.exports = {
     })
       .then((pointSourceCategories) => {
         SicCode.findAll({
-          attributes: [ 'sicCode', ['sic_code', 'sicCodeDisplay'], 'sicDescription' ],
+          attributes: [ 'sicCode', ["lpad(sic_code::text, 4, '0')", 'sicCodeDisplay'], 'sicDescription' ],
           where: {
             sicCodeAsNumber: { [Op.ne]: null },
-            [Op.and]: Sequelize.literal("sic = sic_code::text")
+            [Op.and]: Sequelize.literal("sic = sic_code::text"),
+            [Op.and]: Sequelize.literal('sic_code in (select sic_code from elg_search."PointSourceCategorySicCode")')
           },
           order: [ 'sicCodeAsNumber', 'sicDescription' ],
         })
@@ -77,7 +78,8 @@ module.exports = {
               attributes: [ 'naicsCode', ['naics_code', 'naicsCodeDisplay'], 'naicsDescription' ],
               where: {
                 naicsCodeAsNumber: { [Op.ne]: null },
-                [Op.and]: Sequelize.literal("naics = naics_code::text")
+                [Op.and]: Sequelize.literal("naics = naics_code::text"),
+                [Op.and]: Sequelize.literal('naics_code in (select naics_code from elg_search."PointSourceCategoryNaicsCode")')
               },
               order: [ 'naicsCodeAsNumber', 'naicsDescription' ],
             })

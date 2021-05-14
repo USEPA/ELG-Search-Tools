@@ -165,6 +165,12 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
                     Sequelize.literal("lower('" + id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"),
                     {
                       [Op.or]: {
+                        treatmentId: {[Op.in]: treatmentIds},
+                        [Op.and]: Sequelize.literal(treatmentIds.length + ' = 0')
+                      }
+                    },
+                    {
+                      [Op.or]: {
                         pointSourceCategoryCode: {[Op.in]: pointSourceCategoryCodes},
                         [Op.and]: Sequelize.literal(pointSourceCategoryCodes.length + ' = 0')
                       }
@@ -252,6 +258,12 @@ function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCode
                       [Op.and]: [
                         {
                           [Op.or]: whereClauseOrList
+                        },
+                        {
+                          [Op.or]: {
+                            treatmentId: {[Op.in]: treatmentIds},
+                            [Op.and]: Sequelize.literal(treatmentIds.length + ' = 0')
+                          }
                         },
                         {
                           [Op.or]: {
@@ -435,8 +447,8 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
           attributes: [ "pointSourceCategoryCode" ],
           where: { naicsCodeAsNumber: {[Op.in]: naicsCodes}  }
         })
-          .then(pointSourceCategorySicCodes => {
-            pscs = pointSourceCategorySicCodes.map(a => a.pointSourceCategoryCode);
+          .then(pointSourceCategoryNaicsCodes => {
+            pscs = pointSourceCategoryNaicsCodes.map(a => a.pointSourceCategoryCode);
           })
           .catch((error) => reject('Error retrieving limitations: ' + error)));
       }
