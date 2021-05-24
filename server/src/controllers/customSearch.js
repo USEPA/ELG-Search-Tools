@@ -210,240 +210,260 @@ module.exports = {
           res.status(400).send("Invalid value passed for rangeUnitCode");
         }
         else {
-          let pointSourceCategoryDisplay = pointSourceCategoryCodes.join(', ');
-          let sicCodeDisplay = sicCodes.join(', ');
-          let naicsCodeDisplay = naicsCodes.join(', ');
-          let pollutantDisplay = pollutantIds.join(', ');
-          let pollutantGroupDisplay = pollutantGroupIds.join(', ');
-          let limitationRangeDisplay = (rangeLow ? rangeLow + '-' + rangeHigh + ' (' + rangeUnitCode + ')' : '');
-          let treatmentTechnologyDisplay = treatmentTechnologyCodes.join(', ');
-          let treatmentTechnologyGroupDisplay = treatmentTechnologyGroups.join(', ');
+          //validate that treatmentTechnologyGroup values are valid
+          let treatmentTechnologyGroupsValid = true;
+          treatmentTechnologyGroups.forEach(treatmentTechnologyGroup => {
+            treatmentTechnologyGroupsValid = treatmentTechnologyGroupsValid && [
+              "Physical, Not Elsewhere Classified",
+              "Other",
+              "Chemical",
+              "Biological",
+              "Thermal",
+              "Filtration",
+              "Sorption",
+              "Membrane"
+            ].includes(treatmentTechnologyGroup);
+          });
 
-          let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+          if (!treatmentTechnologyGroupsValid) {
+            res.status(400).send("Invalid value passed for treatmentTechnologyGroup");
+          }
+          else {
+            let pointSourceCategoryDisplay = pointSourceCategoryCodes.join(', ');
+            let sicCodeDisplay = sicCodes.join(', ');
+            let naicsCodeDisplay = naicsCodes.join(', ');
+            let pollutantDisplay = pollutantIds.join(', ');
+            let pollutantGroupDisplay = pollutantGroupIds.join(', ');
+            let limitationRangeDisplay = (rangeLow ? rangeLow + '-' + rangeHigh + ' (' + rangeUnitCode + ')' : '');
+            let treatmentTechnologyDisplay = treatmentTechnologyCodes.join(', ');
+            let treatmentTechnologyGroupDisplay = treatmentTechnologyGroups.join(', ');
 
-          let sortCol = req.query.sortCol;
-          let sortDir = req.query.sortDir;
+            let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
 
-          let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-          let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+            let sortCol = req.query.sortCol;
+            let sortDir = req.query.sortDir;
 
-          PollutantGroup.findAll({
-            where: {
-              id: { [Op.in]: pollutantGroupIds }
-            }
-          })
-            .then(pollutantGroups => {
-              if (pollutantGroups.length !== pollutantGroupIds.length) {
-                res.status(400).send("Invalid value passed for pollutantGroupId")
-              }
-              else {
-                //build criteria display values
-                let criteriaDisplayPromises = [];
+            let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+            let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
 
-                criteriaDisplayPromises.push(PointSourceCategory.findAll({
-                  where: { pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes } },
-                  order: [ 'pointSourceCategoryCode' ]
-                })
-                  .then(codes => {
-                    pointSourceCategoryDisplay = codes.map(a =>
-                      a.pointSourceCategoryCode + ': ' + a.pointSourceCategoryName
-                    ).join(', ');
-                  }));
-
-                criteriaDisplayPromises.push(SicCode.findAll({
-                  attributes: [ 'sicCodeAsNumber', 'sicDescription' ],
-                  where: {
-                    sicCodeAsNumber: { [Op.in]: sicCodes },
-                    [Op.and]: Sequelize.literal("sic = sic_code::text")
-                  },
-                  order: [ 'sicCodeAsNumber' ]
-                })
-                  .then(codes => { sicCodeDisplay = codes.map(a => a.sicCodeAsNumber + ': ' + a.sicDescription).join(', '); }));
-
-                criteriaDisplayPromises.push(NaicsCode.findAll({
-                  attributes: [ 'naicsCodeAsNumber', 'naicsDescription' ],
-                  where: {
-                    naicsCodeAsNumber: { [Op.in]: naicsCodes } ,
-                    [Op.and]: Sequelize.literal("naics = naics_code::text")
-                  },
-                  order: [ 'naicsCodeAsNumber' ]
-                })
-                  .then(codes => { naicsCodeDisplay = codes.map(a => a.naicsCodeAsNumber + ': ' + a.naicsDescription).join(', '); }));
-
-                criteriaDisplayPromises.push(Pollutant.findAll({
-                  attributes: [ 'elgDescription'],
-                  where: {
-                    description: { [Op.in]: pollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []) }
-                  },
-                  group: [ 'elgDescription' ]
-                })
-                  .then(codes => { pollutantDisplay = codes.map(a => a.elgDescription).join(', '); }));
-
-                criteriaDisplayPromises.push(PollutantGroup.findAll({
-                  where: { id: { [Op.in]: pollutantGroupIds } },
-                  order: [ 'description' ]
-                })
-                  .then(codes => { pollutantGroupDisplay = codes.map(a => a.description).join(', '); }));
-
-                criteriaDisplayPromises.push(TreatmentTechnologyCode.findAll({
-                  where: { id: { [Op.in]: treatmentTechnologyCodes } },
-                  order: [ 'name' ]
-                })
-                  .then(codes => { treatmentTechnologyDisplay = codes.map(a => a.name).join(', '); }));
-
-                Promise.all(criteriaDisplayPromises)
-                  .then(ignore => {
-                    if (downloadRequested) {
-                      limitation.multiCriteriaSearchLimitations(
-                        pointSourceCategoryCodes,
-                        sicCodes,
-                        naicsCodes,
-                        pollutantIds,
-                        pollutantGroupIds,
-                        treatmentTechnologyCodes,
-                        treatmentTechnologyGroups,
-                        rangeLow,
-                        rangeHigh,
-                        rangeUnitCode,
-                        sortCol,
-                        sortDir,
-                        0,
-                        null
-                      )
-                        .then(limitations => {
-                          download.createDownloadFile('limitations',
-                            'Limitations',
-                            downloadDataColumns,
-                            [
-                              { label: 'Point Source Category', value: pointSourceCategoryDisplay },
-                              { label: 'NAICS Code', value: sicCodeDisplay },
-                              { label: 'SIC Code', value: naicsCodeDisplay },
-                              { label: 'Pollutant', value: pollutantDisplay },
-                              { label: 'Pollutant Category', value: pollutantGroupDisplay },
-                              { label: 'Limitation Range', value: limitationRangeDisplay },
-                              { label: 'Treatment Technology', value: treatmentTechnologyDisplay },
-                              { label: 'Treatment Technology Category', value: treatmentTechnologyGroupDisplay }
-                            ],
-                            limitations.rows,
-                            res);
-                        })
-                        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                    }
-                    else {
-                      //first, get results without filter and row limit criteria to get all possible values for the filters
-                      limitation.multiCriteriaSearchLimitations(
-                        pointSourceCategoryCodes,
-                        sicCodes,
-                        naicsCodes,
-                        pollutantIds,
-                        pollutantGroupIds,
-                        treatmentTechnologyCodes,
-                        treatmentTechnologyGroups,
-                        rangeLow,
-                        rangeHigh,
-                        rangeUnitCode,
-                        sortCol,
-                        sortDir,
-                        0,
-                        null,
-                        [],
-                        [],
-                        []
-                      )
-                        .then(allLimitations => {
-                          PointSourceCategory.findAll({
-                            attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
-                            where: {
-                              pointSourceCategoryCode: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.pointSourceCategoryCode))]}
-                            },
-                            order: ['pointSourceCategoryCode']
-                          })
-                            .then(pscs => {
-                              Pollutant.findAll({
-                                attributes: [
-                                  ['elg_pollutant_description', 'pollutantDescription'],
-                                  [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
-                                ],
-                                where: {
-                                  elgDescription: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.pollutantDescription))]}
-                                },
-                                group: ['elg_pollutant_description'],
-                                order: ['elg_pollutant_description']
-                              })
-                                .then(polls => {
-                                  TreatmentTechnology.findAll({
-                                    attributes: ["id", "codes", "names"],
-                                    where: {
-                                      id: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.treatmentId))]}
-                                    },
-                                    order: ["names"]
-                                  })
-                                    .then(treatmentTrains => {
-                                      //then, get the filtered results to be displayed
-                                      let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
-                                      let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
-                                      let filterPollutantIds = [];
-                                      try {
-                                        filterPollutantIds = (req.query.filterPollutantId ? decodeURIComponent(req.query.filterPollutantId).split(';') : []);
-                                      }
-                                      catch (error) {
-                                        console.log('filterPollutantIds decodeURIComponent error: ' + error);
-                                      }
-
-                                      limitation.multiCriteriaSearchLimitations(
-                                        pointSourceCategoryCodes,
-                                        sicCodes,
-                                        naicsCodes,
-                                        pollutantIds,
-                                        pollutantGroupIds,
-                                        treatmentTechnologyCodes,
-                                        treatmentTechnologyGroups,
-                                        rangeLow,
-                                        rangeHigh,
-                                        rangeUnitCode,
-                                        sortCol,
-                                        sortDir,
-                                        offset,
-                                        limit,
-                                        filterTreatmentIds,
-                                        filterPointSourceCategoryCodes,
-                                        filterPollutantIds
-                                      )
-                                        .then(filteredLimitations => {
-                                          res.status(200).send({
-                                            pointSourceCategoryDisplay: pointSourceCategoryDisplay,
-                                            sicCodeDisplay: sicCodeDisplay,
-                                            naicsCodeDisplay: naicsCodeDisplay,
-                                            pollutantDisplay: pollutantDisplay,
-                                            pollutantGroupDisplay: pollutantGroupDisplay,
-                                            limitationRangeDisplay: limitationRangeDisplay,
-                                            treatmentTechnologyDisplay: treatmentTechnologyDisplay,
-                                            treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
-                                            limitations: filteredLimitations.rows,
-                                            pointSourceCategories: pscs,
-                                            pollutants: polls,
-                                            treatmentTrains: treatmentTrains,
-                                            count: filteredLimitations.count
-                                          });
-                                        })
-                                        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                                    })
-                                    .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                                })
-                                .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                            })
-                            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                        })
-                        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-                    }
-                  })
-                  .catch((error) => {
-                    console.log('Error parsing criteria! ' + utilities.sanitizeError(error));
-                    res.status(400).send('Invalid criteria');
-                  });
+            PollutantGroup.findAll({
+              where: {
+                id: { [Op.in]: pollutantGroupIds }
               }
             })
-            .catch((ignore) => res.status(400).send("Invalid value passed for pollutantGroupId"));
+              .then(pollutantGroups => {
+                if (pollutantGroups.length !== pollutantGroupIds.length) {
+                  res.status(400).send("Invalid value passed for pollutantGroupId")
+                }
+                else {
+                  //build criteria display values
+                  let criteriaDisplayPromises = [];
+
+                  criteriaDisplayPromises.push(PointSourceCategory.findAll({
+                    where: { pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes } },
+                    order: [ 'pointSourceCategoryCode' ]
+                  })
+                    .then(codes => {
+                      pointSourceCategoryDisplay = codes.map(a =>
+                        a.pointSourceCategoryCode + ': ' + a.pointSourceCategoryName
+                      ).join(', ');
+                    }));
+
+                  criteriaDisplayPromises.push(SicCode.findAll({
+                    attributes: [ 'sicCodeAsNumber', 'sicDescription' ],
+                    where: {
+                      sicCodeAsNumber: { [Op.in]: sicCodes },
+                      [Op.and]: Sequelize.literal("sic = sic_code::text")
+                    },
+                    order: [ 'sicCodeAsNumber' ]
+                  })
+                    .then(codes => { sicCodeDisplay = codes.map(a => a.sicCodeAsNumber + ': ' + a.sicDescription).join(', '); }));
+
+                  criteriaDisplayPromises.push(NaicsCode.findAll({
+                    attributes: [ 'naicsCodeAsNumber', 'naicsDescription' ],
+                    where: {
+                      naicsCodeAsNumber: { [Op.in]: naicsCodes } ,
+                      [Op.and]: Sequelize.literal("naics = naics_code::text")
+                    },
+                    order: [ 'naicsCodeAsNumber' ]
+                  })
+                    .then(codes => { naicsCodeDisplay = codes.map(a => a.naicsCodeAsNumber + ': ' + a.naicsDescription).join(', '); }));
+
+                  criteriaDisplayPromises.push(Pollutant.findAll({
+                    attributes: [ 'elgDescription'],
+                    where: {
+                      description: { [Op.in]: pollutantIds.map(a => a.split("|")).reduce((acc, val) => acc.concat(val), []) }
+                    },
+                    group: [ 'elgDescription' ]
+                  })
+                    .then(codes => { pollutantDisplay = codes.map(a => a.elgDescription).join(', '); }));
+
+                  criteriaDisplayPromises.push(PollutantGroup.findAll({
+                    where: { id: { [Op.in]: pollutantGroupIds } },
+                    order: [ 'description' ]
+                  })
+                    .then(codes => { pollutantGroupDisplay = codes.map(a => a.description).join(', '); }));
+
+                  criteriaDisplayPromises.push(TreatmentTechnologyCode.findAll({
+                    where: { id: { [Op.in]: treatmentTechnologyCodes } },
+                    order: [ 'name' ]
+                  })
+                    .then(codes => { treatmentTechnologyDisplay = codes.map(a => a.name).join(', '); }));
+
+                  Promise.all(criteriaDisplayPromises)
+                    .then(ignore => {
+                      if (downloadRequested) {
+                        limitation.multiCriteriaSearchLimitations(
+                          pointSourceCategoryCodes,
+                          sicCodes,
+                          naicsCodes,
+                          pollutantIds,
+                          pollutantGroupIds,
+                          treatmentTechnologyCodes,
+                          treatmentTechnologyGroups,
+                          rangeLow,
+                          rangeHigh,
+                          rangeUnitCode,
+                          sortCol,
+                          sortDir,
+                          0,
+                          null
+                        )
+                          .then(limitations => {
+                            download.createDownloadFile('limitations',
+                              'Limitations',
+                              downloadDataColumns,
+                              [
+                                { label: 'Point Source Category', value: pointSourceCategoryDisplay },
+                                { label: 'NAICS Code', value: sicCodeDisplay },
+                                { label: 'SIC Code', value: naicsCodeDisplay },
+                                { label: 'Pollutant', value: pollutantDisplay },
+                                { label: 'Pollutant Category', value: pollutantGroupDisplay },
+                                { label: 'Limitation Range', value: limitationRangeDisplay },
+                                { label: 'Treatment Technology', value: treatmentTechnologyDisplay },
+                                { label: 'Treatment Technology Category', value: treatmentTechnologyGroupDisplay }
+                              ],
+                              limitations.rows,
+                              res);
+                          })
+                          .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                      }
+                      else {
+                        //first, get results without filter and row limit criteria to get all possible values for the filters
+                        limitation.multiCriteriaSearchLimitations(
+                          pointSourceCategoryCodes,
+                          sicCodes,
+                          naicsCodes,
+                          pollutantIds,
+                          pollutantGroupIds,
+                          treatmentTechnologyCodes,
+                          treatmentTechnologyGroups,
+                          rangeLow,
+                          rangeHigh,
+                          rangeUnitCode,
+                          sortCol,
+                          sortDir,
+                          0,
+                          null,
+                          [],
+                          [],
+                          []
+                        )
+                          .then(allLimitations => {
+                            PointSourceCategory.findAll({
+                              attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
+                              where: {
+                                pointSourceCategoryCode: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.pointSourceCategoryCode))]}
+                              },
+                              order: ['pointSourceCategoryCode']
+                            })
+                              .then(pscs => {
+                                Pollutant.findAll({
+                                  attributes: [
+                                    ['elg_pollutant_description', 'pollutantDescription'],
+                                    [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+                                  ],
+                                  where: {
+                                    elgDescription: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.pollutantDescription))]}
+                                  },
+                                  group: ['elg_pollutant_description'],
+                                  order: ['elg_pollutant_description']
+                                })
+                                  .then(polls => {
+                                    TreatmentTechnology.findAll({
+                                      attributes: ["id", "codes", "names"],
+                                      where: {
+                                        id: {[Op.in]: [...new Set(allLimitations.rows.map(a => a.treatmentId))]}
+                                      },
+                                      order: ["names"]
+                                    })
+                                      .then(treatmentTrains => {
+                                        //then, get the filtered results to be displayed
+                                        let filterTreatmentIds = (req.query.filterTreatmentId ? req.query.filterTreatmentId.split(';') : []);
+                                        let filterPointSourceCategoryCodes = (req.query.filterPointSourceCategoryCode ? req.query.filterPointSourceCategoryCode.split(';') : []);
+                                        let filterPollutantIds = [];
+                                        try {
+                                          filterPollutantIds = (req.query.filterPollutantId ? decodeURIComponent(req.query.filterPollutantId).split(';') : []);
+                                        }
+                                        catch (error) {
+                                          console.log('filterPollutantIds decodeURIComponent error: ' + error);
+                                        }
+
+                                        limitation.multiCriteriaSearchLimitations(
+                                          pointSourceCategoryCodes,
+                                          sicCodes,
+                                          naicsCodes,
+                                          pollutantIds,
+                                          pollutantGroupIds,
+                                          treatmentTechnologyCodes,
+                                          treatmentTechnologyGroups,
+                                          rangeLow,
+                                          rangeHigh,
+                                          rangeUnitCode,
+                                          sortCol,
+                                          sortDir,
+                                          offset,
+                                          limit,
+                                          filterTreatmentIds,
+                                          filterPointSourceCategoryCodes,
+                                          filterPollutantIds
+                                        )
+                                          .then(filteredLimitations => {
+                                            res.status(200).send({
+                                              pointSourceCategoryDisplay: pointSourceCategoryDisplay,
+                                              sicCodeDisplay: sicCodeDisplay,
+                                              naicsCodeDisplay: naicsCodeDisplay,
+                                              pollutantDisplay: pollutantDisplay,
+                                              pollutantGroupDisplay: pollutantGroupDisplay,
+                                              limitationRangeDisplay: limitationRangeDisplay,
+                                              treatmentTechnologyDisplay: treatmentTechnologyDisplay,
+                                              treatmentTechnologyGroupDisplay: treatmentTechnologyGroupDisplay,
+                                              limitations: filteredLimitations.rows,
+                                              pointSourceCategories: pscs,
+                                              pollutants: polls,
+                                              treatmentTrains: treatmentTrains,
+                                              count: filteredLimitations.count
+                                            });
+                                          })
+                                          .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                                      })
+                                      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                                  })
+                                  .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                              })
+                              .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                          })
+                          .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                      }
+                    })
+                    .catch((error) => {
+                      console.log('Error parsing criteria! ' + utilities.sanitizeError(error));
+                      res.status(400).send('Invalid criteria');
+                    });
+                }
+              })
+              .catch((ignore) => res.status(400).send("Invalid value passed for pollutantGroupId"));
+          }
         }
       })
       .catch((ignore) => res.status(400).send("Invalid value passed for rangeUnitCode"));
