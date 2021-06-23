@@ -1,0 +1,1797 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "U.S. EPA WaterSense",
+    "description": "placeholder",
+    "contact": {
+      "name": "US EPA, ELG"
+    },
+    "license": {
+      "name": "Creative Commons Zero Public Domain Dedication",
+      "url": "https://edg.epa.gov/EPA_Data_License.html"
+    },
+    "version": "0.0.0"
+  },
+  "host": "owapps-stage.app.cloud.gov",
+  "basePath": "/elg",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "parameters": {
+    "download": {
+      "name": "download",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "id": {
+      "name": "id",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "pointSourceCategoryCode": {
+      "name": "pointSourceCategoryCode",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "treatmentId": {
+      "name": "treatmentId",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "integer",
+      "required": false
+    },
+    "pollutantId": {
+      "name": "pollutantId",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "offset": {
+      "name": "offset",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "limit": {
+      "name": "limit",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "sortCol": {
+      "name": "sortCol",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "sortDir": {
+      "name": "sortDir",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "sicCode": {
+      "name": "sicCode",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "naicsCode": {
+      "name": "naicsCode",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "pollutantGroupId": {
+      "name": "pollutantGroupId",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "treatmentTechnologyCode": {
+      "name": "treatmentTechnologyCode",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "treatmentTechnologyGroup": {
+      "name": "treatmentTechnologyGroup",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "rangeLow": {
+      "name": "rangeLow",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "rangeHigh": {
+      "name": "rangeHigh",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "rangeUnitCode": {
+      "name": "rangeUnitCode",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "filterTreatmentId": {
+      "name": "filterTreatmentId",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "filterPointSourceCategoryCode": {
+      "name": "filterPointSourceCategoryCode",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "filterPollutantId": {
+      "name": "filterPollutantId",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "keyword": {
+      "name": "keyword",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    },
+    "operator": {
+      "name": "operator",
+      "in": "query",
+      "description": "Placeholder.",
+      "type": "string",
+      "required": false
+    }
+  },
+  "paths": {
+    "/api/pointSourceCategories": {
+      "get": {
+        "summary": "Point Source Categories",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Point Source Categories"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pointSourceCategory.list"
+            }
+          }
+        }
+      }
+    },
+    "/api/pointSourceCategory/{id}": {
+      "get": {
+        "summary": "Point Source Category ID",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["Point Source Categories"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pointSourceCategory.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/pointSourceCategoryCfr/{id}": {
+      "get": {
+        "summary": "Point Source Category CFR ID",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["Point Source Categories"],
+        "responses": {
+          "200": {
+            "description": "Placeholder.",
+            "schema": {
+              "$ref": "#/definitions/pointSourceCategory.cfr"
+            }
+          }
+        }
+      }
+    },
+    "/api/pointSourceCategoryDefinitions/{id}": {
+      "get": {
+        "summary": "Point Source Category Definitions ID",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["Point Source Categories"],
+        "responses": {
+          "200": {
+            "description": "Placeholder.",
+            "schema": {
+              "$ref": "#/definitions/pointSourceCategory.definitions"
+            }
+          }
+        }
+      }
+    },
+    "/api/pointSourceCategoryCitationHistory/{id}": {
+      "get": {
+        "summary": "Point Source Category Citation History ID",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["Point Source Categories"],
+        "responses": {
+          "200": {
+            "description": "Placeholder.",
+            "schema": {
+              "$ref": "#/definitions/pointSourceCategory.citationHistory"
+            }
+          }
+        }
+      }
+    },
+    "/api/pointSourceSubcategory/{id}": {
+      "get": {
+        "summary": "Point Source Category Subcategory ID",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": ["Point Source Categories"],
+        "responses": {
+          "200": {
+            "description": "Placeholder.",
+            "schema": {
+              "$ref": "#/definitions/pointSourceSubcategory.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/wastestreamProcessLimitations": {
+      "get": {
+        "summary": "Point Source Category Wastestream Process Limitations",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Point Source Categories"],
+        "responses": {
+          "200": {
+            "description": "Placeholder.",
+            "schema": {
+              "$ref": "#/definitions/wastestreamProcess.limitations"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutants": {
+      "get": {
+        "summary": "Pollutants",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Pollutants"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.list"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutantCategories": {
+      "get": {
+        "summary": "Pollutant Categories",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Pollutants"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.listCategories"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutant": {
+      "get": {
+        "summary": "Pollutant",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Pollutants"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutantCategory": {
+      "get": {
+        "summary": "Pollutant Category",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Pollutants"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.readCategory"
+            }
+          }
+        }
+      }
+    },
+    "/api/pollutantLimitations": {
+      "get": {
+        "summary": "Pollutant Limitations",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "pollutantId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "pointSourceCategoryCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Pollutants"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/pollutant.limitations"
+            }
+          }
+        }
+      }
+    },
+    "/api/limitation": {
+      "get": {
+        "summary": "Limitation",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Pollutants"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/limitation.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/treatmentTechnologies": {
+      "get": {
+        "summary": "Treatment Technologies",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Treatment Technologies"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/treatmentTechnology.list"
+            }
+          }
+        }
+      }
+    },
+    "/api/treatmentTechnologyCategories": {
+      "get": {
+        "summary": "Treatment Technology Categories",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Treatment Technologies"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/treatmentTechnology.listCategories"
+            }
+          }
+        }
+      }
+    },
+    "/api/treatmentTechnology/{id}": {
+      "get": {
+        "summary": "Treatment Technology",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": true,
+            "enum": [
+              "AAFF",
+              "ABSM",
+              "AC",
+              "ADSM",
+              "AFF",
+              "AIR",
+              "AKH",
+              "ANSG",
+              "AOP",
+              "ASG",
+              "AST",
+              "BIO",
+              "BMP",
+              "CD",
+              "CLAR",
+              "CND",
+              "CO",
+              "COAGFL",
+              "CS",
+              "ChemPre",
+              "DAF",
+              "DCL",
+              "DENIT",
+              "DGF",
+              "DRY",
+              "DST",
+              "DWI",
+              "EC",
+              "EMUL",
+              "EQ",
+              "EVAP",
+              "FI",
+              "FILT",
+              "GAC",
+              "GravS",
+              "HAUL",
+              "ION",
+              "LE",
+              "LRTR",
+              "MF",
+              "MPT",
+              "NANO",
+              "NIT",
+              "OST",
+              "OTHER",
+              "OW",
+              "OWS",
+              "PestActIng",
+              "REDX",
+              "REUSE",
+              "RO",
+              "SI",
+              "ST",
+              "THERMAL",
+              "UF",
+              "ZLD"
+            ]
+          }
+        ],
+        "tags": ["Treatment Technologies"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/treatmentTechnology.read"
+            }
+          }
+        }
+      }
+    },
+    "/api/treatmentTechnologyCategory/{id}": {
+      "get": {
+        "summary": "Treatment Technology Category",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": true,
+            "enum": [
+              "Physical, Not Elsewhere Classified",
+              "Other",
+              "Chemical",
+              "Biological",
+              "Thermal",
+              "Filtration",
+              "Sorption",
+              "Membrane"
+            ]
+          }
+        ],
+        "tags": ["Treatment Technologies"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/treatmentTechnology.readCategory"
+            }
+          }
+        }
+      }
+    },
+    "/api/treatmentTechnologyLimitations": {
+      "get": {
+        "summary": "Treatment Technology Limitations",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": true,
+            "enum": [
+              "AAFF",
+              "ABSM",
+              "AC",
+              "ADSM",
+              "AFF",
+              "AIR",
+              "AKH",
+              "ANSG",
+              "AOP",
+              "ASG",
+              "AST",
+              "BIO",
+              "BMP",
+              "CD",
+              "CLAR",
+              "CND",
+              "CO",
+              "COAGFL",
+              "CS",
+              "ChemPre",
+              "DAF",
+              "DCL",
+              "DENIT",
+              "DGF",
+              "DRY",
+              "DST",
+              "DWI",
+              "EC",
+              "EMUL",
+              "EQ",
+              "EVAP",
+              "FI",
+              "FILT",
+              "GAC",
+              "GravS",
+              "HAUL",
+              "ION",
+              "LE",
+              "LRTR",
+              "MF",
+              "MPT",
+              "NANO",
+              "NIT",
+              "OST",
+              "OTHER",
+              "OW",
+              "OWS",
+              "PestActIng",
+              "REDX",
+              "REUSE",
+              "RO",
+              "SI",
+              "ST",
+              "THERMAL",
+              "UF",
+              "ZLD"
+            ]
+          },
+          {
+            "name": "treatmentId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "pointSourceCategoryCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "pollutantId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "sortCol",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Treatment Technologies"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/treatmentTechnology.limitations"
+            }
+          }
+        }
+      }
+    },
+    "/api/treatmentTechnologyCategoryLimitations": {
+      "get": {
+        "summary": "Treatment Technology Category Limitations",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": true,
+            "enum": [
+              "Physical, Not Elsewhere Classified",
+              "Other",
+              "Chemical",
+              "Biological",
+              "Thermal",
+              "Filtration",
+              "Sorption",
+              "Membrane"
+            ]
+          },
+          {
+            "name": "treatmentId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "pointSourceCategoryCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "pollutantId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "sortCol",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Treatment Technologies"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/treatmentTechnology.categoryLimitations"
+            }
+          }
+        }
+      }
+    },
+    "/api/multiCriteriaSearchCriteria": {
+      "get": {
+        "summary": "Multi Criteria Search Criteria",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Custom Search"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/customSearch.multiCriteriaSearchCriteria"
+            }
+          }
+        }
+      }
+    },
+    "/api/multiCriteriaSearch": {
+      "get": {
+        "summary": "Multi Criteria Search",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "pointSourceCategoryCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "sicCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "naicsCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "pollutantId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "pollutantGroupId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false,
+            "enum": [ 1, 2, 3, 4, 5, 6 ]
+          },
+          {
+            "name": "treatmentTechnologyCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false,
+            "enum": [
+              "AAFF",
+              "ABSM",
+              "AC",
+              "ADSM",
+              "AFF",
+              "AIR",
+              "AKH",
+              "ANSG",
+              "AOP",
+              "ASG",
+              "AST",
+              "BIO",
+              "BMP",
+              "CD",
+              "CLAR",
+              "CND",
+              "CO",
+              "COAGFL",
+              "CS",
+              "ChemPre",
+              "DAF",
+              "DCL",
+              "DENIT",
+              "DGF",
+              "DRY",
+              "DST",
+              "DWI",
+              "EC",
+              "EMUL",
+              "EQ",
+              "EVAP",
+              "FI",
+              "FILT",
+              "GAC",
+              "GravS",
+              "HAUL",
+              "ION",
+              "LE",
+              "LRTR",
+              "MF",
+              "MPT",
+              "NANO",
+              "NIT",
+              "OST",
+              "OTHER",
+              "OW",
+              "OWS",
+              "PestActIng",
+              "REDX",
+              "REUSE",
+              "RO",
+              "SI",
+              "ST",
+              "THERMAL",
+              "UF",
+              "ZLD"
+            ]
+          },
+          {
+            "name": "treatmentTechnologyGroup",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false,
+            "enum": [
+              "Physical, Not Elsewhere Classified",
+              "Other",
+              "Chemical",
+              "Biological",
+              "Thermal",
+              "Filtration",
+              "Sorption",
+              "Membrane"
+            ]
+          },
+          {
+            "name": "rangeLow",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "number",
+            "required": false
+          },
+          {
+            "name": "rangeHigh",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "number",
+            "required": false
+          },
+          {
+            "name": "rangeUnitCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false,
+            "enum": [
+              "\tmg/kg of lead produced from refining",
+              "\tmg/kg of lead produced from smelting",
+              "% removal",
+              "µg/L",
+              "Base fluid sediment toxicity ratio",
+              "Biodegradation rate ratio",
+              "cm",
+              "count per 100 mL",
+              "degrees C",
+              "Drilling fluid sediment toxicity ratio",
+              "g/1,000,000 cans manufactured",
+              "g/kg",
+              "g/kg ELWK",
+              "g/kg LWK",
+              "g/kg raw material",
+              "g/kkg",
+              "g/kkg furnace pull",
+              "g/kkg product frosted",
+              "g/sq-m",
+              "kg/1,000 m2 product",
+              "kg/1,000 occupied beds",
+              "kg/1000 cubic m of product",
+              "kg/1000 ducks",
+              "kg/1000 kkg of metal poured",
+              "kg/1000 kkg of sand reclaimed",
+              "kg/1000 m3 feedstock",
+              "kg/1000 m3 runoff",
+              "kg/62.3 million sm3 of air scrubbed",
+              "kg/cubic m of production",
+              "kg/cubic meter of runoff",
+              "kg/day",
+              "kg/kg magnesium removed",
+              "kg/kkg of BOD5 input",
+              "kg/kkg of cereal product",
+              "kg/kkg of corn",
+              "kg/kkg of dust leached",
+              "kg/kkg of gross cane",
+              "kg/kkg of gross production",
+              "kg/kkg of melt",
+              "kg/kkg of product",
+              "kg/kkg of raw material",
+              "kg/kkg of raw material (wheat flour)",
+              "kg/kkg of rice",
+              "kg/kkg of seafood",
+              "kg/kkg of wheat",
+              "kg/kkg organic pesticide chemicals",
+              "kg/kkg processed",
+              "kg/kkg total organic active ingredients",
+              "kg/m3 flow",
+              "kg/Mwh",
+              "lb/1000 ducks",
+              "lb/1000 lb product",
+              "mg/employee-day",
+              "mg/kg",
+              "mg/kg dry weight",
+              "mg/kg of 100 pct sulfuric acid capacity",
+              "mg/kg of acid reclaim nickel produced",
+              "mg/kg of aluminum cast",
+              "mg/kg of aluminum delacquered",
+              "mg/kg of aluminum demagged",
+              "mg/kg of aluminum produced from electrolytic reduction",
+              "mg/kg of aluminum product from direct chill casting",
+              "mg/kg of aluminum product from rod casting",
+              "mg/kg of aluminum product from stationary casting or shot casting",
+              "mg/kg of aluminum scrap dried",
+              "mg/kg of aluminum scrap screened and milled",
+              "mg/kg of ammonium paratungstate (as W) produced",
+              "mg/kg of ammonium tungstate (as W) produced",
+              "mg/kg of anodes baked",
+              "mg/kg of anodes cast",
+              "mg/kg of antimony contained in sodium antimonate product",
+              "mg/kg of antimony metal produced by electrowinning",
+              "mg/kg of bertrandite ore processed",
+              "mg/kg of beryl ore processed",
+              "mg/kg of beryllium carbonate produced as beryllium",
+              "mg/kg of beryllium carbonate produced from bertrandite ore as beryllium",
+              "mg/kg of beryllium carbonate produced from beryl ore as beryllium",
+              "mg/kg of beryllium hydroxide produced as beryllium",
+              "mg/kg of beryllium hydroxide produced from scrap and residues as beryllium",
+              "mg/kg of beryllium oxide produced",
+              "mg/kg of beryllium pebbles produced",
+              "mg/kg of beryllium scrap chips treated",
+              "mg/kg of cadmium",
+              "mg/kg of cadmium powder produced",
+              "mg/kg of cadmium used",
+              "mg/kg of calcium tungstate (as W) produced",
+              "mg/kg of casting production",
+              "mg/kg of cathode copper production",
+              "mg/kg of cathode indium produced",
+              "mg/kg of cathode tin produced",
+              "mg/kg of cathode zinc produced",
+              "mg/kg of cells produced",
+              "mg/kg of cobalt produced",
+              "mg/kg of cobalt produced from cobalt sludge",
+              "mg/kg of columbium-tantalum oxide dried",
+              "mg/kg of columbium or tantalum cast or consolidated",
+              "mg/kg of concentrate digested",
+              "mg/kg of concentrate leached",
+              "mg/kg of copper cast",
+              "mg/kg of copper, nickel, and cobalt in the crushed raw material",
+              "mg/kg of crude tapped tin metal produced",
+              "mg/kg of cryolite recovered",
+              "mg/kg of dealuminized scrap produced",
+              "mg/kg of dross washed",
+              "mg/kg of equivalent pure tantalum powder produced",
+              "mg/kg of gallium hydrolyzed",
+              "mg/kg of gallium produced by solvent extraction",
+              "mg/kg of germanium chlorinated",
+              "mg/kg of germanium hydrolyzed",
+              "mg/kg of germanium washed",
+              "mg/kg of indium metal produced",
+              "mg/kg of iron disulfide",
+              "mg/kg of lead",
+              "mg/kg of lead cast",
+              "mg/kg of lead in trucked batteries",
+              "mg/kg of lead processed through desulfurization",
+              "mg/kg of lead scrap produced",
+              "mg/kg of lead used",
+              "mg/kg of mercury condensed",
+              "mg/kg of mercury processed through furnace",
+              "mg/kg of mercury produced from batteries",
+              "mg/kg of mercury washed and rinsed",
+              "mg/kg of mischmetal produced from wet rare earth chlorides",
+              "mg/kg of molybdenum and vanadium produced",
+              "mg/kg of molybdenum contained in molybdic oxide leached",
+              "mg/kg of molybdenum metal powder produced",
+              "mg/kg of molybdenum produced",
+              "mg/kg of molybdenum sulfide leached",
+              "mg/kg of molybdenum sulfide roasted",
+              "mg/kg of MSW scrap used as raw material",
+              "mg/kg of neutralized, dewatered tin mud produced",
+              "mg/kg of nickel applied",
+              "mg/kg of nickel powder washed",
+              "mg/kg of nickel produced",
+              "mg/kg of nickel used",
+              "mg/kg of of TiCl4 handled",
+              "mg/kg of paste produced",
+              "mg/kg of product",
+              "mg/kg of product recovered from electrolytic slimes processing",
+              "mg/kg of pure zirconium produced",
+              "mg/kg of scrap milled",
+              "mg/kg of scrap washed",
+              "mg/kg of silver applied",
+              "mg/kg of silver peroxide processed",
+              "mg/kg of silver peroxide produced",
+              "mg/kg of silver powder processed",
+              "mg/kg of silver powder produced",
+              "mg/kg of silver processed",
+              "mg/kg of slag input to reclaim process",
+              "mg/kg of sodium tungstate (as W) produced",
+              "mg/kg of synthetic scheelite produced",
+              "mg/kg of tantalum powder produced",
+              "mg/kg of tantalum powder produced from leaching",
+              "mg/kg of tantalum powder washed",
+              "mg/kg of tantalum salt dried",
+              "mg/kg of tantalum salt reduced",
+              "mg/kg of technical grade molybdenum plus vanadium plus pure grade molybdenum produced",
+              "mg/kg of TiCl4 produced",
+              "mg/kg of tin hydroxide washed",
+              "mg/kg of tin metal produced",
+              "mg/kg of tin metal recovered from plating solutions and sludges",
+              "mg/kg of tin metal recovered from scrap",
+              "mg/kg of titanium cast",
+              "mg/kg of titanium pickled",
+              "mg/kg of titanium produced",
+              "mg/kg of total mischmetal produced",
+              "mg/kg of tungsten carbide produced",
+              "mg/kg of tungsten carbide scrap leached",
+              "mg/kg of tungsten metal produced",
+              "mg/kg of tungsten produced",
+              "mg/kg of tungsten scrap washed",
+              "mg/kg of tungstic acid (as W) produced",
+              "mg/kg of tungstic oxide (as W) produced",
+              "mg/kg of uranium processed in the refinery",
+              "mg/kg of uranium produced by magnesium reduction",
+              "mg/kg of uranium tetrafluoride produced",
+              "mg/kg of uranium trioxide produced",
+              "mg/kg of vanadium produced by decomposition",
+              "mg/kg of zinc",
+              "mg/kg of zinc cast",
+              "mg/kg of zinc deposited",
+              "mg/kg of zinc processed through leaching",
+              "mg/kg of zinc reduced",
+              "mg/kg of zirconium and hafnium produced",
+              "mg/kg of zirconium contained in alloys produced",
+              "mg/kg of zirconium dioxide and hafnium dioxide produced",
+              "mg/kkg",
+              "mg/kkg of blast furnace lead bullion produced",
+              "mg/kkg of dross reverberatory furnace production",
+              "mg/kkg of hard lead produced",
+              "mg/kkg of lead bullion produced",
+              "mg/kkg of sinter production",
+              "mg/kkg of slag, speiss, or matte granulated",
+              "mg/L",
+              "mg/L/kgal/ton",
+              "mg/liter of spent plating solution used as a raw material",
+              "mg/m2 area coated",
+              "Mg/m2 area coated",
+              "mg/m2 area processed",
+              "mg/m2 area processed or coated",
+              "mg/off-kg",
+              "mg/off-kg of aluminum rolled with emulsions",
+              "mg/off-kg of aluminum rolled with neat oils",
+              "mg/off-kg of copper",
+              "mg/sq-m operation",
+              "mg/troy ounce of gold and silver smelted",
+              "mg/troy ounce of gold contained in PGC product",
+              "mg/troy ounce of gold precipitated",
+              "mg/troy ounce of gold produced by cyanide stripping",
+              "mg/troy ounce of gold produced by electrolysis",
+              "mg/troy ounce of gold produced by solvent extraction",
+              "mg/troy ounce of gold refined electrolytically",
+              "mg/troy ounce of other platinum group metals precipitated",
+              "mg/troy ounce of palladium precipitated",
+              "mg/troy ounce of platinum precipitated",
+              "mg/troy ounce of precious metal in the granulated raw material",
+              "mg/troy ounce of precious metals produced",
+              "mg/troy ounce of precious metals, including silver, incinerated or smelted",
+              "mg/troy ounce of precious metals, including silver, produced in refinery",
+              "mg/troy ounce of silver from electrolytic refining",
+              "mg/troy ounce of silver from film stripping",
+              "mg/troy ounce of silver from precipitation and filtration of film stripping solutions",
+              "mg/troy ounce of silver from precipitation and filtration of photographic solutions",
+              "mg/troy ounce of silver in electrolyte produced",
+              "mg/troy ounce of silver precipitated",
+              "mg/troy ounce of silver produced from leaching",
+              "mg/troy ounce of silver produced from leaching or silver precipitated",
+              "mg/troy ounce of silver production",
+              "mg/troy ounce of silver reduced in solution",
+              "mg/troy ounce of silver roasted, smelted, or dried",
+              "mL/L",
+              "MPN/100 mL",
+              "N/A",
+              "ng/L",
+              "PAH mass ratio",
+              "pCi/L",
+              "Percent by volume",
+              "pg/L",
+              "Reserved",
+              "S.U."
+            ]
+          },
+          {
+            "name": "filterTreatmentId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "filterPointSourceCategoryCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "filterPollutantId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "sortCol",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Custom Search"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/customSearch.multiCriteriaSearch"
+            }
+          }
+        }
+      }
+    },
+    "/api/keywordSearch": {
+      "get": {
+        "summary": "Keyword Search",
+        "description": "Placeholder",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "operator",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "filterTreatmentId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "filterPointSourceCategoryCode",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "filterPollutantId",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "sortCol",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Placeholder.",
+            "type": "string",
+            "required": false
+          }
+        ],
+        "tags": ["Custom Search"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/customSearch.keywordSearch"
+            }
+          }
+        }
+      }
+    },
+    "/api/glossary": {
+      "get": {
+        "summary": "Glossary",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Glossary"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/glossary.list"
+            }
+          }
+        }
+      }
+    },
+    "/api/help": {
+      "get": {
+        "summary": "Help",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Help"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/glossary.help"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "pointSourceCategory.list": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pointSourceCategory.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pointSourceCategory.cfr": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pointSourceCategory.definitions": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pointSourceCategory.citationHistory": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pointSourceSubcategory.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "wastestreamProcess.limitations": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.list": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.listCategories": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.readCategory": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "pollutant.limitations": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "limitation.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "treatmentTechnology.list": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "treatmentTechnology.listCategories": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "treatmentTechnology.read": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "treatmentTechnology.readCategory": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "treatmentTechnology.limitations": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "treatmentTechnology.categoryLimitations": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "customSearch.multiCriteriaSearchCriteria": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "customSearch.multiCriteriaSearch": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "customSearch.keywordSearch": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "glossary.list": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "glossary.help": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    }
+  }
+}
