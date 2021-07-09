@@ -143,7 +143,7 @@
               <button
                 class="button is-text icon-btn"
                 @click="shouldDisplayLimitationType = index"
-                title="Click to view Type of Limitation"
+                title="Click to view Description"
               >
                 <span class="fa fa-info-circle"></span>
               </button>

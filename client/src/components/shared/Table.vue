@@ -35,7 +35,7 @@
           @click.stop="
             openModal(
               '',
-              'The Limitation Basis column is included as a tool to sort the numerical limitations in the ELG database. The ELG may require conversion of concentration-based to mass-based limitations. See the Type of Limitation information or CFR for more details.'
+              'The Limitation Basis column is included as a tool to sort the numerical limitations in the ELG Database. The ELG may require conversion of concentration-based to mass-based limitations. See the Type of Limitation information or CFR for more details.'
             )
           "
         >
@@ -126,9 +126,9 @@
         {{ item.limitationDurationTypeDisplay }}
         <button
           class="button is-text icon-btn"
-          aria-label="Click to view Type of Limitation"
+          aria-label="Click to view Description"
           @click="shouldDisplayLimitationType = index"
-          title="Click to view Type of Limitation"
+          title="Click to view Description"
         >
           <span class="fa fa-info-circle"></span>
         </button>

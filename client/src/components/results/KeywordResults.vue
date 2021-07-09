@@ -13,7 +13,7 @@
       <h3 class="is-size-5 has-text-weight-bold">
         Summary of Keyword Hits
         <HoverText hoverId="keywordHitsInfo" :icon="true">
-          Keyword hits are summarized by type of information stored in the ELG database. The Keyword Results Table
+          Keyword hits are summarized by type of information stored in the ELG Database. The Keyword Results Table
           presents the pollutant limitation results associated with the keyword search.
         </HoverText>
       </h3>
