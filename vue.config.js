@@ -19,6 +19,7 @@ module.exports = {
   chainWebpack: (config) => {
     config.plugin('html').tap((args) => {
       args[0].template = `${__dirname}/client/public/index.html`;
+      args[0].favicon = `${__dirname}/client/public/favicon.ico`;
       return args;
     });
   },
