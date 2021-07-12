@@ -202,7 +202,7 @@
               <span v-else>--</span>
             </template>
             <template v-slot:cell(goToLimitations)="{ item }">
-              <span v-if="!item.noLimitations && !item.zeroDischarge">
+              <span v-if="!item.noLimitations && !item.zeroDischarge && item.limitationCount > 0">
                 <a @click="navigateToLimitations(item)">
                   <span class="fas fa-share-square limitation-link"></span>
                 </a>
