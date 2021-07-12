@@ -340,11 +340,13 @@ SELECT
 	general_psc_code,
 	specific_psc_code,
 	nullif(regexp_replace(sic, '[^0-9]', '', 'g'), '') as sic_code
-FROM elg_database.ref_psc_sic_xwalk;
+FROM elg_database.ref_psc_sic_xwalk x 
+where exists (select psc_code from elg_database.n1_cfr c where c.psc_code = x.general_psc_code);
 
 create view elg_database.view_ref_psc_naics_xwalk as 
 SELECT 
 	naics, 
 	psc_code,
 	nullif(regexp_replace(naics, '[^0-9]', '', 'g'), '') as naics_code
-FROM elg_database.ref_psc_naics_xwalk;
+FROM elg_database.ref_psc_naics_xwalk x 
+where exists (select psc_code from elg_database.n1_cfr c where c.psc_code = x.psc_code);

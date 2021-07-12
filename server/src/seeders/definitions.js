@@ -16415,7 +16415,7 @@ module.exports = {
         "source_id":null,
         "qc_flag":"0",
         "qc_notes":null,
-        "typo_flag_definition":"Field includes additional details not in the CFR."},
+        "typo_flag_definition":null},
       {"cfr_part":423,
         "def_id":1381,
         "subcat_cfr_section":null,
