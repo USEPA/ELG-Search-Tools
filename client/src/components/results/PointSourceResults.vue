@@ -3,6 +3,11 @@
     <div class="columns">
       <div class="column is-10">
         <div class="cfr-link">
+          <a title="ELG Category Overview" :href="categoryData.linkUrl" target="_blank" rel="noopener noreferrer">
+            ELG Category Overview <span class="fa fa-external-link-alt" />
+          </a>
+        </div>
+        <div class="cfr-link">
           <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
             About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}: Applicability, General Requirements, and
             Definitions

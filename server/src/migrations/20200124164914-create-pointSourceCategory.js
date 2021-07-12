@@ -50,6 +50,11 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: true,
           field: 'most_recent_revision_date'
+        },
+        linkUrl: {
+          type: Sequelize.STRING,
+          allowNull: true,
+          field: 'link_url'
         }
       }).then(() => {
         queryInterface.addIndex(
