@@ -36,8 +36,14 @@
     </Modal>
     <SearchBar />
     <p class="contact-us">
-      <a href="https://www.epa.gov/eg/forms/contact-us-about-effluent-guidelines">Contact Us</a> to ask a question,
-      provide feedback, or report a problem.
+      <a
+        href="https://www.epa.gov/eg/forms/contact-us-about-effluent-guidelines"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Contact Us
+      </a>
+      to ask a question, provide feedback, or report a problem.
     </p>
   </section>
 </template>
