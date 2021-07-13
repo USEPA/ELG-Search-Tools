@@ -1,34 +1,6 @@
 <template>
   <div>
     <div class="columns">
-      <div class="column is-10">
-        <div class="cfr-link">
-          <a title="ELG Category Overview" :href="categoryData.linkUrl" target="_blank" rel="noopener noreferrer">
-            ELG Category Overview <span class="fa fa-external-link-alt" />
-          </a>
-        </div>
-        <div class="cfr-link">
-          <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
-            About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}: Applicability, General Requirements, and
-            Definitions
-            <span class="fa fa-external-link-alt" />
-          </router-link>
-        </div>
-      </div>
-      <div class="column is-2">
-        <div class="cfr-link is-pulled-right">
-          <a
-            title="Electronic Code of Federal Regulations"
-            :href="`https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.${selectedCategory.pointSourceCategoryCode}`"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            eCFR <span class="fa fa-external-link-alt" />
-          </a>
-        </div>
-      </div>
-    </div>
-    <div class="columns">
       <div class="column">
         <div class="info-box-container message">
           <div class="message-body">
