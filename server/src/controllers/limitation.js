@@ -201,7 +201,7 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
   });
 }
 
-function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir) {
+function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir, offset, limit) {
   return new Promise(function(resolve, reject) {
     TreatmentTechnologyCode.findAll({
       where: {
@@ -252,7 +252,7 @@ function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCode
                 if (wastestreamProcesses.length) {
                   //determine list of limitations that are relevant based on selected PSCs, selected pollutants, and relevant wastestream processes
                   let queryColumns = attributes.concat(['treatmentCodes', 'treatmentNames', 'wastestreamProcessTreatmentTechnologyNotes', 'wastestreamProcessTreatmentTechnologySourceTitle']);
-                  ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAll({
+                  ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAndCountAll({
                     attributes: queryColumns,
                     where: {
                       [Op.and]: [
@@ -280,7 +280,9 @@ function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCode
                         {wastestreamProcessId: {[Op.in]: wastestreamProcesses.map(a => a.wastestreamProcessId)}}
                       ]
                     },
-                    order: parseSort(sortCol, sortDir, queryColumns)
+                    order: parseSort(sortCol, sortDir, queryColumns),
+                    offset: offset,
+                    limit: limit
                   })
                     .then((limitations) => {
                       resolve(limitations);
