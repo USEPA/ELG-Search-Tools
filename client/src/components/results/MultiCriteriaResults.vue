@@ -254,25 +254,7 @@ export default {
           }`
         );
         this.$store.commit('customSearch/SET_MULTI_CRITERIA_RESULTS', response.data);
-        return response.data.limitations.map((row) => {
-          let limitationValueDisplay = row.limitationValue;
-
-          if (limitationValueDisplay === null) {
-            limitationValueDisplay =
-              row.minimumValue !== null && row.maximumValue !== null
-                ? `${row.minimumValue} - ${row.maximumValue}`
-                : row.minimumValue;
-          }
-
-          if (limitationValueDisplay === null) {
-            limitationValueDisplay = '--';
-          }
-
-          return {
-            ...row,
-            limitationValue: limitationValueDisplay,
-          };
-        });
+        return response.data.limitations;
       } catch (error) {
         return [];
       }

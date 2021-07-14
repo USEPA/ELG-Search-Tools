@@ -13,7 +13,7 @@
       <h3 class="is-size-5 has-text-weight-bold">
         Summary of Keyword Hits
         <HoverText hoverId="keywordHitsInfo" :icon="true">
-          Keyword hits are summarized by type of information stored in the ELG database. The Keyword Results Table
+          Keyword hits are summarized by type of information stored in the ELG Database. The Keyword Results Table
           presents the pollutant limitation results associated with the keyword search.
         </HoverText>
       </h3>
@@ -253,25 +253,7 @@ export default {
           }`
         );
         this.$store.commit('customSearch/SET_KEYWORD_RESULTS', response.data);
-        return response.data.limitations.map((row) => {
-          let limitationValueDisplay = row.limitationValue;
-
-          if (limitationValueDisplay === null) {
-            limitationValueDisplay =
-              row.minimumValue !== null && row.maximumValue !== null
-                ? `${row.minimumValue} - ${row.maximumValue}`
-                : row.minimumValue;
-          }
-
-          if (limitationValueDisplay === null) {
-            limitationValueDisplay = '--';
-          }
-
-          return {
-            ...row,
-            limitationValue: limitationValueDisplay,
-          };
-        });
+        return response.data.limitations;
       } catch (error) {
         return [];
       }

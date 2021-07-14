@@ -244,6 +244,13 @@ input,
     padding-bottom: 0;
   }
 
+  .vs__dropdown-menu {
+    .vs__dropdown-option {
+      white-space: normal;
+      border-bottom: 1px solid #f1f1f1;
+    }
+  }
+
   input.vs__search {
     margin: 0;
     padding: 4px;

@@ -127,7 +127,7 @@ module.exports = {
       }
 
       return PointSourceCategory.findByPk(id, {
-        attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName']
+        attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName', 'linkUrl']
       })
         .then((pointSourceCategory) => {
           let result = new Map();
@@ -135,6 +135,7 @@ module.exports = {
           if(pointSourceCategory) {
             result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
             result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
+            result['linkUrl'] = pointSourceCategory.linkUrl;
 
             PointSourceSubcategory.findAll({
               attributes: ['id', 'pointSourceSubcategoryCode', 'pointSourceSubcategoryTitle', 'comboSubcategory'],
