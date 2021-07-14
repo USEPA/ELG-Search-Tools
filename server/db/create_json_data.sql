@@ -5,10 +5,13 @@ from
 	(
 	select
 		elg_database.n1_cfr.*,
-		elg_database.n1_cfr_url.link_url
+		case 
+			when elg_database.n1_cfr_url.link_url is null then 'https://www.epa.gov/eg' 
+			else elg_database.n1_cfr_url.link_url 
+		end as link_url
 	from
 		elg_database.n1_cfr
-	inner join elg_database.n1_cfr_url on
+	left outer join elg_database.n1_cfr_url on
 		elg_database.n1_cfr.psc_code = elg_database.n1_cfr_url.psc_code) row
 union all
 select 'PointSourceSubcategory' as tablename, string_agg( cast(row_to_json(tablename.*,true) as text), E',\n') as json_data from elg_database.view_n2_subcategory as tablename union all
