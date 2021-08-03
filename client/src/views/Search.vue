@@ -15,7 +15,7 @@
       <div class="column">
         <div class="cfr-link is-pulled-right">
           <a href="https://www.epa.gov/eg" target="_blank" rel="noopener noreferrer">
-            Effluent Guidelines <span class="fa fa-external-link-alt" />
+            Effluent Guidelines home page<span class="fa fa-external-link-alt" />
           </a>
         </div>
       </div>
@@ -43,7 +43,7 @@
       >
         Contact Us
       </a>
-      to ask a question, provide feedback, or report a problem.
+      to ask about an Effluent Guidelines category.
     </p>
   </section>
 </template>

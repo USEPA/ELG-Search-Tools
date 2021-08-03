@@ -194,6 +194,7 @@ export default {
         {
           key: 'pointSourceCategoryName',
           label: 'Point Source Category',
+          tdClass: 'text-left',
         },
         {
           key: 'controlTechnologyCfrSection',
@@ -202,6 +203,7 @@ export default {
         {
           key: 'comboSubcategory',
           label: 'Subpart',
+          tdClass: 'text-left',
         },
         {
           key: 'controlTechnologyCode',

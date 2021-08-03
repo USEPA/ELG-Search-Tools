@@ -67,6 +67,7 @@
                     ELG Category Overview <span class="fa fa-external-link-alt" />
                   </a>
                 </div>
+                (Support Documents & History)
               </li>
               <li>
                 <div class="cfr-link">

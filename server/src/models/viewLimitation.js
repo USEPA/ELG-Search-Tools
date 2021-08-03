@@ -198,6 +198,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         field: 'psc_cfr_notes'
       },
+      pointSourceCategoryLinkUrl: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        field: 'psc_link_url'},
       pointSourceSubcategoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,

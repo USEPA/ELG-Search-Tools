@@ -56,6 +56,16 @@
     </div>
 
     <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData.pscs">
+      <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`head(${fieldKey})`]="data">
+        {{ data.label }}
+        <button
+          :key="fieldKey"
+          class="button is-text icon-btn"
+          @click="openModal(data.label, headerDescriptions[fieldKey])"
+        >
+          <span class="fa fa-info-circle"></span>
+        </button>
+      </template>
       <template v-slot:cell(selectPsc)="{ item }">
         <input
           :id="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`"
@@ -69,6 +79,11 @@
             Select Point Source Category and click "Compare PSCs" to view limitations.
           </span>
         </label>
+      </template>
+      <template v-slot:cell(pointSourceCategoryName)="{ item }">
+        <a :href="item.pointSourceCategoryLinkUrl" target="_blank" rel="noopener noreferrer">
+          {{ item.pointSourceCategoryName }} <span class="fa fa-external-link-alt" />
+        </a>
       </template>
       <template v-slot:cell(pointSourceSubcategories)="{ value }">
         <span v-if="value !== ''" v-html="value" />
@@ -162,6 +177,11 @@
         </a>
       </template>
     </Table>
+    <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
+      <p class="has-text-left">
+        <span v-html="currentModalContent" />
+      </p>
+    </Modal>
   </div>
 </template>
 
@@ -180,70 +200,92 @@ export default {
   },
   data() {
     return {
+      shouldDisplayModal: false,
       pollColumns: [
         {
           key: 'selectPsc',
           label: 'Select PSC',
           sortable: false,
+          tdClass: 'align-top',
         },
         {
           key: 'pointSourceCategoryCode',
           label: '40 CFR',
+          tdClass: 'align-top',
         },
         {
           key: 'pointSourceCategoryName',
           label: 'Point Source Category',
+          tdClass: 'text-left align-top',
         },
         {
           key: 'pointSourceSubcategories',
           label: 'Subcategories',
           isAbbreviatedList: true,
+          tdClass: 'text-left align-top',
         },
         {
           key: 'rangeOfPollutantLimitations',
           label: 'Range of Pollutant Limitations',
           displayAsHTML: true,
           sortable: false,
+          tdClass: 'align-top',
         },
         {
           key: 'goToLimitations',
           label: 'Go to Limitations',
           sortable: false,
+          tdClass: 'align-top',
         },
       ],
       pollCategoryColumns: [
         {
           key: 'pollutantDescription',
           label: 'Pollutant',
+          tdClass: 'align-top',
         },
         {
           key: 'pointSourceCategoryCode',
           label: '40 CFR',
+          tdClass: 'align-top',
         },
         {
           key: 'pointSourceCategoryName',
           label: 'Point Source Category',
+          tdClass: 'text-left align-top',
         },
         {
           key: 'pointSourceSubcategories',
           label: 'Subcategories',
           isAbbreviatedList: true,
+          tdClass: 'text-left align-top',
         },
         {
           key: 'rangeOfPollutantLimitations',
           label: 'Range of Pollutant Limitations',
           displayAsHTML: true,
           sortable: false,
+          tdClass: 'align-top',
         },
         {
           key: 'goToLimitations',
           label: 'Go to Limitations',
           sortable: false,
+          tdClass: 'align-top',
         },
       ],
+      headerDescriptions: {
+        pointSourceCategoryName:
+          'Click on the PSC title to access the ELG Category Overview (Support Documents & History).',
+      },
     };
   },
   methods: {
+    openModal(title, content) {
+      this.currentModalTitle = title;
+      this.currentModalContent = content;
+      this.shouldDisplayModal = true;
+    },
     async navigateToLimitations(row) {
       if (row.id) {
         await this.$store.dispatch('limitations/getLimitationData', row.id);
