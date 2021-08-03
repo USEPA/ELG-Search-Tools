@@ -36,8 +36,16 @@ section.main-content {
   vertical-align: middle !important;
 }
 
+.table td.align-top {
+  vertical-align: top !important;
+}
+
 .table td {
   text-align: center !important;
+}
+
+.table td.text-left {
+  text-align: left !important;
 }
 
 .section {
