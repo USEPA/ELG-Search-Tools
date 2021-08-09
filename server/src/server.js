@@ -129,6 +129,12 @@ if (!isLocal) {
     Bucket: awsS3.s3_bucket,
     Key: 'ELG Database Users Guide.pdf'
   });
+
+  //get latest contact info from s3
+  s3GetObject({
+    Bucket: awsS3.s3_bucket,
+    Key: 'contact.txt'
+  });
 }
 
 /****************************************************************

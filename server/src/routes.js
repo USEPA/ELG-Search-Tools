@@ -42,6 +42,8 @@ module.exports = (app, history) => {
 
   router.get('/help', controllers.glossary.help);
 
+  router.get('/contact', controllers.glossary.contact)
+
   app.use(`${basePath}/api`, router);
 
   // serve up built Vue files from express server (need to use regex to add trailing slash or else static serve won't work)

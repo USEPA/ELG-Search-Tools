@@ -28,6 +28,7 @@ const state = {
   technologyBasisData: null,
   isFetching: false,
   isComparingPscs: false,
+  contactInfo: '',
 };
 
 const getters = {
@@ -40,6 +41,14 @@ const mutations = {
 };
 
 const actions = {
+  async getContactInfo({ commit }) {
+    commit('SET_CONTACT_INFO', '');
+    commit('SET_IS_FETCHING', true);
+
+    const res = await axios.get('api/contact');
+    commit('SET_CONTACT_INFO', res.data);
+    commit('SET_IS_FETCHING', false);
+  },
   async getPointSourceCategories({ commit }) {
     commit('SET_CATEGORIES', []);
     commit('SET_IS_FETCHING', true);
