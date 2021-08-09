@@ -36,14 +36,7 @@
     </Modal>
     <SearchBar />
     <p class="contact-us">
-      <a
-        href="https://www.epa.gov/eg/forms/contact-us-about-effluent-guidelines"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Contact Us
-      </a>
-      to ask about an Effluent Guidelines category.
+      <span v-html="this.contactInfo" />
     </p>
   </section>
 </template>
@@ -52,6 +45,7 @@
 import Alert from '@/components/shared/Alert';
 import Modal from '@/components/shared/Modal';
 import SearchBar from '@/components/shared/SearchBar';
+import { get } from 'vuex-pathify';
 
 export default {
   data() {
@@ -63,6 +57,12 @@ export default {
     Alert,
     Modal,
     SearchBar,
+  },
+  computed: {
+    ...get('search', ['contactInfo']),
+  },
+  created() {
+    this.$store.dispatch('search/getContactInfo');
   },
 };
 </script>
