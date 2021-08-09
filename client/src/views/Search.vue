@@ -42,10 +42,10 @@
 </template>
 
 <script>
+import { get } from 'vuex-pathify';
 import Alert from '@/components/shared/Alert';
 import Modal from '@/components/shared/Modal';
 import SearchBar from '@/components/shared/SearchBar';
-import { get } from 'vuex-pathify';
 
 export default {
   data() {
