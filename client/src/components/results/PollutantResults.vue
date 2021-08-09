@@ -187,10 +187,10 @@
 
 <script>
 import { get, sync } from 'vuex-pathify';
+import { BRow, BCol } from 'bootstrap-vue';
 import HoverText from '@/components/shared/HoverText';
 import DownloadLink from '@/components/shared/DownloadLink';
 import Table from '@/components/shared/Table';
-import { BRow, BCol } from 'bootstrap-vue';
 
 export default {
   components: { HoverText, DownloadLink, Table, BRow, BCol },
