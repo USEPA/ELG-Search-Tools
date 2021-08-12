@@ -11,7 +11,7 @@ module.exports = {
     "ld.limit_duration_description || CASE WHEN l.discharge_frequency IS NOT NULL THEN ' (' || l.discharge_frequency || ')' ELSE '' END as limit_duration_description, " +
     "ld.stat_base_type, ld.limit_type_display, lu.unit_code, lu.unit, lu.unit_desc, lu.unit_basis, " +
     'l.lim_calc_desc as lim_lim_calc_desc, l.pollutant_notes as lim_pollutant_notes, ' +
-    'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, ' +
+    'psc.psc_code, psc.psc_name, psc.cfr_part as psc_cfr_part, psc.cfr_notes as psc_cfr_notes, psc.link_url as psc_link_url, ' +
     'pss.subcat_id, pss.combo_subcat, pss.subcat_title, pss.subcat_cfr_section, pss.subcat_applicability, pss.subcat_notes, ' +
     'ct.ct_id, ct.ct_code, ct.ct_order, ct.ct_cfr_section, ' +
     'tt.treatment_id, tt.treatment_codes, tt.treatment_description, tt.treatment_names, ' +

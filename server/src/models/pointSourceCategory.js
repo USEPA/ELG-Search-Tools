@@ -48,6 +48,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
         field: 'most_recent_revision_date'
+      },
+      linkUrl: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: 'link_url'
       }
     },
     { timestamps: false, schema: 'elg_search', tableName: 'PointSourceCategory' }

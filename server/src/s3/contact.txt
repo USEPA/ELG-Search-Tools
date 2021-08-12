@@ -1,0 +1,6 @@
+<a href="https://www.epa.gov/eg/forms/contact-us-about-effluent-guidelines" target="_blank" rel="noopener noreferrer">
+Contact Us</a> to ask about an Effluent Guidelines category.
+<br/>
+For additional information regarding the ELG Database,
+please contact <a href=mailto:born.tom@epa.gov>Tom Born</a> (<a href=mailto:born.tom@epa.gov>born.tom@epa.gov</a>)
+at 202-566-1001.

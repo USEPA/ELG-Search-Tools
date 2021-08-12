@@ -126,7 +126,3 @@ workflows:
           filters:
             branches:
               only: staging
-      - master-branch:
-          filters:
-            branches:
-              only: master

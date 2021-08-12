@@ -32,5 +32,18 @@ module.exports = {
     catch (err) {
       res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
+  },
+  contact (req, res) {
+    try {
+      //get latest contact information from file system (updated from s3 on each server restart)
+      const path = require('path');
+      const fileName = path.join(__dirname, '../s3/contact.txt');
+
+      const file = fs.createReadStream(fileName);
+      file.pipe(res);
+    }
+    catch (err) {
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
+    }
   }
 };

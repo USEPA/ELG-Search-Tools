@@ -340,11 +340,68 @@ SELECT
 	general_psc_code,
 	specific_psc_code,
 	nullif(regexp_replace(sic, '[^0-9]', '', 'g'), '') as sic_code
-FROM elg_database.ref_psc_sic_xwalk;
+FROM elg_database.ref_psc_sic_xwalk x 
+where exists (select psc_code from elg_database.n1_cfr c where c.psc_code = x.general_psc_code);
 
 create view elg_database.view_ref_psc_naics_xwalk as 
 SELECT 
 	naics, 
 	psc_code,
 	nullif(regexp_replace(naics, '[^0-9]', '', 'g'), '') as naics_code
-FROM elg_database.ref_psc_naics_xwalk;
+FROM elg_database.ref_psc_naics_xwalk x 
+where exists (select psc_code from elg_database.n1_cfr c where c.psc_code = x.psc_code);
+
+create table elg_database.n1_cfr_url as
+SELECT 405 as psc_code, 'https://www.epa.gov/eg/dairy-products-processing-effluent-guidelines' as link_url UNION ALL
+SELECT 406 as psc_code, 'https://www.epa.gov/eg/grain-mills-effluent-guidelines' as link_url UNION ALL
+SELECT 408 as psc_code, 'https://www.epa.gov/eg/seafood-processing-effluent-guidelines' as link_url UNION ALL
+SELECT 410 as psc_code, 'https://www.epa.gov/eg/textile-mills-effluent-guidelines' as link_url UNION ALL
+SELECT 411 as psc_code, 'https://www.epa.gov/eg/cement-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 412 as psc_code, 'https://www.epa.gov/npdes/animal-feeding-operations-afos#regulations' as link_url UNION ALL
+SELECT 413 as psc_code, 'https://www.epa.gov/eg/electroplating-effluent-guidelines' as link_url UNION ALL
+SELECT 414 as psc_code, 'https://www.epa.gov/eg/organic-chemicals-plastics-and-synthetic-fibers-effluent-guidelines' as link_url UNION ALL
+SELECT 417 as psc_code, 'https://www.epa.gov/eg/soap-and-detergent-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 418 as psc_code, 'https://www.epa.gov/eg/fertilizer-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 419 as psc_code, 'https://www.epa.gov/eg/petroleum-refining-effluent-guidelines' as link_url UNION ALL
+SELECT 420 as psc_code, 'https://www.epa.gov/eg/iron-and-steel-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 421 as psc_code, 'https://www.epa.gov/eg/nonferrous-metals-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 423 as psc_code, 'https://www.epa.gov/eg/steam-electric-power-generating-effluent-guidelines' as link_url UNION ALL
+SELECT 424 as psc_code, 'https://www.epa.gov/eg/ferroalloy-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 425 as psc_code, 'https://www.epa.gov/eg/leather-tanning-and-finishing-effluent-guidelines' as link_url UNION ALL
+SELECT 426 as psc_code, 'https://www.epa.gov/eg/glass-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 429 as psc_code, 'https://www.epa.gov/eg/timber-products-processing-effluent-guidelines' as link_url UNION ALL
+SELECT 430 as psc_code, 'https://www.epa.gov/eg/pulp-paper-and-paperboard-effluent-guidelines' as link_url UNION ALL
+SELECT 432 as psc_code, 'https://www.epa.gov/eg/meat-and-poultry-products-effluent-guidelines' as link_url UNION ALL
+SELECT 433 as psc_code, 'https://www.epa.gov/eg/metal-finishing-effluent-guidelines' as link_url UNION ALL
+SELECT 434 as psc_code, 'https://www.epa.gov/eg/coal-mining-effluent-guidelines' as link_url UNION ALL
+SELECT 435 as psc_code, 'https://www.epa.gov/eg/oil-and-gas-extraction-effluent-guidelines' as link_url UNION ALL
+SELECT 436 as psc_code, 'https://www.epa.gov/eg/mineral-mining-and-processing-effluent-guidelines' as link_url UNION ALL
+SELECT 437 as psc_code, 'https://www.epa.gov/eg/centralized-waste-treatment-effluent-guidelines' as link_url UNION ALL
+SELECT 438 as psc_code, 'https://www.epa.gov/eg/metal-products-and-machinery-effluent-guidelines' as link_url UNION ALL
+SELECT 439 as psc_code, 'https://www.epa.gov/eg/pharmaceutical-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 440 as psc_code, 'https://www.epa.gov/eg/ore-mining-and-dressing-effluent-guidelines' as link_url UNION ALL
+SELECT 441 as psc_code, 'https://www.epa.gov/eg/dental-effluent-guidelines' as link_url UNION ALL
+SELECT 442 as psc_code, 'https://www.epa.gov/eg/transportation-equipment-cleaning-effluent-guidelines' as link_url UNION ALL
+SELECT 443 as psc_code, 'https://www.epa.gov/eg/paving-and-roofing-materials-effluent-guidelines' as link_url UNION ALL
+SELECT 444 as psc_code, 'https://www.epa.gov/eg/waste-combustors-effluent-guidelines' as link_url UNION ALL
+SELECT 445 as psc_code, 'https://www.epa.gov/eg/landfills-effluent-guidelines' as link_url UNION ALL
+SELECT 446 as psc_code, 'https://www.epa.gov/eg/paint-formulating-effluent-guidelines' as link_url UNION ALL
+SELECT 447 as psc_code, 'https://www.epa.gov/eg/ink-formulating-effluent-guidelines' as link_url UNION ALL
+SELECT 449 as psc_code, 'https://www.epa.gov/eg/airport-deicing-effluent-guidelines' as link_url UNION ALL
+SELECT 450 as psc_code, 'https://www.epa.gov/eg/construction-and-development-effluent-guidelines' as link_url UNION ALL
+SELECT 451 as psc_code, 'https://www.epa.gov/eg/concentrated-aquatic-animal-production-effluent-guidelines' as link_url UNION ALL
+SELECT 454 as psc_code, 'https://www.epa.gov/eg/gum-and-wood-chemicals-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 455 as psc_code, 'https://www.epa.gov/eg/pesticide-chemicals-effluent-guidelines' as link_url UNION ALL
+SELECT 457 as psc_code, 'https://www.epa.gov/eg/explosives-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 458 as psc_code, 'https://www.epa.gov/eg/carbon-black-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 459 as psc_code, 'https://www.epa.gov/eg/photographic-processing-effluent-guidelines' as link_url UNION ALL
+SELECT 461 as psc_code, 'https://www.epa.gov/eg/battery-manufacturing-effluent-guidelines' as link_url UNION ALL
+SELECT 463 as psc_code, 'https://www.epa.gov/eg/plastics-molding-and-forming-effluent-guidelines' as link_url UNION ALL
+SELECT 464 as psc_code, 'https://www.epa.gov/eg/metal-molding-and-casting-foundries-effluent-guidelines' as link_url UNION ALL
+SELECT 465 as psc_code, 'https://www.epa.gov/eg/coil-coating-effluent-guidelines' as link_url UNION ALL
+SELECT 466 as psc_code, 'https://www.epa.gov/eg/porcelain-enameling-effluent-guidelines' as link_url UNION ALL
+SELECT 467 as psc_code, 'https://www.epa.gov/eg/aluminum-forming-effluent-guidelines' as link_url UNION ALL
+SELECT 468 as psc_code, 'https://www.epa.gov/eg/copper-forming-effluent-guidelines' as link_url UNION ALL
+SELECT 469 as psc_code, 'https://www.epa.gov/eg/electrical-and-electronic-components-effluent-guidelines' as link_url UNION ALL
+SELECT 471 as psc_code, 'https://www.epa.gov/eg/nonferrous-metals-forming-and-metal-powders-effluent-guidelines' as link_url;
+

@@ -15,29 +15,78 @@
         </router-link>
       </div>
     </div>
-    <div class="elg-header-container">
-      <h2 class="is-size-4 has-text-weight-bold page-heading column is-10">
-        <span v-if="selectedCategory">
-          Point Source Category
-          {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
-          Limitation Results
-        </span>
-        <span v-else-if="selectedPollutant"> {{ selectedPollutant.pollutantDescription }} Limitation Results </span>
-        <span v-else-if="selectedPollutantCategory">
-          {{ selectedPollutantCategory.description }} Limitation Results
-        </span>
-        <span v-else-if="selectedTreatmentTechnology"> {{ selectedTreatmentTechnology.name }} Limitation Results </span>
-        <span v-else-if="selectedTreatmentTechnologyCategory">
-          {{ selectedTreatmentTechnologyCategory + ' Treatment Category' }}
-          Limitation Results
-        </span>
-        <span v-else-if="keyword && keyword.length">
-          Keyword Search Results
-        </span>
-        <span v-else-if="searchType === 'multiCriteria'">
-          Multi-Criteria Search Results
-        </span>
-      </h2>
+    <div class="elg-header-container columns">
+      <div :class="`page-heading ${selectedCategory ? 'column is-8' : ''}`">
+        <h2 class="is-size-4 has-text-weight-bold">
+          <span v-if="selectedCategory">
+            Point Source Category
+            {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
+            Limitation Results
+          </span>
+          <span v-else-if="selectedPollutant"> {{ selectedPollutant.pollutantDescription }} Limitation Results </span>
+          <span v-else-if="selectedPollutantCategory">
+            {{ selectedPollutantCategory.description }} Limitation Results
+          </span>
+          <span v-else-if="selectedTreatmentTechnology">
+            {{ selectedTreatmentTechnology.name }} Limitation Results
+          </span>
+          <span v-else-if="selectedTreatmentTechnologyCategory">
+            {{ selectedTreatmentTechnologyCategory + ' Treatment Category' }}
+            Limitation Results
+          </span>
+          <span v-else-if="keyword && keyword.length">
+            Keyword Search Results
+          </span>
+          <span v-else-if="searchType === 'multiCriteria'">
+            Multi-Criteria Search Results
+          </span>
+        </h2>
+        <div class="cfr-link about-40" v-if="selectedCategory">
+          <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
+            About 40 CFR {{ selectedCategory.pointSourceCategoryCode }}: Applicability, General Requirements, and
+            Definitions
+            <span class="fa fa-external-link-alt" />
+          </router-link>
+        </div>
+      </div>
+      <div v-if="selectedCategory" class="column is-4">
+        <div class="message related-links">
+          <div class="message-header">
+            <p>Related Links</p>
+          </div>
+          <div class="message-body content">
+            <ul>
+              <li>
+                <div class="cfr-link">
+                  <a
+                    title="ELG Category Overview"
+                    :href="categoryData.linkUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ELG Category Overview <span class="fa fa-external-link-alt" />
+                  </a>
+                </div>
+                (Support Documents & History)
+              </li>
+              <li>
+                <div class="cfr-link">
+                  <a
+                    title="Electronic Code of Federal Regulations"
+                    :href="
+                      `https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.${selectedCategory.pointSourceCategoryCode}`
+                    "
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    eCFR <span class="fa fa-external-link-alt" />
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
 
     <PointSourceResults v-if="selectedCategory" />
@@ -78,6 +127,7 @@ export default {
       'selectedPollutantCategory',
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
+      'categoryData',
     ]),
     ...get('customSearch', ['multiCriteriaResults', 'keyword']),
   },
@@ -86,6 +136,38 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../static/variables';
+
+.cfr-link a:hover {
+  color: $blue;
+}
+
+.cfr-link.about-40 {
+  margin-top: 1rem;
+}
+
+.message.related-links {
+  margin: 0;
+
+  .message-header {
+    background: $darkBlue;
+  }
+
+  .message-body {
+    padding: 0;
+    margin: 0 0.75rem;
+  }
+
+  ul {
+    padding: 0.75rem 0 0.75rem 1.5rem;
+    margin: 0;
+  }
+
+  a {
+    color: $blue !important;
+    text-decoration: none !important;
+  }
+}
+
 .page-heading {
   margin-bottom: 0.5rem;
 }

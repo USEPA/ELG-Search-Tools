@@ -1478,6 +1478,22 @@
           }
         }
       }
+    },
+    "/api/contact": {
+      "get": {
+        "summary": "Contact",
+        "description": "Placeholder",
+        "parameters": [],
+        "tags": ["Contact"],
+        "responses": {
+          "200": {
+            "description": "Placeholder",
+            "schema": {
+              "$ref": "#/definitions/glossary.contact"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1781,6 +1797,19 @@
       "required": ["Dummy"]
     },
     "glossary.help": {
+      "type": "object",
+      "description": "Placeholder",
+      "properties": {
+        "Dummy": {
+          "type": "string",
+          "title": "Dummy",
+          "example": "Dummy",
+          "description": "Dummy"
+        }
+      },
+      "required": ["Dummy"]
+    },
+    "glossary.contact": {
       "type": "object",
       "description": "Placeholder",
       "properties": {

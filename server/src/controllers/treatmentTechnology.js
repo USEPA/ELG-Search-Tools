@@ -446,6 +446,10 @@ module.exports = {
 
       let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
       let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+      if (downloadRequested) {
+        offset = 0;
+        limit = null;
+      }
       let sortCol = req.query.sortCol;
       let sortDir = req.query.sortDir;
 
@@ -464,7 +468,7 @@ module.exports = {
               res.status(400).send("Invalid value passed for id");
             }
             else {
-              limitation.technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir)
+              limitation.technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir, offset, limit)
                 .then(limitations => {
                   if (downloadRequested) {
                     download.createDownloadFile('limitations',
@@ -489,13 +493,13 @@ module.exports = {
                         { label: 'Pollutants', value: pollutantIds.join(', ')},
                         { label: 'Treatment Trains', value: (treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))].join(', ') : '')}
                       ],
-                      limitations,
+                      limitations.rows,
                       res);
                   }
                   else {
                     res.status(200).send({
-                      limitations: limitations.slice(offset, (offset+limit)),
-                      count: limitations.length
+                      limitations: limitations.rows, // limitations.slice(offset, (offset+limit)),
+                      count: limitations.count // length
                     });
                   }
                 })

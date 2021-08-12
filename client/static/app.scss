@@ -36,8 +36,16 @@ section.main-content {
   vertical-align: middle !important;
 }
 
+.table td.align-top {
+  vertical-align: top !important;
+}
+
 .table td {
   text-align: center !important;
+}
+
+.table td.text-left {
+  text-align: left !important;
 }
 
 .section {
@@ -242,6 +250,13 @@ input,
   .vs__dropdown-toggle {
     height: 100%;
     padding-bottom: 0;
+  }
+
+  .vs__dropdown-menu {
+    .vs__dropdown-option {
+      white-space: normal;
+      border-bottom: 1px solid #f1f1f1;
+    }
   }
 
   input.vs__search {

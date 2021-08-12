@@ -147,13 +147,15 @@ module.exports = {
         group: [
           ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
-          "pointSourceCategoryName"
+          "pointSourceCategoryName",
+          "pointSourceCategoryLinkUrl"
         ],
         attributes: [
           [Sequelize.literal("string_agg(distinct pollutant_code::text, ',')"), "pollutantId"],
           ["elg_pollutant_description", 'pollutantDescription'],
           "pointSourceCategoryCode",
           "pointSourceCategoryName",
+          "pointSourceCategoryLinkUrl",
           [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
           [Sequelize.literal("string_agg(distinct combo_subcat, '\n' order by combo_subcat)"), "pointSourceSubcategoriesForDownload"]
         ],
@@ -331,13 +333,15 @@ module.exports = {
             group: [
               ["elg_pollutant_description", 'pollutantDescription'],
               "pointSourceCategoryCode",
-              "pointSourceCategoryName"
+              "pointSourceCategoryName",
+              "pointSourceCategoryLinkUrl"
             ],
             attributes: [
               [Sequelize.literal("string_agg(distinct pollutant_code::text, ',')"), "pollutantId"],
               ["elg_pollutant_description", 'pollutantDescription'],
               "pointSourceCategoryCode",
               "pointSourceCategoryName",
+              "pointSourceCategoryLinkUrl",
               [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
               [Sequelize.literal("string_agg(distinct combo_subcat, '\n' order by combo_subcat)"), "pointSourceSubcategoriesForDownload"]
             ],

@@ -22,7 +22,7 @@
         Long-Term Averages
       </h2>
     </div>
-    <Alert v-if="!longTermAvgData" type="error">
+    <Alert v-if="!longTermAvgData && !isFetching" type="error">
       You must come to this page from a results page.
       <router-link to="/" class="has-text-dark">Return Home</router-link> to run a search and view long term averages.
     </Alert>
@@ -108,7 +108,7 @@ export default {
   components: { Alert, Breadcrumbs, Table, Modal, HoverText, DownloadLink },
   computed: {
     ...mapState('search', ['selectedTreatmentTrain']),
-    ...mapState('limitations', ['longTermAvgData', 'selectedLimitationId']),
+    ...mapState('limitations', ['isFetching', 'longTermAvgData', 'selectedLimitationId']),
   },
   data() {
     return {

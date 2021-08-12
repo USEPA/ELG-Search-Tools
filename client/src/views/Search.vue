@@ -1,14 +1,26 @@
 <template>
   <section class="section">
     <p>
-      The ELG database allows easy access to information relevant to the effluent limitations guidelines and standards
+      The ELG Database allows easy access to information relevant to the effluent limitations guidelines and standards
       (ELGs) program. The ELG Database includes the ELGs as promulgated in the Code of Federal Regulations (CFR); CFR
       citation history (links the dates and federal register notices (FRN) to the corresponding CFR section); and
       readily available technology bases/pollutant long-term averages associated with the promulgated regulations.
     </p>
-    <button class="button is-hyperlink" @click="shouldShowDisclaimers = true">
-      <span class="fa fa-exclamation-triangle"></span> Click Here to View Disclaimers
-    </button>
+    <div class="columns">
+      <div class="column">
+        <button class="button is-hyperlink" @click="shouldShowDisclaimers = true">
+          <span class="fa fa-exclamation-triangle"></span> Click Here to View Disclaimers
+        </button>
+      </div>
+      <div class="column">
+        <div class="cfr-link is-pulled-right">
+          <a href="https://www.epa.gov/eg" target="_blank" rel="noopener noreferrer">
+            Effluent Guidelines home page<span class="fa fa-external-link-alt" />
+          </a>
+        </div>
+      </div>
+    </div>
+
     <Modal v-if="shouldShowDisclaimers" title="Disclaimers" @close="() => (shouldShowDisclaimers = false)">
       <Alert type="warning">
         EPA intends for the ELG Database to be solely used to access information on the effluent guidelines program via
@@ -23,10 +35,14 @@
       </Alert>
     </Modal>
     <SearchBar />
+    <p class="contact-us">
+      <span v-html="this.contactInfo" />
+    </p>
   </section>
 </template>
 
 <script>
+import { get } from 'vuex-pathify';
 import Alert from '@/components/shared/Alert';
 import Modal from '@/components/shared/Modal';
 import SearchBar from '@/components/shared/SearchBar';
@@ -42,22 +58,20 @@ export default {
     Modal,
     SearchBar,
   },
-  /* methods: {
-    onNavigate() {
-      this.$router.push('customSearch');
-    },
-  }, */
+  computed: {
+    ...get('search', ['contactInfo']),
+  },
+  created() {
+    this.$store.dispatch('search/getContactInfo');
+  },
 };
 </script>
 
 <style lang="scss" scoped>
+@import '../../static/variables';
+
 h1 {
   text-align: center;
-}
-
-p,
-button {
-  padding-bottom: 1rem !important;
 }
 
 .fa-exclamation-triangle {
@@ -70,5 +84,18 @@ button {
 
 .underline-text {
   text-decoration: underline;
+}
+
+.cfr-link a:visited {
+  color: $blue;
+}
+
+.contact-us {
+  margin-top: 1.5rem;
+  padding-bottom: 0;
+
+  a {
+    text-decoration: underline;
+  }
 }
 </style>

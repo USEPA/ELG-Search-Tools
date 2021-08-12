@@ -62,12 +62,14 @@ function fillControlTechnology(controlTechnology) {
           'additionalDetail',
           [Sequelize.literal("split_part(cfr_sect, '.', 1) || '_1' || split_part(cfr_sect, '.', 2)"), 'cfrSectionAnchor'],
           'typoFlagLimitCalculationDescription',
-          'typoFlagNotes'
+          'typoFlagNotes',
+          ['(select count(l.lim_id) from elg_search."Limitation" l where l.processop_id = "WastestreamProcess".processop_id)', 'limitationCount']
         ],
         where: {
           controlTechnologyId: { [Op.eq]: controlTechnology.id }
         },
-        order: ['displayOrder']
+        order: ['displayOrder'],
+        raw: true
       }).then(wastestreamProcesses => {
         ct['wastestreamProcesses'] = wastestreamProcesses;
 
