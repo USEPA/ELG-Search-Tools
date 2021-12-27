@@ -35,7 +35,7 @@ if (isLocal) {
     return;
   }
 
-  vcap_services = JSON.parse(process.env.VCAP_SERVICES);
+  let vcap_services = JSON.parse(process.env.VCAP_SERVICES);
   database_host = vcap_services["aws-rds"][0].credentials.host;
   database_user = vcap_services["aws-rds"][0].credentials.username;
   database_pwd = vcap_services["aws-rds"][0].credentials.password;
@@ -66,7 +66,7 @@ fs.readdirSync(__dirname)
     );
   })
   .forEach(file => {
-    const model = sequelize["import"](path.join(__dirname, file));
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 
