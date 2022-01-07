@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
+const sequelizeStream = require('node-sequelize-stream');
 const basename = path.basename(__filename);
 const db = {};
 const logger = require("../../utilities/logger.js");
@@ -78,5 +79,7 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+sequelizeStream(sequelize, 100, false);
 
 module.exports = db;
