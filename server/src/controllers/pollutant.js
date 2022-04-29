@@ -30,26 +30,61 @@ function buildRangeOfLimitations(limitValues) {
     let rangeOfPollutantLimitationsAsTable = [];
     let rangeOfPollutantLimitationsForDownload = [];
 
-    limitValues.forEach(function (limitValue) {
-      if (limitValue.minimumLimitationValue !== null || limitValue.maximumLimitationValue !== null) {
-        let rangeAsTableRow = new Map();
-        rangeAsTableRow.minimumLimitationValue = (limitValue.minimumLimitationValue ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
-        rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
-        rangeAsTableRow.limitationUnitCode = (limitValue.limitationUnitCode ? limitValue.limitationUnitCode.trim() : null);
-        rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
-        rangeAsTableRow.limitationDurationDescription = limitValue.limitationDurationDescription
-        rangeAsTableRow.alternateLimitFlag = limitValue.alternateLimitFlag
-        rangeAsTableRow.alternateLimitDescription = limitValue.alternateLimitDescription
-        rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
-        rangeOfPollutantLimitationsForDownload.push(
-          (rangeAsTableRow.alternateLimitFlag ? rangeAsTableRow.alternateLimitFlag : '') + rangeAsTableRow.minimumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') - ' +
-          (rangeAsTableRow.alternateLimitFlag ? rangeAsTableRow.alternateLimitFlag : '') + rangeAsTableRow.maximumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') ' +
-          rangeAsTableRow.limitationType
-        );
-      }
+    limitValues.filter(function (limitValue) {
+      return (limitValue.minimumLimitationValue !== null || limitValue.maximumLimitationValue !== null);
+    }).forEach(function (limitValue) {
+      let rangeAsTableRow = new Map();
+      rangeAsTableRow.minimumLimitationValue = (limitValue.minimumLimitationValue ? limitValue.minimumLimitationValue : limitValue.minimumLimitationValueText);
+      rangeAsTableRow.maximumLimitationValue = (limitValue.maximumLimitationValue ? limitValue.maximumLimitationValue : limitValue.maximumLimitationValueText);
+      rangeAsTableRow.limitationUnitCode = (limitValue.limitationUnitCode ? limitValue.limitationUnitCode.trim() : null);
+      let limitationUnitBasisDisplay = (limitValue.limitationUnitBasis === null ? '' : ' (' + limitValue.limitationUnitBasis + ')');
+      rangeAsTableRow.limitationType = limitValue.limitationDurationTypeDisplay + limitationUnitBasisDisplay;
+      rangeAsTableRow.limitationDurationDescription = limitValue.limitationDurationDescription
+      rangeAsTableRow.alternateLimitFlag = limitValue.alternateLimitFlag
+      rangeAsTableRow.alternateLimitDescription = limitValue.alternateLimitDescription
+      rangeOfPollutantLimitationsAsTable.push(rangeAsTableRow);
+
+      let alternateLimitFlagForDownload = (rangeAsTableRow.alternateLimitFlag ? rangeAsTableRow.alternateLimitFlag : '');
+      rangeOfPollutantLimitationsForDownload.push(
+        alternateLimitFlagForDownload + rangeAsTableRow.minimumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') - ' +
+        alternateLimitFlagForDownload + rangeAsTableRow.maximumLimitationValue + ' (' + rangeAsTableRow.limitationUnitCode + ') ' +
+        rangeAsTableRow.limitationType
+      );
     });
 
     resolve({rangeOfPollutantLimitations: rangeOfPollutantLimitationsAsTable, rangeOfPollutantLimitationsForDownload: rangeOfPollutantLimitationsForDownload.join('\n')});
+  });
+}
+
+function getPollutantLimitationRanges(id) {
+  return new Promise((resolve, reject) => {
+    ViewLimitationRange.findAll({
+      attributes: [
+        'limitationDurationTypeDisplay',
+        'alternateLimitFlag',
+        'limitationDisplayUnits',
+        [Sequelize.literal("min(coalesce(case when display_value ~ '^[0-9\\.\\,]+$' then regexp_replace(display_value, ',', '', 'g')::numeric else null end, case when display_min ~ '^[0-9\\.\\,]+$' then display_min::numeric else null end))"), 'minimumDisplayValue'],
+        [Sequelize.literal("max(coalesce(case when display_value ~ '^[0-9\\.\\,]+$' then regexp_replace(display_value, ',', '', 'g')::numeric else null end, case when display_max ~ '^[0-9\\.\\,]+$' then display_max::numeric else null end))"), 'maximumDisplayValue']
+      ],
+      group: ['limitationDurationTypeDisplay', 'alternateLimitFlag', 'limitationDisplayUnits'],
+      where: {
+        pollutantDescription: { [Op.in]: id }
+      },
+      order: ['limitationDurationTypeDisplay', 'alternateLimitFlag', 'limitationDisplayUnits'],
+      raw: true
+    })
+      .then(limitationRanges => {
+        let ranges = limitationRanges.map(function(lr) {
+          let alternateLimitFlagDisplay = (lr.alternateLimitFlag ? lr.alternateLimitFlag : '');
+          let minimumDisplayValue = (lr.minimumDisplayValue ? lr.minimumDisplayValue : '');
+          let maximumDisplayValue = (lr.maximumDisplayValue ? lr.maximumDisplayValue : '');
+          let limitationDisplayUnits = (lr.limitationDisplayUnits === 'N/A' ? '' : ' ' + lr.limitationDisplayUnits);
+          return lr.limitationDurationTypeDisplay + ': ' + alternateLimitFlagDisplay + minimumDisplayValue + ' to ' + alternateLimitFlagDisplay + maximumDisplayValue + limitationDisplayUnits;
+        });
+
+        resolve(ranges);
+      })
+      .catch((error) => reject("Error getting pollutant limitation ranges: " + error));
   });
 }
 
@@ -132,15 +167,13 @@ module.exports = {
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      console.log(req.query.id);
       let id = req.query.id ? req.query.id.split('|') : '';
-      console.log(id);
 
       if (id === '') {
         return res.status(400).send("Invalid value passed for id");
       }
 
-      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+      let downloadRequested = utilities.parseDownload(req.query.download);
 
       //get ranges of limitations, then group by PSC
       return ViewLimitation.findAll({
@@ -170,6 +203,9 @@ module.exports = {
 
           pointSourceCategories.forEach(function(psc) {
             pscPromises.push(new Promise(function(resolve, ignore) {
+              psc.rangeOfPollutantLimitations = [];
+              psc.rangeOfPollutantLimitationsForDownload = '';
+
               ViewLimitation.findAll({
                 group: [
                   "limitationDurationTypeDisplay",
@@ -227,15 +263,11 @@ module.exports = {
                     })
                     .catch(error => {
                       console.log(error);
-                      psc.rangeOfPollutantLimitations = [];
-                      psc.rangeOfPollutantLimitationsForDownload = '';
                       resolve(psc);
                     });
                 })
                 .catch((error) => {
                   console.log(error);
-                  psc.rangeOfPollutantLimitations = [];
-                  psc.rangeOfPollutantLimitationsForDownload = '';
                   resolve(psc);
                 });
             }));
@@ -269,26 +301,8 @@ module.exports = {
                   });
               }
               else {
-                ViewLimitationRange.findAll({
-                  attributes: [
-                    'limitationDurationTypeDisplay',
-                    'alternateLimitFlag',
-                    'limitationDisplayUnits',
-                    [Sequelize.literal("min(coalesce(case when display_value ~ '^[0-9\\.\\,]+$' then regexp_replace(display_value, ',', '', 'g')::numeric else null end, case when display_min ~ '^[0-9\\.\\,]+$' then display_min::numeric else null end))"), 'minimumDisplayValue'],
-                    [Sequelize.literal("max(coalesce(case when display_value ~ '^[0-9\\.\\,]+$' then regexp_replace(display_value, ',', '', 'g')::numeric else null end, case when display_max ~ '^[0-9\\.\\,]+$' then display_max::numeric else null end))"), 'maximumDisplayValue']
-                  ],
-                  group: ['limitationDurationTypeDisplay', 'alternateLimitFlag', 'limitationDisplayUnits'],
-                  where: {
-                    pollutantDescription: { [Op.in]: id }
-                  },
-                  order: ['limitationDurationTypeDisplay', 'alternateLimitFlag', 'limitationDisplayUnits'],
-                  raw: true
-                })
-                  .then(limitationRanges => {
-                    let ranges = limitationRanges.map(function(lr) {
-                      return lr.limitationDurationTypeDisplay + ': ' + (lr.alternateLimitFlag ? lr.alternateLimitFlag : '') + (lr.minimumDisplayValue ? lr.minimumDisplayValue : '') + ' to ' + (lr.alternateLimitFlag ? lr.alternateLimitFlag : '') + (lr.maximumDisplayValue ? lr.maximumDisplayValue : '') + (lr.limitationDisplayUnits === 'N/A' ? '' : ' ' + lr.limitationDisplayUnits);
-                    });
-
+                getPollutantLimitationRanges(id)
+                  .then(ranges => {
                     res.status(200).send({ranges: ranges, pscs: pscs});
                   })
                   .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
@@ -316,7 +330,7 @@ module.exports = {
         return res.status(400).send("Invalid value passed for id");
       }
 
-      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+      let downloadRequested = utilities.parseDownload(req.query.download);
 
       //get ranges of limitations, then group by PSC
       return Pollutant.sequelize.query(
@@ -356,6 +370,9 @@ module.exports = {
 
               pointSourceCategories.forEach(function(psc) {
                 pscPromises.push(new Promise(function(resolve, ignore) {
+                  psc.rangeOfPollutantLimitations = [];
+                  psc.rangeOfPollutantLimitationsForDownload = '';
+
                   ViewLimitation.findAll({
                     group: [
                       "limitationDurationTypeDisplay",
@@ -413,15 +430,11 @@ module.exports = {
                         })
                         .catch(error => {
                           console.log(error);
-                          psc.rangeOfPollutantLimitations = [];
-                          psc.rangeOfPollutantLimitationsForDownload = '';
                           resolve(psc);
                         });
                     })
                     .catch((error) => {
                       console.log(error);
-                      psc.rangeOfPollutantLimitations = [];
-                      psc.rangeOfPollutantLimitationsForDownload = '';
                       resolve(psc);
                     });
                 }));
@@ -487,7 +500,7 @@ module.exports = {
         return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
       }
 
-      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+      let downloadRequested = utilities.parseDownload(req.query.download);
 
       limitation.pollutantLimitations(pollutantIds, pointSourceCategoryCodes)
         .then(limitations => {

@@ -18,7 +18,7 @@ module.exports = {
         return res.status(400).send('Invalid value passed for id')
       }
 
-      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
+      let downloadRequested = utilities.parseDownload(req.query.download);
 
       limitation.wastestreamProcessLimitations(id)
         .then(limitations => {

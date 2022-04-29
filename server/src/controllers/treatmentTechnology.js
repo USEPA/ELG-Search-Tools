@@ -137,6 +137,72 @@ function sendCriteriaList(res, result, treatmentTechnologyCodes) {
     .catch((error) => res.status(400).send("Error! ViewWastestreamProcessTreatmentTechnologyPollutantLimitation:  " + utilities.sanitizeError(error)));
 }
 
+function parseLimitationParams(query) {
+  let id = query.id ? query.id : "";
+
+  let treatmentIds = (query.treatmentId ? query.treatmentId.split(';') : []);
+  let pointSourceCategoryCodes = (query.pointSourceCategoryCode ? query.pointSourceCategoryCode.split(';') : []);
+  let pollutantIds = (query.pollutantId ? query.pollutantId.split(';') : []);
+  let downloadRequested = utilities.parseDownload(query.download);
+
+  let offset = (isNaN(query.offset)) ? 0 : Number(query.offset);
+  let limit = (isNaN(query.limit)) ? 100 : Number(query.limit);
+  let sortCol = query.sortCol;
+  let sortDir = query.sortDir;
+
+  return {
+    id: id,
+    treatmentIds: treatmentIds,
+    pointSourceCategoryCodes: pointSourceCategoryCodes,
+    pollutantIds: pollutantIds,
+    downloadRequested: downloadRequested,
+    offset: offset,
+    limit: limit,
+    sortCol: sortCol,
+    sortDir: sortDir
+  }
+}
+
+function validateTreatmentTechnologyCode(id, isCategory = false) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (id === "") {
+        reject("Invalid value passed for id");
+      } else {
+        //validate that id is valid
+        let whereClause = {
+          id: {[Op.eq]: id}
+        }
+        if (isCategory) {
+          whereClause = {
+            category: {[Op.iLike]: '%' + id + '%'}
+          }
+        }
+        TreatmentTechnologyCode.findOne({
+          where: whereClause
+        })
+          .then(treatmentTechnologyCode => {
+            if (treatmentTechnologyCode === null) {
+              reject("Invalid value passed for id");
+            } else {
+              if (isCategory) {
+                resolve(id);
+              } else {
+                resolve(treatmentTechnologyCode);
+              }
+            }
+          })
+          .catch((ignore) => {
+            reject("Invalid value passed for id");
+          });
+      }
+    }
+    catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   list(req, res) {
     try {
@@ -344,79 +410,46 @@ module.exports = {
   limitations(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = req.query.id ? req.query.id : "";
+      let params = parseLimitationParams(req.query);
 
-      let treatmentIds = (req.query.treatmentId ? req.query.treatmentId.split(';') : []);
-      let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(';') : []);
-      let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
-      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
-
-      let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-      let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
-      let sortCol = req.query.sortCol;
-      let sortDir = req.query.sortDir;
-
-      if (id === "") {
-        res.status(400).send("Invalid value passed for id");
-      }
-      else {
-        //validate that id is a valid technology code
-        TreatmentTechnologyCode.findOne({
-          where: {
-            id: {[Op.eq]: id}
+      validateTreatmentTechnologyCode(params.id)
+        .then(treatmentTechnologyCode => {
+          if (params.downloadRequested) {
+            limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, true)
+              .then(limitations => {
+                limitation.technologyLimitationsForDownload(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
+                  .then(dataStream => {
+                    console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB');
+                    download.createDownloadFileFromStream('limitations',
+                      'Limitations',
+                      limitation.downloadDataColumns,
+                      [
+                        { label: 'Treatment Technology', value: treatmentTechnologyCode.name},
+                        { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
+                        { label: 'Pollutants', value: params.pollutantIds.join(', ')},
+                        { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
+                      ],
+                      dataStream,
+                      res);
+                  })
+                  .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
+              })
+              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+          }
+          else {
+            limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
+              .then(limitations => {
+                res.status(200).send({
+                  limitations: limitations.slice(params.offset, (params.offset+params.limit)),
+                  count: limitations.length
+                });
+              })
+              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
           }
         })
-          .then(treatmentTechnologyCode => {
-            if (treatmentTechnologyCode === null) {
-              res.status(400).send("Invalid value passed for id");
-            }
-            else {
-              limitation.technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir)
-                .then(limitations => {
-                  if (downloadRequested) {
-                    TreatmentTechnologyCode.findOne({
-                      where: {
-                        id: { [Op.eq]: id }
-                      }
-                    }).then(treatmentTechnologyCode => {
-                      download.createDownloadFile('limitations',
-                        'Limitations',
-                        [
-                          { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
-                          { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
-                          { key: 'comboSubcategory', label: 'Subpart', width: 70 },
-                          { key: 'controlTechnologyCode', label: 'Level of Control' },
-                          { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
-                          { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
-                          { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
-                          { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
-                          { key: 'limitationValue', label: 'Limitation Value' },
-                          { key: 'alternateLimitFlag', label: 'Limitation Flag' },
-                          { key: 'limitationUnitCode', label: 'Units', width: 90 },
-                          { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
-                        ],
-                        [
-                          { label: 'Treatment Technology', value: treatmentTechnologyCode.name},
-                          { label: 'Point Source Categories', value: pointSourceCategoryCodes.join(', ')},
-                          { label: 'Pollutants', value: pollutantIds.join(', ')},
-                          { label: 'Treatment Trains', value: (treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))].join(', ') : '')}
-                        ],
-                        limitations,
-                        res);
-                    });
-                  }
-                  else {
-                    res.status(200).send({
-                      limitations: limitations.slice(offset, (offset+limit)),
-                      count: limitations.length
-                    });
-                  }
-                })
-                .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-            }
-          })
-          .catch((ignore) => res.status(400).send("Invalid value passed for id"));
-      }
+        .catch((validationError) => {
+          res.status(400).send(validationError);
+        });
     } catch (err) {
       return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
     }
@@ -437,78 +470,49 @@ module.exports = {
   categoryLimitations(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = req.query.id ? req.query.id : "";
+      let params = parseLimitationParams(req.query);
 
-      let treatmentIds = (req.query.treatmentId ? req.query.treatmentId.split(';') : []);
-      let pointSourceCategoryCodes = (req.query.pointSourceCategoryCode ? req.query.pointSourceCategoryCode.split(';') : []);
-      let pollutantIds = (req.query.pollutantId ? req.query.pollutantId.split(';') : []);
-      let downloadRequested = (req.query.download ? (req.query.download === 'true') : false);
-
-      let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-      let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
-      if (downloadRequested) {
-        offset = 0;
-        limit = null;
-      }
-      let sortCol = req.query.sortCol;
-      let sortDir = req.query.sortDir;
-
-      if (id === "") {
-        res.status(400).send("Invalid value passed for id");
-      }
-      else {
-        //validate that id is a valid technology code
-        TreatmentTechnologyCode.findOne({
-          where: {
-            category: { [Op.iLike]: '%' + id + '%' }
+      validateTreatmentTechnologyCode(params.id, true)
+        .then(treatmentTechnologyCategory => {
+          if (params.downloadRequested) {
+            limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, 0, null, true)
+              .then(limitations => {
+                limitation.technologyCategoryLimitationsForDownload(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
+                  .then(dataStream => {
+                    console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
+                    download.createDownloadFileFromStream('limitations',
+                      'Limitations',
+                      limitation.downloadDataColumns,
+                      [
+                        { label: 'Treatment Technology Category', value: treatmentTechnologyCategory},
+                        { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
+                        { label: 'Pollutants', value: params.pollutantIds.join(', ')},
+                        { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
+                      ],
+                      dataStream,
+                      res);
+                  })
+                  .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
+              })
+              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+          }
+          else {
+            limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, params.offset, params.limit)
+              .then(limitations => {
+                console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
+                res.status(200).send({
+                  limitations: limitations.rows,
+                  count: limitations.count
+                });
+              })
+              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
           }
         })
-          .then(treatmentTechnologyCode => {
-            if (treatmentTechnologyCode === null) {
-              res.status(400).send("Invalid value passed for id");
-            }
-            else {
-              limitation.technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir, offset, limit)
-                .then(limitations => {
-                  if (downloadRequested) {
-                    download.createDownloadFile('limitations',
-                      'Limitations',
-                      [
-                        { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
-                        { key: 'controlTechnologyCfrSection', label: 'CFR Section' },
-                        { key: 'comboSubcategory', label: 'Subpart', width: 70 },
-                        { key: 'controlTechnologyCode', label: 'Level of Control' },
-                        { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
-                        { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
-                        { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
-                        { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
-                        { key: 'limitationValue', label: 'Limitation Value' },
-                        { key: 'alternateLimitFlag', label: 'Limitation Flag' },
-                        { key: 'limitationUnitCode', label: 'Units', width: 90 },
-                        { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 }
-                      ],
-                      [
-                        { label: 'Treatment Technology Category', value: id},
-                        { label: 'Point Source Categories', value: pointSourceCategoryCodes.join(', ')},
-                        { label: 'Pollutants', value: pollutantIds.join(', ')},
-                        { label: 'Treatment Trains', value: (treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))].join(', ') : '')}
-                      ],
-                      limitations.rows,
-                      res);
-                  }
-                  else {
-                    res.status(200).send({
-                      limitations: limitations.rows, // limitations.slice(offset, (offset+limit)),
-                      count: limitations.count // length
-                    });
-                  }
-                })
-                .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-            }
-          })
-          .catch((ignore) => res.status(400).send("Invalid value passed for id"));
-      }
-    } catch (err) {
+        .catch((validationError) => {
+          res.status(400).send(utilities.sanitizeError(validationError));
+        });
+    }
+    catch (err) {
       return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
     }
   }
