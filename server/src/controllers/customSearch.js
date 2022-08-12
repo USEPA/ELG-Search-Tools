@@ -142,14 +142,14 @@ function validateMultiCriteriaSearchParams(params) {
                     resolve(params);
                   }
                 })
-                .catch((ignore) => reject("Invalid value passed for pollutantGroupId"));
+                .catch((_ignore) => reject("Invalid value passed for pollutantGroupId"));
             }
             else {
               reject("Invalid value passed for treatmentTechnologyGroup");
             }
           }
         })
-        .catch((ignore) => reject("Invalid value passed for rangeUnitCode"));
+        .catch((_ignore) => reject("Invalid value passed for rangeUnitCode"));
     }
     catch (validationError) {
       reject(validationError);
@@ -305,7 +305,11 @@ module.exports = {
         let naicsCodeDisplay = naicsCodes.join(', ');
         let pollutantDisplay = pollutantIds.join(', ');
         let pollutantGroupDisplay = pollutantGroupIds.join(', ');
-        let limitationRangeDisplay = (rangeLow ? rangeLow + '-' + rangeHigh + ' (' + rangeUnitCode + ')' : '');
+
+        let low = (isNaN(rangeLow)) ? null : rangeLow;
+        let high = (isNaN(rangeHigh)) ? null : rangeHigh;
+        let limitationRangeDisplay = (low ? low + '-' + high + ' (' + rangeUnitCode + ')' : '');
+
         let treatmentTechnologyDisplay = treatmentTechnologyCodes.join(', ');
         let treatmentTechnologyGroupDisplay = treatmentTechnologyGroups.join(', ');
 
@@ -372,7 +376,7 @@ module.exports = {
           .then(codes => { treatmentTechnologyDisplay = codes.map(a => a.name).join(', '); }));
 
         Promise.all(criteriaDisplayPromises)
-          .then(ignore => {
+          .then(_ignore => {
             if (downloadRequested) {
               limitation.multiCriteriaSearchLimitationsForDownload(
                 pointSourceCategoryCodes,
