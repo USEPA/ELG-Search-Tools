@@ -498,7 +498,7 @@ function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
 }
 
 function fillLongTermAverage(longTermAverage) {
-  return new Promise(function(resolve, ignore) {
+  return new Promise(function(resolve, _ignore) {
     TreatmentTechnologyCode.findAll({
       where: {
         [Op.and]: Sequelize.literal("code IN (SELECT codes FROM regexp_split_to_table('" + longTermAverage.treatmentTechnologyCodes + "', '; ') AS codes)")
@@ -577,7 +577,10 @@ function parseSort(sortCol, sortDir, queryColumns) {
 function getRangeWhereClause(pollutants, rangeLow, rangeHigh, rangeUnitCode) {
   let result = {[Op.and]: Sequelize.literal("1 = 1")};
 
-  if (pollutants.length > 0 && rangeLow && rangeHigh && rangeUnitCode) {
+  let low = (isNaN(rangeLow)) ? null : rangeLow;
+  let high = (isNaN(rangeHigh)) ? null : rangeHigh;
+
+  if (pollutants.length > 0 && low && high && rangeUnitCode) {
     result = {
       [Op.and]: {
         limitationValueAsNumber: { [Op.between]: [rangeLow, rangeHigh] },
@@ -621,7 +624,7 @@ function getPscWhereClause(pscs, filterPointSourceCategoryCodes) {
     result = { pointSourceCategoryCode: { [Op.in]: pscs } };
   }
   else if(filterPointSourceCategoryCodes.length > 0) {
-    result = { pointSourceCategoryCode: { [Op.in]: filterPointSourceCategoryCodes } };
+    result = { pointSourceCategoryCode: { [Op.in]: filterPointSourceCategoryCodes.filter (filterPsc => { return !isNaN(filterPsc) }) } };
   }
 
   return result;
@@ -741,7 +744,7 @@ function getMultiCriteriaSearchWhereClauses(pointSourceCategoryCodes,
     }
 
     Promise.all(criteriaPromises)
-      .then(ignore => {
+      .then(_ignore => {
         let rangeWhereClause = getRangeWhereClause(pollutants, rangeLow, rangeHigh, rangeUnitCode);
         let technologyCodeWhereClause = getTechnologyCodeWhereClause(techCodes);
         let pscWhereClause = getPscWhereClause(pscs, filterPointSourceCategoryCodes);
@@ -902,7 +905,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
               whereClauses.rangeWhereClause,
               {
                 [Op.or]: [
-                  { treatmentId: { [Op.in]: filterTreatmentIds } },
+                  { treatmentId: { [Op.in]: filterTreatmentIds.filter (filterTreatmentId => { return !isNaN(filterTreatmentId) }) } },
                   Sequelize.literal(filterTreatmentIds.length + " = 0")
                 ]
               }
@@ -1088,7 +1091,7 @@ function keywordSearchLimitations(keywords,
             }));
 
             Promise.all(criteriaPromises)
-              .then(ignore => {
+              .then(_ignore => {
                 result.pointSourceCategoryCodes = pointSourceCategoryCodes;
                 result.wastestreamProcesses = wastestreamProcesses;
                 result.pollutants = pollutants;
