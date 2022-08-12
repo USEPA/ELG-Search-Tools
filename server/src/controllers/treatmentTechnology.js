@@ -24,7 +24,7 @@ const download = require('./download');
  * } pointSourceCategory
  */
 function fillPointSourceCategory(pointSourceCategory) {
-  return new Promise(function(resolve, ignore) {
+  return new Promise(function(resolve, _ignore) {
     let result = {
       treatmentId: pointSourceCategory.treatmentId,
       pointSourceCategoryCode: pointSourceCategory.pointSourceCategoryCode,
@@ -152,7 +152,7 @@ function parseLimitationParams(query) {
 
   return {
     id: id,
-    treatmentIds: treatmentIds,
+    treatmentIds: treatmentIds.filter(treatmentId => { return !isNaN(treatmentId) }),
     pointSourceCategoryCodes: pointSourceCategoryCodes,
     pollutantIds: pollutantIds,
     downloadRequested: downloadRequested,
@@ -192,7 +192,7 @@ function validateTreatmentTechnologyCode(id, isCategory = false) {
               }
             }
           })
-          .catch((ignore) => {
+          .catch((_ignore) => {
             reject("Invalid value passed for id");
           });
       }
