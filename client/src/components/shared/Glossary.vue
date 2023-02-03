@@ -41,11 +41,18 @@ export default {
           .filter((item) => item.ActiveStatus !== 'Deleted')
           .map((item) => {
             const term = item.Name;
-            // Check Editorial Note field first if definition requires html markup
-            const editorialNote = item.Attributes.find((attr) => attr.Name === 'EditorialNote');
-            const term1 = item.Attributes.find((attr) => attr.Name === 'Def1');
-            const definition = editorialNote ? editorialNote.Value : term1.Value;
-            return { term, definition };
+            let definition = '';
+            try {
+              // Check Editorial Note field first if definition requires html markup
+              const editorialNote = item.Attributes.find((attr) => attr.Name === 'EditorialNote');
+              const term1 = item.Attributes.find((attr) => attr.Name === 'Def1');
+              definition = editorialNote ? editorialNote.Value : term1.Value;
+              return { term, definition };
+            } catch (error) {
+              console.log(term);
+              console.log(error);
+              return { term, definition };
+            }
           });
 
         // filter out duplicate terms from the web service
