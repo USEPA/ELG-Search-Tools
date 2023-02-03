@@ -49,8 +49,6 @@ export default {
               definition = editorialNote ? editorialNote.Value : term1.Value;
               return { term, definition };
             } catch (error) {
-              console.log(term);
-              console.log(error);
               return { term, definition };
             }
           });
