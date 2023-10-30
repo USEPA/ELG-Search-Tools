@@ -82,7 +82,7 @@
     "url": "https://trello.com/b/P0wzFrwE/elg-database-web-app"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   },
   "homepage": "https://github.com/Eastern-Research-Group/ELG-Search-Tools#readme",
   "keywords": [

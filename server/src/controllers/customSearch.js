@@ -586,7 +586,7 @@ module.exports = {
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         })
-        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     }
   }
 };

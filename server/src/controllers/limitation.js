@@ -615,7 +615,7 @@ function getPscWhereClause(pscs, filterPointSourceCategoryCodes) {
       pointSourceCategoryCode: {
         [Op.and]: [
           { [Op.in]: pscs },
-          { [Op.in]: filterPointSourceCategoryCodes }
+          { [Op.in]: filterPointSourceCategoryCodes.filter (filterPsc => { return !isNaN(filterPsc) }) }
         ]
       }
     };
@@ -1125,7 +1125,7 @@ function keywordSearchLimitations(keywords,
               .catch((error) => reject('Error retrieving limitations criteria: ' + error));
           }
         })
-        .catch((error) => reject('Error retrieving limitations ids: ' + error));
+        .catch((ignore) => reject('Invalid value(s) passed for keyword.'));
   });
 }
 
