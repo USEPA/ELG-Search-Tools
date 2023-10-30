@@ -168,7 +168,7 @@ module.exports = {
     })
       .then((pointSourceCategories) => {
         SicCode.findAll({
-          attributes: [ 'sicCode', ["lpad(sic_code::text, 4, '0')", 'sicCodeDisplay'], 'sicDescription' ],
+          attributes: [ 'sicCode', [Sequelize.literal("lpad(sic_code::text, 4, '0')"), 'sicCodeDisplay'], 'sicDescription' ],
           where: {
             sicCodeAsNumber: { [Op.ne]: null },
             [Op.and]: Sequelize.literal("sic = sic_code::text"),
@@ -586,7 +586,7 @@ module.exports = {
             })
             .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         })
-        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     }
   }
 };

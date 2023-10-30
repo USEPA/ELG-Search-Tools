@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint ./client/**/*.js ./client/**/*.vue",
     "lint:fix": "vue-cli-service lint --fix",
     "build:dev": "cross-env NODE_ENV=local npm run migrate && cross-env NODE_ENV=local npm run seed && cross-env NODE_ENV=local vue-cli-service build",
-    "build:prod": "vue-cli-service build",
+    "build:prod": "vue-cli-service --openssl-legacy-provider build",
     "client": "vue-cli-service serve",
     "migrate": "sequelize db:migrate:undo:all && sequelize db:migrate",
     "prod": "node server/src/server.js",
@@ -82,7 +82,7 @@
     "url": "https://trello.com/b/P0wzFrwE/elg-database-web-app"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   },
   "homepage": "https://github.com/Eastern-Research-Group/ELG-Search-Tools#readme",
   "keywords": [

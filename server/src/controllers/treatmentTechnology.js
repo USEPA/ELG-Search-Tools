@@ -77,9 +77,9 @@ function sendCriteriaList(res, result, treatmentTechnologyCodes) {
 
   ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findOne({
     attributes: [
-      ["string_agg(distinct psc_code::character varying, ';')", 'psc_code'],
-      ["string_agg(distinct elg_pollutant_description, ';')", 'elg_pollutant_description'],
-      ["string_agg(distinct treatment_id::character varying, ';')", 'treatment_id']
+      [Sequelize.literal("string_agg(distinct psc_code::character varying, ';')"), 'psc_code'],
+      [Sequelize.literal("string_agg(distinct elg_pollutant_description, ';')"), 'elg_pollutant_description'],
+      [Sequelize.literal("string_agg(distinct treatment_id::character varying, ';')"), 'treatment_id']
     ],
     where: {
       [Op.or]: whereClauseOrList
@@ -274,14 +274,19 @@ module.exports = {
         }
       })
         .then(treatmentTechnologyCode => {
-          let result = new Map();
-          result["id"] = treatmentTechnologyCode.id;
-          result["name"] = treatmentTechnologyCode.name;
-          result["description"] = treatmentTechnologyCode.description;
-          result["category"] = treatmentTechnologyCode.category;
-          result["variations"] = treatmentTechnologyCode.variations;
+          if (treatmentTechnologyCode !== null) {
+            let result = new Map();
+            result["id"] = treatmentTechnologyCode.id;
+            result["name"] = treatmentTechnologyCode.name;
+            result["description"] = treatmentTechnologyCode.description;
+            result["category"] = treatmentTechnologyCode.category;
+            result["variations"] = treatmentTechnologyCode.variations;
 
-          sendCriteriaList(res, result, [treatmentTechnologyCode]);
+            sendCriteriaList(res, result, [treatmentTechnologyCode]);
+          }
+          else {
+            res.status(400).send("Invalid value passed for id")
+          }
         })
         .catch((error) => res.status(400).send("Error! TreatmentTechnologyCode: " + utilities.sanitizeError(error)));
     } catch (err) {
@@ -309,10 +314,15 @@ module.exports = {
       })
         .then(treatmentTechnologyCodes => {
           let result = new Map();
-          result["category"] = (treatmentTechnologyCodes.length === 0 ? 'Invalid Treatment Technology Category' : treatmentTechnologyCodes[0].category)
-          result["treatmentTechnologyCodes"] = treatmentTechnologyCodes;
+          if (treatmentTechnologyCodes.length === 0) {
+            res.status(400).send("Invalid value passed for id")
+          }
+          else {
+            result["category"] = treatmentTechnologyCodes[0].category
+            result["treatmentTechnologyCodes"] = treatmentTechnologyCodes;
 
-          sendCriteriaList(res, result, treatmentTechnologyCodes);
+            sendCriteriaList(res, result, treatmentTechnologyCodes);
+          }
         })
         .catch((error) => res.status(400).send("Error! TreatmentTechnologyCode: " + utilities.sanitizeError(error)));
     } catch (err) {
