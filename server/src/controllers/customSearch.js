@@ -157,6 +157,22 @@ function validateMultiCriteriaSearchParams(params) {
   });
 }
 
+function validateSortDir(sortDir) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (sortDir && !['ASC','DESC'].includes(sortDir.toUpperCase())) {
+        reject('sortDir must be one of the following values: ASC, DESC');
+      }
+      else {
+        resolve(true);
+      }
+    }
+    catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   multiCriteriaSearchCriteria(req, res) {
     return PointSourceCategory.findAll({
@@ -544,49 +560,55 @@ module.exports = {
     let sortCol = req.query.sortCol;
     let sortDir = req.query.sortDir;
 
-    if (downloadRequested) {
-      limitation.keywordSearchLimitationsForDownload(keywords, operator, sortCol, sortDir)
-        .then(dataStream => {
-          download.createDownloadFileFromStream('limitations',
-            'Limitations',
-            limitation.downloadDataColumns,
-            [
-              { label: 'Keyword(s)', value: keywords.map(a => a.replace(/\%/g, '')).join(" " + operator + " ")}
-            ],
-            dataStream,
-            res);
-        })
-        .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
-    }
-    else {
-      let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-      let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
-
-      limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir, offset, limit)
-        .then(result => {
-          Pollutant.findAll({
-            attributes: [
-              ['elg_pollutant_description', 'pollutantDescription'],
-              [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
-            ],
-            where: { id: { [Op.in]: result.pollutants.map(poll => poll.id ) } },
-            group: ['elg_pollutant_description'],
-            order: ['elg_pollutant_description']
-          })
-            .then(polls => {
-              console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
-              res.status(200).send({
-                pointSourceCategories: result.pointSourceCategoryCodes,
-                pollutants: polls,
-                wastestreamProcesses: result.wastestreamProcesses,
-                treatmentTrains: result.treatmentTrains,
-                limitations: result.limitations.rows,
-                count: result.limitations.count
-              });
+    validateSortDir(sortDir)
+      .then(ignore => {
+        if (downloadRequested) {
+          limitation.keywordSearchLimitationsForDownload(keywords, operator, sortCol, sortDir)
+            .then(dataStream => {
+              download.createDownloadFileFromStream('limitations',
+                'Limitations',
+                limitation.downloadDataColumns,
+                [
+                  { label: 'Keyword(s)', value: keywords.map(a => a.replace(/\%/g, '')).join(" " + operator + " ")}
+                ],
+                dataStream,
+                res);
             })
-            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-        })
-        .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-    }
+            .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
+        }
+        else {
+          let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
+          let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+
+          limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir, offset, limit)
+            .then(result => {
+              Pollutant.findAll({
+                attributes: [
+                  ['elg_pollutant_description', 'pollutantDescription'],
+                  [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+                ],
+                where: { id: { [Op.in]: result.pollutants.map(poll => poll.id ) } },
+                group: ['elg_pollutant_description'],
+                order: ['elg_pollutant_description']
+              })
+                .then(polls => {
+                  console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
+                  res.status(200).send({
+                    pointSourceCategories: result.pointSourceCategoryCodes,
+                    pollutants: polls,
+                    wastestreamProcesses: result.wastestreamProcesses,
+                    treatmentTrains: result.treatmentTrains,
+                    limitations: result.limitations.rows,
+                    count: result.limitations.count
+                  });
+                })
+                .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+            })
+            .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+        }
+      })
+      .catch((sortDirValidationError) => {
+        res.status(400).send(utilities.sanitizeError(sortDirValidationError));
+      });
   }
 };

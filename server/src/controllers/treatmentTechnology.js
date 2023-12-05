@@ -203,6 +203,22 @@ function validateTreatmentTechnologyCode(id, isCategory = false) {
   });
 }
 
+function validateSortDir(sortDir) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (sortDir && !['ASC','DESC'].includes(sortDir.toUpperCase())) {
+        reject('sortDir must be one of the following values: ASC, DESC');
+      }
+      else {
+        resolve(true);
+      }
+    }
+    catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   list(req, res) {
     try {
@@ -422,43 +438,49 @@ module.exports = {
     try {
       let params = parseLimitationParams(req.query);
 
-      validateTreatmentTechnologyCode(params.id)
-        .then(treatmentTechnologyCode => {
-          if (params.downloadRequested) {
-            limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, true)
-              .then(limitations => {
-                limitation.technologyLimitationsForDownload(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
-                  .then(dataStream => {
-                    console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB');
-                    download.createDownloadFileFromStream('limitations',
-                      'Limitations',
-                      limitation.downloadDataColumns,
-                      [
-                        { label: 'Treatment Technology', value: treatmentTechnologyCode.name},
-                        { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
-                        { label: 'Pollutants', value: params.pollutantIds.join(', ')},
-                        { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
-                      ],
-                      dataStream,
-                      res);
+      validateSortDir(params.sortDir)
+        .then(ignore => {
+          validateTreatmentTechnologyCode(params.id)
+            .then(treatmentTechnologyCode => {
+              if (params.downloadRequested) {
+                limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, true)
+                  .then(limitations => {
+                    limitation.technologyLimitationsForDownload(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
+                      .then(dataStream => {
+                        console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB');
+                        download.createDownloadFileFromStream('limitations',
+                          'Limitations',
+                          limitation.downloadDataColumns,
+                          [
+                            { label: 'Treatment Technology', value: treatmentTechnologyCode.name},
+                            { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
+                            { label: 'Pollutants', value: params.pollutantIds.join(', ')},
+                            { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
+                          ],
+                          dataStream,
+                          res);
+                      })
+                      .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
                   })
-                  .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
-              })
-              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-          }
-          else {
-            limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
-              .then(limitations => {
-                res.status(200).send({
-                  limitations: limitations.slice(params.offset, (params.offset+params.limit)),
-                  count: limitations.length
-                });
-              })
-              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-          }
+                  .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+              }
+              else {
+                limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
+                  .then(limitations => {
+                    res.status(200).send({
+                      limitations: limitations.slice(params.offset, (params.offset+params.limit)),
+                      count: limitations.length
+                    });
+                  })
+                  .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+              }
+            })
+            .catch((validationError) => {
+              res.status(400).send(validationError);
+            });
         })
-        .catch((validationError) => {
-          res.status(400).send(validationError);
+        .catch((sortDirValidationError) => {
+          res.status(400).send(utilities.sanitizeError(sortDirValidationError));
         });
     } catch (err) {
       return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
@@ -482,44 +504,50 @@ module.exports = {
     try {
       let params = parseLimitationParams(req.query);
 
-      validateTreatmentTechnologyCode(params.id, true)
-        .then(treatmentTechnologyCategory => {
-          if (params.downloadRequested) {
-            limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, 0, null, true)
-              .then(limitations => {
-                limitation.technologyCategoryLimitationsForDownload(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
-                  .then(dataStream => {
-                    console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
-                    download.createDownloadFileFromStream('limitations',
-                      'Limitations',
-                      limitation.downloadDataColumns,
-                      [
-                        { label: 'Treatment Technology Category', value: treatmentTechnologyCategory},
-                        { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
-                        { label: 'Pollutants', value: params.pollutantIds.join(', ')},
-                        { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
-                      ],
-                      dataStream,
-                      res);
-                  })
-                  .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
-              })
-              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-          }
-          else {
-            limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, params.offset, params.limit)
-              .then(limitations => {
-                console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
-                res.status(200).send({
-                  limitations: limitations.rows,
-                  count: limitations.count
-                });
-              })
-              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-          }
+      validateSortDir(params.sortDir)
+        .then( ignore => {
+          validateTreatmentTechnologyCode(params.id, true)
+          .then(treatmentTechnologyCategory => {
+            if (params.downloadRequested) {
+              limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, 0, null, true)
+                .then(limitations => {
+                  limitation.technologyCategoryLimitationsForDownload(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
+                    .then(dataStream => {
+                      console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
+                      download.createDownloadFileFromStream('limitations',
+                        'Limitations',
+                        limitation.downloadDataColumns,
+                        [
+                          { label: 'Treatment Technology Category', value: treatmentTechnologyCategory},
+                          { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
+                          { label: 'Pollutants', value: params.pollutantIds.join(', ')},
+                          { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
+                        ],
+                        dataStream,
+                        res);
+                    })
+                    .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
+                })
+                .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+            }
+            else {
+              limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, params.offset, params.limit)
+                .then(limitations => {
+                  console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
+                  res.status(200).send({
+                    limitations: limitations.rows,
+                    count: limitations.count
+                  });
+                })
+                .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+            }
+          })
+          .catch((validationError) => {
+            res.status(400).send(utilities.sanitizeError(validationError));
+          });
         })
-        .catch((validationError) => {
-          res.status(400).send(utilities.sanitizeError(validationError));
+        .catch((sortDirValidationError) => {
+          res.status(400).send(utilities.sanitizeError(sortDirValidationError));
         });
     }
     catch (err) {
