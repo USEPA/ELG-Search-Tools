@@ -173,151 +173,164 @@ module.exports = {
         return res.status(400).send("Invalid value passed for id");
       }
 
-      let downloadRequested = utilities.parseDownload(req.query.download);
-
-      //get ranges of limitations, then group by PSC
-      return ViewLimitation.findAll({
-        group: [
-          ["elg_pollutant_description", 'pollutantDescription'],
-          "pointSourceCategoryCode",
-          "pointSourceCategoryName",
-          "pointSourceCategoryLinkUrl"
-        ],
-        attributes: [
-          [Sequelize.literal("string_agg(distinct pollutant_code::text, ',')"), "pollutantId"],
-          ["elg_pollutant_description", 'pollutantDescription'],
-          "pointSourceCategoryCode",
-          "pointSourceCategoryName",
-          "pointSourceCategoryLinkUrl",
-          [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
-          [Sequelize.literal("string_agg(distinct combo_subcat, '\n' order by combo_subcat)"), "pointSourceSubcategoriesForDownload"]
-        ],
+      Pollutant.findAll({
         where: {
-          pollutantDescription: { [Op.in]: id }
-        },
-        order: ['pointSourceCategoryCode'],
-        raw: true
+          description: { [Op.in]: id }
+        }
       })
-        .then(pointSourceCategories => {
-          let pscPromises = [];
+        .then(polls => {
+          if (polls.length === 0) {
+            res.status(404).send();
+          }
+          else {
+            let downloadRequested = utilities.parseDownload(req.query.download);
 
-          pointSourceCategories.forEach(function(psc) {
-            pscPromises.push(new Promise(function(resolve, ignore) {
-              psc.rangeOfPollutantLimitations = [];
-              psc.rangeOfPollutantLimitationsForDownload = '';
+            //get ranges of limitations, then group by PSC
+            return ViewLimitation.findAll({
+              group: [
+                ["elg_pollutant_description", 'pollutantDescription'],
+                "pointSourceCategoryCode",
+                "pointSourceCategoryName",
+                "pointSourceCategoryLinkUrl"
+              ],
+              attributes: [
+                [Sequelize.literal("string_agg(distinct pollutant_code::text, ',')"), "pollutantId"],
+                ["elg_pollutant_description", 'pollutantDescription'],
+                "pointSourceCategoryCode",
+                "pointSourceCategoryName",
+                "pointSourceCategoryLinkUrl",
+                [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
+                [Sequelize.literal("string_agg(distinct combo_subcat, '\n' order by combo_subcat)"), "pointSourceSubcategoriesForDownload"]
+              ],
+              where: {
+                pollutantDescription: { [Op.in]: id }
+              },
+              order: ['pointSourceCategoryCode'],
+              raw: true
+            })
+              .then(pointSourceCategories => {
+                let pscPromises = [];
 
-              ViewLimitation.findAll({
-                group: [
-                  "limitationDurationTypeDisplay",
-                  "limitationUnitBasis",
-                  "limitationUnitCode",
-                  "limitationDurationDescription",
-                  "alternateLimitFlag",
-                  "alternateLimitDescription"
-                ],
-                attributes: [
-                  "limitationDurationTypeDisplay",
-                  "limitationUnitBasis",
-                  "limitationUnitCode",
-                  "limitationDurationDescription",
-                  "alternateLimitFlag",
-                  "alternateLimitDescription",
-                  [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
-                  [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
-                  [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
-                  [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then null else lim_value_max end))"), 'maximumLimitationValueText']
-                ],
-                where: {
-                  pollutantDescription: { [Op.in]: id },
-                  pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode },
-                  alternateLimitFlag: {
-                    [Op.or]: [
-                      { [Op.ne]: 'X by Factor' },
-                      { [Op.eq]: null }
-                    ]
-                  }
-                },
-                order: [
-                  "limitationDurationTypeDisplay",
-                  "limitationUnitBasis",
-                  "limitationUnitCode",
-                  "limitationDurationDescription",
-                  "alternateLimitFlag",
-                  "alternateLimitDescription"
-                ],
-                raw: true
-              })
-                .then(limitValues => {
-                  buildRangeOfLimitations(limitValues)
-                    .then(
-                     /**
-                     *
-                     * @param {Object} rangeOfLimitations
-                     * @param {Object[]} rangeOfLimitations.rangeOfPollutantLimitations
-                     * @param {string} rangeOfLimitations.rangeOfPollutantLimitationsForDownload
-                     */
-                    rangeOfLimitations => {
-                      psc.rangeOfPollutantLimitations = rangeOfLimitations.rangeOfPollutantLimitations;
-                      psc.rangeOfPollutantLimitationsForDownload = rangeOfLimitations.rangeOfPollutantLimitationsForDownload;
-                      resolve(psc);
+                pointSourceCategories.forEach(function(psc) {
+                  pscPromises.push(new Promise(function(resolve, ignore) {
+                    psc.rangeOfPollutantLimitations = [];
+                    psc.rangeOfPollutantLimitationsForDownload = '';
+
+                    ViewLimitation.findAll({
+                      group: [
+                        "limitationDurationTypeDisplay",
+                        "limitationUnitBasis",
+                        "limitationUnitCode",
+                        "limitationDurationDescription",
+                        "alternateLimitFlag",
+                        "alternateLimitDescription"
+                      ],
+                      attributes: [
+                        "limitationDurationTypeDisplay",
+                        "limitationUnitBasis",
+                        "limitationUnitCode",
+                        "limitationDurationDescription",
+                        "alternateLimitFlag",
+                        "alternateLimitDescription",
+                        [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then lim_value_min::numeric else null end))"), 'minimumLimitationValue'],
+                        [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then regexp_replace(lim_value, ',', '', 'g')::numeric else null end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then lim_value_max::numeric else null end))"), 'maximumLimitationValue'],
+                        [Sequelize.literal("min(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_min ~ '^[0-9\\.\\,]+$' then null else lim_value_min end))"), 'minimumLimitationValueText'],
+                        [Sequelize.literal("max(coalesce(case when lim_value ~ '^[0-9\\.\\,]+$' then null else lim_value end, case when lim_value_max ~ '^[0-9\\.\\,]+$' then null else lim_value_max end))"), 'maximumLimitationValueText']
+                      ],
+                      where: {
+                        pollutantDescription: { [Op.in]: id },
+                        pointSourceCategoryCode: { [Op.eq]: psc.pointSourceCategoryCode },
+                        alternateLimitFlag: {
+                          [Op.or]: [
+                            { [Op.ne]: 'X by Factor' },
+                            { [Op.eq]: null }
+                          ]
+                        }
+                      },
+                      order: [
+                        "limitationDurationTypeDisplay",
+                        "limitationUnitBasis",
+                        "limitationUnitCode",
+                        "limitationDurationDescription",
+                        "alternateLimitFlag",
+                        "alternateLimitDescription"
+                      ],
+                      raw: true
                     })
-                    .catch(error => {
-                      console.log(error);
-                      resolve(psc);
-                    });
-                })
-                .catch((error) => {
-                  console.log(error);
-                  resolve(psc);
+                      .then(limitValues => {
+                        buildRangeOfLimitations(limitValues)
+                          .then(
+                            /**
+                             *
+                             * @param {Object} rangeOfLimitations
+                             * @param {Object[]} rangeOfLimitations.rangeOfPollutantLimitations
+                             * @param {string} rangeOfLimitations.rangeOfPollutantLimitationsForDownload
+                             */
+                            rangeOfLimitations => {
+                              psc.rangeOfPollutantLimitations = rangeOfLimitations.rangeOfPollutantLimitations;
+                              psc.rangeOfPollutantLimitationsForDownload = rangeOfLimitations.rangeOfPollutantLimitationsForDownload;
+                              resolve(psc);
+                            })
+                          .catch(error => {
+                            console.log(error);
+                            resolve(psc);
+                          });
+                      })
+                      .catch((error) => {
+                        console.log(error);
+                        resolve(psc);
+                      });
+                  }));
                 });
-            }));
-          });
 
-          Promise.all(pscPromises)
-            .then(pscs => {
-              if (downloadRequested) {
-                Pollutant.findOne({
-                  group: ["elgDescription"],
-                  attributes: ["elgDescription"],
-                  where: {
-                    description: { [Op.in]: id }
-                  }
-                })
-                  .then(pollutant => {
-                    download.createDownloadFile('[pointSourceCategories]',
-                      'Point Source Categories',
-                      [
-                        { key: 'pointSourceCategoryCode', label: '40 CFR' },
-                        { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
-                        { key: 'pointSourceSubcategoriesForDownload', label: 'Subcategories', width: 40, wrapText: true },
-                        { key: 'rangeOfPollutantLimitationsForDownload', label: 'Range of Pollutant Limitations', width: 220, wrapText: true }
-                      ],
-                      [
-                        { label: 'Pollutant', value: pollutant.elgDescription},
-                        { label: 'Number of PSCs Referencing Pollutant', value: pscs.length}
-                      ],
-                      pscs,
-                      res);
-                  });
-              }
-              else {
-                getPollutantLimitationRanges(id)
-                  .then(ranges => {
-                    res.status(200).send({ranges: ranges, pscs: pscs});
+                Promise.all(pscPromises)
+                  .then(pscs => {
+                    if (downloadRequested) {
+                      Pollutant.findOne({
+                        group: ["elgDescription"],
+                        attributes: ["elgDescription"],
+                        where: {
+                          description: { [Op.in]: id }
+                        }
+                      })
+                        .then(pollutant => {
+                          download.createDownloadFile('[pointSourceCategories]',
+                            'Point Source Categories',
+                            [
+                              { key: 'pointSourceCategoryCode', label: '40 CFR' },
+                              { key: 'pointSourceCategoryName', label: 'Point Source Category', width: 60 },
+                              { key: 'pointSourceSubcategoriesForDownload', label: 'Subcategories', width: 40, wrapText: true },
+                              { key: 'rangeOfPollutantLimitationsForDownload', label: 'Range of Pollutant Limitations', width: 220, wrapText: true }
+                            ],
+                            [
+                              { label: 'Pollutant', value: (pollutant ? pollutant.elgDescription : '')},
+                              { label: 'Number of PSCs Referencing Pollutant', value: pscs.length}
+                            ],
+                            pscs,
+                            res);
+                        });
+                    }
+                    else {
+                      getPollutantLimitationRanges(id)
+                        .then(ranges => {
+                          res.status(200).send({ranges: ranges, pscs: pscs});
+                        })
+                        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+                    }
                   })
                   .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
-              }
-            })
-            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+              })
+              .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+          }
         })
-        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)))
     } catch (err) {
       return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
     }
   },
   /**
    * @param {
-   *          {id:string},
+   *          {id:number},
    *          {download:string}
    * } req.query
    */
@@ -326,7 +339,7 @@ module.exports = {
     try {
       let id = req.query.id ? req.query.id : '';
 
-      if (id === '') {
+      if (id === '' || isNaN(id)) {
         return res.status(400).send("Invalid value passed for id");
       }
 
@@ -459,7 +472,7 @@ module.exports = {
                             { key: 'rangeOfPollutantLimitationsForDownload', label: 'Range of Pollutant Limitations', width: 220, wrapText: true }
                           ],
                           [
-                            { label: 'Pollutant Category', value: pollutantGroup.description}
+                            { label: 'Pollutant Category', value: (pollutantGroup ? pollutantGroup.description : '')}
                           ],
                           pscs,
                           res);
@@ -498,6 +511,10 @@ module.exports = {
 
       if (pointSourceCategoryCodes === [] || pointSourceCategoryCodes.some(function(psc) {return utilities.parseIdAsInteger(psc) === null})) {
         return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
+      }
+
+      if (req.query.download && !["true","false"].includes(req.query.download)) {
+        return res.status(400).send("Invalid value passed for download");
       }
 
       let downloadRequested = utilities.parseDownload(req.query.download);
