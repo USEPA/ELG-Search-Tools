@@ -65,11 +65,14 @@ function parseMultiCriteriaSearchParams(query) {
   let rangeUnitCode = (query.rangeUnitCode ? query.rangeUnitCode : '');
   rangeUnitCode = (rangeUnitCode !== 'null' ? rangeUnitCode : '');
 
+  let downloadRaw = query.download
   let downloadRequested = utilities.parseDownload(query.download);
 
   let sortCol = query.sortCol;
   let sortDir = query.sortDir;
 
+  let offsetRaw = query.offset
+  let limitRaw = query.limit
   let offset = (isNaN(query.offset)) ? 0 : Number(query.offset);
   let limit = (isNaN(query.limit)) ? 100 : Number(query.limit);
 
@@ -88,9 +91,12 @@ function parseMultiCriteriaSearchParams(query) {
     rangeLow: rangeLow,
     rangeHigh: rangeHigh,
     rangeUnitCode: rangeUnitCode,
+    downloadRaw: downloadRaw,
     downloadRequested: downloadRequested,
     sortCol: sortCol,
     sortDir: sortDir,
+    offsetRaw: offsetRaw,
+    limitRaw: limitRaw,
     offset: offset,
     limit: limit,
     filterTreatmentIds: filterTreatmentIds,
@@ -102,54 +108,155 @@ function parseMultiCriteriaSearchParams(query) {
 function validateMultiCriteriaSearchParams(params) {
   return new Promise((resolve, reject) => {
     try {
-      //validate that rangeUnitCode is a valid limitation unit code
-      LimitationUnit.findOne({
-        where: {
-          code: {[Op.eq]: params.rangeUnitCode}
-        }
-      })
-        .then(limitationUnit => {
-          if (params.rangeUnitCode && limitationUnit === null) {
-            reject("Invalid value passed for rangeUnitCode");
-          }
-          else {
-            //validate that treatmentTechnologyGroup values are valid
-            let treatmentTechnologyGroupsValid = true;
-            params.treatmentTechnologyGroups.forEach(treatmentTechnologyGroup => {
-              treatmentTechnologyGroupsValid = treatmentTechnologyGroupsValid && [
-                "Physical, Not Elsewhere Classified",
-                "Other",
-                "Chemical",
-                "Biological",
-                "Thermal",
-                "Filtration",
-                "Sorption",
-                "Membrane"
-              ].includes(treatmentTechnologyGroup);
-            });
+      //validate sortDir parameter
+      let columnMatch = true;
+      let queryColumns = limitation.attributes.concat(limitation.downloadAttributes).concat([
+        'treatmentId',
+        'treatmentCodes',
+        'treatmentNames',
+        [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+        'wastestreamProcessTreatmentTechnologySourceTitle',
+        ['pollutant_desc', 'pollutantId']
+      ]);
 
-            if (treatmentTechnologyGroupsValid) {
-              PollutantGroup.findAll({
-                where: {
-                  id: { [Op.in]: params.pollutantGroupIds }
-                }
-              })
-                .then(pollutantGroups => {
-                  if (pollutantGroups.length !== params.pollutantGroupIds.length) {
-                    reject("Invalid value passed for pollutantGroupId")
-                  }
-                  else {
-                    resolve(params);
-                  }
-                })
-                .catch((_ignore) => reject("Invalid value passed for pollutantGroupId"));
-            }
-            else {
-              reject("Invalid value passed for treatmentTechnologyGroup");
-            }
+      if (params.sortCol) {
+        columnMatch = (queryColumns.filter(queryColumn => {
+          let columnName = Array.isArray(queryColumn) ? queryColumn[1] : queryColumn;
+          return params.sortCol === columnName;
+        }).length > 0);
+      }
+
+      if (!columnMatch) {
+        reject('Invalid sortCol.');
+      }
+      //validate sortDir parameter
+      else if (params.sortDir && !['ASC','DESC'].includes(params.sortDir.toUpperCase())) {
+        reject('sortDir must be one of the following values: ASC, DESC.');
+      }
+      //validate download parameter
+      else if (params.downloadRaw && !["true","false"].includes(params.downloadRaw)) {
+        reject("Invalid value passed for download")
+      }
+      //validate offset parameter
+      else if (params.offsetRaw && isNaN(params.offsetRaw)) {
+        reject('Invalid offset: must be numeric');
+      }
+      //validate limit parameter
+      else if (params.limitRaw && isNaN(params.limitRaw)) {
+        reject('Invalid limit: must be numeric');
+      }
+      else {
+        //validate that rangeUnitCode is a valid limitation unit code
+        LimitationUnit.findOne({
+          where: {
+            code: {[Op.eq]: params.rangeUnitCode}
           }
         })
-        .catch((_ignore) => reject("Invalid value passed for rangeUnitCode"));
+          .then(limitationUnit => {
+            if (params.rangeUnitCode && limitationUnit === null) {
+              reject("Invalid value passed for rangeUnitCode");
+            } else {
+              //validate that treatmentTechnologyGroup values are valid
+              let treatmentTechnologyGroupsValid = true;
+              params.treatmentTechnologyGroups.forEach(treatmentTechnologyGroup => {
+                treatmentTechnologyGroupsValid = treatmentTechnologyGroupsValid && [
+                  "Physical, Not Elsewhere Classified",
+                  "Other",
+                  "Chemical",
+                  "Biological",
+                  "Thermal",
+                  "Filtration",
+                  "Sorption",
+                  "Membrane"
+                ].includes(treatmentTechnologyGroup);
+              });
+
+              if (treatmentTechnologyGroupsValid) {
+                PollutantGroup.findAll({
+                  where: {
+                    id: {[Op.in]: params.pollutantGroupIds}
+                  }
+                })
+                  .then(pollutantGroups => {
+                    if (pollutantGroups.length !== params.pollutantGroupIds.length) {
+                      reject("Invalid value passed for pollutantGroupId")
+                    } else {
+                      //validate that filterPointSourceCategoryCode values are valid
+                      PointSourceCategory.findAll({
+                        where: {
+                          pointSourceCategoryCode: {[Op.in]: params.filterPointSourceCategoryCodes}
+                        }
+                      })
+                        .then(pointSourceCategories => {
+                          if (pointSourceCategories.length !== params.filterPointSourceCategoryCodes.length) {
+                            reject("Invalid value passed for filterPointSourceCategoryCode")
+                          }
+                          else {
+                            //validate that filterTreatmentId values are valid
+                            TreatmentTechnology.findAll({
+                              where: {
+                                id: {[Op.in]: params.filterTreatmentIds}
+                              }
+                            })
+                              .then(treatmentIds => {
+                                if (treatmentIds.length !== params.filterTreatmentIds.length) {
+                                  reject("Invalid value passed for filterTreatmentId")
+                                }
+                                else {
+                                  //validate that pollutantId values are valid
+                                  Pollutant.findAll({
+                                    where: {
+                                      description: {[Op.in]: params.pollutantIds}
+                                    }
+                                  })
+                                    .then(pollutantIds => {
+                                      if (pollutantIds.length !== params.pollutantIds.length) {
+                                        reject("Invalid value passed for pollutantId")
+                                      }
+                                      else {
+
+                                        //validate that filterPollutantId values are valid
+                                        Pollutant.findAll({
+                                          where: {
+                                            description: {[Op.in]: params.filterPollutantIds}
+                                          }
+                                        })
+                                          .then(fPollutantIds => {
+                                            if (fPollutantIds.length !== params.filterPollutantIds.length) {
+                                              reject("Invalid value passed for filterPollutantId")
+                                            }
+                                            else {
+                                              resolve(params);
+                                            }
+                                          })
+                                          .catch((_ignore) => {
+                                            reject("Invalid value passed for filterPollutantId")
+                                          })
+                                      }
+                                    })
+                                    .catch((_ignore) => {
+                                      reject("Invalid value passed for pollutantId")
+                                    })
+                                }
+                              })
+                              .catch((_ignore) => {
+                                reject("Invalid value passed for filterTreatmentId")
+                              })
+                          }
+                        })
+                        .catch((_ignore) => {
+                          reject("Invalid value passed for filterPointSourceCategoryCode")
+                        })
+                    }
+                  })
+                  .catch((_ignore) => reject("Invalid value passed for pollutantGroupId"));
+              } else {
+                reject("Invalid value passed for treatmentTechnologyGroup");
+              }
+            }
+          })
+          .catch((_ignore) => reject("Invalid value passed for rangeUnitCode"));
+      }
     }
     catch (validationError) {
       reject(validationError);
@@ -157,11 +264,37 @@ function validateMultiCriteriaSearchParams(params) {
   });
 }
 
-function validateSortDir(sortDir) {
+function validateSortParams(sortCol, sortDir, offset, limit) {
   return new Promise((resolve, reject) => {
     try {
-      if (sortDir && !['ASC','DESC'].includes(sortDir.toUpperCase())) {
-        reject('sortDir must be one of the following values: ASC, DESC');
+      let columnMatch = true;
+      let queryColumns = limitation.attributes.concat(limitation.downloadAttributes).concat([
+        'treatmentId',
+        'treatmentCodes',
+        'treatmentNames',
+        [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+        'wastestreamProcessTreatmentTechnologySourceTitle',
+        ['pollutant_desc', 'pollutantId']
+      ]);
+
+      if (sortCol) {
+        columnMatch = (queryColumns.filter(queryColumn => {
+          let columnName = Array.isArray(queryColumn) ? queryColumn[1] : queryColumn;
+          return sortCol === columnName;
+        }).length > 0);
+      }
+
+      if (!columnMatch) {
+        reject('Invalid sortCol.');
+      }
+      else if (sortDir && !['ASC','DESC'].includes(sortDir.toUpperCase())) {
+        reject('sortDir must be one of the following values: ASC, DESC.');
+      }
+      else if (offset && isNaN(offset)) {
+        reject('Invalid offset: must be numeric');
+      }
+      else if (limit && isNaN(limit)) {
+        reject('Invalid limit: must be numeric');
       }
       else {
         resolve(true);
@@ -557,54 +690,58 @@ module.exports = {
 
     let downloadRequested = utilities.parseDownload(req.query.download);
 
-    let sortCol = req.query.sortCol;
-    let sortDir = req.query.sortDir;
-
-    validateSortDir(sortDir)
+    validateSortParams(req.query.sortCol, req.query.sortDir, req.query.offset, req.query.limit)
       .then(ignore => {
-        if (downloadRequested) {
-          limitation.keywordSearchLimitationsForDownload(keywords, operator, sortCol, sortDir)
-            .then(dataStream => {
-              download.createDownloadFileFromStream('limitations',
-                'Limitations',
-                limitation.downloadDataColumns,
-                [
-                  { label: 'Keyword(s)', value: keywords.map(a => a.replace(/\%/g, '')).join(" " + operator + " ")}
-                ],
-                dataStream,
-                res);
-            })
-            .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
+        if (!["AND", "OR"].includes(operator)) {
+          res.status(400).send('operator must be one of the following values: AND, OR.')
         }
         else {
-          let offset = (isNaN(req.query.offset)) ? 0 : Number(req.query.offset);
-          let limit = (isNaN(req.query.limit)) ? 100 : Number(req.query.limit);
+          let sortCol = req.query.sortCol;
+          let sortDir = req.query.sortDir;
 
-          limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir, offset, limit)
-            .then(result => {
-              Pollutant.findAll({
-                attributes: [
-                  ['elg_pollutant_description', 'pollutantDescription'],
-                  [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
-                ],
-                where: { id: { [Op.in]: result.pollutants.map(poll => poll.id ) } },
-                group: ['elg_pollutant_description'],
-                order: ['elg_pollutant_description']
+          if (downloadRequested) {
+            limitation.keywordSearchLimitationsForDownload(keywords, operator, sortCol, sortDir)
+              .then(dataStream => {
+                download.createDownloadFileFromStream('limitations',
+                  'Limitations',
+                  limitation.downloadDataColumns,
+                  [
+                    {label: 'Keyword(s)', value: keywords.map(a => a.replace(/\%/g, '')).join(" " + operator + " ")}
+                  ],
+                  dataStream,
+                  res);
               })
-                .then(polls => {
-                  console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
-                  res.status(200).send({
-                    pointSourceCategories: result.pointSourceCategoryCodes,
-                    pollutants: polls,
-                    wastestreamProcesses: result.wastestreamProcesses,
-                    treatmentTrains: result.treatmentTrains,
-                    limitations: result.limitations.rows,
-                    count: result.limitations.count
-                  });
+              .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
+          } else {
+            let offset = req.query.offset ? Number(req.query.offset) : 0;
+            let limit = req.query.limit ? Number(req.query.limit) : 100;
+
+            limitation.keywordSearchLimitations(keywords, operator, sortCol, sortDir, offset, limit)
+              .then(result => {
+                Pollutant.findAll({
+                  attributes: [
+                    ['elg_pollutant_description', 'pollutantDescription'],
+                    [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+                  ],
+                  where: {id: {[Op.in]: result.pollutants.map(poll => poll.id)}},
+                  group: ['elg_pollutant_description'],
+                  order: ['elg_pollutant_description']
                 })
-                .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-            })
-            .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+                  .then(polls => {
+                    console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) + 'MB')
+                    res.status(200).send({
+                      pointSourceCategories: result.pointSourceCategoryCodes,
+                      pollutants: polls,
+                      wastestreamProcesses: result.wastestreamProcesses,
+                      treatmentTrains: result.treatmentTrains,
+                      limitations: result.limitations.rows,
+                      count: result.limitations.count
+                    });
+                  })
+                  .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+              })
+              .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+          }
         }
       })
       .catch((sortDirValidationError) => {

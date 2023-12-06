@@ -1202,6 +1202,8 @@ function sortLtas(ltas) {
 }
 
 module.exports = {
+  attributes,
+  downloadAttributes,
   wastestreamProcessLimitations,
   pollutantLimitations,
   technologyLimitations,
