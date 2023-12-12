@@ -13,7 +13,8 @@
     "migrate": "sequelize db:migrate:undo:all && sequelize db:migrate",
     "prod": "node server/src/server.js",
     "seed": "sequelize db:seed:all",
-    "server": "nodemon --ignore client/* --ignore server/src/s3/glossary.json --inspect server/src/server.js",
+    "server": "nodemon --ignore 'client/*' --ignore server/src/s3/glossary.json --inspect server/src/server.js",
+    "setup": "npm ci && npx sequelize db:create && npm run migrate && npm run seed",
     "start": "cross-env NODE_ENV=local concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
     "test": "vue-cli-service test:unit"
   },
