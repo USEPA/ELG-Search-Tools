@@ -63,7 +63,7 @@ function fillControlTechnology(controlTechnology) {
           [Sequelize.literal("split_part(cfr_sect, '.', 1) || '_1' || split_part(cfr_sect, '.', 2)"), 'cfrSectionAnchor'],
           'typoFlagLimitCalculationDescription',
           'typoFlagNotes',
-          ['(select count(l.lim_id) from elg_search."Limitation" l where l.processop_id = "WastestreamProcess".processop_id)', 'limitationCount']
+          [Sequelize.literal('(select count(l.lim_id) from elg_search."Limitation" l where l.processop_id = "WastestreamProcess".processop_id)'), 'limitationCount']
         ],
         where: {
           controlTechnologyId: { [Op.eq]: controlTechnology.id }
@@ -157,9 +157,8 @@ module.exports = {
     }
   },
   /**
-   * @param {
-   *          {id:number},
-   * } req.params
+   * @param req
+   * @param res
    */
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
@@ -218,8 +217,8 @@ module.exports = {
                   }
                 });
 
-                Promise.all(ctPromises).then((cts) => {
-                  result['controlTechnologies'] = result['controlTechnologies'].concat(cts);
+                Promise.all(ctPromises).then((missingCts) => {
+                  result['controlTechnologies'] = result['controlTechnologies'].concat(missingCts);
                   res.status(200).send(result);
                 });
               });

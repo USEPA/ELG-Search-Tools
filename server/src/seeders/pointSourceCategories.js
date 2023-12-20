@@ -181,7 +181,7 @@ module.exports = {
         "narrative_history":null,
         "source_id":1,
         "initial_promulgation_date":1974,
-        "most_recent_revision_date":2015,
+        "most_recent_revision_date":2020,
         "link_url":"https://www.epa.gov/eg/steam-electric-power-generating-effluent-guidelines"},
       {"psc_code":424,
         "cfr_part":"424",

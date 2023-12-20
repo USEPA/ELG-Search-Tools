@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
+const sequelizeStream = require('node-sequelize-stream');
 const basename = path.basename(__filename);
 const db = {};
 const logger = require("../../utilities/logger.js");
@@ -35,7 +36,7 @@ if (isLocal) {
     return;
   }
 
-  vcap_services = JSON.parse(process.env.VCAP_SERVICES);
+  let vcap_services = JSON.parse(process.env.VCAP_SERVICES);
   database_host = vcap_services["aws-rds"][0].credentials.host;
   database_user = vcap_services["aws-rds"][0].credentials.username;
   database_pwd = vcap_services["aws-rds"][0].credentials.password;
@@ -66,7 +67,7 @@ fs.readdirSync(__dirname)
     );
   })
   .forEach(file => {
-    const model = sequelize["import"](path.join(__dirname, file));
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 
@@ -78,5 +79,7 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+sequelizeStream(sequelize, 100, false);
 
 module.exports = db;

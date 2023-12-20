@@ -2,12 +2,13 @@ version: 2
 jobs:
   develop-branch:
     docker:
-      - image: circleci/node:dubnium-stretch
+      - image: cimg/node:18.18.2
     environment:
       APP_NAME: elg-search-tools-dev
       APP_DOMAIN: app.cloud.gov
       CF_ORG: epa-surface-water
       CF_SPACE: owtbx-elg-dev
+      CF_STACK: cflinuxfs4
     steps:
       - checkout
       - run:
@@ -61,7 +62,7 @@ jobs:
       - run:
           name: Deploy application to Cloud.gov
           command: |
-            cf push $APP_NAME --strategy rolling -f manifest-dev.yml -p . -t 180
+            cf push $APP_NAME --strategy rolling -f manifest-dev.yml -p . -t 180 -s $CF_STACK
       - run:
           name: Set application-level variables
           command: |
@@ -72,12 +73,13 @@ jobs:
   stage-branch:
     working_directory: ~/project/app # directory where steps will run
     docker:
-      - image: circleci/node:erbium-buster
+      - image: cimg/node:18.18.2
     environment:
       APP_NAME: elg-search-tools-stage
       APP_DOMAIN: app.cloud.gov
       CF_ORG: epa-surface-water
       CF_SPACE: owtbx-elg-staging
+      CF_STACK: cflinuxfs4
     steps:
       - checkout
       - run:
@@ -109,7 +111,7 @@ jobs:
       - run:
           name: Deploy application to Cloud.gov
           command: |
-            cf push $APP_NAME --strategy rolling -f manifest-staging.yml -p . -t 180
+            cf push $APP_NAME --strategy rolling -f manifest-staging.yml -p . -t 180 -s $CF_STACK
             cf set-env $APP_NAME "ELG_BASIC_AUTH_USER_NAME" "$ELG_BASIC_AUTH_USER_NAME" > /dev/null
             cf set-env $APP_NAME "ELG_BASIC_AUTH_USER_PWD" "$ELG_BASIC_AUTH_USER_PWD" > /dev/null
             cf set-env $APP_NAME "ELG_GLOSSARY_AUTH" "$ELG_GLOSSARY_AUTH" > /dev/null

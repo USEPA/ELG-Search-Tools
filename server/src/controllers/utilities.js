@@ -5,7 +5,7 @@ const DOMPurify = createDOMPurify(window);
 
 function sanitizeError(error) {
   // noinspection JSUnresolvedFunction
-  return DOMPurify.sanitize(error);
+  return DOMPurify.sanitize(error, null);
 }
 
 function getControlTechnologyDescription(controlTechnologyCode)  {
@@ -28,11 +28,25 @@ function getControlTechnologyDescription(controlTechnologyCode)  {
 }
 
 function parseIdAsInteger(id) {
-  return isNaN(id) ? null : (Number.isInteger(Number(id)) ? Number(id) : null);
+  if (isNaN(id)) {
+    return null;
+  }
+
+  if (Number.isInteger(Number(id))) {
+    return Number(id);
+  }
+  else {
+    return null;
+  }
+}
+
+function parseDownload(download) {
+  return download ? (download === 'true') : false
 }
 
 module.exports = {
   sanitizeError,
   getControlTechnologyDescription,
-  parseIdAsInteger
+  parseIdAsInteger,
+  parseDownload
 };
