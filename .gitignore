@@ -21,5 +21,8 @@ docker-compose.yml
 .vscode
 
 #source Access database
-/server/db/elg_database.accdb
-/server/db/elg_database.laccdb
+app/server/db/elg_database.accdb
+app/server/db/elg_database.laccdb
+
+# frontend build files
+app/server/public
