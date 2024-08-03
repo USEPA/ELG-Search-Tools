@@ -15,15 +15,17 @@ module.exports = {
       let id = utilities.parseIdAsInteger(req.query.id);
 
       if (id === null) {
-        return res.status(400).send('Invalid value passed for id')
+        return res.status(400).send('Invalid value passed for id');
       }
 
       let downloadRequested = utilities.parseDownload(req.query.download);
 
-      limitation.wastestreamProcessLimitations(id)
-        .then(limitations => {
+      limitation
+        .wastestreamProcessLimitations(id)
+        .then((limitations) => {
           if (downloadRequested) {
-            download.createDownloadFile('limitations',
+            download.createDownloadFile(
+              'limitations',
               'Pollutant Limitations',
               [
                 { key: 'pollutantDescription', label: 'Pollutant', width: 40 },
@@ -31,26 +33,33 @@ module.exports = {
                 { key: 'limitationValue', label: 'Limitation Value' },
                 { key: 'alternateLimitFlag', label: 'Limitation Flag' },
                 { key: 'limitationUnitCode', label: 'Units', width: 90 },
-                { key: 'limitationUnitBasis', label: 'Limitation Basis' }
+                { key: 'limitationUnitBasis', label: 'Limitation Basis' },
               ],
               [
-                { label: 'Point Source Category ' + limitations.pointSourceCategoryCode, value: limitations.pointSourceCategoryName },
+                {
+                  label: 'Point Source Category ' + limitations.pointSourceCategoryCode,
+                  value: limitations.pointSourceCategoryName,
+                },
                 { label: 'Subpart', value: limitations.comboSubcategory },
                 { label: 'CFR Section', value: limitations.cfrSection },
-                { label: 'Level of Control', value: limitations.controlTechnologyCode},
+                { label: 'Level of Control', value: limitations.controlTechnologyCode },
                 { label: 'Process Operation/Wastestream', value: limitations.title },
-                { label: 'Other Process/Wastestream Details', value: limitations.secondary.replace(/<strong><u>and<\/u><\/strong>/ig, 'AND'), wrapText: true }
+                {
+                  label: 'Other Process/Wastestream Details',
+                  value: limitations.secondary.replace(/<strong><u>and<\/u><\/strong>/gi, 'AND'),
+                  wrapText: true,
+                },
               ],
               limitations.limitations,
-              res);
-          }
-          else {
-            res.status(200).send(limitations)
+              res
+            );
+          } else {
+            res.status(200).send(limitations);
           }
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
-  }
+  },
 };

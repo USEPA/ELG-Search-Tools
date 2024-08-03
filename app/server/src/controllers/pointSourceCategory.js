@@ -11,19 +11,19 @@ const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWaste
 const ViewLimitation = require('../models').ViewLimitation;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
-const Op = require('sequelize').Op
-const Sequelize = require("sequelize");
+const Op = require('sequelize').Op;
+const Sequelize = require('sequelize');
 
 function fillSubcategoryForCfr(subcategory) {
-  return new Promise( function(resolve, ignore) {
+  return new Promise(function(resolve) {
     let sub = {
-      'id': subcategory.id,
-      'pointSourceCategoryCode': subcategory.pointSourceCategoryCode,
-      'comboSubcategory': subcategory.comboSubcategory,
-      'applicabilityProvisions': [],
-      'monitoringRequirementProvisions': [],
-      'bmpProvisions': [],
-      'otherProvisions': []
+      id: subcategory.id,
+      pointSourceCategoryCode: subcategory.pointSourceCategoryCode,
+      comboSubcategory: subcategory.comboSubcategory,
+      applicabilityProvisions: [],
+      monitoringRequirementProvisions: [],
+      bmpProvisions: [],
+      otherProvisions: [],
     };
 
     let attributes = [
@@ -31,12 +31,12 @@ function fillSubcategoryForCfr(subcategory) {
       'title',
       [Sequelize.literal("replace(genprov_desc, '\\u00A7', U&'\\00A7')"), 'description'],
       'cfrHasAdditionalDetails',
-      'type'
+      'type',
     ];
 
-    let subCategoryIdWhereClause = { [Op.eq]: sub.id }
+    let subCategoryIdWhereClause = { [Op.eq]: sub.id };
     if (sub.comboSubcategory === 'All') {
-      subCategoryIdWhereClause = { [Op.eq]: null }
+      subCategoryIdWhereClause = { [Op.eq]: null };
     }
 
     ViewGeneralProvision.findAll({
@@ -44,54 +44,60 @@ function fillSubcategoryForCfr(subcategory) {
       where: {
         pointSourceCategoryCode: { [Op.eq]: sub.pointSourceCategoryCode },
         type: { [Op.ne]: null },
-        subcategoryId: subCategoryIdWhereClause
+        subcategoryId: subCategoryIdWhereClause,
       },
-      order: ['cfrSection']
-    })
-      .then(provisions => {
-        sub.applicabilityProvisions = provisions.filter(function(provision) { return provision.type === 'applicability' } );
-        sub.monitoringRequirementProvisions = provisions.filter(function(provision) { return provision.type === 'monitoringRequirement' } );
-        sub.bmpProvisions = provisions.filter(function(provision) { return provision.type === 'bmp' } );
-        sub.otherProvisions = provisions.filter(function(provision) { return provision.type === 'other' } );
-        resolve(sub);
+      order: ['cfrSection'],
+    }).then((provisions) => {
+      sub.applicabilityProvisions = provisions.filter(function(provision) {
+        return provision.type === 'applicability';
       });
-  })
+      sub.monitoringRequirementProvisions = provisions.filter(function(provision) {
+        return provision.type === 'monitoringRequirement';
+      });
+      sub.bmpProvisions = provisions.filter(function(provision) {
+        return provision.type === 'bmp';
+      });
+      sub.otherProvisions = provisions.filter(function(provision) {
+        return provision.type === 'other';
+      });
+      resolve(sub);
+    });
+  });
 }
 
 function fillSubcategoryForDefinitions(subcategory) {
-  return new Promise( function(resolve, ignore) {
+  return new Promise(function(resolve) {
     let sub = {
-      'id': subcategory.id,
-      'pointSourceCategoryCode': subcategory.pointSourceCategoryCode,
-      'comboSubcategory': subcategory.comboSubcategory,
-      'definitions': []
+      id: subcategory.id,
+      pointSourceCategoryCode: subcategory.pointSourceCategoryCode,
+      comboSubcategory: subcategory.comboSubcategory,
+      definitions: [],
     };
 
     let attributes = [
       'term',
       [Sequelize.literal("replace(replace(definition, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'definition'],
       'cfrHasAdditionalDetails',
-      'typoFlagDefinition'
+      'typoFlagDefinition',
     ];
 
-    let subCategoryIdWhereClause = { [Op.eq]: sub.id }
+    let subCategoryIdWhereClause = { [Op.eq]: sub.id };
     if (sub.comboSubcategory === 'General Definitions') {
-      subCategoryIdWhereClause = { [Op.eq]: null }
+      subCategoryIdWhereClause = { [Op.eq]: null };
     }
 
     ViewDefinition.findAll({
       attributes: attributes,
       where: {
         pointSourceCategoryCode: { [Op.eq]: sub.pointSourceCategoryCode },
-        subcategoryId: subCategoryIdWhereClause
+        subcategoryId: subCategoryIdWhereClause,
       },
-      order: ['term']
-    })
-      .then(definitions => {
-        sub.definitions = definitions;
-        resolve(sub);
-      });
-  })
+      order: ['term'],
+    }).then((definitions) => {
+      sub.definitions = definitions;
+      resolve(sub);
+    });
+  });
 }
 
 module.exports = {
@@ -123,16 +129,16 @@ module.exports = {
       let id = utilities.parseIdAsInteger(req.params.id);
 
       if (id === null) {
-        return res.status(400).send('Invalid value passed for id')
+        return res.status(400).send('Invalid value passed for id');
       }
 
       return PointSourceCategory.findByPk(id, {
-        attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName', 'linkUrl']
+        attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName', 'linkUrl'],
       })
         .then((pointSourceCategory) => {
           let result = new Map();
 
-          if(pointSourceCategory) {
+          if (pointSourceCategory) {
             result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
             result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
             result['linkUrl'] = pointSourceCategory.linkUrl;
@@ -142,7 +148,7 @@ module.exports = {
               where: {
                 pointSourceCategoryCode: { [Op.eq]: id },
               },
-              order: [Sequelize.literal("length(subcat_code)"), 'pointSourceSubcategoryCode'],
+              order: [Sequelize.literal('length(subcat_code)'), 'pointSourceSubcategoryCode'],
             })
               .then((pointSourceSubcategories) => {
                 result['pointSourceSubcategories'] = pointSourceSubcategories;
@@ -152,54 +158,64 @@ module.exports = {
                 ViewWastestreamProcessTreatmentTechnology.findAll({
                   attributes: ['wastestreamProcessId', 'treatmentId'],
                   where: {
-                    pointSourceCategoryCode: { [Op.eq]: id }
-                  }
-                }).then((wastestreamProcessTreatmentTechnologies) => {
-                  // use limitations to get pollutants
-                  ViewLimitation.findAll( {
-                    attributes: [
-                      [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
-                      [Sequelize.col('elg_pollutant_description'), 'elgPollutantDescription']
-                    ],
-                    where: {
-                      pointSourceCategoryCode: { [Op.eq]: id },
-                    }
-                  })
-                    .then(pollutants => {
-                      result['pollutants'] = pollutants.map(a => a.elgPollutantDescription).join('; ').split('; ').sort().filter(function(value, index, self) {
-                        return self.indexOf(value) === index;
-                      }).join('; ');
+                    pointSourceCategoryCode: { [Op.eq]: id },
+                  },
+                })
+                  .then((wastestreamProcessTreatmentTechnologies) => {
+                    // use limitations to get pollutants
+                    ViewLimitation.findAll({
+                      attributes: [
+                        [Sequelize.fn('DISTINCT', Sequelize.col('pollutant_code')), 'pollutantId'],
+                        [Sequelize.col('elg_pollutant_description'), 'elgPollutantDescription'],
+                      ],
+                      where: {
+                        pointSourceCategoryCode: { [Op.eq]: id },
+                      },
+                    }).then((pollutants) => {
+                      result['pollutants'] = pollutants
+                        .map((a) => a.elgPollutantDescription)
+                        .join('; ')
+                        .split('; ')
+                        .sort()
+                        .filter(function(value, index, self) {
+                          return self.indexOf(value) === index;
+                        })
+                        .join('; ');
 
                       if (wastestreamProcessTreatmentTechnologies.length > 0) {
                         TreatmentTechnology.findAll({
                           attributes: ['codes'],
                           where: {
-                            id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentId) }
-                          }
-                        }).then(treatmentTechnologies => {
+                            id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map((a) => a.treatmentId) },
+                          },
+                        }).then((treatmentTechnologies) => {
                           TreatmentTechnologyCode.findAll({
                             attributes: ['name'],
                             where: {
-                              code: { [Op.in]: treatmentTechnologies.map(a => a.codes).join('; ').split('; ') }
+                              code: {
+                                [Op.in]: treatmentTechnologies
+                                  .map((a) => a.codes)
+                                  .join('; ')
+                                  .split('; '),
+                              },
                             },
                             group: ['name'],
-                            order: ['name']
-                          })
-                            .then((treatmentTechnologyCodes) => {
-                              result['technologyNames'] = treatmentTechnologyCodes.map(a => a.name).join('; ');
+                            order: ['name'],
+                          }).then((treatmentTechnologyCodes) => {
+                            result['technologyNames'] = treatmentTechnologyCodes.map((a) => a.name).join('; ');
 
-                              res.status(200).send(result);
-                            });
-                        })
+                            res.status(200).send(result);
+                          });
+                        });
                       } else {
                         res.status(200).send(result);
                       }
                     });
-                }).catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+                  })
+                  .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
               })
               .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-          }
-          else {
+          } else {
             res.status(200).send(result);
           }
         })
@@ -219,7 +235,7 @@ module.exports = {
       let pointSourceCategoryCode = utilities.parseIdAsInteger(req.params.id);
 
       if (pointSourceCategoryCode === null) {
-        return res.status(400).send('Invalid value passed for pointSourceCategoryCode')
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode');
       }
 
       return PointSourceCategory.findByPk(pointSourceCategoryCode, {
@@ -227,13 +243,13 @@ module.exports = {
           'pointSourceCategoryCode',
           'pointSourceCategoryName',
           'initialPromulgationDate',
-          'mostRecentRevisionDate'
-        ]
+          'mostRecentRevisionDate',
+        ],
       })
         .then((pointSourceCategory) => {
           let result = new Map();
 
-          if(pointSourceCategory) {
+          if (pointSourceCategory) {
             result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
             result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
             result['initialPromulgationDate'] = pointSourceCategory.initialPromulgationDate;
@@ -242,12 +258,17 @@ module.exports = {
             PointSourceCategoryNaicsCode.findAll({
               attributes: [
                 [Sequelize.literal("regexp_replace(naics, '[^0-9]', '', 'g')"), 'naicsCode'],
-                [Sequelize.literal('(select "NaicsCode".naics_desc from "elg_search"."NaicsCode" where "NaicsCode".naics = "PointSourceCategoryNaicsCode".naics)'), 'naicsDescription']
+                [
+                  Sequelize.literal(
+                    '(select "NaicsCode".naics_desc from "elg_search"."NaicsCode" where "NaicsCode".naics = "PointSourceCategoryNaicsCode".naics)'
+                  ),
+                  'naicsDescription',
+                ],
               ],
               where: {
-                pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
+                pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
               },
-              order: ['naicsCode']
+              order: ['naicsCode'],
             })
               .then((pointSourceCategoryNaicsCodes) => {
                 result['naicsCodes'] = pointSourceCategoryNaicsCodes;
@@ -255,12 +276,17 @@ module.exports = {
                 PointSourceCategorySicCode.findAll({
                   attributes: [
                     [Sequelize.literal("regexp_replace(sic, '[^0-9]', '', 'g')"), 'sicCode'],
-                    [Sequelize.literal('(select "SicCode".sic_desc from "elg_search"."SicCode" where "SicCode".sic = "PointSourceCategorySicCode".sic)'), 'sicDescription']
+                    [
+                      Sequelize.literal(
+                        '(select "SicCode".sic_desc from "elg_search"."SicCode" where "SicCode".sic = "PointSourceCategorySicCode".sic)'
+                      ),
+                      'sicDescription',
+                    ],
                   ],
                   where: {
-                    generalPointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode }
+                    generalPointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
                   },
-                  order: ['sicCode']
+                  order: ['sicCode'],
                 })
                   .then((pointSourceCategorySicCodes) => {
                     result['sicCodes'] = pointSourceCategorySicCodes;
@@ -270,39 +296,40 @@ module.exports = {
                         'id',
                         'pointSourceCategoryCode',
                         'comboSubcategory',
-                        'pointSourceSubcategoryCfrSection'
+                        'pointSourceSubcategoryCfrSection',
                       ],
                       where: {
                         pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
                       },
-                      order: [
-                        Sequelize.literal("length(subcat_code)"),
-                        'comboSubcategory'
-                      ]
+                      order: [Sequelize.literal('length(subcat_code)'), 'comboSubcategory'],
                     })
                       .then((subcategories) => {
-                        subcategories.unshift({id: -1, pointSourceCategoryCode: pointSourceCategoryCode, comboSubcategory: 'All', pointSourceSubcategoryCfrSection: ''})
+                        subcategories.unshift({
+                          id: -1,
+                          pointSourceCategoryCode: pointSourceCategoryCode,
+                          comboSubcategory: 'All',
+                          pointSourceSubcategoryCfrSection: '',
+                        });
 
                         let subcategoryPromises = [];
 
                         //get provisions for each subcategory, grouped by type
                         subcategories.forEach(function(subcategory) {
-                          subcategoryPromises.push(fillSubcategoryForCfr(subcategory))
+                          subcategoryPromises.push(fillSubcategoryForCfr(subcategory));
                         });
 
-                        Promise.all(subcategoryPromises).then(filledSubcategories => {
+                        Promise.all(subcategoryPromises).then((filledSubcategories) => {
                           result['subcategories'] = filledSubcategories;
 
                           res.status(200).send(result);
-                        })
+                        });
                       })
                       .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
                   })
                   .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
               })
               .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-          }
-          else {
+          } else {
             res.status(200).send(result);
           }
         })
@@ -322,55 +349,49 @@ module.exports = {
       let pointSourceCategoryCode = utilities.parseIdAsInteger(req.params.id);
 
       if (pointSourceCategoryCode === null) {
-        return res.status(400).send('Invalid value passed for pointSourceCategoryCode')
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode');
       }
 
       return PointSourceCategory.findByPk(pointSourceCategoryCode, {
-        attributes: [
-          'pointSourceCategoryCode',
-          'pointSourceCategoryName'
-        ]
+        attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName'],
       })
         .then((pointSourceCategory) => {
           let result = new Map();
 
-          if(pointSourceCategory) {
+          if (pointSourceCategory) {
             result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
             result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
 
             PointSourceSubcategory.findAll({
-              attributes: [
-                'id',
-                'pointSourceCategoryCode',
-                'comboSubcategory',
-                'pointSourceSubcategoryCfrSection'
-              ],
+              attributes: ['id', 'pointSourceCategoryCode', 'comboSubcategory', 'pointSourceSubcategoryCfrSection'],
               where: {
                 pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
               },
-              order: [
-                'comboSubcategory'
-              ]
+              order: ['comboSubcategory'],
             })
               .then((subcategories) => {
-                subcategories.unshift({id: -1, pointSourceCategoryCode: pointSourceCategoryCode, comboSubcategory: 'General Definitions', pointSourceSubcategoryCfrSection: ''})
+                subcategories.unshift({
+                  id: -1,
+                  pointSourceCategoryCode: pointSourceCategoryCode,
+                  comboSubcategory: 'General Definitions',
+                  pointSourceSubcategoryCfrSection: '',
+                });
 
                 let subcategoryPromises = [];
 
                 //get provisions for each subcategory, grouped by type
                 subcategories.forEach(function(subcategory) {
-                  subcategoryPromises.push(fillSubcategoryForDefinitions(subcategory))
+                  subcategoryPromises.push(fillSubcategoryForDefinitions(subcategory));
                 });
 
-                Promise.all(subcategoryPromises).then(filledSubcategories => {
+                Promise.all(subcategoryPromises).then((filledSubcategories) => {
                   result['subcategories'] = filledSubcategories;
 
                   res.status(200).send(result);
-                })
+                });
               })
               .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-          }
-          else {
+          } else {
             res.status(200).send(result);
           }
         })
@@ -390,19 +411,16 @@ module.exports = {
       let pointSourceCategoryCode = utilities.parseIdAsInteger(req.params.id);
 
       if (pointSourceCategoryCode === null) {
-        return res.status(400).send('Invalid value passed for pointSourceCategoryCode')
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode');
       }
 
       return PointSourceCategory.findByPk(pointSourceCategoryCode, {
-        attributes: [
-          'pointSourceCategoryCode',
-          'pointSourceCategoryName'
-        ]
+        attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName'],
       })
         .then((pointSourceCategory) => {
           let result = new Map();
 
-          if(pointSourceCategory) {
+          if (pointSourceCategory) {
             result['pointSourceCategoryCode'] = pointSourceCategory.pointSourceCategoryCode;
             result['pointSourceCategoryName'] = pointSourceCategory.pointSourceCategoryName;
 
@@ -413,24 +431,31 @@ module.exports = {
                 'description',
                 'publicationDate',
                 'federalRegisterNoticeInCfr',
-                'federalRegisterNoticeFirstPage'
+                'federalRegisterNoticeFirstPage',
               ],
               where: {
                 pointSourceCategoryCode: { [Op.eq]: pointSourceCategoryCode },
               },
               order: [
-                [Sequelize.literal("case when split_part(cfr_section, '.', 1) = psc::text then trim(split_part(cfr_section, '.', 1))::numeric else 999999 end")],
-                [Sequelize.literal("case when split_part(cfr_section, '.', 1) = psc::text then trim(split_part(cfr_section, '.', 2))::numeric else 999999 end")],
+                [
+                  Sequelize.literal(
+                    "case when split_part(cfr_section, '.', 1) = psc::text then trim(split_part(cfr_section, '.', 1))::numeric else 999999 end"
+                  ),
+                ],
+                [
+                  Sequelize.literal(
+                    "case when split_part(cfr_section, '.', 1) = psc::text then trim(split_part(cfr_section, '.', 2))::numeric else 999999 end"
+                  ),
+                ],
                 'cfrSection',
-                'publicationDate'
-              ]
+                'publicationDate',
+              ],
             })
               .then((citationHistories) => {
                 res.status(200).send(citationHistories);
               })
               .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
-          }
-          else {
+          } else {
             res.status(200).send(result);
           }
         })
@@ -438,5 +463,5 @@ module.exports = {
     } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
-  }
+  },
 };

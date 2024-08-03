@@ -8,7 +8,7 @@ function sanitizeError(error) {
   return DOMPurify.sanitize(error, null);
 }
 
-function getControlTechnologyDescription(controlTechnologyCode)  {
+function getControlTechnologyDescription(controlTechnologyCode) {
   switch (controlTechnologyCode) {
     case 'BPT':
       return 'Best Practicable Control Technology Currently Available';
@@ -34,19 +34,18 @@ function parseIdAsInteger(id) {
 
   if (Number.isInteger(Number(id))) {
     return Number(id);
-  }
-  else {
+  } else {
     return null;
   }
 }
 
 function parseDownload(download) {
-  return download ? (download === 'true') : false
+  return download ? download === 'true' : false;
 }
 
 module.exports = {
   sanitizeError,
   getControlTechnologyDescription,
   parseIdAsInteger,
-  parseDownload
+  parseDownload,
 };

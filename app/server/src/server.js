@@ -70,7 +70,7 @@ if (isDevelopment || isStaging) {
   }
 
   let user_json = '{"' + process.env.ELG_BASIC_AUTH_USER_NAME + '" : "' + process.env.ELG_BASIC_AUTH_USER_PWD + '"}';
-  user_obj = JSON.parse(user_json);
+  const user_obj = JSON.parse(user_json);
 
   app.use(
     basicAuth({
@@ -170,7 +170,7 @@ if (process.env.ELG_GLOSSARY_AUTH) {
               Body: response,
               ContentType: 'application/json',
             },
-            function(awsError, ignore) {
+            function(awsError) {
               if (awsError) {
                 log.warn('Failed to upload ' + fileName + '; ' + awsError);
               } else {

@@ -8,8 +8,8 @@
       "refresh": "knex migrate:rollback && knex migrate:latest && knex seed:run",
       "prod": "node src/server.js",
       "build": "node src/build.js",
-      "lint": "eslint ./",
-      "lint:fix": "eslint ./ --fix"
+      "lint": "eslint src",
+      "lint:fix": "eslint src --fix"
     },
     "dependencies": {
       "aws-sdk": "^2.1048.0",

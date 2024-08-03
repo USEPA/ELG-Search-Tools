@@ -2,8 +2,6 @@ const logger = require('../../utilities/logger.js');
 const log = logger.logger;
 
 let isLocal = false;
-let isDevelopment = false;
-let isStaging = false;
 
 let db = {
   database: process.env.DB_NAME ?? 'elg_search',
@@ -18,8 +16,6 @@ let db = {
 
 if (process.env.NODE_ENV) {
   isLocal = process.env.NODE_ENV.toLowerCase() === 'local';
-  isDevelopment = process.env.NODE_ENV.toLowerCase() === 'development';
-  isStaging = process.env.NODE_ENV.toLowerCase() === 'staging';
 }
 
 if (isLocal) {
@@ -27,7 +23,7 @@ if (isLocal) {
 } else {
   if (process.env.VCAP_SERVICES) {
     log.info('Using VCAP_SERVICES Information to connect to Postgres.');
-    vcap_services = JSON.parse(process.env.VCAP_SERVICES);
+    const vcap_services = JSON.parse(process.env.VCAP_SERVICES);
     db = {
       database: 'postgres',
       user: vcap_services['aws-rds'][0].credentials.username,

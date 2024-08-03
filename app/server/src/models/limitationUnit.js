@@ -6,23 +6,23 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: 'unit_code',
-        primaryKey: true
+        primaryKey: true,
       },
       code: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'unit'
+        field: 'unit',
       },
       description: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'unit_desc'
+        field: 'unit_desc',
       },
       basis: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'unit_basis'
-      }
+        field: 'unit_basis',
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'LimitationUnit' }
   );

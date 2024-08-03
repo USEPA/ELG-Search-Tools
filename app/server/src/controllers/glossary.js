@@ -11,12 +11,11 @@ module.exports = {
 
       const file = fs.createReadStream(fileName);
       file.pipe(res);
-    }
-    catch (err) {
+    } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
-  help (req, res) {
+  help(req, res) {
     try {
       //get latest version of help pdf from file system (updated from s3 on each server restart)
       const path = require('path');
@@ -28,12 +27,11 @@ module.exports = {
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'inline; filename=ELG Database Users Guide.pdf');
       file.pipe(res);
-    }
-    catch (err) {
+    } catch (err) {
       res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
-  contact (req, res) {
+  contact(req, res) {
     try {
       //get latest contact information from file system (updated from s3 on each server restart)
       const path = require('path');
@@ -41,9 +39,8 @@ module.exports = {
 
       const file = fs.createReadStream(fileName);
       file.pipe(res);
-    }
-    catch (err) {
+    } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
-  }
+  },
 };

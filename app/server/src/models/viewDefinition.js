@@ -5,54 +5,54 @@ module.exports = (sequelize, DataTypes) => {
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'psc_code'
+        field: 'psc_code',
       },
       subcategoryId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'subcat_id'
+        field: 'subcat_id',
       },
       subcategory: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcategory'
+        field: 'subcategory',
       },
       subcategoryCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcat_cfr_section'
+        field: 'subcat_cfr_section',
       },
       cfrSubsection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'cfr_subsection'
+        field: 'cfr_subsection',
       },
       term: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'term'
+        field: 'term',
       },
       definition: {
         type: DataTypes.STRING(8000),
         allowNull: false,
-        field: 'definition'
+        field: 'definition',
       },
       type: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'deftype'
+        field: 'deftype',
       },
       cfrHasAdditionalDetails: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'additional_detail_cfr_flag'
+        field: 'additional_detail_cfr_flag',
       },
       typoFlagDefinition: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'typo_flag_definition'
+        field: 'typo_flag_definition',
       },
     },
-    { timestamps: false, schema: 'elg_search', tableName: 'ViewDefinition'}
-  )
+    { timestamps: false, schema: 'elg_search', tableName: 'ViewDefinition' }
+  );
 };

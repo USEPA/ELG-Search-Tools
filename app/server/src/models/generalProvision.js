@@ -5,44 +5,44 @@ module.exports = (sequelize, DataTypes) => {
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'psc_code'
+        field: 'psc_code',
       },
       cfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'genprov_cfr_section'
+        field: 'genprov_cfr_section',
       },
       title: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'genprov_section_title'
+        field: 'genprov_section_title',
       },
       description: {
         type: DataTypes.STRING(8000),
         allowNull: false,
-        field: 'genprov_desc'
+        field: 'genprov_desc',
       },
       isMonitoringRequirement: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'genprov_monitoring_reqs'
+        field: 'genprov_monitoring_reqs',
       },
       isBMP: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'genprov_bmps_reqs'
+        field: 'genprov_bmps_reqs',
       },
       cfrHasAdditionalDetails: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'additional_detail_in_cfr_'
+        field: 'additional_detail_in_cfr_',
       },
       sourceId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'genprov_source_id'
-      }
+        field: 'genprov_source_id',
+      },
     },
-    { timestamps: false, schema: 'elg_search', tableName: 'GeneralProvision'}
-  )
+    { timestamps: false, schema: 'elg_search', tableName: 'GeneralProvision' }
+  );
 };

@@ -10,13 +10,13 @@ module.exports = (sequelize, DataTypes) => {
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'psc_code'
+        field: 'psc_code',
       },
       naicsCodeAsNumber: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'naics_code'
-      }
+        field: 'naics_code',
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'PointSourceCategoryNaicsCode' }
   );

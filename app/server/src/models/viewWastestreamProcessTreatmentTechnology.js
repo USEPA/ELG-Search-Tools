@@ -5,178 +5,178 @@ module.exports = (sequelize, DataTypes) => {
       treatmentId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'treatment_id'
+        field: 'treatment_id',
       },
       treatmentCodes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'treatment_codes'
+        field: 'treatment_codes',
       },
       treatmentDescription: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'treatment_description'
+        field: 'treatment_description',
       },
       wastestreamProcessId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'processop_id'
+        field: 'processop_id',
       },
       wastestreamProcessTitle: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'processop_title'
+        field: 'processop_title',
       },
       wastestreamProcessSecondary: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'secondary'
+        field: 'secondary',
       },
       wastestreamProcessDisplayOrder: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'sortorder'
+        field: 'sortorder',
       },
       wastestreamProcessCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'wp_cfr_sect'
+        field: 'wp_cfr_sect',
       },
       wastestreamProcessDescription: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'processop_description'
+        field: 'processop_description',
       },
       wastestreamProcessNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'processop_notes'
+        field: 'processop_notes',
       },
       wastestreamProcessLimitCalculationDescription: {
         type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'lim_calc_desc'
+        field: 'lim_calc_desc',
       },
       wastestreamProcessAlternativeRequirement: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'alternative_requirement'
+        field: 'alternative_requirement',
       },
       wastestreamProcessVoluntaryRequirement: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'voluntary_requirement'
+        field: 'voluntary_requirement',
       },
       wastestreamProcessAdditionalDetails: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'process_addtdetail'
+        field: 'process_addtdetail',
       },
       wastestreamProcessZeroDischarge: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'wp_zero_discharge'
+        field: 'wp_zero_discharge',
       },
       wastestreamProcessTreatmentTechnologyTechnicalReferenceId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'wptt_tech_ref'
+        field: 'wptt_tech_ref',
       },
       wastestreamProcessTreatmentTechnologySourceTitle: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'wptt_source_title'
+        field: 'wptt_source_title',
       },
       wastestreamProcessTreatmentTechnologyNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'wptt_tech_notes'
+        field: 'wptt_tech_notes',
       },
       wastestreamProcessTreatmentTechnologyBmpType: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'wptt_bmp_type'
+        field: 'wptt_bmp_type',
       },
       wastestreamProcessTreatmentTechnologyZeroDischarge: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'wptt_zero_discharge'
+        field: 'wptt_zero_discharge',
       },
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'psc_code'
+        field: 'psc_code',
       },
       pointSourceCategoryName: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'psc_name'
+        field: 'psc_name',
       },
       pointSourceCategoryCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'psc_cfr_part'
+        field: 'psc_cfr_part',
       },
       pointSourceCategoryNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'psc_cfr_notes'
+        field: 'psc_cfr_notes',
       },
       pointSourceSubcategoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'subcat_id'
+        field: 'subcat_id',
       },
       comboSubcategory: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'combo_subcat'
+        field: 'combo_subcat',
       },
       pointSourceSubcategoryTitle: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'subcat_title'
+        field: 'subcat_title',
       },
       pointSourceSubcategoryCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcat_cfr_section'
+        field: 'subcat_cfr_section',
       },
       pointSourceSubcategoryApplicability: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcat_applicability'
+        field: 'subcat_applicability',
       },
       pointSourceSubcategoryNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcat_notes'
+        field: 'subcat_notes',
       },
       controlTechnologyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'ct_id'
+        field: 'ct_id',
       },
       controlTechnologyCode: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'ct_code'
+        field: 'ct_code',
       },
       controlTechnologyDisplayOrder: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'ct_order'
+        field: 'ct_order',
       },
       controlTechnologyCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'ct_cfr_section'
+        field: 'ct_cfr_section',
       },
       controlTechnologyIncludesBmps: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'ct_includes_bmps'
-      }
+        field: 'ct_includes_bmps',
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ViewWastestreamProcessTreatmentTechnology' }
   );

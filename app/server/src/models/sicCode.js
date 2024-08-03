@@ -6,18 +6,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'sic',
-        primaryKey: true
+        primaryKey: true,
       },
       sicDescription: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'sic_desc'
+        field: 'sic_desc',
       },
       sicCodeAsNumber: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'sic_code'
-      }
+        field: 'sic_code',
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'SicCode' }
   );

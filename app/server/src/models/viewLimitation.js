@@ -6,256 +6,257 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: 'lim_id',
-        primaryKey: true
+        primaryKey: true,
       },
       dischargeFrequency: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'discharge_frequency'
+        field: 'discharge_frequency',
       },
       limitationValue: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'lim_value'
+        field: 'lim_value',
       },
       typoFlagLimitationValue: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'typo_flag_lim_value'
+        field: 'typo_flag_lim_value',
       },
       minimumValue: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'lim_value_min'
+        field: 'lim_value_min',
       },
       maximumValue: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'lim_value_max'
+        field: 'lim_value_max',
       },
       zeroDischarge: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        field: 'zero_discharge'
+        field: 'zero_discharge',
       },
       alternateLimitFlag: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'alt_lim_flag'
+        field: 'alt_lim_flag',
       },
       limitRequirementDescription: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'alt_lim'
+        field: 'alt_lim',
       },
       alternateLimitDescription: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'alt_lim_description'
+        field: 'alt_lim_description',
       },
       wastestreamProcessId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'processop_id'
+        field: 'processop_id',
       },
       wastestreamProcessTitle: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'processop_title'
+        field: 'processop_title',
       },
       wastestreamProcessSecondary: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'secondary'
+        field: 'secondary',
       },
       wastestreamProcessDisplayOrder: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'sortorder'
+        field: 'sortorder',
       },
       wastestreamProcessCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'wp_cfr_sect'
+        field: 'wp_cfr_sect',
       },
       wastestreamProcessDescription: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'processop_description'
+        field: 'processop_description',
       },
       wastestreamProcessNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'processop_notes'
+        field: 'processop_notes',
       },
       wastestreamProcessLimitCalculationDescription: {
         type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'wp_lim_calc_desc'
+        field: 'wp_lim_calc_desc',
       },
       wastestreamProcessTypoFlagLimitCalculationDescription: {
         type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'wp_typo_flag_lim_calc_description'
+        field: 'wp_typo_flag_lim_calc_description',
       },
       wastestreamProcessAlternativeRequirement: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'alternative_requirement'
+        field: 'alternative_requirement',
       },
       wastestreamProcessVoluntaryRequirement: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'voluntary_requirement'
+        field: 'voluntary_requirement',
       },
       wastestreamProcessAdditionalDetails: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'process_addtdetail'
+        field: 'process_addtdetail',
       },
       pollutantId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'pollutant_code'
+        field: 'pollutant_code',
       },
       pollutantDescription: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'pollutant_desc'
+        field: 'pollutant_desc',
       },
       elgPollutantDescription: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'elg_pollutant_description'
+        field: 'elg_pollutant_description',
       },
       limitationDurationId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'limit_duration_code'
+        field: 'limit_duration_code',
       },
       limitationDurationDescription: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'limit_duration_description'
+        field: 'limit_duration_description',
       },
       limitationDurationBaseType: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'stat_base_type'
+        field: 'stat_base_type',
       },
       limitationDurationTypeDisplay: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'limit_type_display'
+        field: 'limit_type_display',
       },
       limitationUnitId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'unit_code'
+        field: 'unit_code',
       },
       limitationUnitCode: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'unit'
+        field: 'unit',
       },
       limitationUnitDescription: {
         type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'unit_desc'
+        field: 'unit_desc',
       },
       limitationPollutantNotes: {
         type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'lim_pollutant_notes'
+        field: 'lim_pollutant_notes',
       },
       limitationLimitCalculationDescription: {
         type: DataTypes.STRING(4000),
         allowNull: false,
-        field: 'lim_lim_calc_desc'
+        field: 'lim_lim_calc_desc',
       },
       limitationUnitBasis: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'unit_basis'
+        field: 'unit_basis',
       },
       pointSourceCategoryCode: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'psc_code'
+        field: 'psc_code',
       },
       pointSourceCategoryName: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'psc_name'
+        field: 'psc_name',
       },
       pointSourceCategoryCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'psc_cfr_part'
+        field: 'psc_cfr_part',
       },
       pointSourceCategoryNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'psc_cfr_notes'
+        field: 'psc_cfr_notes',
       },
       pointSourceCategoryLinkUrl: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'psc_link_url'},
+        field: 'psc_link_url',
+      },
       pointSourceSubcategoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'subcat_id'
+        field: 'subcat_id',
       },
       comboSubcategory: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'combo_subcat'
+        field: 'combo_subcat',
       },
       pointSourceSubcategoryTitle: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'subcat_title'
+        field: 'subcat_title',
       },
       pointSourceSubcategoryCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcat_cfr_section'
+        field: 'subcat_cfr_section',
       },
       pointSourceSubcategoryApplicability: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcat_applicability'
+        field: 'subcat_applicability',
       },
       pointSourceSubcategoryNotes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'subcat_notes'
+        field: 'subcat_notes',
       },
       controlTechnologyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'ct_id'
+        field: 'ct_id',
       },
       controlTechnologyCode: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'ct_code'
+        field: 'ct_code',
       },
       controlTechnologyDisplayOrder: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'ct_order'
+        field: 'ct_order',
       },
       controlTechnologyCfrSection: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'ct_cfr_section'
+        field: 'ct_cfr_section',
       },
       longTermAverageCount: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'lta_count'
+        field: 'lta_count',
       },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'ViewLimitation' }

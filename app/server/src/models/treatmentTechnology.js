@@ -6,28 +6,28 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: 'treatment_id',
-        primaryKey: true
+        primaryKey: true,
       },
       codes: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'treatment_codes'
+        field: 'treatment_codes',
       },
       names: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'treatment_names'
+        field: 'treatment_names',
       },
       description: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'treatment_description'
+        field: 'treatment_description',
       },
       descriptions: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'treatment_descriptions'
-      }
+        field: 'treatment_descriptions',
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'TreatmentTechnology' }
   );

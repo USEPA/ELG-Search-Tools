@@ -42,7 +42,7 @@ module.exports = (app, history) => {
 
   router.get('/help', controllers.glossary.help);
 
-  router.get('/contact', controllers.glossary.contact)
+  router.get('/contact', controllers.glossary.contact);
 
   app.use(`${basePath}/api`, router);
 

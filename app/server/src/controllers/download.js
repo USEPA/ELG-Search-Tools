@@ -1,27 +1,24 @@
 const utilities = require('./utilities');
 
-const Crypto = require("crypto");
+const Crypto = require('crypto');
 const Excel = require('exceljs');
 
 function addHeaderRow(worksheet, rowNum, headerRow) {
   let row = worksheet.addRow([]);
   worksheet.getCell(rowNum, 1).value = {
-    richText: [
-      {font: {bold: true}, text: headerRow.label + ': '},
-      {text: headerRow.value}
-    ]
+    richText: [{ font: { bold: true }, text: headerRow.label + ': ' }, { text: headerRow.value }],
   };
   worksheet.mergeCells(rowNum, 1, rowNum, worksheet.columns.length);
   row.commit();
 }
 
 function setColumns(dataColumns) {
-  return dataColumns.map(function (column) {
+  return dataColumns.map(function(column) {
     return {
       key: column.key,
-      width: (column.width ? column.width : 20)
-    }
-  })
+      width: column.width ? column.width : 20,
+    };
+  });
 }
 
 function setColumnAlignment(worksheet, column) {
@@ -32,8 +29,8 @@ function setColumnAlignment(worksheet, column) {
 
 function getCellValue(dataRow, column) {
   let cellValue = dataRow[column.key];
-  if (typeof (cellValue) === 'string') {
-    cellValue = cellValue.replace(/<strong><u>and<\/u><\/strong>/ig, 'AND');
+  if (typeof cellValue === 'string') {
+    cellValue = cellValue.replace(/<strong><u>and<\/u><\/strong>/gi, 'AND');
     if (cellValue.length > 32000) {
       cellValue = 'Please use interface to view ' + column.label + '.';
     }
@@ -42,13 +39,13 @@ function getCellValue(dataRow, column) {
 }
 
 function initializeWorkbook(res, worksheetName, headerRows, dataColumns, fileName) {
-  const fileId = Crypto.randomBytes(16).toString("hex");
+  const fileId = Crypto.randomBytes(16).toString('hex');
 
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.setHeader('Content-Disposition', 'attachment; filename=' + fileName + '-' + fileId + '.xlsx');
 
-  const workbook = new Excel.stream.xlsx.WorkbookWriter({stream: res, useStyles: true});
+  const workbook = new Excel.stream.xlsx.WorkbookWriter({ stream: res, useStyles: true });
 
   let worksheet = workbook.addWorksheet(worksheetName);
   worksheet.state = 'visible';
@@ -57,7 +54,7 @@ function initializeWorkbook(res, worksheetName, headerRows, dataColumns, fileNam
 
   let rowNum = 0;
   if (headerRows.length > 0) {
-    headerRows.forEach(function (headerRow) {
+    headerRows.forEach(function(headerRow) {
       rowNum++;
       addHeaderRow(worksheet, rowNum, headerRow);
     });
@@ -66,13 +63,15 @@ function initializeWorkbook(res, worksheetName, headerRows, dataColumns, fileNam
   }
 
   rowNum++;
-  let dataHeaderRow = worksheet.addRow(dataColumns.map(function (column) {
-    return column.label
-  }));
-  dataHeaderRow.font = { bold: true }
+  let dataHeaderRow = worksheet.addRow(
+    dataColumns.map(function(column) {
+      return column.label;
+    })
+  );
+  dataHeaderRow.font = { bold: true };
   dataHeaderRow.commit();
 
-  dataColumns.forEach ((column) => setColumnAlignment(worksheet, column));
+  dataColumns.forEach((column) => setColumnAlignment(worksheet, column));
 
   return workbook;
 }
@@ -83,23 +82,23 @@ module.exports = {
       const workbook = initializeWorkbook(res, worksheetName, headerRows, dataColumns, fileName);
       const worksheet = workbook.getWorksheet(worksheetName);
 
-      data.forEach(function (dataRow) {
+      data.forEach(function(dataRow) {
         let row = worksheet.addRow(dataColumns.map((column) => getCellValue(dataRow, column)));
         row.commit();
       });
       worksheet.commit();
 
-      workbook.commit()
-        .then(function () {
-            res.end();
-          },
-          function (err) {
-            res.status(400).send("Error! " + utilities.sanitizeError(err));
-          });
-    }
-    catch (err) {
+      workbook.commit().then(
+        function() {
+          res.end();
+        },
+        function(err) {
+          res.status(400).send('Error! ' + utilities.sanitizeError(err));
+        }
+      );
+    } catch (err) {
       console.log(err);
-      res.status(400).send("Error! " + utilities.sanitizeError(err));
+      res.status(400).send('Error! ' + utilities.sanitizeError(err));
     }
   },
   createDownloadFileFromStream(fileName, worksheetName, dataColumns, headerRows, dataStream, res) {
@@ -109,7 +108,7 @@ module.exports = {
 
       if (dataStream !== null) {
         dataStream.on('data', (rows) => {
-          rows.forEach(function (dataRow) {
+          rows.forEach(function(dataRow) {
             let row = worksheet.addRow(dataColumns.map((column) => getCellValue(dataRow, column)));
             row.commit();
           });
@@ -117,30 +116,30 @@ module.exports = {
         dataStream.on('end', () => {
           worksheet.commit();
 
-          workbook.commit()
-            .then(function () {
-                res.end();
-              },
-              function (err) {
-                res.status(400).send("Error! " + utilities.sanitizeError(err));
-              });
-        });
-      }
-      else {
-        worksheet.commit();
-
-        workbook.commit()
-          .then(function () {
+          workbook.commit().then(
+            function() {
               res.end();
             },
-            function (err) {
-              res.status(400).send("Error! " + utilities.sanitizeError(err));
-            });
+            function(err) {
+              res.status(400).send('Error! ' + utilities.sanitizeError(err));
+            }
+          );
+        });
+      } else {
+        worksheet.commit();
+
+        workbook.commit().then(
+          function() {
+            res.end();
+          },
+          function(err) {
+            res.status(400).send('Error! ' + utilities.sanitizeError(err));
+          }
+        );
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
-      res.status(400).send("Error! " + utilities.sanitizeError(err));
+      res.status(400).send('Error! ' + utilities.sanitizeError(err));
     }
-  }
-}
+  },
+};

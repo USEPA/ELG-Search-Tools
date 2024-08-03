@@ -6,18 +6,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: 'naics',
-        primaryKey: true
+        primaryKey: true,
       },
       naicsDescription: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'naics_desc'
+        field: 'naics_desc',
       },
       naicsCodeAsNumber: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'naics_code'
-      }
+        field: 'naics_code',
+      },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'NaicsCode' }
   );

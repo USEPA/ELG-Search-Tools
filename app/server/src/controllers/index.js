@@ -15,5 +15,5 @@ module.exports = {
   limitation,
   treatmentTechnology,
   customSearch,
-  glossary
+  glossary,
 };

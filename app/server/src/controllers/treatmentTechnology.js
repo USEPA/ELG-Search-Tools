@@ -1,15 +1,17 @@
-const utilities = require("./utilities");
-const limitation = require("./limitation");
+const utilities = require('./utilities');
+const limitation = require('./limitation');
 
-const TreatmentTechnologyCode = require("../models").TreatmentTechnologyCode;
-const TreatmentTechnology = require("../models").TreatmentTechnology;
-const ViewWastestreamProcessTreatmentTechnology = require("../models").ViewWastestreamProcessTreatmentTechnology;
-const WastestreamProcessTreatmentTechnologyPollutant = require("../models").WastestreamProcessTreatmentTechnologyPollutant;
-const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require("../models").ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
-const PointSourceCategory = require("../models").PointSourceCategory
-const Pollutant = require("../models").Pollutant;
-const Op = require("sequelize").Op;
-const Sequelize = require("sequelize");
+const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
+const TreatmentTechnology = require('../models').TreatmentTechnology;
+const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
+const WastestreamProcessTreatmentTechnologyPollutant = require('../models')
+  .WastestreamProcessTreatmentTechnologyPollutant;
+const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('../models')
+  .ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
+const PointSourceCategory = require('../models').PointSourceCategory;
+const Pollutant = require('../models').Pollutant;
+const Op = require('sequelize').Op;
+const Sequelize = require('sequelize');
 
 const download = require('./download');
 
@@ -24,45 +26,43 @@ const download = require('./download');
  * } pointSourceCategory
  */
 function fillPointSourceCategory(pointSourceCategory) {
-  return new Promise(function(resolve, _ignore) {
+  return new Promise(function(resolve) {
     let result = {
       treatmentId: pointSourceCategory.treatmentId,
       pointSourceCategoryCode: pointSourceCategory.pointSourceCategoryCode,
       pointSourceCategoryName: pointSourceCategory.pointSourceCategoryName,
       pointSourceSubcategories: pointSourceCategory.pointSourceSubcategories,
       wastestreamProcesses: pointSourceCategory.wastestreamProcesses,
-      pollutants: ''
+      pollutants: '',
     };
 
     WastestreamProcessTreatmentTechnologyPollutant.findOne({
-      attributes: [
-        [Sequelize.literal("string_agg(distinct pollutant_code::character varying, ',')"), "pollutantIds"]
-      ],
+      attributes: [[Sequelize.literal("string_agg(distinct pollutant_code::character varying, ',')"), 'pollutantIds']],
       where: {
-        wastestreamProcessId: { [Op.in]: pointSourceCategory.wastestreamProcessIds.split(',') }
+        wastestreamProcessId: { [Op.in]: pointSourceCategory.wastestreamProcessIds.split(',') },
       },
-      raw: true
+      raw: true,
     })
-      .then(wastestreamProcessTreatmentTechnologyPollutants => {
+      .then((wastestreamProcessTreatmentTechnologyPollutants) => {
         Pollutant.findAll({
           attributes: ['elgDescription'],
           group: ['elgDescription'],
           where: {
-            id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.pollutantIds.split(',') }
+            id: { [Op.in]: wastestreamProcessTreatmentTechnologyPollutants.pollutantIds.split(',') },
           },
-          order: ['elgDescription']
+          order: ['elgDescription'],
         })
-          .then(pollutants => {
-            result.pollutants = pollutants.map(a => a.elgDescription).join('<br/>');
+          .then((pollutants) => {
+            result.pollutants = pollutants.map((a) => a.elgDescription).join('<br/>');
             resolve(result);
           })
           .catch((err) => {
-            console.error("Failed to retrieve pollutants: " + err);
+            console.error('Failed to retrieve pollutants: ' + err);
             resolve(result);
           });
       })
       .catch((err) => {
-        console.error("Failed to retrieve pollutants: " + err);
+        console.error('Failed to retrieve pollutants: ' + err);
         resolve(result);
       });
   });
@@ -72,51 +72,69 @@ function sendCriteriaList(res, result, treatmentTechnologyCodes) {
   //get lists of pscs, pollutants, and treatment trains for these technology codes
   let whereClauseOrList = [];
   treatmentTechnologyCodes.forEach(function(treatmentTechnologyCode) {
-    whereClauseOrList.push({[Op.and]: Sequelize.literal("lower('" + treatmentTechnologyCode.id + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)")});
+    whereClauseOrList.push({
+      [Op.and]: Sequelize.literal(
+        "lower('" +
+          treatmentTechnologyCode.id +
+          "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"
+      ),
+    });
   });
 
   ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findOne({
     attributes: [
       [Sequelize.literal("string_agg(distinct psc_code::character varying, ';')"), 'psc_code'],
       [Sequelize.literal("string_agg(distinct elg_pollutant_description, ';')"), 'elg_pollutant_description'],
-      [Sequelize.literal("string_agg(distinct treatment_id::character varying, ';')"), 'treatment_id']
+      [Sequelize.literal("string_agg(distinct treatment_id::character varying, ';')"), 'treatment_id'],
     ],
     where: {
-      [Op.or]: whereClauseOrList
+      [Op.or]: whereClauseOrList,
     },
-    raw: true
+    raw: true,
   })
-    .then(criteriaList => {
+    .then((criteriaList) => {
       PointSourceCategory.findAll({
-        attributes: ["pointSourceCategoryCode", "pointSourceCategoryName"],
+        attributes: ['pointSourceCategoryCode', 'pointSourceCategoryName'],
         where: {
-          [Op.and]: Sequelize.literal("psc_code::character varying IN (SELECT psc_codes FROM regexp_split_to_table('" + criteriaList.psc_code + "', ';') AS psc_codes)")
-        }
+          [Op.and]: Sequelize.literal(
+            "psc_code::character varying IN (SELECT psc_codes FROM regexp_split_to_table('" +
+              criteriaList.psc_code +
+              "', ';') AS psc_codes)"
+          ),
+        },
       })
-        .then(pointSourceCategories => {
+        .then((pointSourceCategories) => {
           result.pointSourceCategories = pointSourceCategories;
 
           Pollutant.findAll({
             attributes: [
               ['elg_pollutant_description', 'pollutantDescription'],
-              [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId']
+              [Sequelize.literal("string_agg(distinct pollutant_desc, '|' order by pollutant_desc)"), 'pollutantId'],
             ],
             where: {
-              [Op.and]: Sequelize.literal("elg_pollutant_description IN (SELECT elg_pollutant_descriptions FROM regexp_split_to_table('" + criteriaList.elg_pollutant_description + "', ';') AS elg_pollutant_descriptions)")
+              [Op.and]: Sequelize.literal(
+                "elg_pollutant_description IN (SELECT elg_pollutant_descriptions FROM regexp_split_to_table('" +
+                  criteriaList.elg_pollutant_description +
+                  "', ';') AS elg_pollutant_descriptions)"
+              ),
             },
-            group: ['elg_pollutant_description']
+            group: ['elg_pollutant_description'],
           })
-            .then(pollutants => {
+            .then((pollutants) => {
               result.pollutants = pollutants;
 
               TreatmentTechnology.findAll({
-                attributes: ["id", "codes", "names"],
+                attributes: ['id', 'codes', 'names'],
                 where: {
-                  [Op.and]: Sequelize.literal("treatment_id::character varying IN (SELECT treatment_ids FROM regexp_split_to_table('" + criteriaList.treatment_id + "', ';') AS treatment_ids)")
-                }
+                  [Op.and]: Sequelize.literal(
+                    "treatment_id::character varying IN (SELECT treatment_ids FROM regexp_split_to_table('" +
+                      criteriaList.treatment_id +
+                      "', ';') AS treatment_ids)"
+                  ),
+                },
               })
-                .then(treatmentTechnologies => {
-                  result.treatmentTrains = treatmentTechnologies.sort(function (a, b) {
+                .then((treatmentTechnologies) => {
+                  result.treatmentTrains = treatmentTechnologies.sort(function(a, b) {
                     if (a.names < b.names) {
                       return -1;
                     }
@@ -128,21 +146,27 @@ function sendCriteriaList(res, result, treatmentTechnologyCodes) {
 
                   res.status(200).send(result);
                 })
-                .catch((error) => res.status(400).send("Error! TreatmentTechnology:  " + utilities.sanitizeError(error)));
+                .catch((error) =>
+                  res.status(400).send('Error! TreatmentTechnology:  ' + utilities.sanitizeError(error))
+                );
             })
-            .catch((error) => res.status(400).send("Error! Pollutant:  " + utilities.sanitizeError(error)));
+            .catch((error) => res.status(400).send('Error! Pollutant:  ' + utilities.sanitizeError(error)));
         })
-        .catch((error) => res.status(400).send("Error! PointSourceCategory:  " + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! PointSourceCategory:  ' + utilities.sanitizeError(error)));
     })
-    .catch((error) => res.status(400).send("Error! ViewWastestreamProcessTreatmentTechnologyPollutantLimitation:  " + utilities.sanitizeError(error)));
+    .catch((error) =>
+      res
+        .status(400)
+        .send('Error! ViewWastestreamProcessTreatmentTechnologyPollutantLimitation:  ' + utilities.sanitizeError(error))
+    );
 }
 
 function parseLimitationParams(query) {
-  let id = query.id ? query.id : "";
+  let id = query.id ? query.id : '';
 
-  let treatmentIds = (query.treatmentId ? query.treatmentId.split(';') : []);
-  let pointSourceCategoryCodes = (query.pointSourceCategoryCode ? query.pointSourceCategoryCode.split(';') : []);
-  let pollutantIds = (query.pollutantId ? query.pollutantId.split(';') : []);
+  let treatmentIds = query.treatmentId ? query.treatmentId.split(';') : [];
+  let pointSourceCategoryCodes = query.pointSourceCategoryCode ? query.pointSourceCategoryCode.split(';') : [];
+  let pollutantIds = query.pollutantId ? query.pollutantId.split(';') : [];
   let downloadRequested = utilities.parseDownload(query.download);
 
   let offset = query.offset ? Number(query.offset) : 0;
@@ -159,31 +183,31 @@ function parseLimitationParams(query) {
     offset: offset,
     limit: limit,
     sortCol: sortCol,
-    sortDir: sortDir
-  }
+    sortDir: sortDir,
+  };
 }
 
 function validateTreatmentTechnologyCode(id, isCategory = false) {
   return new Promise((resolve, reject) => {
     try {
-      if (id === "") {
-        reject("Invalid value passed for id");
+      if (id === '') {
+        reject('Invalid value passed for id');
       } else {
         //validate that id is valid
         let whereClause = {
-          id: {[Op.eq]: id}
-        }
+          id: { [Op.eq]: id },
+        };
         if (isCategory) {
           whereClause = {
-            category: {[Op.iLike]: '%' + id + '%'}
-          }
+            category: { [Op.iLike]: '%' + id + '%' },
+          };
         }
         TreatmentTechnologyCode.findOne({
-          where: whereClause
+          where: whereClause,
         })
-          .then(treatmentTechnologyCode => {
+          .then((treatmentTechnologyCode) => {
             if (treatmentTechnologyCode === null) {
-              reject("Invalid value passed for id");
+              reject('Invalid value passed for id');
             } else {
               if (isCategory) {
                 resolve(id);
@@ -192,12 +216,11 @@ function validateTreatmentTechnologyCode(id, isCategory = false) {
               }
             }
           })
-          .catch((_ignore) => {
-            reject("Invalid value passed for id");
+          .catch(() => {
+            reject('Invalid value passed for id');
           });
       }
-    }
-    catch (error) {
+    } catch (error) {
       reject(error);
     }
   });
@@ -209,54 +232,50 @@ function validateLimitationParams(treatmentIds, pointSourceCategoryCodes, pollut
       //validate treatmentIds
       TreatmentTechnology.findAll({
         where: {
-          id: {[Op.in]: treatmentIds}
-        }
+          id: { [Op.in]: treatmentIds },
+        },
       })
-        .then(tIds => {
+        .then((tIds) => {
           if (tIds.length !== treatmentIds.length) {
-            reject("Invalid value passed for treatmentId")
-          }
-          else {
+            reject('Invalid value passed for treatmentId');
+          } else {
             //validate pointSourceCategoryCodes
             PointSourceCategory.findAll({
               where: {
-                pointSourceCategoryCode: {[Op.in]: pointSourceCategoryCodes}
-              }
+                pointSourceCategoryCode: { [Op.in]: pointSourceCategoryCodes },
+              },
             })
-              .then(pscs => {
+              .then((pscs) => {
                 if (pscs.length !== pointSourceCategoryCodes.length) {
-                  reject("Invalid value passed for pointSourceCategoryCode")
-                }
-                else {
+                  reject('Invalid value passed for pointSourceCategoryCode');
+                } else {
                   //validate pollutantIds
                   Pollutant.findAll({
                     where: {
-                      description: {[Op.in]: pollutantIds}
-                    }
+                      description: { [Op.in]: pollutantIds },
+                    },
                   })
-                    .then(pIds => {
+                    .then((pIds) => {
                       if (pIds.length !== pollutantIds.length) {
-                        reject("Invalid value passed for pollutantId")
-                      }
-                      else {
+                        reject('Invalid value passed for pollutantId');
+                      } else {
                         resolve(true);
                       }
                     })
-                    .catch((_ignore) => {
-                      reject("Invalid value passed for pollutantId")
-                    })
+                    .catch(() => {
+                      reject('Invalid value passed for pollutantId');
+                    });
                 }
               })
-              .catch((_ignore) => {
-                reject("Invalid value passed for filterTreatmentId")
-              })
+              .catch(() => {
+                reject('Invalid value passed for filterTreatmentId');
+              });
           }
         })
-        .catch((_ignore) => {
-          reject("Invalid value passed for filterTreatmentId")
-        })
-    }
-    catch (error) {
+        .catch(() => {
+          reject('Invalid value passed for filterTreatmentId');
+        });
+    } catch (error) {
       reject(error);
     }
   });
@@ -266,37 +285,38 @@ function validateSortParams(sortCol, sortDir, offset, limit) {
   return new Promise((resolve, reject) => {
     try {
       let columnMatch = true;
-      let queryColumns = limitation.attributes.concat(limitation.downloadAttributes).concat([
-        'treatmentCodes',
-        'treatmentNames',
-        [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
-        'wastestreamProcessTreatmentTechnologySourceTitle'
-      ]);
+      let queryColumns = limitation.attributes
+        .concat(limitation.downloadAttributes)
+        .concat([
+          'treatmentCodes',
+          'treatmentNames',
+          [
+            Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"),
+            'wastestreamProcessTreatmentTechnologyNotes',
+          ],
+          'wastestreamProcessTreatmentTechnologySourceTitle',
+        ]);
 
       if (sortCol) {
-        columnMatch = (queryColumns.filter(queryColumn => {
-          let columnName = Array.isArray(queryColumn) ? queryColumn[1] : queryColumn;
-          return sortCol === columnName;
-        }).length > 0);
+        columnMatch =
+          queryColumns.filter((queryColumn) => {
+            let columnName = Array.isArray(queryColumn) ? queryColumn[1] : queryColumn;
+            return sortCol === columnName;
+          }).length > 0;
       }
 
       if (!columnMatch) {
         reject('Invalid sortCol.');
-      }
-      else if (sortDir && !['ASC','DESC'].includes(sortDir.toUpperCase())) {
+      } else if (sortDir && !['ASC', 'DESC'].includes(sortDir.toUpperCase())) {
         reject('sortDir must be one of the following values: ASC, DESC.');
-      }
-      else if (offset && isNaN(offset)) {
+      } else if (offset && isNaN(offset)) {
         reject('Invalid offset: must be numeric');
-      }
-      else if (limit && isNaN(limit)) {
+      } else if (limit && isNaN(limit)) {
         reject('Invalid limit: must be numeric');
-      }
-      else {
+      } else {
         resolve(true);
       }
-    }
-    catch (error) {
+    } catch (error) {
       reject(error);
     }
   });
@@ -307,50 +327,54 @@ module.exports = {
     try {
       return ViewWastestreamProcessTreatmentTechnology.findAll({
         attributes: ['treatmentCodes'],
-        group: ['treatmentCodes']
+        group: ['treatmentCodes'],
       })
-        .then(wastestreamProcessTreatmentTechnologies => {
+        .then((wastestreamProcessTreatmentTechnologies) => {
           TreatmentTechnologyCode.findAll({
-            attributes: [
-              "id",
-              "name"
-            ],
+            attributes: ['id', 'name'],
             where: {
-              id: { [Op.in]: wastestreamProcessTreatmentTechnologies.map(a => a.treatmentCodes).join('; ').split('; ') }
+              id: {
+                [Op.in]: wastestreamProcessTreatmentTechnologies
+                  .map((a) => a.treatmentCodes)
+                  .join('; ')
+                  .split('; '),
+              },
             },
-            order: ["name"]
+            order: ['name'],
           })
-            .then(treatmentTechnologyCodes => {
+            .then((treatmentTechnologyCodes) => {
               res.status(200).send(treatmentTechnologyCodes);
             })
-            .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+            .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
         })
-        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
     } catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
   listCategories(req, res) {
     try {
       return TreatmentTechnologyCode.findAll({
-        attributes: [ "category" ],
+        attributes: ['category'],
         group: ['category'],
         where: {
           category: {
-            [Op.and]: [
-              { [Op.ne]: null },
-              { [Op.ne]: 'Other' }
-            ]
-          }
+            [Op.and]: [{ [Op.ne]: null }, { [Op.ne]: 'Other' }],
+          },
         },
-        order: ["category"]
+        order: ['category'],
       })
-        .then(treatmentTechnologyCodes => {
-          res.status(200).send(treatmentTechnologyCodes.map(a => a.category).join('; ').split('; '));
+        .then((treatmentTechnologyCodes) => {
+          res.status(200).send(
+            treatmentTechnologyCodes
+              .map((a) => a.category)
+              .join('; ')
+              .split('; ')
+          );
         })
-        .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
     } catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
   /**
@@ -361,35 +385,34 @@ module.exports = {
   read(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = req.params.id ? req.params.id : "";
+      let id = req.params.id ? req.params.id : '';
 
-      if (id === "") {
-        return res.status(400).send("Invalid value passed for id");
+      if (id === '') {
+        return res.status(400).send('Invalid value passed for id');
       }
 
       return TreatmentTechnologyCode.findOne({
         where: {
-          id: { [Op.eq]: id }
-        }
+          id: { [Op.eq]: id },
+        },
       })
-        .then(treatmentTechnologyCode => {
+        .then((treatmentTechnologyCode) => {
           if (treatmentTechnologyCode !== null) {
             let result = new Map();
-            result["id"] = treatmentTechnologyCode.id;
-            result["name"] = treatmentTechnologyCode.name;
-            result["description"] = treatmentTechnologyCode.description;
-            result["category"] = treatmentTechnologyCode.category;
-            result["variations"] = treatmentTechnologyCode.variations;
+            result['id'] = treatmentTechnologyCode.id;
+            result['name'] = treatmentTechnologyCode.name;
+            result['description'] = treatmentTechnologyCode.description;
+            result['category'] = treatmentTechnologyCode.category;
+            result['variations'] = treatmentTechnologyCode.variations;
 
             sendCriteriaList(res, result, [treatmentTechnologyCode]);
-          }
-          else {
-            res.status(400).send("Invalid value passed for id")
+          } else {
+            res.status(400).send('Invalid value passed for id');
           }
         })
-        .catch((error) => res.status(400).send("Error! TreatmentTechnologyCode: " + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! TreatmentTechnologyCode: ' + utilities.sanitizeError(error)));
     } catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
   /**
@@ -400,32 +423,31 @@ module.exports = {
   readCategory(req, res) {
     // check for required query attributes and replace with defaults if missing
     try {
-      let id = req.params.id ? req.params.id : "";
+      let id = req.params.id ? req.params.id : '';
 
-      if (id === "") {
-        return res.status(400).send("Invalid value passed for id");
+      if (id === '') {
+        return res.status(400).send('Invalid value passed for id');
       }
 
       return TreatmentTechnologyCode.findAll({
         where: {
-          category: { [Op.iLike]: '%' + id + '%' }
-        }
+          category: { [Op.iLike]: '%' + id + '%' },
+        },
       })
-        .then(treatmentTechnologyCodes => {
+        .then((treatmentTechnologyCodes) => {
           let result = new Map();
           if (treatmentTechnologyCodes.length === 0) {
-            res.status(400).send("Invalid value passed for id")
-          }
-          else {
-            result["category"] = treatmentTechnologyCodes[0].category
-            result["treatmentTechnologyCodes"] = treatmentTechnologyCodes;
+            res.status(400).send('Invalid value passed for id');
+          } else {
+            result['category'] = treatmentTechnologyCodes[0].category;
+            result['treatmentTechnologyCodes'] = treatmentTechnologyCodes;
 
             sendCriteriaList(res, result, treatmentTechnologyCodes);
           }
         })
-        .catch((error) => res.status(400).send("Error! TreatmentTechnologyCode: " + utilities.sanitizeError(error)));
+        .catch((error) => res.status(400).send('Error! TreatmentTechnologyCode: ' + utilities.sanitizeError(error)));
     } catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
   /**
@@ -437,29 +459,31 @@ module.exports = {
     let id = utilities.parseIdAsInteger(req.params.id);
 
     if (id === null) {
-      return res.status(400).send("Invalid value passed for id");
+      return res.status(400).send('Invalid value passed for id');
     }
 
     ViewWastestreamProcessTreatmentTechnology.findAll({
-      group: [
-        "treatmentId",
-        "pointSourceCategoryCode",
-        "pointSourceCategoryName"
-      ],
+      group: ['treatmentId', 'pointSourceCategoryCode', 'pointSourceCategoryName'],
       attributes: [
-        "treatmentId",
-        "pointSourceCategoryCode",
-        "pointSourceCategoryName",
-        [Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"), "pointSourceSubcategories"],
-        [Sequelize.literal("string_agg(distinct processop_title, '<br/>' order by processop_title)"), "wastestreamProcesses"],
-        [Sequelize.literal("string_agg(distinct processop_id::character varying, ',')"), "wastestreamProcessIds"]
+        'treatmentId',
+        'pointSourceCategoryCode',
+        'pointSourceCategoryName',
+        [
+          Sequelize.literal("string_agg(distinct combo_subcat, '<br/>' order by combo_subcat)"),
+          'pointSourceSubcategories',
+        ],
+        [
+          Sequelize.literal("string_agg(distinct processop_title, '<br/>' order by processop_title)"),
+          'wastestreamProcesses',
+        ],
+        [Sequelize.literal("string_agg(distinct processop_id::character varying, ',')"), 'wastestreamProcessIds'],
       ],
       where: {
-        treatmentId: { [Op.eq]: id }
+        treatmentId: { [Op.eq]: id },
       },
-      raw: true
+      raw: true,
     })
-      .then(pointSourceCategories => {
+      .then((pointSourceCategories) => {
         let pscPromises = [];
 
         pointSourceCategories.forEach(function(psc) {
@@ -467,12 +491,11 @@ module.exports = {
           pscPromises.push(fillPointSourceCategory(psc));
         });
 
-        Promise.all(pscPromises)
-          .then(pscs => {
-            res.status(200).send(pscs);
-          });
+        Promise.all(pscPromises).then((pscs) => {
+          res.status(200).send(pscs);
+        });
       })
-      .catch((error) => res.status(400).send("Error! " + utilities.sanitizeError(error)));
+      .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
   },
   /**
    * @param {
@@ -487,20 +510,21 @@ module.exports = {
       let pointSourceCategoryCode = utilities.parseIdAsInteger(req.query.pointSourceCategoryCode);
 
       if (treatmentId === null) {
-        return res.status(400).send("Invalid value passed for treatmentId");
+        return res.status(400).send('Invalid value passed for treatmentId');
       }
 
       if (pointSourceCategoryCode === null) {
-        return res.status(400).send("Invalid value passed for pointSourceCategoryCode");
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode');
       }
 
-      limitation.technologyBasisLimitations(treatmentId, pointSourceCategoryCode)
-        .then(limitations => {
+      limitation
+        .technologyBasisLimitations(treatmentId, pointSourceCategoryCode)
+        .then((limitations) => {
           res.status(200).send(limitations);
         })
         .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
     } catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
   /**
@@ -520,47 +544,85 @@ module.exports = {
     // check for required query attributes and replace with defaults if missing
     try {
       validateSortParams(req.query.sortCol, req.query.sortDir, req.query.offset, req.query.limit)
-        .then(ignore => {
+        .then(() => {
           let params = parseLimitationParams(req.query);
 
           validateTreatmentTechnologyCode(params.id)
-            .then(treatmentTechnologyCode => {
+            .then((treatmentTechnologyCode) => {
               validateLimitationParams(params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds)
-                .then(ignore => {
+                .then(() => {
                   if (params.downloadRequested) {
-                    limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, true)
-                      .then(limitations => {
-                        limitation.technologyLimitationsForDownload(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
-                          .then(dataStream => {
-                            console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB');
-                            download.createDownloadFileFromStream('limitations',
+                    limitation
+                      .technologyLimitations(
+                        treatmentTechnologyCode.id,
+                        params.treatmentIds,
+                        params.pointSourceCategoryCodes,
+                        params.pollutantIds,
+                        params.sortCol,
+                        params.sortDir,
+                        true
+                      )
+                      .then((limitations) => {
+                        limitation
+                          .technologyLimitationsForDownload(
+                            treatmentTechnologyCode.id,
+                            params.treatmentIds,
+                            params.pointSourceCategoryCodes,
+                            params.pollutantIds,
+                            params.sortCol,
+                            params.sortDir
+                          )
+                          .then((dataStream) => {
+                            console.log(
+                              'memory used: ' +
+                                Math.round(((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100) +
+                                'MB'
+                            );
+                            download.createDownloadFileFromStream(
+                              'limitations',
                               'Limitations',
                               limitation.downloadDataColumns,
                               [
-                                { label: 'Treatment Technology', value: treatmentTechnologyCode.name},
-                                { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
-                                { label: 'Pollutants', value: params.pollutantIds.join(', ')},
-                                { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
+                                { label: 'Treatment Technology', value: treatmentTechnologyCode.name },
+                                { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ') },
+                                { label: 'Pollutants', value: params.pollutantIds.join(', ') },
+                                {
+                                  label: 'Treatment Trains',
+                                  value: (params.treatmentIds.length > 0
+                                    ? [...new Set(limitations.map((lim) => lim.treatmentNames))]
+                                    : []
+                                  ).join(', '),
+                                },
                               ],
                               dataStream,
-                              res);
+                              res
+                            );
                           })
-                          .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
+                          .catch((error) =>
+                            res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error))
+                          );
                       })
                       .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-                  }
-                  else {
-                    limitation.technologyLimitations(treatmentTechnologyCode.id, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
-                      .then(limitations => {
+                  } else {
+                    limitation
+                      .technologyLimitations(
+                        treatmentTechnologyCode.id,
+                        params.treatmentIds,
+                        params.pointSourceCategoryCodes,
+                        params.pollutantIds,
+                        params.sortCol,
+                        params.sortDir
+                      )
+                      .then((limitations) => {
                         res.status(200).send({
-                          limitations: limitations.slice(params.offset, (params.offset+params.limit)),
-                          count: limitations.length
+                          limitations: limitations.slice(params.offset, params.offset + params.limit),
+                          count: limitations.length,
                         });
                       })
                       .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
                   }
                 })
-                .catch((paramValidationError) => res.status(400).send(utilities.sanitizeError(paramValidationError))) ;
+                .catch((paramValidationError) => res.status(400).send(utilities.sanitizeError(paramValidationError)));
             })
             .catch((validationError) => {
               res.status(400).send(validationError);
@@ -570,7 +632,7 @@ module.exports = {
           res.status(400).send(utilities.sanitizeError(sortDirValidationError));
         });
     } catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
   },
   /**
@@ -590,59 +652,104 @@ module.exports = {
     // check for required query attributes and replace with defaults if missing
     try {
       validateSortParams(req.query.sortCol, req.query.sortDir, req.query.offset, req.query.limit)
-        .then( ignore => {
+        .then(() => {
           let params = parseLimitationParams(req.query);
 
           validateTreatmentTechnologyCode(params.id, true)
-          .then(treatmentTechnologyCategory => {
-            validateLimitationParams(params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds)
-              .then(ignore => {
-                if (params.downloadRequested) {
-                  limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, 0, null, true)
-                    .then(limitations => {
-                      limitation.technologyCategoryLimitationsForDownload(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir)
-                        .then(dataStream => {
-                          console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
-                          download.createDownloadFileFromStream('limitations',
-                            'Limitations',
-                            limitation.downloadDataColumns,
-                            [
-                              { label: 'Treatment Technology Category', value: treatmentTechnologyCategory},
-                              { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ')},
-                              { label: 'Pollutants', value: params.pollutantIds.join(', ')},
-                              { label: 'Treatment Trains', value: (params.treatmentIds.length > 0 ? [...new Set(limitations.map(lim => lim.treatmentNames))] : []).join(', ')}
-                            ],
-                            dataStream,
-                            res);
-                        })
-                        .catch((error) => res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error)));
-                    })
-                    .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-                }
-                else {
-                  limitation.technologyCategoryLimitations(treatmentTechnologyCategory, params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds, params.sortCol, params.sortDir, params.offset, params.limit)
-                    .then(limitations => {
-                      console.log('memory used: ' + Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100 / 100) +  'MB')
-                      res.status(200).send({
-                        limitations: limitations.rows,
-                        count: limitations.count
-                      });
-                    })
-                    .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
-                }
-              })
-              .catch((paramValidationError) => res.status(400).send(utilities.sanitizeError(paramValidationError)));
-          })
-          .catch((validationError) => {
-            res.status(400).send(utilities.sanitizeError(validationError));
-          });
+            .then((treatmentTechnologyCategory) => {
+              validateLimitationParams(params.treatmentIds, params.pointSourceCategoryCodes, params.pollutantIds)
+                .then(() => {
+                  if (params.downloadRequested) {
+                    limitation
+                      .technologyCategoryLimitations(
+                        treatmentTechnologyCategory,
+                        params.treatmentIds,
+                        params.pointSourceCategoryCodes,
+                        params.pollutantIds,
+                        params.sortCol,
+                        params.sortDir,
+                        0,
+                        null,
+                        true
+                      )
+                      .then((limitations) => {
+                        limitation
+                          .technologyCategoryLimitationsForDownload(
+                            treatmentTechnologyCategory,
+                            params.treatmentIds,
+                            params.pointSourceCategoryCodes,
+                            params.pollutantIds,
+                            params.sortCol,
+                            params.sortDir
+                          )
+                          .then((dataStream) => {
+                            console.log(
+                              'memory used: ' +
+                                Math.round(((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100) +
+                                'MB'
+                            );
+                            download.createDownloadFileFromStream(
+                              'limitations',
+                              'Limitations',
+                              limitation.downloadDataColumns,
+                              [
+                                { label: 'Treatment Technology Category', value: treatmentTechnologyCategory },
+                                { label: 'Point Source Categories', value: params.pointSourceCategoryCodes.join(', ') },
+                                { label: 'Pollutants', value: params.pollutantIds.join(', ') },
+                                {
+                                  label: 'Treatment Trains',
+                                  value: (params.treatmentIds.length > 0
+                                    ? [...new Set(limitations.map((lim) => lim.treatmentNames))]
+                                    : []
+                                  ).join(', '),
+                                },
+                              ],
+                              dataStream,
+                              res
+                            );
+                          })
+                          .catch((error) =>
+                            res.status(400).send('Error getting data for download: ' + utilities.sanitizeError(error))
+                          );
+                      })
+                      .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+                  } else {
+                    limitation
+                      .technologyCategoryLimitations(
+                        treatmentTechnologyCategory,
+                        params.treatmentIds,
+                        params.pointSourceCategoryCodes,
+                        params.pollutantIds,
+                        params.sortCol,
+                        params.sortDir,
+                        params.offset,
+                        params.limit
+                      )
+                      .then((limitations) => {
+                        console.log(
+                          'memory used: ' +
+                            Math.round(((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100) +
+                            'MB'
+                        );
+                        res.status(200).send({
+                          limitations: limitations.rows,
+                          count: limitations.count,
+                        });
+                      })
+                      .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
+                  }
+                })
+                .catch((paramValidationError) => res.status(400).send(utilities.sanitizeError(paramValidationError)));
+            })
+            .catch((validationError) => {
+              res.status(400).send(utilities.sanitizeError(validationError));
+            });
         })
         .catch((sortDirValidationError) => {
           res.status(400).send(utilities.sanitizeError(sortDirValidationError));
         });
+    } catch (err) {
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
     }
-    catch (err) {
-      return res.status(400).send("Error !" + utilities.sanitizeError(err.toString()));
-    }
-  }
+  },
 };

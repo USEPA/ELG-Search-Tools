@@ -6,92 +6,92 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         field: 'processop_id',
-        primaryKey: true
+        primaryKey: true,
       },
       controlTechnologyId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'ct_id'
+        field: 'ct_id',
       },
       cfrSection: {
         type: DataTypes.STRING,
         allowNull: true,
-        field: 'cfr_sect'
+        field: 'cfr_sect',
       },
       title: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'processop_title'
+        field: 'processop_title',
       },
       secondary: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'secondary'
+        field: 'secondary',
       },
       description: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'processop_description'
+        field: 'processop_description',
       },
       notes: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'processop_notes'
+        field: 'processop_notes',
       },
       limitCalculationDescription: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'lim_calc_desc'
+        field: 'lim_calc_desc',
       },
       displayOrder: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'sortorder'
+        field: 'sortorder',
       },
       sourceId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        field: 'source_id'
+        field: 'source_id',
       },
       zeroDischarge: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'zero_discharge'
+        field: 'zero_discharge',
       },
       includesBmps: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'includes_bmps'
+        field: 'includes_bmps',
       },
       noLimitations: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'no_limits'
+        field: 'no_limits',
       },
       alternativeRequirement: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'alternative_requirement'
+        field: 'alternative_requirement',
       },
       voluntaryRequirement: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'voluntary_requirement'
+        field: 'voluntary_requirement',
       },
       additionalDetail: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        field: 'process_addtdetail'
+        field: 'process_addtdetail',
       },
       typoFlagLimitCalculationDescription: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'typo_flag_lim_calc_description'
+        field: 'typo_flag_lim_calc_description',
       },
       typoFlagNotes: {
         type: DataTypes.STRING(4000),
         allowNull: true,
-        field: 'typo_flag_po_notes'
+        field: 'typo_flag_po_notes',
       },
     },
     { timestamps: false, schema: 'elg_search', tableName: 'WastestreamProcess' }
