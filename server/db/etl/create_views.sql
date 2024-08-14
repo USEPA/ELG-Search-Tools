@@ -6,7 +6,7 @@ SELECT
     regexp_replace(regexp_replace(subcat_title, U & '\00A0', '', 'g'), U & '\0097', '-', 'g') AS subcat_title,
     subcat_code,
     subcat_cfr_section,
-    regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(subcat_applicability, U & '\00A0', '', 'g'), U&'\0097', '-', 'g'), U&'\00A7', '\u00A7', 'g'), U&'\0091', '''', 'g'), U&'\0092', '''', 'g'), U & '\0093', '"', 'g'), U & '\0094', '"', 'g') AS subcat_applicability, subcat_includes_bmps, subcat_notes, moredetail_flag, source_id, detail_desc, regexp_replace(regexp_replace(combo_subcat, U & '\00A0', '', 'g'), U & '\0097', '-', 'g') AS combo_subcat, reservedflag FROM elg_database."2_Subcategory";
+    regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(subcat_applicability, U & '\00A0', '', 'g'), U&'\0097', '-', 'g'), U&'\00A7', '\u00A7', 'g'), U&'\0091', '''', 'g'), U&'\0092', '''', 'g'), U & '\0093', '"', 'g'), U & '\0094', '"', 'g') AS subcat_applicability, subcat_includes_bmps, subcat_notes, moredetail_flag, source_id, detail_desc, regexp_replace(regexp_replace(combo_subcat, U & '\00A0', '', 'g'), U & '\0097', '-', 'g') AS combo_subcat, reservedflag FROM elg_database.n2_subcategory;
 
 CREATE VIEW elg_database.view_n3a_control_technology_notes AS
 SELECT
@@ -20,7 +20,7 @@ SELECT
     END AS loc_display,
     typo_flag_ct_notes
 FROM
-    elg_database."3a_Control_Technology_Notes";
+    elg_database.n3a_control_technology_notes;
 
 CREATE VIEW elg_database.view_n4_wastestream_process AS
 SELECT
@@ -72,7 +72,7 @@ SELECT
     typo_flag_lim_calc_description,
     typo_flag_po_notes
 FROM
-    elg_database."4_Wastestream_Process";
+    elg_database.n4_wastestream_process;
 
 CREATE VIEW elg_database.view_n5_pollutant_limitations AS
 SELECT
@@ -165,8 +165,8 @@ SELECT
     alf.description AS alt_lim_description,
     pl.typo_flag_lim_value
 FROM
-    elg_database."5_Pollutant_Limitations" pl
-    LEFT OUTER JOIN elg_database."KEY_Alt_Lim_Flag" alf ON pl.alt_lim_flag = alf.flag;
+    elg_database.n5_pollutant_limitations pl
+    LEFT OUTER JOIN elg_database.key_alt_lim_flag alf ON pl.alt_lim_flag = alf.flag;
 
 CREATE VIEW elg_database.view_key_ttcodes AS
 SELECT
@@ -176,7 +176,7 @@ SELECT
     variations,
     regexp_replace(regexp_replace(regexp_replace(description, chr(150), '-', 'g'), chr(147), '"', 'g'), chr(148), '"', 'g') AS description
 FROM
-    elg_database."KEY_TTCodes";
+    elg_database.key_ttcodes;
 
 CREATE VIEW elg_database.view_a_cfr_citation_history AS
 SELECT
@@ -190,7 +190,7 @@ SELECT
     frn__1st_page_,
     regexp_replace(notes, U & '\00A7', '\u00A7', 'g') AS notes
 FROM
-    elg_database."A_CFR_Citation_History";
+    elg_database.a_cfr_citation_history;
 
 CREATE VIEW elg_database.view_a_definition AS
 SELECT
@@ -222,7 +222,7 @@ SELECT
     qc_notes,
     typo_flag_definition
 FROM
-    elg_database."A_Definition";
+    elg_database.a_definition;
 
 CREATE VIEW elg_database.view_a_generalprovisions AS
 SELECT
@@ -254,7 +254,7 @@ SELECT
         FALSE
     END AS additional_detail_in_cfr_
 FROM
-    elg_database."A_GeneralProvisions";
+    elg_database.a_generalprovisions;
 
 CREATE VIEW elg_database.view_a_source_new AS
 SELECT
@@ -275,7 +275,7 @@ SELECT
     regexp_replace(regexp_replace(rin, chr(150), '-', 'g'), chr(151), '-', 'g') AS rin,
     substantial_update_
 FROM
-    elg_database."A_Source_New";
+    elg_database.a_source_new;
 
 CREATE VIEW elg_database.view_n4c_technology_bases_ws AS
 SELECT
@@ -290,7 +290,7 @@ SELECT
         FALSE
     END AS zero_discharge
 FROM
-    elg_database."4C_Technology_Bases_WS";
+    elg_database.n4c_technology_bases_ws;
 
 CREATE VIEW elg_database.view_ref_limit_units AS
 SELECT
@@ -299,7 +299,7 @@ SELECT
     regexp_replace(regexp_replace(regexp_replace(unit_desc, U & '\00A7', '\u00A7', 'g'), chr(147), '"', 'g'), chr(148), '"', 'g') AS unit_desc,
     unit_basis
 FROM
-    elg_database."REF_LIMIT_UNITS";
+    elg_database.ref_limit_units;
 
 CREATE VIEW elg_database.view_ref_pollutant AS
 SELECT
@@ -308,32 +308,32 @@ SELECT
     coalesce(p.elg_pollutant_description, p.pollutant_desc) AS elg_pollutant_description,
     regexp_replace(pg.pollutant_group, ' ', '', 'g') AS pollutant_groups
 FROM
-    elg_database."REF_POLLUTANT" p
-    LEFT OUTER JOIN elg_database."5D_Pollutant_Groups" pg ON p.pollutant_code = pg.pollutant_code;
+    elg_database.ref_pollutant p
+    LEFT OUTER JOIN elg_database.n5d_pollutant_groups pg ON p.pollutant_code = pg.pollutant_code;
 
 CREATE VIEW elg_database.view_ref_sic_code AS
 SELECT
     sic,
     regexp_replace(regexp_replace(sic_desc, chr(145), '''', 'g'), chr(146), '''', 'g') AS sic_desc,
-    nullif (regexp_replace(sic, '[^0-9]', '', 'g'), '') AS sic_code FROM elg_database."REF_SIC_CODE";
+    nullif (regexp_replace(sic, '[^0-9]', '', 'g'), '') AS sic_code FROM elg_database.ref_sic_code;
 
 CREATE VIEW elg_database.view_ref_naics_code AS
 SELECT
     naics,
     naics_desc,
-    nullif (regexp_replace(naics, '[^0-9]', '', 'g'), '') AS naics_code FROM elg_database."REF_NAICS_CODE";
+    nullif (regexp_replace(naics, '[^0-9]', '', 'g'), '') AS naics_code FROM elg_database.ref_naics_code;
 
 CREATE VIEW elg_database.view_ref_psc_sic_xwalk AS
 SELECT
     sic,
     general_psc_code,
     specific_psc_code,
-    nullif (regexp_replace(sic, '[^0-9]', '', 'g'), '') AS sic_code FROM elg_database."REF_PSC_SIC_XWALK" x
+    nullif (regexp_replace(sic, '[^0-9]', '', 'g'), '') AS sic_code FROM elg_database.ref_psc_sic_xwalk x
         WHERE
             EXISTS (
                 SELECT
                     psc_code
-                FROM elg_database."1_CFR" c
+                FROM elg_database.n1_cfr c
                 WHERE
                     c.psc_code = x.general_psc_code);
 
@@ -341,12 +341,12 @@ CREATE VIEW elg_database.view_ref_psc_naics_xwalk AS
 SELECT
     naics,
     psc_code,
-    nullif (regexp_replace(naics, '[^0-9]', '', 'g'), '') AS naics_code FROM elg_database."REF_PSC_NAICS_XWALK" x
+    nullif (regexp_replace(naics, '[^0-9]', '', 'g'), '') AS naics_code FROM elg_database.ref_psc_naics_xwalk x
         WHERE
             EXISTS (
                 SELECT
                     psc_code
-                FROM elg_database."1_CFR" c
+                FROM elg_database.n1_cfr c
                 WHERE
                     c.psc_code = x.psc_code);
 

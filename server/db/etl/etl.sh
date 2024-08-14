@@ -18,6 +18,9 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM EXIT
 
+# Join an expanded array by a delimiter.
+join_by() { local IFS="$1"; shift; echo "$*"; }
+
 # Create the database (if it doesn't exist).
 psql -d postgres -c "
   DO \$\$
@@ -38,12 +41,33 @@ psql -c "CREATE SCHEMA ${SCHEMA}"
 
 # Create and load all necessary tables.
 mkfifo "$PIPE"
-for TABLE_NAME in "${TABLE_NAMES[@]}"; do
-    # Execute the DDL for the table, inserting the schema and restoring the proper case of the table name.
-    psql -c "$(mdb-schema ~/elg_database.accdb postgres                                                                     \
-        | sed -n "/CREATE TABLE IF NOT EXISTS \"${TABLE_NAME}\"/I,/);/p"                                                    \
-        | sed "s/^CREATE TABLE IF NOT EXISTS \"\([^\"]*\)\"/CREATE TABLE IF NOT EXISTS \"${SCHEMA}\".\"${TABLE_NAME}\"/")"
+for src_table_name in "${TABLE_NAMES[@]}"; do
+    # Convert the table name to lowercase and prepend an 'n' if it starts with a number.
+    dst_table_name=$(                     \
+            echo "$src_table_name"        \
+            | sed "s/^\([0-9]\)/n\1/"     \
+            | tr '[:upper:]' '[:lower:]'  \
+        )
 
-    mdb-export "$MDB" "$TABLE_NAME" > "$PIPE" &
-    psql -c "COPY \"${SCHEMA}\".\"${TABLE_NAME}\" FROM STDIN WITH CSV HEADER" < "$PIPE"
+    # Execute the DDL for the table, inserting the schema and restoring the proper case of the table name.
+    ddl=$(                                                                                                                        \
+            mdb-schema "$MDB" postgres                                                                                            \
+            | sed -n "/CREATE TABLE IF NOT EXISTS \"${src_table_name}\"/I,/);/p"                                                  \
+            | sed "s/^CREATE TABLE IF NOT EXISTS \"\([^\"]*\)\"/CREATE TABLE IF NOT EXISTS \"${SCHEMA}\".\"${dst_table_name}\"/"  \
+        )
+    psql -c "$ddl"
+
+    # Replace spaces, parentheses, and question marks in table names and column names.
+    new_columns=()
+    psql -tc "SELECT column_name FROM information_schema.columns WHERE table_schema = '${SCHEMA}' AND table_name = '${dst_table_name}'" | while read -r column; do
+        new_column=$(echo "$column" | sed -E 's/ /_/g' | sed -E 's/\(/_/g' | sed -E 's/\)/_/g' | sed 's/?/_/g')
+        if [ "$column" != "$new_column" ]; then
+            psql -c "ALTER TABLE ${SCHEMA}.${dst_table_name} RENAME COLUMN \"$column\" TO $new_column"
+        fi
+        new_columns+=("$new_column")
+    done
+
+    # Export the data from the MDB file, replace the column names, and load the data into the PostgreSQL table.
+    mdb-export "$MDB" "$src_table_name" | sed "1c\\$(join_by , "${new_columns[@]}")" > "$PIPE" &
+    psql -c "COPY \"${SCHEMA}\".\"${dst_table_name}\" FROM STDIN WITH CSV HEADER" < "$PIPE"
 done
