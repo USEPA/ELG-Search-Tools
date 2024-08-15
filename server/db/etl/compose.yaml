@@ -1,6 +1,0 @@
-services:
-  etl:
-    build: .
-    volumes:
-      - ./output:/var/tmp/etl/output
-      - ./input:/var/tmp/etl/input:ro

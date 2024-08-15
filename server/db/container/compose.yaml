@@ -1,0 +1,7 @@
+services:
+  etl:
+    build: .
+    volumes:
+      - ./seed-data:/var/tmp/elg/seed-data
+      - ./pgdb:/var/tmp/elg/pgdb
+      - ./accdb:/var/tmp/elg/accdb:ro
