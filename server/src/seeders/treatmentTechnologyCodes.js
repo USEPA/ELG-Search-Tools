@@ -3,7 +3,7 @@ const { readFileSync } = require('node:fs');
 
 module.exports = {
   up(queryInterface) {
-    const records = readFileSync(resolve(__dirname, 'data', `${basename(__filename, '.js')}.json`));
+    const records = JSON.parse(readFileSync(resolve(__dirname, 'data', `${basename(__filename, '.js')}.json`), 'utf8'));
 
     return queryInterface.bulkInsert({ schema: 'elg_search', tableName: 'TreatmentTechnologyCode' }, records);
   },

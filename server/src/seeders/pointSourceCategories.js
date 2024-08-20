@@ -24,7 +24,7 @@ module.exports = {
     //  showThese = [407, 412, 413, 417, 423, 427, 432, 433, 437, 438, 439, 444, 461, 469]; //dev and local
     //}
 
-    const records = readFileSync(resolve(__dirname, 'data', `${basename(__filename, '.js')}.json`));
+    const records = JSON.parse(readFileSync(resolve(__dirname, 'data', `${basename(__filename, '.js')}.json`), 'utf8'));
 
     records.forEach(function(record) {
       //record.IncludeInSearchTool = showThese.includes(record.psc_code);
