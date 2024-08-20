@@ -71,4 +71,5 @@ psql -c "\i /var/lib/elg/create_views.sql"
 psql -c "\i /var/lib/elg/create_json_data.sql"
 
 # Create the seed files.
+mkdir -p "$SEED_DIR"
 psql -c "CALL ${SCHEMA}.generate_seed_files('${SEED_DIR}')"

@@ -31,6 +31,5 @@ ENV POSTGRES_USER=$POSTGRES_USER
 ENV POSTGRES_INITDB_ARGS="--encoding=UTF-8 --no-locale"
 
 USER $POSTGRES_USER
-RUN mkdir -p /var/tmp/elg/accdb /var/tmp/elg/seed-data /var/tmp/elg/pgdb
 
 ENTRYPOINT ["/bin/bash", "/usr/local/bin/init.sh"]

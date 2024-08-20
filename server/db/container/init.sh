@@ -31,3 +31,6 @@ else
     docker_process_init_files /always-initdb.d/*
     docker_temp_server_stop
 fi
+
+# Uncomment to keep the container running.
+#exec postgres "$@"
