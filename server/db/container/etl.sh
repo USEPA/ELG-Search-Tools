@@ -4,7 +4,7 @@ set -euo pipefail
 
 DEFAULT_DB=${POSTGRES_DB:-postgres}
 MDB=/var/tmp/elg/accdb/elg_database.accdb
-PIPE=data.csv
+PIPE=/tmp/data.csv
 SCHEMA=elg_database
 SEED_DIR=/var/tmp/elg/seed-data
 TABLE_NAMES=('1_CFR' '2_Subcategory' '3_Control_Technology' '3a_Control_Technology_Notes' '4_Wastestream_Process' '4A_Technology_Bases' '4B_Technology_Bases' '4C_Technology_Bases_WS' '4C_Technology_Bases_WS_Pollutants' '5_Pollutant_Limitations' '5_Pollutant_Limitations_Range' '5B_Pollutant_LTAs' '5C_Weight_Factors' '5C_Weight_Factors_Pollutants' 'REF_POLLUTANT' 'REF_LIMIT_DURATION' 'REF_LIMIT_UNITS' 'KEY_TTCodes' 'A_CFR_Citation_History' 'A_Definition' 'A_GeneralProvisions' 'A_Source_New' 'KEY_Alt_Lim_Flag' 'REF_NAICS_CODE' 'REF_SIC_CODE' 'REF_PSC_NAICS_XWALK' 'REF_PSC_SIC_XWALK' 'REF_Pollutant_Group' '5D_Pollutant_Groups')
@@ -15,31 +15,16 @@ export PGPASSWORD=${POSTGRES_PASSWORD:-postgres}
 export PGUSER=${POSTGRES_USER:-postgres}
 
 # Clean up the pipe on exit.
-cleanup() {
+function cleanup {
     rm -f "$PIPE"
 }
 trap cleanup SIGINT SIGTERM EXIT
 
 # Join an expanded array by a delimiter.
-join_by() { local IFS="$1"; shift; echo "$*"; }
+function join_by { local IFS="$1"; shift; echo "$*"; }
 
 # Create the database (if it doesn't exist).
-psql -d "$DEFAULT_DB" -c "CREATE EXTENSION IF NOT EXISTS dblink"
-psql -d "$DEFAULT_DB" -c "
-  DO \$\$
-  BEGIN
-     IF NOT EXISTS (
-        SELECT FROM pg_catalog.pg_database
-        WHERE datname = '${PGDATABASE}'
-     ) THEN
-        PERFORM dblink_exec(
-          'host=localhost dbname=${DEFAULT_DB} user=${PGUSER} password=${PGPASSWORD}',
-          'CREATE DATABASE ${PGDATABASE}'
-        );
-     END IF;
-  END
-  \$\$;
-"
+echo "SELECT 'CREATE DATABASE ${PGDATABASE}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${PGDATABASE}')\gexec" | psql -d "$DEFAULT_DB"
 
 # Drop and recreate the schema.
 psql -c "DROP SCHEMA IF EXISTS ${SCHEMA} CASCADE"
