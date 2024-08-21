@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -euo pipefail
 
 DEFAULT_DB=${POSTGRES_DB:-postgres}

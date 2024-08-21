@@ -12,6 +12,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update  \
   && apt-get install -y --no-install-recommends    \
     mdbtools                                       \
     sed                                            \
+    vim                                            \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /var/lib/elg
