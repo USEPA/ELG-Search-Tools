@@ -25,7 +25,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     SET search_path TO elg_database;
-    CALL generate_seed_file ('(select elg_database.n1_cfr.*, case when elg_database.n1_cfr_url.link_url is null then ''https://www.epa.gov/eg'' else elg_database.n1_cfr_url.link_url end as link_url from elg_database.n1_cfr left outer join elg_database.n1_cfr_url on elg_database.n1_cfr.psc_code = elg_database.n1_cfr_url.psc_code)', directory, 'pointSourceCategory.json');
+    CALL generate_seed_file ('(select elg_database.n1_cfr.*, case when elg_database.n1_cfr_url.link_url is null then ''https://www.epa.gov/eg'' else elg_database.n1_cfr_url.link_url end as link_url from elg_database.n1_cfr left outer join elg_database.n1_cfr_url on elg_database.n1_cfr.psc_code = elg_database.n1_cfr_url.psc_code)', directory, 'pointSourceCategories.json');
     CALL generate_seed_file ('view_n2_subcategory', directory, 'pointSourceSubcategories.json');
     CALL generate_seed_file ('n3_control_technology', directory, 'controlTechnologies.json');
     CALL generate_seed_file ('view_n3a_control_technology_notes', directory, 'controlTechnologyNotes.json');
