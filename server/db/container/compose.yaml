@@ -1,6 +1,7 @@
 services:
   etl:
     build: .
+    image: elg/etl
     volumes:
       - ./seed-data:/var/tmp/elg/seed-data
       - ./accdb:/var/tmp/elg/accdb:ro
