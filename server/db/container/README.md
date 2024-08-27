@@ -10,4 +10,4 @@
 
 ## Run
 
-Run the `etl` npm script (`npm run etl`) to run the container process, copy the output seed files to their destination in the repository, then execute the seed operation.
+Run the `etl` npm script (`npm run etl`) to run the container process. This will create new seed files, copy them to their destination in the repository, then execute the seed operation.
