@@ -43,7 +43,7 @@ function parsePollutantId(pollutantId) {
   let result = [];
 
   try {
-    result = (pollutantId ? decodeURIComponent(pollutantId).split(';') : []);
+    result = (pollutantId ? decodeURIComponent(pollutantId).split(';').map((id) => id.split('|')).flat() : []);
   }
   catch (error) {
     console.log('pollutantId decodeURIComponent error: ' + error);
