@@ -1,0 +1,2 @@
+# Seeder files are too large and cause eslint to hang
+seeders
