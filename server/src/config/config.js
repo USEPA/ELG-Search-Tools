@@ -11,6 +11,7 @@ let db = {
   password: process.env.DB_PASS ?? 'postgres',
   options: {
     dialect: 'postgres',
+    encoding: 'UTF8',
     host: process.env.DB_HOST ?? 'localhost',
     port: process.env.DB_PORT ?? '5432',
   },

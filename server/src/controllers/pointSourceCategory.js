@@ -29,7 +29,7 @@ function fillSubcategoryForCfr(subcategory) {
     let attributes = [
       'cfrSection',
       'title',
-      [Sequelize.literal("replace(genprov_desc, '\\u00A7', U&'\\00A7')"), 'description'],
+      'description',
       'cfrHasAdditionalDetails',
       'type'
     ];
@@ -69,7 +69,7 @@ function fillSubcategoryForDefinitions(subcategory) {
 
     let attributes = [
       'term',
-      [Sequelize.literal("replace(replace(definition, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'definition'],
+      'definition',
       'cfrHasAdditionalDetails',
       'typoFlagDefinition'
     ];

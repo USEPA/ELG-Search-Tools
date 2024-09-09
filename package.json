@@ -16,7 +16,8 @@
     "server": "nodemon --ignore 'client/*' --ignore server/src/s3/glossary.json --inspect server/src/server.js",
     "setup": "npm ci && npx sequelize db:create && npm run migrate && npm run seed",
     "start": "cross-env NODE_ENV=local concurrently --kill-others -n server,client \"npm run server\" \"npm run client\"",
-    "test": "vue-cli-service test:unit"
+    "test": "vue-cli-service test:unit",
+    "etl": "cd server/db/container && docker compose up && docker compose rm -fsv && docker rmi elg/etl && mv -f seed-data/* ../../src/seeders/data && npm run migrate && npm run seed"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",

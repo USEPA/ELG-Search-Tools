@@ -32,7 +32,7 @@ let attributes = [
   'wastestreamProcessCfrSection',
   [Sequelize.literal("split_part(wp_cfr_sect, '.', 1) || '_1' || split_part(wp_cfr_sect, '.', 2)"), 'cfrSectionAnchor'],
   'wastestreamProcessDescription',
-  [Sequelize.literal("replace(wp_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'wastestreamProcessLimitCalculationDescription'],
+  ['wp_lim_calc_desc', 'wastestreamProcessLimitCalculationDescription'],
   'wastestreamProcessTypoFlagLimitCalculationDescription',
   ['elg_pollutant_description', 'pollutantDescription'],
   'dischargeFrequency',
@@ -45,13 +45,13 @@ let attributes = [
   'limitationDurationBaseType',
   'limitationDurationTypeDisplay',
   'limitationUnitCode',
-  [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
+  ['unit_desc', 'limitationUnitDescription'],
   'limitationUnitBasis',
   'alternateLimitFlag',
   'alternateLimitDescription',
-  [Sequelize.literal("replace(replace(alt_lim, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'limitRequirementDescription'],
-  [Sequelize.literal("replace(lim_lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitationLimitCalculationDescription'],
-  [Sequelize.literal("replace(replace(lim_pollutant_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'limitationPollutantNotes'],
+  ['alt_lim', 'limitRequirement'],
+  ['lim_lim_calc_desc', 'limitationLimitCalculationDescription'],
+  ['lim_pollutant_notes', 'limitationPollutantNotes'],
   [Sequelize.literal("case when stat_base_type = 'Average' then lta_count else 0 end"), 'longTermAverageCount'],
   'pointSourceCategoryCode',
   'pointSourceCategoryName'
@@ -196,7 +196,7 @@ function technologyLimitations(id, treatmentIds, pointSourceCategoryCodes, pollu
               let queryColumns = attributes.concat([
                 'treatmentCodes',
                 'treatmentNames',
-                [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
                 'wastestreamProcessTreatmentTechnologySourceTitle'
               ]);
 
@@ -259,7 +259,7 @@ function technologyLimitationsForDownload(id, treatmentIds, pointSourceCategoryC
               let queryColumns = attributes.concat([
                 'treatmentCodes',
                 'treatmentNames',
-                [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
                 'wastestreamProcessTreatmentTechnologySourceTitle'
               ]);
 
@@ -334,7 +334,7 @@ function technologyCategoryLimitations(id, treatmentIds, pointSourceCategoryCode
                   let queryColumns = attributes.concat([
                     'treatmentCodes',
                     'treatmentNames',
-                    [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                    ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
                     'wastestreamProcessTreatmentTechnologySourceTitle'
                   ]);
 
@@ -444,7 +444,7 @@ function technologyCategoryLimitationsForDownload(id, treatmentIds, pointSourceC
                   let queryColumns = attributes.concat([
                     'treatmentCodes',
                     'treatmentNames',
-                    [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                    ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
                     'wastestreamProcessTreatmentTechnologySourceTitle'
                   ]);
 
@@ -805,7 +805,7 @@ function multiCriteriaSearchLimitationsForDownload(pointSourceCategoryCodes,
         //get the rows to be downloaded as a stream
         let queryColumns = downloadAttributes.concat([
           'treatmentNames',
-          [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes']
+          ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
         ]);
 
         const result = ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAllWithStream({
@@ -882,7 +882,7 @@ function multiCriteriaSearchLimitations(pointSourceCategoryCodes,
         let queryColumns = attributes.concat(['treatmentId',
           'treatmentCodes',
           'treatmentNames',
-          [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+          ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
           'wastestreamProcessTreatmentTechnologySourceTitle',
           ['pollutant_desc', 'pollutantId']]);
 
@@ -1102,7 +1102,7 @@ function keywordSearchLimitations(keywords,
                   'treatmentId',
                   'treatmentCodes',
                   'treatmentNames',
-                  [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes'],
+                  ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
                   'wastestreamProcessTreatmentTechnologySourceTitle',
                   ['pollutant_desc', 'pollutantId']
                 ]);
@@ -1159,7 +1159,7 @@ function keywordSearchLimitationsForDownload(keywords, operator, sortCol, sortDi
           //get the rows to be downloaded as a stream
           let queryColumns = downloadAttributes.concat([
             'treatmentNames',
-            [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes']
+            ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
           ]);
 
           const result = ViewWastestreamProcessTreatmentTechnologyPollutantLimitation.findAllWithStream({
@@ -1276,7 +1276,7 @@ module.exports = {
                 ['elg_pollutant_description', 'pollutantDescription'],
                 'longTermAverageValue',
                 'longTermAverageUnitCode',
-                [Sequelize.literal("replace(lta_unit_desc, '\\u00A7', U&'\\00A7')"), 'longTermAverageUnitDescription'],
+                ['lta_unit_desc', 'longTermAverageUnitDescription'],
                 'longTermAverageUnitBasis',
                 'longTermAverageNotes',
                 [Sequelize.literal("CASE WHEN lta_source_title IS NOT NULL THEN lta_source_title || CASE WHEN lta_notes IS NOT NULL THEN ': ' || lta_notes ELSE '' END ELSE '' END"), 'longTermAverageSourceTitle'],
@@ -1284,10 +1284,10 @@ module.exports = {
                 'alternateLimitDescription',
                 'limitationValue',
                 'limitationUnitCode',
-                [Sequelize.literal("replace(unit_desc, '\\u00A7', U&'\\00A7')"), 'limitationUnitDescription'],
+                ['unit_desc', 'limitationUnitDescription'],
                 'limitationUnitBasis',
                 'wastestreamProcessTreatmentTechnologySourceTitle',
-                [Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'wastestreamProcessTreatmentTechnologyNotes']
+                ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes']
               ],
               where: {
                 limitationId: {[Op.eq]: id}
