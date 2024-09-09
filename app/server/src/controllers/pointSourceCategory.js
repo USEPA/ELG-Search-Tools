@@ -26,13 +26,7 @@ function fillSubcategoryForCfr(subcategory) {
       otherProvisions: [],
     };
 
-    let attributes = [
-      'cfrSection',
-      'title',
-      [Sequelize.literal("replace(genprov_desc, '\\u00A7', U&'\\00A7')"), 'description'],
-      'cfrHasAdditionalDetails',
-      'type',
-    ];
+    let attributes = ['cfrSection', 'title', 'description', 'cfrHasAdditionalDetails', 'type'];
 
     let subCategoryIdWhereClause = { [Op.eq]: sub.id };
     if (sub.comboSubcategory === 'All') {
@@ -74,12 +68,7 @@ function fillSubcategoryForDefinitions(subcategory) {
       definitions: [],
     };
 
-    let attributes = [
-      'term',
-      [Sequelize.literal("replace(replace(definition, '\\u00A7', U&'\\00A7'), '\\u00B0', U&'\\00B0')"), 'definition'],
-      'cfrHasAdditionalDetails',
-      'typoFlagDefinition',
-    ];
+    let attributes = ['term', 'definition', 'cfrHasAdditionalDetails', 'typoFlagDefinition'];
 
     let subCategoryIdWhereClause = { [Op.eq]: sub.id };
     if (sub.comboSubcategory === 'General Definitions') {

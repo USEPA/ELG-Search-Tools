@@ -27,8 +27,8 @@ $$
 
 drop server if exists elg_database_odbc;
 
-create server elg_database_odbc 
-	foreign data wrapper ogr_fdw 
+create server elg_database_odbc
+	foreign data wrapper ogr_fdw
 	options ( datasource 'C:\\dev\\ELG-Search-Tools\\server\\db\\elg_database.accdb', format 'ODBC' );
 
 do language plpgsql $$
@@ -118,7 +118,7 @@ select
     ct_cfr_section,
     regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(ct_notes, U&'\00A7', '\u00A7', 'g'), chr(147), '"', 'g'), chr(148), '"', 'g'), U&'\0097', '-', 'g'), U&'\00B5', '\u00B5', 'g') as ct_notes,
     case when loc_display = '1' then true else false end as loc_display,
-    typo_flag_ct_notes 
+    typo_flag_ct_notes
 from
     elg_database.n3a_control_technology_notes;
 
@@ -135,7 +135,7 @@ select
     COALESCE (processop_constraint4, '')) as secondary,
     regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(processop_description, U&'\00A7', '\u00A7', 'g'), chr(145), '''', 'g'), chr(146), '''', 'g'), U&'\0093', '"', 'g'), U&'\0094', '"', 'g'), U&'\0096', '-', 'g'), U&'\0097', '-', 'g') as processop_description,
     regexp_replace(regexp_replace(regexp_replace(regexp_replace(
-	    case 
+	    case
 	    	when processop_id = 25055 then 'Limitations for the parameters are the same as the corresponding limitation specified in \u00A7437.42(e)' --odd character in source data
 	    	else lim_calc_desc
 	    end	, U&'\00A7', '\u00A7', 'g'), U&'\0093', '"', 'g'), U&'\0094', '"', 'g'), U&'\0097', '-', 'g') as lim_calc_desc,
@@ -149,7 +149,7 @@ select
     case when voluntary_req = '1' then true else false end as voluntary_requirement,
     case when process_addtdetail = '1' then true else false end as process_addtdetail,
     typo_flag_lim_calc_description,
-    typo_flag_po_notes 
+    typo_flag_po_notes
 from
     elg_database.n4_wastestream_process;
 
@@ -177,11 +177,11 @@ SELECT
 	pl.lim_value_min,
 	pl.lim_value_max,
 	pl.alt_lim_flag,
-	case 
+	case
 		when pl.lim_id = 6799 then 'As referenced in 423.16(e)' --odd character in source data
 		when pl.lim_id = 52831 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Content of Oil by HPLC/UV," December 1992, which is published as an appendix to subpart A of this part and in "Analytic Methods for the Oil and Gas Extraction Point Source Category," EPA-821-R-11-004. See \u00A7435.11(uu).'
 		when pl.lim_id = 52867 then 'Stock Limitations (C16-C18 internal olefin). PAH mass ratio shall not exceed 1 X 10-5. PAH mass ratio = Mass (g) of PAH (as phenanthrene)/Mass (g) of stock base fluid as determined by EPA Method 1654, Revision A, [specified at \u00A7435.11(u)] entitled "PAH Content of Oil by HPLC/UV," December 1992, which is published as an appendix to subpart A of this part and in "Analytic Methods for the Oil and Gas Extraction Point Source Category," EPA-821-R-11-004. See \u00A7435.11(uu).'
-		else regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(pl.alt_lim, U&'\00A7', '\u00A7', 'g'), U&'\00B0', '\u00B0', 'g'), U&'\0093', '"', 'g'), U&'\0094', '"', 'g'), U&'\00D7', 'X', 'g') 
+		else regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(pl.alt_lim, U&'\00A7', '\u00A7', 'g'), U&'\00B0', '\u00B0', 'g'), U&'\0093', '"', 'g'), U&'\0094', '"', 'g'), U&'\00D7', 'X', 'g')
 	end as alt_lim,  --TODO: check these values in the latest data!
 	pl.lim_duration_code,
 	pl.discharge_frequency,
@@ -210,13 +210,13 @@ SELECT
 		when pl.lim_id = 70886 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.18 + 17.6 X (no. of hides)/lbs RM).'
 		when pl.lim_id = 70887 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.11 + 24.2 X (no. of hides)/lbs RM).'
 		when pl.lim_id = 70888 then 'Hide curing at an independent rendering plan requires an adjustment to the limitation. The additional equation calculates the size of the adjustment based on the number of hides handled. See 1975 Renderer TDD for additional details. The adjustment equation to calculate the limit in pounds per 1000 pounds of raw material is (0.22 + 24.2 X (no. of hides)/lbs RM).'
-		else regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(pl.pollutant_notes, U&'\00A7', '\u00A7', 'g'), chr(147), '"', 'g'), chr(148), '"', 'g'), 'ï¿½', 'u', 'g'), U&'\00A0', ' ', 'g'), U&'\00B5', '\u00B5', 'g'), U&'\00D7', 'X', 'g') 
+		else regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(pl.pollutant_notes, U&'\00A7', '\u00A7', 'g'), chr(147), '"', 'g'), chr(148), '"', 'g'), 'Ã¯Â¿Â½', 'u', 'g'), U&'\00A0', ' ', 'g'), U&'\00B5', '\u00B5', 'g'), U&'\00D7', 'X', 'g')
 	end as pollutant_notes,  --TODO: check these values in the latest data!
 	pl.dataentry_psc_code,
 	pl.qc_initials,
 	pl.treatment_id,
 	alf.description as alt_lim_description,
-	pl.typo_flag_lim_value 
+	pl.typo_flag_lim_value
 FROM elg_database.n5_pollutant_limitations pl left outer join elg_database.key_alt_lim_flag alf on pl.alt_lim_flag = alf.flag;
 
 create view elg_database.view_key_ttcodes as
@@ -248,17 +248,17 @@ select
 	subcat_cfr_section,
 	cfr_subsection,
 	regexp_replace(regexp_replace(regexp_replace(term, U&'\0093', '"', 'g'), U&'\0094', '"', 'g'), U&'\0097', '-', 'g') as term,
-	regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(case 
+	regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(case
         when cfr_part = 427 and cfr_subsection = '427.71.c' and term = 'Pieces' then '(Subpart G) Floor tile measured in the standard size of 12" X 12" X 3/32".'
         when cfr_part = 420 and cfr_subsection = '420.21.d' and term = 'pg/L' then '(Subpart B) Picograms per liter (ppt = 1.0 X 10-12 gm/L).'
-        else definition 
+        else definition
        end, U&'\00A7', '\u00A7', 'g'), U&'\0093', '"', 'g'), U&'\0094', '"', 'g'), U&'\0097', '-', 'g'), U&'\00B0', '\u00B0', 'g') as definition,
 	deftype,
 	case when additional_detail_cfr_flag = '1' then true else false end as additional_detail_cfr_flag,
 	source_id,
 	qc_flag,
 	qc_notes,
-	typo_flag_definition 
+	typo_flag_definition
 from elg_database.a_definition;
 
 create view elg_database.view_a_generalprovisions as
@@ -266,10 +266,10 @@ select
 	psc_code,
 	genprov_cfr_section,
 	regexp_replace(genprov_section_title, U&'\0097', '-', 'g') as genprov_section_title,
-	regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(case 
-       	when psc_code = 469 and genprov_cfr_section = '469.13' and genprov_section_title = 'Monitoring' 
-       		then '(Subpart A) (a) In lieu of monitoring for TTO, the permitting authority may allow direct dischargers to include the following certification as a “comment” on the Discharge Monitoring Report required by §122.44 (i), formerly §122.62(i): “Based on my  inquiry of the person or persons directly responsible for managing compliance with the permit limitation for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the permitting authority.” (b) In requesting that no monitoring of TTO be required, the direct discharger shall submit a solvent management plan that specifies to the permitting authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater. The permitting authority shall incorporate the plan as a provision of the permit. (c) In lieu of monitoring for TTO, the control authority may allow industrial users of POTWs to make the following certification as a comment to the periodic reports required by §403.12: “Based on my inquiry of the person or persons directly responsible for managing compliance with the pretreatment standard for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the control authority.” (d) In requesting that no monitoring be required, industrial users of POTWs shall submit a solvent management plan that specifies to the control authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater.'
-       	else genprov_desc 
+	regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(regexp_replace(case
+       	when psc_code = 469 and genprov_cfr_section = '469.13' and genprov_section_title = 'Monitoring'
+       		then '(Subpart A) (a) In lieu of monitoring for TTO, the permitting authority may allow direct dischargers to include the following certification as a Â“commentÂ” on the Discharge Monitoring Report required by Â§122.44 (i), formerly Â§122.62(i): Â“Based on my  inquiry of the person or persons directly responsible for managing compliance with the permit limitation for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the permitting authority.Â” (b) In requesting that no monitoring of TTO be required, the direct discharger shall submit a solvent management plan that specifies to the permitting authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater. The permitting authority shall incorporate the plan as a provision of the permit. (c) In lieu of monitoring for TTO, the control authority may allow industrial users of POTWs to make the following certification as a comment to the periodic reports required by Â§403.12: Â“Based on my inquiry of the person or persons directly responsible for managing compliance with the pretreatment standard for total toxic organics (TTO), I certify that, to the best of my knowledge and belief, no dumping of concentrated toxic organics into the wastewaters has occurred since filing the last discharge monitoring report. I further certify that this facility is implementing the solvent management plan submitted to the control authority.Â” (d) In requesting that no monitoring be required, industrial users of POTWs shall submit a solvent management plan that specifies to the control authority''s satisfaction the toxic organic compounds used; the method of disposal used instead of dumping, such as reclamation, contract hauling, or incineration; and procedures for assuring that toxic organics do not routinely spill or leak into the wastewater.'
+       	else genprov_desc
        end, U&'\00A7', '\u00A7', 'g'), U&'\0093', '"', 'g'), U&'\0094', '"', 'g'), U&'\0097', '-', 'g'), U&'\0091', '''', 'g'), U&'\0092', '''', 'g') as genprov_desc,
 	case when genprov_monitoring_reqs = '1' then true else false end as genprov_monitoring_reqs,
 	case when genprov_bmps_reqs = '1' then true else false end as genprov_bmps_reqs,
@@ -323,35 +323,35 @@ SELECT
 	regexp_replace(pg.pollutant_group, ' ', '', 'g') as pollutant_groups
 FROM elg_database.ref_pollutant p left outer join elg_database.n5d_pollutant_groups pg on p.pollutant_code = pg.pollutant_code;
 
-create view elg_database.view_ref_sic_code as 
-SELECT 
-	sic, 
+create view elg_database.view_ref_sic_code as
+SELECT
+	sic,
 	regexp_replace(regexp_replace(sic_desc, chr(145), '''', 'g'), chr(146), '''', 'g') as sic_desc,
 	nullif(regexp_replace(sic, '[^0-9]', '', 'g'), '') as sic_code
 FROM elg_database.ref_sic_code;
 
-create view elg_database.view_ref_naics_code as 
-SELECT 
-	naics, 
+create view elg_database.view_ref_naics_code as
+SELECT
+	naics,
 	naics_desc,
 	nullif(regexp_replace(naics, '[^0-9]', '', 'g'), '') as naics_code
 FROM elg_database.ref_naics_code;
 
-create view elg_database.view_ref_psc_sic_xwalk as 
-SELECT 
-	sic, 
+create view elg_database.view_ref_psc_sic_xwalk as
+SELECT
+	sic,
 	general_psc_code,
 	specific_psc_code,
 	nullif(regexp_replace(sic, '[^0-9]', '', 'g'), '') as sic_code
-FROM elg_database.ref_psc_sic_xwalk x 
+FROM elg_database.ref_psc_sic_xwalk x
 where exists (select psc_code from elg_database.n1_cfr c where c.psc_code = x.general_psc_code);
 
-create view elg_database.view_ref_psc_naics_xwalk as 
-SELECT 
-	naics, 
+create view elg_database.view_ref_psc_naics_xwalk as
+SELECT
+	naics,
 	psc_code,
 	nullif(regexp_replace(naics, '[^0-9]', '', 'g'), '') as naics_code
-FROM elg_database.ref_psc_naics_xwalk x 
+FROM elg_database.ref_psc_naics_xwalk x
 where exists (select psc_code from elg_database.n1_cfr c where c.psc_code = x.psc_code);
 
 create table elg_database.n1_cfr_url as
@@ -407,4 +407,3 @@ SELECT 467 as psc_code, 'https://www.epa.gov/eg/aluminum-forming-effluent-guidel
 SELECT 468 as psc_code, 'https://www.epa.gov/eg/copper-forming-effluent-guidelines' as link_url UNION ALL
 SELECT 469 as psc_code, 'https://www.epa.gov/eg/electrical-and-electronic-components-effluent-guidelines' as link_url UNION ALL
 SELECT 471 as psc_code, 'https://www.epa.gov/eg/nonferrous-metals-forming-and-metal-powders-effluent-guidelines' as link_url;
-

@@ -12,6 +12,7 @@ let isLocal = false;
 let database_host = '';
 let database_user = '';
 let database_pwd = '';
+let database_port = '';
 let database_name = '';
 
 if (process.env.NODE_ENV) {
@@ -20,10 +21,11 @@ if (process.env.NODE_ENV) {
 
 if (isLocal) {
   log.info('Since local, using a localhost Postgres database.');
-  database_host = 'localhost';
-  database_user = 'postgres';
-  database_pwd = 'postgres';
-  database_name = 'elg_search';
+  database_host = process.env.DB_HOST ?? 'localhost';
+  database_user = process.env.DB_USER ?? 'postgres';
+  database_pwd = process.env.DB_PASS ?? 'postgres';
+  database_port = process.env.DB_PORT ?? 5432;
+  database_name = process.env.DB_NAME ?? 'elg_search';
 } else {
   if (!process.env.VCAP_SERVICES) {
     log.error('Database information not set.');
@@ -34,10 +36,12 @@ if (isLocal) {
   database_host = vcap_services['aws-rds'][0].credentials.host;
   database_user = vcap_services['aws-rds'][0].credentials.username;
   database_pwd = vcap_services['aws-rds'][0].credentials.password;
+  database_port = vcap_services['aws-rds'][0].credentials.port;
   database_name = 'postgres';
 }
 const sequelize = new Sequelize(database_name, database_user, database_pwd, {
   host: database_host,
+  post: database_port,
   dialect: 'postgres',
   pool: {
     max: 20,

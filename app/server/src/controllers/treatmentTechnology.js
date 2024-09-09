@@ -290,10 +290,7 @@ function validateSortParams(sortCol, sortDir, offset, limit) {
         .concat([
           'treatmentCodes',
           'treatmentNames',
-          [
-            Sequelize.literal("replace(replace(wptt_tech_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"),
-            'wastestreamProcessTreatmentTechnologyNotes',
-          ],
+          ['wptt_tech_notes', 'wastestreamProcessTreatmentTechnologyNotes'],
           'wastestreamProcessTreatmentTechnologySourceTitle',
         ]);
 

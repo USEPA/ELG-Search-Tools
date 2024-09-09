@@ -26,10 +26,7 @@ function fillControlTechnology(controlTechnology) {
     };
 
     ControlTechnologyNotes.findAll({
-      attributes: [
-        'cfrSection',
-        [Sequelize.literal("replace(replace(ct_notes, '\\u00A7', U&'\\00A7'), '\\u00B5', U&'\\00B5')"), 'notes'],
-      ],
+      attributes: ['cfrSection', ['ct_notes', 'notes']],
       where: {
         controlTechnologyCode: { [Op.eq]: controlTechnology.controlTechnologyCode },
         cfrSection: { [Op.iLike]: controlTechnology.cfrSection + '%' },
@@ -54,9 +51,9 @@ function fillControlTechnology(controlTechnology) {
           'cfrSection',
           'title',
           'secondary',
-          [Sequelize.literal("replace(processop_description, '\\u00A7', U&'\\00A7')"), 'description'],
-          [Sequelize.literal("replace(processop_notes, '\\u00A7', U&'\\00A7')"), 'notes'],
-          [Sequelize.literal("replace(lim_calc_desc, '\\u00A7', U&'\\00A7')"), 'limitCalculationDescription'],
+          ['processop_description', 'description'],
+          ['processop_notes', 'notes'],
+          ['lim_calc_desc', 'limitCalculationDescription'],
           'sourceId',
           'zeroDischarge',
           'includesBmps',
