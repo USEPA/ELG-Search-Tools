@@ -11,7 +11,7 @@ const logger = require('../utilities/logger.js');
 const app = express();
 const log = logger.logger;
 
-const awsS3 = require('./s3/aws-s3.js');
+const { retrieveFileFromS3, uploadFileToS3 } = require('./s3/aws-s3.js');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
@@ -85,40 +85,29 @@ function getUnauthorizedResponse(req) {
   return req.auth ? 'Invalid credentials' : 'No credentials provided';
 }
 
-function s3GetObject(params) {
-  awsS3.s3.getObject(params, function(awsError, data) {
-    if (awsError) {
-      log.error('Failed to download ' + params.Key + '; ' + awsError);
-      process.exit();
-    } else {
-      log.info(params.Key + 'downloaded, continuing.');
-      fs.writeFileSync(path.join(__dirname, './s3/' + params.Key), data.Body);
-    }
-  });
-}
-
 /******************************************************************************
  For Cloud.gov environments, get s3 endpoint location and get latest help file
  *****************************************************************************/
 if (!isLocal) {
-  if (awsS3.s3_bucket !== undefined) {
-    log.info('s3_bucket environmental variable found, continuing.');
-  } else {
-    log.error('s3_bucket environmental variable NOT set, exiting system.');
-    process.exit();
-  }
+  (async () => {
+    //get latest version of help pdf from s3
+    const usersGuideFilename = 'ELG Database Users Guide.pdf';
+    try {
+      const usersGuide = await retrieveFileFromS3(usersGuideFilename);
+      fs.writeFileSync(path.join(__dirname, './s3/' + usersGuideFilename), usersGuide);
+    } catch (error) {
+      log.error('Failed to download ' + usersGuideFilename + '; ' + error);
+    }
 
-  //get latest version of help pdf from s3
-  s3GetObject({
-    Bucket: awsS3.s3_bucket,
-    Key: 'ELG Database Users Guide.pdf',
-  });
-
-  //get latest contact info from s3
-  s3GetObject({
-    Bucket: awsS3.s3_bucket,
-    Key: 'contact.txt',
-  });
+    //get latest contact info from s3
+    const contactFilename = 'contact.txt';
+    try {
+      const contact = await retrieveFileFromS3(contactFilename);
+      fs.writeFileSync(path.join(__dirname, './s3/' + contactFilename), contact);
+    } catch (error) {
+      log.error('Failed to download ' + contactFilename + '; ' + error);
+    }
+  })();
 }
 
 /****************************************************************
@@ -136,13 +125,20 @@ if (process.env.ELG_GLOSSARY_AUTH) {
     },
   };
 
+  const retrieveGlossary = async () => {
+    //get glossary.json file from s3
+    const glossaryFilename = 'glossary.json';
+    try {
+      const glossary = await retrieveFileFromS3(glossaryFilename);
+      fs.writeFileSync(path.join(__dirname, './s3/' + glossaryFilename), glossary);
+    } catch (error) {
+      log.error('Failed to download ' + glossaryFilename + '; ' + error);
+    }
+  };
+
   https.get(glossaryOptions, (glossaryResponse) => {
     let response = '';
-    const fileName = 'glossary.json';
-    const s3FileParams = {
-      Bucket: awsS3.s3_bucket,
-      Key: fileName,
-    };
+    const filename = 'glossary.json';
 
     glossaryResponse.on('data', (data) => {
       response += data;
@@ -153,31 +149,23 @@ if (process.env.ELG_GLOSSARY_AUTH) {
         log.warn('Non-200 returned from glossary web service: ' + glossaryResponse.statusCode);
 
         if (!isLocal) {
-          //get glossary.json file from s3
-          s3GetObject(s3FileParams);
+          retrieveGlossary();
         }
       } else {
         log.info('Successful glossary request');
 
-        fs.writeFileSync(path.join(__dirname, './s3/' + fileName), response);
+        fs.writeFileSync(path.join(__dirname, './s3/' + filename), response);
 
         if (!isLocal) {
           //upload glossary.json to s3 to use as a backup
-          awsS3.s3.upload(
-            {
-              Bucket: awsS3.s3_bucket,
-              Key: fileName,
-              Body: response,
-              ContentType: 'application/json',
-            },
-            function(awsError) {
-              if (awsError) {
-                log.warn('Failed to upload ' + fileName + '; ' + awsError);
-              } else {
-                log.info('Successfully uploaded "' + fileName + '"');
-              }
+          (async () => {
+            try {
+              await uploadFileToS3(filename, response, 'application/json');
+              log.info('Successfully uploaded "' + filename + '"');
+            } catch (error) {
+              log.error('Failed to upload ' + filename + '; ' + error);
             }
-          );
+          })();
         }
       }
     });
@@ -186,8 +174,16 @@ if (process.env.ELG_GLOSSARY_AUTH) {
       log.warn('Error returned from glossary web service: ' + err.message);
 
       if (!isLocal) {
-        //get glossary.json file from s3
-        s3GetObject(s3FileParams);
+        (async () => {
+          //get glossary.json file from s3
+          const glossaryFilename = 'glossary.json';
+          try {
+            const glossary = await retrieveFileFromS3(glossaryFilename);
+            fs.writeFileSync(path.join(__dirname, './s3/' + glossaryFilename), glossary);
+          } catch (error) {
+            log.error('Failed to download ' + glossaryFilename + '; ' + error);
+          }
+        })();
       }
     });
   });
