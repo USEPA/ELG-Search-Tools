@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue2';
 export default defineConfig(({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
   const config = {
+    // Account for "/elg" on deployed cloud.gov app URLs
+    base: mode === 'prod' ? '/elg/' : '/',
     build: {
       // Store bundled files in server so we only need to deploy server files to Cloud.gov
       outDir: path.resolve(__dirname, '../server/public'), // To be served by Express server
