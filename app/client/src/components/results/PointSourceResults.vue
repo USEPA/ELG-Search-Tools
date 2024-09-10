@@ -385,7 +385,7 @@ select {
   min-width: 500px;
   height: 2.5rem;
 
-  ::v-deep {
+  :deep() {
     .vs__selected {
       font-size: 1rem;
     }

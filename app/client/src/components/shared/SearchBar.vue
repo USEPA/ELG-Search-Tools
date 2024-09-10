@@ -433,7 +433,7 @@ label {
   }
 }
 
-::v-deep {
+:deep() {
   .search-select {
     min-height: 40px;
     height: 100%;

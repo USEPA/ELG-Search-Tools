@@ -127,7 +127,7 @@ export default {
   padding: 0;
   list-style: none;
 
-  ::v-deep .glossary__term {
+  :deep() .glossary__term {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -167,7 +167,7 @@ export default {
     }
   }
 
-  ::v-deep .glossary__definition {
+  :deep() .glossary__definition {
     padding: 0.75rem;
     border: 1px solid rgba(0, 0, 0, 0.375);
     border-top: none;

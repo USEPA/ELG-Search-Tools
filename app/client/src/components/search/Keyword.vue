@@ -96,7 +96,7 @@ label {
   height: 44px;
 }
 
-::v-deep .v-select {
+:deep() .v-select {
   &,
   & .vs__dropdown-toggle {
     height: 100%;
