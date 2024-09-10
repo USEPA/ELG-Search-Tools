@@ -1,13 +1,10 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import search from './modules/search';
 import customSearch from './modules/customSearch';
 import limitations from './modules/limitations';
 import results from './modules/results';
 import aboutCfr from './modules/aboutCfr';
-
-Vue.use(Vuex);
 
 const getMutationName = (key) => `SET_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
 
@@ -27,9 +24,9 @@ Object.keys(modules).forEach((moduleName) => {
   module.mutations = { ...mutations, ...module.mutations };
 });
 
-const store = new Vuex.Store({
+const store = createStore({
   modules: { search, customSearch, limitations, results, aboutCfr },
-  plugins: [createPersistedState(), pathify.plugin],
+  plugins: [createPersistedState()],
 });
 export default store;
 
