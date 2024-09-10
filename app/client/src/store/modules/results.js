@@ -1,10 +1,8 @@
-import { make } from 'vuex-pathify';
-
 const state = {
   activeTab: null,
 };
 
-const mutations = make.mutations(state);
+const mutations = {};
 
 export default {
   namespaced: true,

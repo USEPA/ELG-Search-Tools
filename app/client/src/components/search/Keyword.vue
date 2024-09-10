@@ -50,11 +50,11 @@
 </template>
 
 <script>
-import { sync } from 'vuex-pathify';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   computed: {
-    ...sync('customSearch', ['keyword', 'operator']),
+    ...mapStatesToComputed('customSearch', ['keyword', 'operator']),
   },
   methods: {
     keywordAdded() {
