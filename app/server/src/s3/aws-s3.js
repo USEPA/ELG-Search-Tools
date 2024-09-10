@@ -6,7 +6,9 @@ const log = logger.logger;
 
 // sever.js will use s3 if not in local environment. Assuming s3 is set up on cloud.gov and VCAP_SERVICES is set.
 log.info('Using VCAP_SERVICES Information to work with s3.');
-const s3_vcap_services = JSON.parse(process.env.VCAP_SERVICES);
+const s3_vcap_services = process.env.VCAP_SERVICES
+  ? JSON.parse(process.env.VCAP_SERVICES)
+  : { s3: [{ credentials: {} }] };
 const s3_access_key_id = s3_vcap_services['s3'][0].credentials.access_key_id;
 const s3_bucket = s3_vcap_services['s3'][0].credentials.bucket;
 const s3_region = s3_vcap_services['s3'][0].credentials.region;
