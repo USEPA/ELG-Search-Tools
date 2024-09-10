@@ -38,11 +38,11 @@
               <VueSelect
                 class="search-select"
                 :inputId="searchTypeObject.id"
-                :value="currentSearchValue"
+                :modelValue="currentSearchValue"
                 :options="optionsList"
                 :placeholder="searchType ? `Select ${searchTypeObject.label}` : 'Select search criteria to continue'"
                 :disabled="!searchType"
-                @input="onSelectOption"
+                @update:modelValue="onSelectOption"
                 :label="searchTypeObject.labelField"
               >
                 <template #option="option">
@@ -80,10 +80,10 @@
               <VueSelect
                 inputId="treatmentTechnologyCategory"
                 class="search-select"
-                :value="selectedTreatmentTechnologyCategory"
+                :modelValue="selectedTreatmentTechnologyCategory"
                 :options="treatmentTechnologyCategories"
                 placeholder="Select Treatment Technology Category"
-                @input="onSelectTreatmentCategory"
+                @update:modelValue="onSelectTreatmentCategory"
               />
             </div>
             <div class="control">
@@ -123,11 +123,11 @@
               <VueSelect
                 inputId="pollutantCategory"
                 class="search-select"
-                :value="selectedPollutantCategory"
+                :modelValue="selectedPollutantCategory"
                 :options="pollCategoriesWithDescriptions"
                 label="description"
                 placeholder="Select Pollutant Category"
-                @input="onSelectPollutantCategory"
+                @update:modelValue="onSelectPollutantCategory"
               />
             </div>
             <div class="control">

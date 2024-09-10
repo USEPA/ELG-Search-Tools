@@ -23,7 +23,7 @@
         inputId="subcategory"
         name="subcategory"
         v-model="selectedSubcategory"
-        @input="onChangeSubcategory"
+        @update:modelValue="onChangeSubcategory"
         :options="categoryData.pointSourceSubcategories"
         placeholder="Select Subcategory"
         label="comboSubcategory"
@@ -103,7 +103,7 @@
               v-slot:[`cell(${fieldKey})`]="{ value }"
             >
               <span :key="fieldKey" v-if="value" class="fa fa-check has-text-success"></span>
-              <span :key="fieldKey" v-else>--</span>
+              <span :key="`${fieldKey}-empty`" v-else>--</span>
             </template>
             <template v-slot:cell(alternativeRequirement)="{ index, item }">
               <span v-if="item.alternativeRequirement" class="fa fa-check has-text-success" />
