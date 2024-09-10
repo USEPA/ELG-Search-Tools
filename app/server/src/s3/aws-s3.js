@@ -31,7 +31,7 @@ const retrieveFileFromS3 = async (filename) => {
     if (!response || !response.Body) {
       logger.error('S3 file response body is empty');
     }
-    return await response?.Body?.transformToString('base64');
+    return await response?.Body;
   } catch (error) {
     logger.error(`S3 error retrieving file: ${error}`);
     throw error;
