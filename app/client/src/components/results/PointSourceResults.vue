@@ -202,19 +202,20 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import ControlTabs from '@/components/shared/ControlTabs.vue';
 import Table from '@/components/shared/Table.vue';
 import Modal from '@/components/shared/Modal.vue';
 import HoverText from '@/components/shared/HoverText.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { Alert, ControlTabs, Table, Modal, HoverText },
   computed: {
-    ...get('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
-    ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedSubcategory']),
+    ...mapState('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
+    ...mapStatesToComputed('results', ['activeTab']),
+    ...mapStatesToComputed('search', ['selectedSubcategory']),
     tableEmptyText() {
       if (
         this.selectedCategory.pointSourceCategoryCode === 414 &&

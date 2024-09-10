@@ -186,17 +186,18 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import { BRow, BCol } from 'bootstrap-vue';
 import HoverText from '@/components/shared/HoverText.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 import Table from '@/components/shared/Table.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { HoverText, DownloadLink, Table, BRow, BCol },
   computed: {
-    ...get('search', ['pollutantData', 'selectedPollutant', 'selectedPollutantCategory']),
-    ...sync('search', ['selectedPscs']),
+    ...mapState('search', ['pollutantData', 'selectedPollutant', 'selectedPollutantCategory']),
+    ...mapStatesToComputed('search', ['selectedPscs']),
   },
   data() {
     return {

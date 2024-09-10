@@ -177,18 +177,19 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState, mapGetters } from 'vuex';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert.vue';
 import HoverText from '@/components/shared/HoverText.vue';
 import Table from '@/components/shared/Table.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { Alert, HoverText, Table, Modal, DownloadLink },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'selectedCategory',
       'subcategories',
       'subcategoryData',
@@ -198,10 +199,11 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
-    ...get('limitations', ['treatmentLimitationData', 'treatmentLimitationsApiUrl']),
-    ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedSubcategory']),
-    ...sync('limitations', [
+    ...mapState('limitations', ['treatmentLimitationData']),
+    ...mapGetters('limitations', ['treatmentLimitationsApiUrl']),
+    ...mapStatesToComputed('results', ['activeTab']),
+    ...mapStatesToComputed('search', ['selectedSubcategory']),
+    ...mapStatesToComputed('limitations', [
       'isFetching',
       'selectedTreatmentTrain',
       'selectedTreatmentCategory',

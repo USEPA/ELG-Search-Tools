@@ -27,14 +27,14 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Glossary from './components/shared/Glossary.vue';
 
 export default {
   name: 'App',
   components: { Glossary },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'selectedCategory',
       'selectedSubcategory',
       'selectedPollutant',
@@ -43,7 +43,7 @@ export default {
       'selectedTreatmentTechnologyCategory',
       'subcategoryData',
     ]),
-    ...get('customSearch', ['keyword']),
+    ...mapState('customSearch', ['keyword']),
     helpLink() {
       const basePath = `${this.$http.defaults.baseURL}/api/help`;
       const currentPath = this.$route.path.replace('/elg', '');

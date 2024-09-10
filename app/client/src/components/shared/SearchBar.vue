@@ -167,9 +167,10 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import MultiCriteria from '@/components/search/MultiCriteria.vue';
 import Keyword from '@/components/search/Keyword.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   name: 'SearchBar',
@@ -236,14 +237,14 @@ export default {
     };
   },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'categories',
       'pollutants',
       'pollutantCategories',
       'treatmentTechnologies',
       'treatmentTechnologyCategories',
     ]),
-    ...sync('search', [
+    ...mapStatesToComputed('search', [
       'searchType',
       'selectedCategory',
       'selectedPollutant',

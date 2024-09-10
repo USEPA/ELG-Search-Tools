@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { make } from 'vuex-pathify';
 
 const state = {
   isFetching: false,
@@ -34,7 +33,6 @@ const state = {
 };
 
 const getters = {
-  ...make.getters(state),
   multiCriteriaSelections(state) {
     return {
       pointSourceCategoryCode: state.pointSourceCategoryCode.join(';'),
@@ -61,8 +59,6 @@ const getters = {
 };
 
 const mutations = {
-  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_CATEGORIES"
-  ...make.mutations(state),
   SET_POLLUTANT_ID(state, value) {
     state.pollutantId = value;
     state.pollutantGroupId = [];

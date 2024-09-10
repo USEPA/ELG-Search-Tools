@@ -183,9 +183,10 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import VueSelect from 'vue-select';
 import LoadingIndicator from '@/components/shared/LoadingIndicator.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { VueSelect, LoadingIndicator },
@@ -206,8 +207,8 @@ export default {
     };
   },
   computed: {
-    ...get('customSearch', ['multiCriteriaLookups']),
-    ...sync('customSearch', [
+    ...mapState('customSearch', ['multiCriteriaLookups']),
+    ...mapStatesToComputed('customSearch', [
       'pointSourceCategoryCode',
       'sicCode',
       'naicsCode',

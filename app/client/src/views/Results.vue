@@ -102,13 +102,14 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import PointSourceResults from '@/components/results/PointSourceResults.vue';
 import PollutantResults from '@/components/results/PollutantResults.vue';
 import TreatmentTechResults from '@/components/results/TreatmentTechResults.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
 import MultiCriteriaResults from '@/components/results/MultiCriteriaResults.vue';
 import KeywordResults from '@/components/results/KeywordResults.vue';
+import { mapStatesToComputed } from '../store';
 
 export default {
   components: {
@@ -120,7 +121,7 @@ export default {
     KeywordResults,
   },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'searchType',
       'selectedCategory',
       'selectedPollutant',
@@ -129,7 +130,7 @@ export default {
       'selectedTreatmentTechnologyCategory',
       'categoryData',
     ]),
-    ...get('customSearch', ['multiCriteriaResults', 'keyword']),
+    ...mapStatesToComputed('customSearch', ['multiCriteriaResults', 'keyword']),
   },
 };
 </script>

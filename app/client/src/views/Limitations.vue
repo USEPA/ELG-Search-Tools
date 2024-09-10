@@ -147,19 +147,20 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
 import Table from '@/components/shared/Table.vue';
 import ControlTabs from '@/components/shared/ControlTabs.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
+import { mapStatesToComputed } from '../store';
 
 export default {
   components: { Alert, Breadcrumbs, Table, ControlTabs, Modal, DownloadLink },
   computed: {
-    ...get('search', ['selectedCategory', 'subcategoryData', 'selectedPscs']),
-    ...get('limitations', [
+    ...mapState('search', ['selectedCategory', 'subcategoryData', 'selectedPscs']),
+    ...mapState('limitations', [
       'limitationData',
       'pointSourceCategoryCode',
       'pointSourceCategoryName',
@@ -169,7 +170,7 @@ export default {
       'isComparingPscs',
       'selectedLimitationId',
     ]),
-    ...sync('results', ['activeTab']),
+    ...mapStatesToComputed('results', ['activeTab']),
     pollDownloadUrl() {
       let pollIds = this.pollutantId;
       let pscCodes = this.pointSourceCategoryCode;

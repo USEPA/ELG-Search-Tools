@@ -155,17 +155,18 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState, mapGetters } from 'vuex';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert.vue';
 import Table from '@/components/shared/Table.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { Alert, Table, Modal, DownloadLink },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'selectedCategory',
       'subcategories',
       'subcategoryData',
@@ -175,16 +176,17 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
-    ...get('customSearch', ['multiCriteriaResults', 'multiCriteriaApiUrl']),
-    ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedSubcategory']),
-    ...sync('limitations', [
+    ...mapState('customSearch', ['multiCriteriaResults', 'multiCriteriaApiUrl']),
+    ...mapGetters('customSearch', ['multiCriteriaResults', 'multiCriteriaApiUrl']),
+    ...mapStatesToComputed('results', ['activeTab']),
+    ...mapStatesToComputed('search', ['selectedSubcategory']),
+    ...mapStatesToComputed('limitations', [
       'isFetching',
       'selectedTreatmentTrain',
       'selectedTreatmentCategory',
       'selectedTreatmentPollutant',
     ]),
-    ...sync('customSearch', ['filterPointSourceCategoryCode', 'filterPollutantId', 'filterTreatmentId']),
+    ...mapStatesToComputed('customSearch', ['filterPointSourceCategoryCode', 'filterPollutantId', 'filterTreatmentId']),
   },
   data() {
     return {

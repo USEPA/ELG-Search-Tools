@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Modal from '@/components/shared/Modal.vue';
 import SearchBar from '@/components/shared/SearchBar.vue';
@@ -59,7 +59,7 @@ export default {
     SearchBar,
   },
   computed: {
-    ...get('search', ['contactInfo']),
+    ...mapState('search', ['contactInfo']),
   },
   created() {
     this.$store.dispatch('search/getContactInfo');

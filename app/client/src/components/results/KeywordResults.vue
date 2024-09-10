@@ -175,7 +175,7 @@
 </template>
 
 <script>
-import { call, get } from 'vuex-pathify';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '@/components/shared/Table.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
@@ -184,7 +184,8 @@ import HoverText from '@/components/shared/HoverText.vue';
 export default {
   components: { Table, Modal, DownloadLink, HoverText },
   computed: {
-    ...get('customSearch', ['keyword', 'keywordResults', 'keywordApiUrl', 'isFetching']),
+    ...mapState('customSearch', ['keyword', 'keywordResults', 'isFetching']),
+    ...mapGetters('customSearch', ['keywordApiUrl']),
   },
   data() {
     return {
@@ -242,7 +243,7 @@ export default {
     };
   },
   methods: {
-    ...call('customSearch', ['getKeywordResults']),
+    ...mapActions('customSearch', ['getKeywordResults']),
     onShouldDisplayLongTermAvgData(limitationId) {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
       this.$router.push('/results/limitations/long-term-average');

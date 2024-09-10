@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { make } from 'vuex-pathify';
 
 const state = {
   cfrResults: null,
@@ -8,14 +7,9 @@ const state = {
   isFetching: false,
 };
 
-const getters = {
-  ...make.getters(state),
-};
+const getters = {};
 
-const mutations = {
-  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_RESULTS"
-  ...make.mutations(state),
-};
+const mutations = {};
 
 const actions = {
   async getCfrResults({ commit }, pscId) {

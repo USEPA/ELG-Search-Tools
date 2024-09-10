@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { make } from 'vuex-pathify';
 
 const state = {
   pointSourceCategoryCode: null,
@@ -19,7 +18,6 @@ const state = {
 };
 
 const getters = {
-  ...make.getters(state),
   treatmentLimitationsApiUrl(state, getters, rootState) {
     let url = 'api/treatmentTechnologyLimitations';
     const params = {
@@ -39,8 +37,6 @@ const getters = {
 };
 
 const mutations = {
-  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_LIMITATION_DATA"
-  ...make.mutations(state),
   SET_PSC(state, payload) {
     if (payload) {
       state.pointSourceCategoryCode = payload.pointSourceCategoryCode;

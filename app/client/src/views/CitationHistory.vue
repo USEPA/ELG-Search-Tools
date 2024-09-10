@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
 import LoadingIndicator from '@/components/shared/LoadingIndicator.vue';
@@ -57,7 +57,7 @@ export default {
     };
   },
   computed: {
-    ...get('aboutCfr', ['isFetching', 'cfrResults', 'cfrCitationHistory']),
+    ...mapState('aboutCfr', ['isFetching', 'cfrResults', 'cfrCitationHistory']),
     rows() {
       return this.cfrCitationHistory.map((row) => ({
         ...row,
