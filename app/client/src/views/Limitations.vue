@@ -7,8 +7,8 @@
     >
   </section>
   <section v-else class="section">
-    <div class="columns elg-breadcrumbs-container">
-      <div class="column">
+    <div class="elg-breadcrumbs-container">
+      <div>
         <Breadcrumbs
           :pages="[
             { title: 'Search', path: '/' },
@@ -17,8 +17,8 @@
           ]"
         />
       </div>
-      <div class="column">
-        <router-link to="/results" class="button has-text-white is-pulled-right">
+      <div>
+        <router-link to="/results" class="usa-button usa-button--unstyled">
           <span class="fa fa-reply has-text-white"></span>Back to Results
         </router-link>
       </div>
@@ -49,7 +49,7 @@
         Subpart {{ subcategoryData.comboSubcategory }}
       </h3>
     </div>
-    <div v-if="subcategoryData" class="info-box-container message">
+    <Alert v-if="subcategoryData" type="">
       <div class="message-body">
         <p><span class="has-text-weight-bold">CFR Section:</span> {{ limitationData.cfrSection }}</p>
         <p><span class="has-text-weight-bold">Level of Control:</span> {{ limitationData.controlTechnologyCode }}</p>
@@ -59,7 +59,7 @@
           <span v-html="limitationData.secondary"></span>
         </p>
       </div>
-    </div>
+    </Alert>
     <DownloadLink
       v-if="subcategoryData"
       title="Limitations"
@@ -75,7 +75,7 @@
         <span v-else>--</span>
       </template>
     </Table>
-    <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom:1.5rem">
+    <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom: 1.5rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
       "No data available" will be noted. Filters can be used to limit the data displayed in the results. To remove the
       filter, select the criteria a second time.
@@ -294,7 +294,7 @@ button {
   margin-bottom: 0.75rem;
 }
 
-a.button {
+a.usa-button {
   margin-bottom: 0;
 }
 
@@ -304,10 +304,6 @@ a.button {
 
 label {
   margin-left: 0 !important;
-}
-
-.is-checkradio[type='checkbox'] + label {
-  cursor: auto;
 }
 
 .poll-limitation-container {

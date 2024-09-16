@@ -1,36 +1,32 @@
 <template>
   <div class="table-container">
-    <BTable
+    <UsTable
       :class="`${filterableFields.length ? 'filter-table' : ''}`"
-      :fields="tableColumns"
-      :items="filtered"
-      :sticky-header="height"
-      :busy.sync="isBusy"
-      :striped="true"
-      :responsive="true"
-      :show-empty="true"
-      :empty-text="emptyText"
-      :per-page="perPage"
-      :api-url.sync="apiUrl"
-      :current-page.sync="currentPage"
-      :sort-by.sync="sortBy"
-      :sort-desc.sync="sortDesc"
+      :columns="tableColumns"
+      :rows="filtered"
+      :rowProvider="useServerData ? rows : null"
+      :height="height"
+      :busy="isBusy"
+      :emptyText="emptyText"
+      :perPage="perPage"
+      :apiUrl="apiUrl"
+      :defaultSort="sortBy"
       @sort-changed="sortChanged"
     >
-      <template slot="empty">
+      <div slot="empty">
         <div v-if="isBusy" class="text-center">
           <LoadingIndicator />
         </div>
         <div v-else class="text-center">
           {{ emptyText }}
         </div>
-      </template>
+      </div>
 
       <!-- Hard-coded slots that are on multiple instances of table -->
-      <template v-slot:head(limitationUnitBasis)="{ label }">
-        {{ label }}
+      <template v-slot:head(limitationUnitBasis)="{ field }">
+        {{ field.label }}
         <button
-          class="button is-text icon-btn"
+          class="usa-button is-text icon-btn"
           aria-label="View limitation unit basis info"
           @click.stop="
             openModal(
@@ -42,10 +38,10 @@
           <span class="fa fa-info-circle"></span>
         </button>
       </template>
-      <template v-slot:head(goToLta)="{ label }">
-        {{ label }}
+      <template v-slot:head(goToLta)="{ field }">
+        {{ field.label }}
         <button
-          class="button is-text icon-btn"
+          class="usa-button is-text icon-btn"
           aria-label="View long term average info"
           @click.stop="openModal('', 'If no LTA data are available for the pollutant, no link will be shown.')"
         >
@@ -92,7 +88,7 @@
           <span v-else>{{ item.alternateLimitFlag }} {{ item.limitationValue }}</span>
           <span v-if="item.typoFlagLimitationValue">
             <button
-              class="button is-text icon-btn"
+              class="usa-button is-text icon-btn"
               aria-label="Click to view limitaiton value flag"
               @click="shouldDisplayTypoFlagLimitationValue = index"
               title="Click to view limitation value flag"
@@ -125,7 +121,7 @@
       <template v-slot:cell(limitationDurationTypeDisplay)="{ index, item }">
         {{ item.limitationDurationTypeDisplay }}
         <button
-          class="button is-text icon-btn"
+          class="usa-button is-text icon-btn"
           aria-label="Click to view Description"
           @click="shouldDisplayLimitationType = index"
           title="Click to view Description"
@@ -163,16 +159,13 @@
         </Modal>
       </template>
 
-      <!-- Pass on all named slots -->
-      <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot" />
-
-      <!-- Pass on all scoped slots -->
-      <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
-        <slot :name="slot" v-bind="scope" />
+      <!-- Passthrough all slots and their data scope if applicable -->
+      <template v-for="(_, name) in $slots" v-slot:[name]="slotData">
+        <slot :name="name" v-bind="slotData" />
       </template>
 
       <!-- Custom Filters row -->
-      <template v-if="filterableFields.length" #top-row="{fields}">
+      <template v-if="filterableFields.length" #top-row="{ fields }">
         <td v-for="field in fields" :key="field.key">
           <VueSelect
             v-if="filterableFields.map((f) => f.key).includes(field.key)"
@@ -180,7 +173,9 @@
             :options="getFilterOptions(field)"
             :placeholder="`Filter` /* `Select ${field.label}` */"
             class="table-filter"
-          />
+          >
+            <template #no-options>No available options.</template>
+          </VueSelect>
         </td>
       </template>
 
@@ -188,15 +183,15 @@
         <span v-if="value === null || value === ''">--</span>
         <span v-else>{{ value }}</span>
       </template>
-    </BTable>
+    </UsTable>
 
-    <BPagination
+    <!-- <BPagination
       v-if="perPage && totalRows > perPage"
       v-model="currentPage"
       :total-rows="totalRows"
       :per-page="perPage"
       :limit="11"
-    />
+    /> -->
 
     <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
       <p class="has-text-left">
@@ -207,7 +202,7 @@
 </template>
 
 <script>
-import { BTable, BPagination } from 'bootstrap-vue';
+import { UsTable } from 'hsrp-components';
 import HoverText from './HoverText.vue';
 import Modal from './Modal.vue';
 import LoadingIndicator from './LoadingIndicator.vue';
@@ -248,7 +243,7 @@ export default {
       type: String,
     },
   },
-  components: { BTable, BPagination, HoverText, Modal, LoadingIndicator },
+  components: { UsTable, HoverText, Modal, LoadingIndicator },
   data() {
     return {
       sortBy: this.defaultSort || '',
@@ -346,8 +341,8 @@ export default {
       this.filterValues = filters;
     },
     positionFilterRow() {
-      const head = document.querySelector('.b-table thead tr th');
-      const filterCells = document.querySelectorAll('.b-table-top-row td');
+      const head = document.querySelector('.usa-table thead tr th');
+      const filterCells = document.querySelectorAll('.top-row td');
       for (let i = 0; i < filterCells.length; i += 1) {
         filterCells[i].style.top = `${head.offsetHeight - 2}px`;
       }
@@ -382,7 +377,110 @@ export default {
 <style lang="scss" scoped>
 @import '../../../static/variables';
 .table-container {
-  ::v-deep {
+  :deep() {
+    .usa-table-container--responsive {
+      overflow: auto;
+      border: 1px solid #dfe1e2;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    table.usa-table {
+      margin: 0;
+      font-size: 0.93rem;
+      border-collapse: separate;
+      min-width: 100%;
+
+      &.usa-table--compact {
+        font-size: 0.87rem;
+
+        & th {
+          padding-top: 0.5rem;
+          padding-bottom: 0.5rem;
+        }
+      }
+
+      th,
+      td {
+        text-align: center;
+        vertical-align: middle;
+
+        .usa-button {
+          position: relative;
+          z-index: 9;
+          width: auto;
+        }
+
+        &.text-left {
+          text-align: left;
+        }
+        &.text-right {
+          text-align: right;
+        }
+      }
+
+      thead th {
+        position: sticky;
+        top: 0;
+        border: none;
+        border-right: 1px solid #c9c9c9;
+        border-bottom: 1px solid #c9c9c9;
+        z-index: 99;
+
+        &:last-child {
+          border-right: none;
+        }
+
+        &:not([aria-sort]) {
+          background: #dfe1e2;
+        }
+      }
+
+      td {
+        border: none;
+
+        & > span {
+          display: block;
+          // max-width: 300px;
+        }
+      }
+
+      & th[data-sortable] {
+        padding-right: 1.5rem;
+      }
+
+      & th[data-sortable] .usa-table__header__button {
+        position: absolute;
+        background: none;
+        border: none;
+        top: 0;
+        left: 1px;
+        width: calc(100% - 2px);
+        height: calc(100% - 2px);
+        text-align: right;
+        padding-right: 0.5rem;
+        word-wrap: normal;
+        transform: none;
+        cursor: pointer;
+      }
+
+      .no-data-message > td {
+        background-color: #fff;
+        text-align: center;
+        padding: 0.5rem;
+        border: 1px solid #dfe1e2;
+        border-top: none;
+      }
+
+      &[aria-busy='true'] {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  :deep() {
     .b-table-sticky-header {
       overflow: auto;
       border-bottom: 1px solid #f1f1f1;
@@ -393,24 +491,21 @@ export default {
         top: -1px;
       }
     }
-    .b-table-top-row {
+    .top-row {
       td {
         // padding: 0 5px 5px 5px !important;
         padding: 0 !important;
         border-bottom: 1px solid #ddd !important;
         // border-right: 1px solid #fff !important;
-        background-color: #f1f1f1;
+        background-color: #dfe1e2;
         position: sticky;
         top: 0;
-        z-index: 1;
+        z-index: 99;
       }
     }
     .filter-table th {
       border-bottom: none !important;
     }
-    // .filter-table th {
-    //   padding-bottom: 0 !important;
-    // }
     .b-table {
       width: 100%;
       font-size: 0.95rem;
@@ -455,52 +550,19 @@ export default {
         opacity: 0.55;
       }
     }
-    .b-pagination {
-      margin: 1rem 0 0 0;
-      display: flex;
-      padding-left: 0;
-      list-style: none;
-      border-radius: 0.25rem;
-      justify-content: flex-start;
-      .page-item.disabled .page-link {
-        color: #6c757d;
-        pointer-events: none;
-        cursor: auto;
-        background-color: #fff;
-        border-color: #dee2e6;
-      }
-      .page-item:first-child .page-link {
-        margin-left: 0;
-        border-top-left-radius: 0.25rem;
-        border-bottom-left-radius: 0.25rem;
-      }
-      .page-item.active .page-link {
-        z-index: 3;
-        color: #fff;
-        background-color: #0071bc;
-        border-color: #0071bc;
-      }
-      .page-link {
-        position: relative;
-        display: block;
-        padding: 0.5rem 0.75rem;
-        margin-left: -1px;
-        margin-bottom: 0;
-        line-height: 1.25;
-        color: #0071bc;
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        border-radius: 0;
-      }
-      .page-link {
-        max-width: inherit;
-      }
-    }
 
     .v-select {
       margin-bottom: 0;
       border-left: 1px solid #fff;
       border-right: 1px solid #fff;
+
+      .vs__search {
+        width: 0;
+      }
+
+      .vs__dropdown-toggle {
+        height: auto;
+      }
 
       .vs__selected {
         max-width: 5px;

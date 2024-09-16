@@ -6,8 +6,8 @@
       that contain all keywords. The Keyword Search results present the pollutant limitations associated with the
       criteria.
     </Alert>
-    <form class="columns" @submit="getResults($event)">
-      <div class="column">
+    <form class="grid-row grid-gap-2" @submit="getResults($event)">
+      <div class="grid-col-10">
         <label for="keywords">Keywords</label>
         <div class="field has-addons">
           <div class="control is-expanded">
@@ -20,28 +20,45 @@
               required
               @option:created="keywordAdded"
             >
-              <template #search="{attributes, events}">
-                <input id="keywords" class="vs__search" :required="!keyword" v-bind="attributes" v-on="events" />
+              <template #search="{ attributes, events }">
+                <input v-bind="attributes" id="keywords" class="vs__search" :required="!keyword" v-on="events" />
               </template>
             </VueSelect>
           </div>
           <div class="control">
-            <button type="submit" class="button is-dark is-medium">
+            <button type="submit" class="usa-button is-dark is-medium">
               <span :class="`fa has-text-white ${false ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
               Search
             </button>
           </div>
         </div>
       </div>
-      <div class="column is-2">
+      <div class="grid-col-2">
         <label for="">Operator</label>
         <div class="field">
           <div class="control radios">
-            <input id="operatorOR" name="operator" type="radio" value="OR" v-model="operator" />
-            <label for="operatorOR">OR</label>
-
-            <input id="operatorAND" name="operator" type="radio" value="AND" v-model="operator" />
-            <label for="operatorAND">AND</label>
+            <div class="usa-radio">
+              <input
+                class="usa-radio__input"
+                id="operatorOR"
+                name="operator"
+                type="radio"
+                value="OR"
+                v-model="operator"
+              />
+              <label class="usa-radio__label" for="operatorOR">OR</label>
+            </div>
+            <div class="usa-radio">
+              <input
+                class="usa-radio__input"
+                id="operatorAND"
+                name="operator"
+                type="radio"
+                value="AND"
+                v-model="operator"
+              />
+              <label class="usa-radio__label" for="operatorAND">AND</label>
+            </div>
           </div>
         </div>
       </div>
@@ -84,11 +101,20 @@ label {
   font-weight: bold;
 }
 
+.radios {
+  // display: flex;
+
+  // .usa-radio {
+  //   display: inline-block;
+  //   margin-right: 0.5rem;
+  // }
+}
+
 .radios label {
   font-weight: normal;
 }
 
-.button {
+.usa-button {
   margin-bottom: 0;
 }
 

@@ -1,20 +1,16 @@
 <template>
   <div>
-    <div class="columns">
-      <div class="column">
-        <div class="info-box-container message">
-          <div class="message-body">
-            <p><strong>Pollutant(s):</strong> {{ categoryData.pollutants }}</p>
-          </div>
+    <div class="grid-row info-boxes">
+      <Alert class="grid-col" type="">
+        <div class="message-body">
+          <p><strong>Pollutant(s):</strong> {{ categoryData.pollutants }}</p>
         </div>
-      </div>
-      <div class="column">
-        <div class="info-box-container message">
-          <div class="message-body">
-            <p><strong>Treatment Technology(ies):</strong> {{ categoryData.technologyNames }}</p>
-          </div>
+      </Alert>
+      <Alert class="grid-col" type="">
+        <div class="message-body">
+          <p><strong>Treatment Technology(ies):</strong> {{ categoryData.technologyNames }}</p>
         </div>
-      </div>
+      </Alert>
     </div>
     <div class="psc-select">
       <label class="sr-only" for="subcategory">Subpart</label>
@@ -36,7 +32,7 @@
         operations/wastestream requirements.
       </HoverText>
     </div>
-    <Alert v-if="subcategoryData" type="info" style="margin-bottom:1.25rem">
+    <Alert v-if="subcategoryData" type="info" style="margin-bottom: 1.25rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
       "No data available" will be noted.
     </Alert>
@@ -48,7 +44,7 @@
         <div :key="controlTechnology.id" class="tab-content">
           <div class="field is-grouped">
             <div class="control is-expanded">
-              <h3 class="is-size-6  has-text-weight-semibold">
+              <h3 class="is-size-6 has-text-weight-semibold">
                 {{ controlTechnology.controlTechnologyDescription }} ({{ controlTechnology.controlTechnologyCode }}) at
                 a Glance
               </h3>
@@ -62,21 +58,17 @@
               >
             </div>
           </div>
-          <div class="columns">
-            <div class="column" v-if="controlTechnology.pollutants.length">
-              <div class="info-box-container message">
-                <div class="message-body">
-                  <p><strong>Pollutant(s):</strong> {{ controlTechnology.pollutants }}</p>
-                </div>
+          <div class="grid-row info-boxes">
+            <Alert type="" class="grid-col" v-if="controlTechnology.pollutants.length">
+              <div class="message-body">
+                <p><strong>Pollutant(s):</strong> {{ controlTechnology.pollutants }}</p>
               </div>
-            </div>
-            <div class="column" v-if="controlTechnology.technologyNames.length">
-              <div class="info-box-container message">
-                <div class="message-body">
-                  <p><strong>Treatment Technology(ies):</strong> {{ controlTechnology.technologyNames }}</p>
-                </div>
+            </Alert>
+            <Alert type="" class="grid-col" v-if="controlTechnology.technologyNames.length">
+              <div class="message-body">
+                <p><strong>Treatment Technology(ies):</strong> {{ controlTechnology.technologyNames }}</p>
               </div>
-            </div>
+            </Alert>
           </div>
           <Table
             v-if="controlTechnology.wastestreamProcesses"
@@ -87,10 +79,10 @@
             :emptyText="tableEmptyText"
           >
             <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`head(${fieldKey})`]="data">
-              {{ data.label }}
+              {{ data.field.label }}
               <button
                 :key="fieldKey"
-                class="button is-text icon-btn"
+                class="usa-button is-text icon-btn"
                 @click="openModal(data.label, headerDescriptions[fieldKey])"
               >
                 <span class="fa fa-info-circle"></span>
@@ -109,16 +101,14 @@
               <span v-if="item.alternativeRequirement" class="fa fa-check has-text-success" />
               <span v-else-if="!item.alternativeRequirement && item.voluntaryRequirement">
                 <span class="fa fa-check has-text-success" />
-                <HoverText :id="`vipHover${index}`" :linkText="'(VIP)'">
-                  Voluntary Incentives Program
-                </HoverText>
+                <HoverText :id="`vipHover${index}`" :linkText="'(VIP)'"> Voluntary Incentives Program </HoverText>
               </span>
               <span v-else>--</span>
             </template>
             <template v-slot:cell(title)="{ index, item }">
               {{ item.title }}
               <button
-                class="button is-text icon-btn"
+                class="usa-button is-text icon-btn"
                 @click="shouldDisplayLimitationType = index"
                 title="Click to view Description"
               >
@@ -130,9 +120,7 @@
                   <div class="cfr-link is-pulled-right">
                     <a
                       title="Electronic Code of Federal Regulations"
-                      :href="
-                        `https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.${selectedCategory.pointSourceCategoryCode}#se40.31.${item.cfrSectionAnchor}`
-                      "
+                      :href="`https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.${selectedCategory.pointSourceCategoryCode}#se40.31.${item.cfrSectionAnchor}`"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -350,11 +338,7 @@ label {
 }
 
 section p {
-  padding-bottom: 0 !important;
-}
-
-.is-checkradio[type='checkbox'] + label {
-  cursor: auto;
+  margin-bottom: 0 !important;
 }
 
 .psc-icon {

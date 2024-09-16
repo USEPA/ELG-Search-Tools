@@ -14,11 +14,20 @@ import Modal from './components/shared/Modal.vue';
 import LoadingIndicator from './components/shared/LoadingIndicator.vue';
 import HoverText from './components/shared/HoverText.vue';
 
+// Import USWDS JS for sitewide gov banner
+import { accordion, banner } from '@uswds/uswds/src/js/components';
+
 // Initialize Vue app and link to router and store
 const app = createApp(App);
 app.use(router);
 app.use(store);
 
+// Activate sitewide gov banner toggle
+const bannerEl = document.querySelector('.usa-banner');
+accordion.on(bannerEl);
+banner.on(bannerEl);
+
+// Register global components for use throughout app
 app
   .component('VueSelect', VueSelect)
   .component('Alert', Alert)
@@ -28,8 +37,7 @@ app
   .component('HoverText', HoverText);
 
 // Set up axios
-axios.defaults.baseURL =
-  import.meta.env.MODE === 'prod' ? `${window.location.origin}/elg` : import.meta.env.VITE_APP_BASE_URL;
+axios.defaults.baseURL = import.meta.env.MODE === 'prod' ? `${window.location.origin}/elg` : '';
 
 // Need to set these headers to no-cache to fix IE11 issue where new requests are not sent
 axios.defaults.headers.common['Cache-Control'] = 'no-cache';

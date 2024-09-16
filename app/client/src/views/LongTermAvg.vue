@@ -1,7 +1,7 @@
 <template>
   <section class="section">
-    <div class="columns elg-breadcrumbs-container">
-      <div class="column">
+    <div class="elg-breadcrumbs-container">
+      <div>
         <Breadcrumbs
           :pages="[
             { title: 'Search', path: '/' },
@@ -11,16 +11,14 @@
           ]"
         />
       </div>
-      <div class="column">
-        <a @click="$router.go(-1)" class="button has-text-white is-pulled-right">
+      <div>
+        <a @click="$router.go(-1)" class="usa-button usa-button--unstyled">
           <span class="fa fa-reply has-text-white"></span>Back to Limitations
         </a>
       </div>
     </div>
     <div class="elg-header-container">
-      <h2 class="is-size-4 has-text-weight-bold page-heading">
-        Long-Term Averages
-      </h2>
+      <h2 class="is-size-4 has-text-weight-bold page-heading">Long-Term Averages</h2>
     </div>
     <Alert v-if="!longTermAvgData && !isFetching" type="error">
       You must come to this page from a results page.
@@ -31,7 +29,7 @@
       mean of the underlying statistical distribution of the daily effluent values used to calculate numeric pollutant
       limitations.
     </Alert>
-    <div v-if="longTermAvgData" class="info-box-container message">
+    <Alert v-if="longTermAvgData" type="">
       <div class="message-body">
         <p v-if="selectedTreatmentTrain !== null">
           <span class="has-text-weight-bold">Treatment Train:</span> {{ selectedTreatmentTrain.names }}
@@ -54,7 +52,7 @@
         </p>
         <p><span class="has-text-weight-bold">Pollutant:</span> {{ longTermAvgData.pollutantDescription }}</p>
       </div>
-    </div>
+    </Alert>
     <DownloadLink
       v-if="longTermAvgData"
       title="Long Term Averages"
@@ -64,7 +62,7 @@
       <template v-slot:cell(treatmentTechnologyNames)="{ item }">
         {{ item.treatmentTechnologyNames }}
         <button
-          class="button is-text icon-btn"
+          class="usa-button is-text icon-btn"
           @click="
             openModal(
               'Treatment Train Notes',

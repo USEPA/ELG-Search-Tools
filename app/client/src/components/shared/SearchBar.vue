@@ -6,11 +6,11 @@
       time to load.
     </p>
 
-    <ul class="columns tabs aq-tabs">
+    <ul class="grid-row tabs aq-tabs">
       <li
         v-for="option in searchTypes"
         :key="option.id"
-        :class="`column ${searchType === option.id ? 'is-active' : ''}`"
+        :class="`grid-col ${searchType === option.id ? 'is-active' : ''}`"
       >
         <button @click="toggleSearchType(option.id)">
           {{ option.label }}
@@ -30,8 +30,8 @@
 
       <MultiCriteria v-if="searchType === 'multiCriteria'" />
       <Keyword v-else-if="searchType === 'keyword'" />
-      <div v-else class="columns">
-        <div class="column">
+      <div v-else class="grid-row grid-gap">
+        <div class="grid-col">
           <label>{{ searchTypeObject.label }}</label>
           <div class="field has-addons">
             <div class="control is-expanded">
@@ -61,7 +61,7 @@
             </div>
             <div class="control">
               <button
-                class="button search-btn is-dark is-medium"
+                class="usa-button search-btn is-dark is-medium"
                 @click="onSubmit"
                 :title="isFetching ? 'Loading...' : !currentSearchValue ? 'Select an option to search' : 'Search'"
                 :disabled="!currentSearchValue"
@@ -73,7 +73,7 @@
           </div>
         </div>
 
-        <div class="column">
+        <div class="grid-col">
           <label v-if="searchType === 'treatmentTech'">Treatment Technology Category</label>
           <div v-if="searchType === 'treatmentTech'" class="field has-addons">
             <div class="control is-expanded">
@@ -88,14 +88,14 @@
             </div>
             <div class="control">
               <button
-                class="button is-dark is-medium"
+                class="usa-button is-dark is-medium"
                 @click="onSubmitTreatmentCategory"
                 :title="
                   isFetching
                     ? 'Loading...'
                     : !selectedTreatmentTechnologyCategory
-                    ? 'Select an option to search'
-                    : 'Search'
+                      ? 'Select an option to search'
+                      : 'Search'
                 "
                 :disabled="!selectedTreatmentTechnologyCategory"
               >
@@ -111,7 +111,7 @@
             Pollutant Category
             <button
               type="button"
-              class="button is-text icon-btn"
+              class="usa-button is-text icon-btn"
               aria-label="More Info"
               @click="shouldDisplayPollCatDescriptions = true"
             >
@@ -132,7 +132,7 @@
             </div>
             <div class="control">
               <button
-                class="button is-dark is-medium"
+                class="usa-button is-dark is-medium"
                 @click="onSubmitPollutantCategory"
                 :title="
                   isFetching ? 'Loading...' : !selectedPollutantCategory ? 'Select an option to search' : 'Search'
@@ -225,14 +225,12 @@ export default {
       isFetchingSecondary: false,
       shouldDisplayPollCatDescriptions: false,
       pollCatDescriptions: {
-        '1': 'All 126 pollutants that EPA currently defines as priority pollutants.',
-        '2':
-          'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
-        '3': 'Parameters include phosphorus and phosphate.',
-        '4': 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, pH, and oil & grease.',
-        '5': 'Suspended and settable solids.',
-        '6':
-          'All metals parameters, including hexavalent or trivalent metals and metals in ionic form (e.g., hexavalent chromium and aluminum, ion) and metals on the CWA priority pollutant list. Excludes metal compounds (e.g., calcium chloride).',
+        1: 'All 126 pollutants that EPA currently defines as priority pollutants.',
+        2: 'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
+        3: 'Parameters include phosphorus and phosphate.',
+        4: 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, pH, and oil & grease.',
+        5: 'Suspended and settable solids.',
+        6: 'All metals parameters, including hexavalent or trivalent metals and metals in ionic form (e.g., hexavalent chromium and aluminum, ion) and metals on the CWA priority pollutant list. Excludes metal compounds (e.g., calcium chloride).',
       },
     };
   },
@@ -349,7 +347,7 @@ export default {
 @import '../../../static/variables';
 
 .instructional-text {
-  padding-bottom: 1rem;
+  margin-top: 1rem;
 
   .fa-info-circle {
     color: $darkBlue;
@@ -359,14 +357,20 @@ export default {
 }
 
 ul.tabs.aq-tabs {
-  margin-bottom: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
   border-bottom: 2px solid $blue;
 
   li {
+    margin: 0;
     padding: 0 0.5rem 0 0;
 
     button {
+      font-weight: bold;
+      border: none;
       margin-right: 0;
+      cursor: pointer;
     }
 
     &:last-child {
@@ -403,12 +407,12 @@ ul.tabs.aq-tabs {
   margin-bottom: 0.75rem;
 }
 
-.button {
+.usa-button {
   height: 100%;
   margin-bottom: 0;
 }
 
-.button[disabled] {
+.usa-button[disabled] {
   background-color: gray;
 }
 
@@ -416,11 +420,6 @@ label {
   display: block;
   margin-bottom: 0.25rem;
   font-weight: bold;
-}
-
-.content ul {
-  margin-top: 0;
-  padding-left: 0;
 }
 
 .poll-cat-desc {

@@ -3,8 +3,8 @@
     <LoadingIndicator v-if="isFetching" message="Loading..." />
     <Alert v-if="noPscPassed" type="error" message="No Point Source Category has been selected." />
     <div v-if="cfrResults">
-      <div class="columns elg-breadcrumbs-container">
-        <div class="column">
+      <div class="elg-breadcrumbs-container">
+        <div>
           <Breadcrumbs
             :pages="[
               { title: 'Search', path: '/' },
@@ -13,8 +13,8 @@
             ]"
           />
         </div>
-        <div class="column">
-          <router-link to="/results" class="button has-text-white is-pulled-right">
+        <div>
+          <router-link to="/results" class="usa-button usa-button--unstyled">
             <span class="fa fa-reply"></span>Back to Results
           </router-link>
         </div>
@@ -33,8 +33,8 @@
         tabs to view the CFR text of interest. If there is no applicability text in the CFR, ’No Data Available’ will be
         noted.
       </Alert>
-      <div class="columns">
-        <div class="column">
+      <div class="grid-row grid-gap-2">
+        <div class="grid-col">
           <div class="info-box-container message">
             <div class="message-body">
               <p>
@@ -46,19 +46,19 @@
                 {{ cfrResults.mostRecentRevisionDate }}
               </p>
               <p>
-                <button class="button is-hyperlink" @click="() => (shouldDisplayNaicsModal = true)">
+                <button class="usa-button is-hyperlink" @click="() => (shouldDisplayNaicsModal = true)">
                   Industry NAICS Codes
                 </button>
               </p>
               <p>
-                <button class="button is-hyperlink" @click="() => (shouldDisplaySicModal = true)">
+                <button class="usa-button is-hyperlink" @click="() => (shouldDisplaySicModal = true)">
                   Industry SIC Codes
                 </button>
               </p>
             </div>
           </div>
         </div>
-        <div class="cfr-link column">
+        <div class="cfr-link grid-col">
           <router-link
             :to="{
               path: '/results/about-cfr/citation-history',

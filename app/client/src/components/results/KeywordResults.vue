@@ -2,121 +2,115 @@
   <div>
     <LoadingIndicator v-if="isFetching" />
 
-    <div v-else-if="keywordResults">
-      <div class="message is-slim">
-        <div class="message-body content">
+    <div v-if="keywordResults">
+      <div class="info-boxes">
+        <Alert type="" :isSlim="true">
           <strong>Keywords:</strong>
           {{ keyword.join(', ') }}
-        </div>
+        </Alert>
       </div>
 
       <h3 class="is-size-5 has-text-weight-bold">
         Summary of Keyword Hits
-        <HoverText hoverId="keywordHitsInfo" :icon="true">
+        <HoverText hoverId="keywordHitsInfo" :icon="true" class="font-sans-sm">
           Keyword hits are summarized by type of information stored in the ELG Database. The Keyword Results Table
           presents the pollutant limitation results associated with the keyword search.
         </HoverText>
       </h3>
-      <div class="columns is-multiline keyword-hits">
-        <div class="column is-6">
+      <div class="grid-row info-boxes is-multiline keyword-hits">
+        <div class="grid-col-6">
           <strong>
             Point Source Category(ies):
             <HoverText hoverId="pscKeywordInfo" :icon="true">
               Keyword found in point source category title, subcategory title, or applicability statements.
             </HoverText>
           </strong>
-          <div class="info-box-container message">
-            <div class="message-body content">
-              <p v-if="keywordResults.pointSourceCategories.length === 0">
-                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
-                Results Table.
-              </p>
-              <ul>
-                <li v-for="psc in keywordResults.pointSourceCategories" :key="psc.pointSourceCategoryCode">
-                  <!-- <button
-                  class="button is-hyperlink"
+          <Alert type="">
+            <p v-if="keywordResults.pointSourceCategories.length === 0">
+              No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+              Results Table.
+            </p>
+            <ul>
+              <li v-for="psc in keywordResults.pointSourceCategories" :key="psc.pointSourceCategoryCode">
+                <!-- <button
+                  class="usa-button is-hyperlink"
                   title="View Point Source Category Results"
                   @click="goToPscResults(psc)"
                 >
                   {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
                 </button> -->
-                  {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
-                </li>
-              </ul>
-            </div>
-          </div>
+                {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
+              </li>
+            </ul>
+          </Alert>
         </div>
-        <div class="column is-6">
+        <div class="grid-col-6">
           <strong>
             Process Operation(s)/Wastestream(s):
             <HoverText hoverId="processKeywordInfo" :icon="true">
               Keyword found in process operation/wastestream title, description, or narrative requirements.
             </HoverText>
           </strong>
-          <div class="info-box-container message">
-            <div class="message-body content">
-              <p v-if="keywordResults.wastestreamProcesses.length === 0">
-                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
-                Results Table.
-              </p>
-              <ul>
-                <li v-for="wp in keywordResults.wastestreamProcesses" :key="wp.id" v-html="wp.title"></li>
-              </ul>
-            </div>
-          </div>
+          <Alert type="">
+            <p v-if="keywordResults.wastestreamProcesses.length === 0">
+              No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+              Results Table.
+            </p>
+            <ul>
+              <li v-for="wp in keywordResults.wastestreamProcesses" :key="wp.id" v-html="wp.title"></li>
+            </ul>
+          </Alert>
         </div>
-        <div class="column is-6">
+        <div class="grid-col-6">
           <strong>
             Pollutant(s):
-            <HoverText hoverId="pollKeywordInfo" :icon="true">
-              Keyword found in limitation requirement.
-            </HoverText>
+            <HoverText hoverId="pollKeywordInfo" :icon="true"> Keyword found in limitation requirement. </HoverText>
           </strong>
-          <div class="info-box-container message">
-            <div class="message-body content">
-              <p v-if="keywordResults.pollutants.length === 0">
-                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
-                Results Table.
-              </p>
-              <ul>
-                <li v-for="poll in keywordResults.pollutants" :key="poll.pollutantId">
-                  {{ poll.pollutantDescription }}
-                </li>
-              </ul>
-            </div>
-          </div>
+          <Alert type="">
+            <p v-if="keywordResults.pollutants.length === 0">
+              No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+              Results Table.
+            </p>
+            <ul>
+              <li v-for="poll in keywordResults.pollutants" :key="poll.pollutantId">
+                {{ poll.pollutantDescription }}
+              </li>
+            </ul>
+          </Alert>
         </div>
-        <div class="column is-6">
+        <div class="grid-col-6">
           <strong>
             Treatment Technology(ies):
             <HoverText hoverId="treatmentKeywordInfo" :icon="true">
               Keyword found in treatment technology name or description.
             </HoverText>
           </strong>
-          <div class="info-box-container message">
-            <div class="message-body content">
-              <p v-if="keywordResults.treatmentTrains.length === 0">
-                No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
-                Results Table.
-              </p>
-              <ul>
-                <li v-for="train in keywordResults.treatmentTrains" :key="train.id">
-                  {{ train.names }}
-                </li>
-              </ul>
-            </div>
-          </div>
+          <Alert type="">
+            <p v-if="keywordResults.treatmentTrains.length === 0">
+              No keyword hits. See the pollutant limitation results associated with the keyword search in the Keyword
+              Results Table.
+            </p>
+            <ul>
+              <li v-for="train in keywordResults.treatmentTrains" :key="train.id">
+                {{ train.names }}
+              </li>
+            </ul>
+          </Alert>
         </div>
       </div>
     </div>
     <div>
       <h3 class="is-size-5 has-text-weight-bold table-header">
         Keyword Results Table
-        <HoverText hoverId="keywordResultsTableInfo" :icon="true">
+        <HoverText hoverId="keywordResultsTableInfo" :icon="true" class="font-sans-sm">
           The Keyword Results Table presents pollutant limitations associated with the criteria.
         </HoverText>
       </h3>
-      <DownloadLink title="Limitations" :url="keywordApiUrl" class="download-link" />
+      <DownloadLink
+        title="Limitations"
+        url="https://owapps-stage.app.cloud.gov/elg/api/keywordSearch?keyword=oil&operator=OR"
+        class="download-link"
+      />
       <Table
         class="keyword-table"
         :columns="limitationColumns"
@@ -125,11 +119,15 @@
         :perPage="100"
         :useServerPagination="true"
         :count="keywordResults ? keywordResults.count : 0"
-        :apiUrl="keywordApiUrl"
+        apiUrl="https://owapps.epa.gov/elg/api/keywordSearch?keyword=oil&operator=OR"
       >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
-          <button class="button is-text icon-btn" aria-label="View Process info" @click="shouldDisplayProcess = index">
+          <button
+            class="usa-button is-text icon-btn"
+            aria-label="View Process info"
+            @click="shouldDisplayProcess = index"
+          >
             <span class="fa fa-info-circle"></span>
           </button>
           <Modal v-if="shouldDisplayProcess === index" title="Description" @close="shouldDisplayProcess = false">
@@ -141,7 +139,7 @@
         <template v-slot:cell(treatmentNames)="{ index, item }">
           {{ item.treatmentNames }}
           <button
-            class="button is-text icon-btn"
+            class="usa-button is-text icon-btn"
             @click="shouldDisplayNotes = index"
             title="Click to view Treatment Train Notes"
             aria-label="Click to view Treatment Train Notes"
@@ -153,9 +151,9 @@
               <span
                 v-html="
                   item.wastestreamProcessTreatmentTechnologyNotes +
-                    (item.wastestreamProcessTreatmentTechnologySourceTitle
-                      ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
-                      : '')
+                  (item.wastestreamProcessTreatmentTechnologySourceTitle
+                    ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
+                    : '')
                 "
               />
             </p>
@@ -251,7 +249,7 @@ export default {
     async tableProvider(ctx) {
       try {
         const response = await this.$http.get(
-          `${ctx.apiUrl}&offset=${ctx.currentPage * ctx.perPage - 100}&sortCol=${ctx.sortBy}&sortDir=${
+          `${ctx.apiUrl}&offset=${ctx.currentPage * 100 - 100}&sortCol=${ctx.sortBy ?? ''}&sortDir=${
             ctx.sortDesc ? 'desc' : 'asc'
           }`
         );
@@ -289,7 +287,7 @@ h3 {
   clear: both;
 }
 
-.button {
+.usa-button {
   width: 100%;
   margin-top: 0.5rem;
 
@@ -316,7 +314,7 @@ a .fa {
 }
 
 section p {
-  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .keyword-hits {
@@ -343,7 +341,7 @@ section p {
     overflow: auto;
   }
 
-  .button {
+  .usa-button {
     display: inline-block;
     width: auto;
     font-size: 15px;
@@ -364,6 +362,22 @@ section p {
       margin-top: 0;
       font-size: 15px;
     }
+  }
+}
+
+.info-boxes {
+  .usa-alert--slim :deep(.usa-alert__body) {
+    padding-left: 0.5rem;
+  }
+
+  strong {
+    margin: 0 1rem;
+  }
+
+  .usa-alert {
+    font-size: 0.93rem;
+    max-height: 150px;
+    overflow: auto;
   }
 }
 </style>

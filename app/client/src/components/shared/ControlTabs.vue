@@ -1,24 +1,24 @@
 <template>
   <section>
-    <div class="columns control-tabs-container">
-      <div class="column is-6">
+    <div class="grid-row control-tabs-container">
+      <div class="grid-col-6">
         <p>Direct Discharge Requirements</p>
         <div class="is-divider direct"></div>
-        <ul class="columns tabs aq-tabs">
+        <ul class="grid-row tabs aq-tabs">
           <li
             v-for="(tab, index) in directTabs"
             :key="tab"
-            :class="`column ${tab === activeTab || (!activeTab && index === 0) ? 'is-active' : ''}`"
+            :class="`grid-col ${tab === activeTab || (!activeTab && index === 0) ? 'is-active' : ''}`"
           >
             <button :title="acronyms[tab]" @click="$emit('onTabClick', tab)">{{ tab }}</button>
           </li>
         </ul>
       </div>
-      <div class="column is-3">
+      <div class="grid-col-3">
         <p>Indirect Discharge Requirements</p>
         <div class="is-divider indirect"></div>
-        <ul class="columns tabs aq-tabs">
-          <li v-for="tab in indirectTabs" :key="tab" :class="`column ${tab === activeTab ? 'is-active' : ''}`">
+        <ul class="grid-row tabs aq-tabs">
+          <li v-for="tab in indirectTabs" :key="tab" :class="`grid-col ${tab === activeTab ? 'is-active' : ''}`">
             <button
               :class="tab === activeTab ? 'is-active' : ''"
               :title="acronyms[tab]"
@@ -29,7 +29,7 @@
           </li>
         </ul>
       </div>
-      <div class="column is-3 tabs aq-tabs"></div>
+      <div class="grid-col-3 tabs aq-tabs"></div>
     </div>
     <slot :name="activeTab ? activeTab : tabs[0]" />
   </section>
@@ -71,6 +71,7 @@ export default {
 
 .control-tabs-container {
   border-bottom: 2px solid $blue;
+  margin-bottom: 0.75rem;
 
   &.columns {
     margin-left: 0;
@@ -82,19 +83,24 @@ export default {
 
   p {
     font-size: 0.95rem;
+    margin-bottom: 0;
     padding-bottom: 0;
     text-align: center;
   }
 }
 
 .tabs.aq-tabs {
-  margin-bottom: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 
   li {
     min-width: 100px;
+    margin: 0;
     padding-right: 0.2rem;
 
     button {
+      font-weight: bold;
       background-color: $gray;
       color: #212121;
       justify-content: center;
@@ -102,11 +108,13 @@ export default {
       margin-bottom: 0;
       padding: 0.6rem 1.5rem;
       width: 100%;
+      border: none;
       border-radius: 0;
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
       white-space: inherit;
       line-height: inherit;
+      cursor: pointer;
 
       &:hover {
         background-color: darken($gray, 10);
