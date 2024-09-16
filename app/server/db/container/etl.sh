@@ -58,7 +58,7 @@ for src_table_name in "${TABLE_NAMES[@]}"; do
 
     # Export the data from the MDB file, replace the column names, and load the data into the PostgreSQL table.
     mkfifo "$PIPE"
-    mdb-export "$MDB" "$src_table_name" | sed "1c\\$(join_by , "${new_columns[@]}")" > "$PIPE" &
+    mdb-export "$MDB" "$src_table_name" | sed "1i\\$(join_by , "${new_columns[@]}")" > "$PIPE" &
     psql -c "COPY \"${SCHEMA}\".\"${dst_table_name}\" FROM STDIN WITH CSV HEADER" < "$PIPE"
     rm -f "$PIPE"
 done
