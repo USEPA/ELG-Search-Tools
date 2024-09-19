@@ -23,8 +23,8 @@
         average (LTA) an arrow will be displayed in the “Go to LTA” column. Click on this arrow to navigate to the
         long-term average information.
       </Alert>
-      <div class="columns">
-        <div class="column is-4">
+      <div class="grid-row grid-gap-2">
+        <div class="grid-col-4">
           <strong>
             <label for="categories">
               Point Source Categories ({{ treatmentTechnologyData.pointSourceCategories.length }})
@@ -50,7 +50,7 @@
             </template>
           </VueSelect>
         </div>
-        <div class="column is-4">
+        <div class="grid-col-4">
           <strong>
             <label for="pollutants">
               Pollutants ({{ treatmentTechnologyData.pollutants.length }})
@@ -69,7 +69,7 @@
             label="pollutantDescription"
           />
         </div>
-        <div class="column is-4">
+        <div class="grid-col-4">
           <strong>
             <label for="treatmentTrains">
               Treatment Trains ({{ treatmentTechnologyData.treatmentTrains.length }})
@@ -94,29 +94,23 @@
       <DownloadLink
         v-if="selectedTreatmentTechnologyCategory"
         title="Limitations"
-        :url="
-          `/api/treatmentTechnologyCategoryLimitations?id=${selectedTreatmentTechnologyCategory}&treatmentId=${selectedTreatmentTrain
-            .map((t) => t.id)
-            .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
-            .map((t) => t.pointSourceCategoryCode)
-            .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`
-        "
+        :url="`/api/treatmentTechnologyCategoryLimitations?id=${selectedTreatmentTechnologyCategory}&treatmentId=${selectedTreatmentTrain
+          .map((t) => t.id)
+          .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
+          .map((t) => t.pointSourceCategoryCode)
+          .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`"
       />
       <DownloadLink
         v-else
         title="Limitations"
-        :url="
-          `/api/treatmentTechnologyLimitations?id=${
-            treatmentTechnologyData.id
-          }&treatmentId=${selectedTreatmentTrain
-            .map((t) => t.id)
-            .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
-            .map((t) => t.pointSourceCategoryCode)
-            .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`
-        "
+        :url="`/api/treatmentTechnologyLimitations?id=${treatmentTechnologyData.id}&treatmentId=${selectedTreatmentTrain
+          .map((t) => t.id)
+          .join(';')}&pointSourceCategoryCode=${selectedTreatmentCategory
+          .map((t) => t.pointSourceCategoryCode)
+          .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`"
       />
     </div>
-    <div>
+    <div class="treatment-table">
       <Table
         :columns="limitationColumns"
         :rows="tableProvider"
@@ -128,7 +122,7 @@
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
           <button
-            class="button is-text icon-btn"
+            class="usa-button is-text icon-btn"
             aria-label="Click to view Process description"
             @click="shouldDisplayProcess = index"
           >
@@ -143,7 +137,7 @@
         <template v-slot:cell(treatmentNames)="{ index, item }">
           {{ item.treatmentNames }}
           <button
-            class="button is-text icon-btn"
+            class="usa-button is-text icon-btn"
             aria-label="Click to view Treatment Train Notes"
             @click="shouldDisplayNotes = index"
             title="Click to view Treatment Train Notes"
@@ -155,9 +149,9 @@
               <span
                 v-html="
                   item.wastestreamProcessTreatmentTechnologyNotes +
-                    (item.wastestreamProcessTreatmentTechnologySourceTitle
-                      ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
-                      : '')
+                  (item.wastestreamProcessTreatmentTechnologySourceTitle
+                    ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
+                    : '')
                 "
               />
             </p>
@@ -177,18 +171,19 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState, mapGetters } from 'vuex';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert.vue';
 import HoverText from '@/components/shared/HoverText.vue';
 import Table from '@/components/shared/Table.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { Alert, HoverText, Table, Modal, DownloadLink },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'selectedCategory',
       'subcategories',
       'subcategoryData',
@@ -198,10 +193,11 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
-    ...get('limitations', ['treatmentLimitationData', 'treatmentLimitationsApiUrl']),
-    ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedSubcategory']),
-    ...sync('limitations', [
+    ...mapState('limitations', ['treatmentLimitationData']),
+    ...mapGetters('limitations', ['treatmentLimitationsApiUrl']),
+    ...mapStatesToComputed('results', ['activeTab']),
+    ...mapStatesToComputed('search', ['selectedSubcategory']),
+    ...mapStatesToComputed('limitations', [
       'isFetching',
       'selectedTreatmentTrain',
       'selectedTreatmentCategory',
@@ -270,9 +266,10 @@ export default {
       this.$router.push('/results/limitations/long-term-average');
     },
     async tableProvider(ctx) {
+      console.log(ctx);
       try {
         const response = await this.$http.get(
-          `${ctx.apiUrl}&offset=${ctx.currentPage * ctx.perPage - 100}&sortCol=${ctx.sortBy}&sortDir=${
+          `${ctx.apiUrl}&offset=${ctx.currentPage * 100 - 100}&sortCol=${ctx.sortBy ?? ''}&sortDir=${
             ctx.sortDesc ? 'desc' : 'asc'
           }`
         );
@@ -310,7 +307,13 @@ export default {
 <style lang="scss" scoped>
 @import '../../../static/variables';
 
-.button {
+.treatment-table :deep() {
+  .usa-table {
+    width: unset !important;
+  }
+}
+
+.usa-button {
   width: 100%;
   margin-top: 0.5rem;
 
@@ -337,7 +340,7 @@ a .fa {
 }
 
 section p {
-  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .info-box-container {

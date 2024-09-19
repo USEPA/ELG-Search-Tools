@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div class="columns">
-      <div class="column">
-        <Alert type="info">
+    <div class="grid-row grid-gap-2">
+      <div class="grid-col">
+        <Alert type="info" class="display-inline-block">
           <p>
             Number of PSCs Referencing Pollutant{{ selectedPollutantCategory ? ' Category' : '' }}:
             {{ new Set(pollutantData.pscs.map((row) => row.pointSourceCategoryCode)).size }}
           </p>
         </Alert>
       </div>
-      <div class="column">
+      <div class="grid-col">
         <Alert v-if="!selectedPollutantCategory && pollutantData.ranges.length > 0" type="info">
           Range of Pollutant Limitations (Concentration):
           <HoverText hoverId="rangeInstructions" :icon="true">
@@ -27,21 +27,21 @@
         </Alert>
       </div>
     </div>
-    <div class="columns no-margin">
-      <div v-if="!selectedPollutantCategory" class="column">
+    <div class="grid-row grid-gap-2 no-margin">
+      <div v-if="!selectedPollutantCategory" class="grid-col">
         <button
           :disabled="selectedPscs.length === 0"
           :title="selectedPscs.length ? '' : 'You must select at least one PSC to compare'"
-          class="button is-hyperlink cfr-link"
+          class="usa-button is-hyperlink cfr-link"
           @click="navigateToLimitationsForMultiplePscs(pollutantData.pscs[0])"
         >
           <span class="fas fa-share-square" />Compare Limitations for Selected PSCs
         </button>
-        <HoverText hoverId="catInfo" :icon="true" style="margin-left:0.25rem">
+        <HoverText hoverId="catInfo" :icon="true" style="margin-left: 0.25rem">
           Select PSCs of interest in the first column below.
         </HoverText>
       </div>
-      <div class="column">
+      <div class="grid-col">
         <DownloadLink
           v-if="selectedPollutant"
           title="Limitations"
@@ -57,28 +57,28 @@
 
     <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData.pscs">
       <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`head(${fieldKey})`]="data">
-        {{ data.label }}
+        {{ data.field.label }}
         <button
           :key="fieldKey"
-          class="button is-text icon-btn"
-          @click="openModal(data.label, headerDescriptions[fieldKey])"
+          class="usa-button is-text icon-btn"
+          @click="openModal(data.field.label, headerDescriptions[fieldKey])"
         >
           <span class="fa fa-info-circle"></span>
         </button>
       </template>
       <template v-slot:cell(selectPsc)="{ item }">
-        <input
-          :id="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`"
-          class="table-checkbox"
-          type="checkbox"
-          :value="{ pollutantId: item.pollutantId, pointSourceCategoryCode: item.pointSourceCategoryCode }"
-          v-model="selectedPscs"
-        />
-        <label :for="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`">
-          <span class="sr-only">
-            Select Point Source Category and click "Compare PSCs" to view limitations.
-          </span>
-        </label>
+        <div class="usa-checkbox">
+          <input
+            :id="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`"
+            class="usa-checkbox__input table-checkbox"
+            type="checkbox"
+            :value="{ pollutantId: item.pollutantId, pointSourceCategoryCode: item.pointSourceCategoryCode }"
+            v-model="selectedPscs"
+          />
+          <label :for="`pollutant${item.pollutantId}-${item.pointSourceCategoryCode}`" class="usa-checkbox__label">
+            <span class="sr-only"> Select Point Source Category and click "Compare PSCs" to view limitations. </span>
+          </label>
+        </div>
       </template>
       <template v-slot:cell(pointSourceCategoryName)="{ item }">
         <a :href="item.pointSourceCategoryLinkUrl" target="_blank" rel="noopener noreferrer">
@@ -89,8 +89,21 @@
         <span v-if="value !== ''" v-html="value" />
         <span v-else>--</span>
       </template>
-      <template v-slot:head(rangeOfPollutantLimitations)="{ label }">
-        <BRow>
+      <template v-slot:head(rangeOfPollutantLimitations)="{ field }">
+        <table class="range-sub-table">
+          <thead>
+            <tr>
+              <th colspan="12">{{ field.label }}</th>
+            </tr>
+            <tr>
+              <th colspan="2" style="display: inline-block; float: none; width: 18%">Min</th>
+              <th colspan="2" style="display: inline-block; float: none; width: 18%">Max</th>
+              <th colspan="4" style="display: inline-block; float: none; width: 32%">Units</th>
+              <th colspan="4" style="display: inline-block; float: none; width: 32%">Type of Limitation</th>
+            </tr>
+          </thead>
+        </table>
+        <!-- <BRow>
           <BCol cols="12">{{ label }}</BCol>
         </BRow>
         <BRow>
@@ -98,11 +111,11 @@
           <BCol cols="2" style="display:inline-block; float: none; width: 17%">Max</BCol>
           <BCol cols="4" style="display:inline-block; float: none; width: 33%">Units</BCol>
           <BCol cols="4" style="display:inline-block; float: none; width: 33%">Type of Limitation</BCol>
-        </BRow>
+        </BRow> -->
       </template>
       <template v-slot:cell(rangeOfPollutantLimitations)="{ value, item }">
         <span v-if="value !== []">
-          <table>
+          <table class="usa-table" style="font-size: 0.87rem">
             <thead class="sr-only">
               <th>Min</th>
               <th>Max</th>
@@ -111,7 +124,7 @@
             </thead>
             <tbody>
               <tr v-for="(range, index) in value" :key="index">
-                <td style="width: 17%">
+                <td style="width: 18%">
                   <HoverText
                     v-if="
                       range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
@@ -132,7 +145,7 @@
                     {{ range.minimumLimitationValue }}
                   </span>
                 </td>
-                <td style="width: 17%">
+                <td style="width: 18%">
                   <HoverText
                     v-if="
                       range.alternateLimitFlag && range.alternateLimitFlag !== '<' && range.alternateLimitFlag !== '>='
@@ -153,10 +166,10 @@
                     {{ range.maximumLimitationValue }}
                   </span>
                 </td>
-                <td style="width: 33%">
+                <td style="width: 32%">
                   {{ range.limitationUnitCode }}
                 </td>
-                <td style="width: 33%">
+                <td style="width: 32%">
                   <HoverText
                     :hoverId="`unitsHover${item.pollutantId}-${item.pointSourceCategoryCode}-${index}`"
                     :linkText="range.limitationType"
@@ -186,17 +199,17 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
-import { BRow, BCol } from 'bootstrap-vue';
+import { mapState } from 'vuex';
 import HoverText from '@/components/shared/HoverText.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 import Table from '@/components/shared/Table.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
-  components: { HoverText, DownloadLink, Table, BRow, BCol },
+  components: { HoverText, DownloadLink, Table },
   computed: {
-    ...get('search', ['pollutantData', 'selectedPollutant', 'selectedPollutantCategory']),
-    ...sync('search', ['selectedPscs']),
+    ...mapState('search', ['pollutantData', 'selectedPollutant', 'selectedPollutantCategory']),
+    ...mapStatesToComputed('search', ['selectedPscs']),
   },
   data() {
     return {
@@ -229,7 +242,8 @@ export default {
           label: 'Range of Pollutant Limitations',
           displayAsHTML: true,
           sortable: false,
-          tdClass: 'align-top',
+          tdClass: 'align-top range-poll-cell',
+          thClass: 'range-poll-header',
         },
         {
           key: 'goToLimitations',
@@ -265,7 +279,8 @@ export default {
           label: 'Range of Pollutant Limitations',
           displayAsHTML: true,
           sortable: false,
-          tdClass: 'align-top',
+          tdClass: 'align-top range-poll-cell',
+          thClass: 'range-poll-header',
         },
         {
           key: 'goToLimitations',
@@ -326,9 +341,43 @@ export default {
 <style lang="scss" scoped>
 @import '../../../static/variables';
 
+:deep() {
+  th[aria-colindex='5'] {
+    padding: 0 !important;
+  }
+
+  .range-sub-table {
+    width: 100%;
+    margin: 0;
+    font-size: 0.87rem;
+
+    th {
+      border-bottom: 0 !important;
+    }
+  }
+
+  .range-poll-cell {
+    padding: 0;
+
+    td {
+      padding: 0.25rem;
+    }
+  }
+
+  .range-poll-cell tr:nth-child(even) td {
+    background-color: #ffffff;
+  }
+  .range-poll-cell tr:nth-child(odd) td {
+    background-color: #f0f0f0;
+  }
+}
+
 .table-checkbox {
-  height: 16px;
-  width: 16px;
+  & + label {
+    &::before {
+      left: calc(50% - 0.75rem);
+    }
+  }
 }
 
 .cfr-link {
@@ -353,11 +402,7 @@ label {
 }
 
 section p {
-  padding-bottom: 0 !important;
-}
-
-.is-checkradio[type='checkbox'] + label {
-  cursor: auto;
+  margin-bottom: 0 !important;
 }
 
 .psc-icon {

@@ -40,8 +40,8 @@
         If EPA was able to readily identify the associated pollutant limitation’s long-term average (LTA) an arrow will
         be displayed in the “Go to LTA” column. Click on this arrow to navigate to the long-term average information.
       </Alert>
-      <div class="columns">
-        <div class="column is-4">
+      <div class="grid-row grid-gap-2">
+        <div class="grid-col-4">
           <strong>
             <label for="categories">
               Point Source Categories ({{ multiCriteriaResults.pointSourceCategories.length }})
@@ -64,7 +64,7 @@
             </template>
           </VueSelect>
         </div>
-        <div class="column is-4">
+        <div class="grid-col-4">
           <strong>
             <label for="pollutants"> Pollutants ({{ multiCriteriaResults.pollutants.length }}) </label>
           </strong>
@@ -78,7 +78,7 @@
             :reduce="(o) => o.pollutantId"
           />
         </div>
-        <div class="column is-4">
+        <div class="grid-col-4">
           <strong>
             <label for="treatmentTrains"> Treatment Trains ({{ multiCriteriaResults.treatmentTrains.length }}) </label>
           </strong>
@@ -109,7 +109,11 @@
       >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
-          <button class="button is-text icon-btn" aria-label="View Process info" @click="shouldDisplayProcess = index">
+          <button
+            class="usa-button is-text icon-btn"
+            aria-label="View Process info"
+            @click="shouldDisplayProcess = index"
+          >
             <span class="fa fa-info-circle"></span>
           </button>
           <Modal v-if="shouldDisplayProcess === index" title="Description" @close="shouldDisplayProcess = false">
@@ -121,7 +125,7 @@
         <template v-slot:cell(treatmentNames)="{ index, item }">
           {{ item.treatmentNames }}
           <button
-            class="button is-text icon-btn"
+            class="usa-button is-text icon-btn"
             @click="shouldDisplayNotes = index"
             aria-label="Click to view Treatment Train Notes"
             title="Click to view Treatment Train Notes"
@@ -133,16 +137,16 @@
               <span
                 v-html="
                   item.wastestreamProcessTreatmentTechnologyNotes +
-                    (item.wastestreamProcessTreatmentTechnologySourceTitle
-                      ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
-                      : '')
+                  (item.wastestreamProcessTreatmentTechnologySourceTitle
+                    ? ' (' + item.wastestreamProcessTreatmentTechnologySourceTitle + ')'
+                    : '')
                 "
               />
             </p>
           </Modal>
         </template>
         <template v-slot:cell(goToLta)="{ item }">
-          <div v-if="item.longTermAverageCount > 0" style="min-width:38px">
+          <div v-if="item.longTermAverageCount > 0" style="min-width: 38px">
             <a @click="onShouldDisplayLongTermAvgData(item.limitationId)">
               <span class="fas fa-share-square limitation-link"></span>
             </a>
@@ -155,17 +159,18 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState, mapGetters } from 'vuex';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert.vue';
 import Table from '@/components/shared/Table.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { Alert, Table, Modal, DownloadLink },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'selectedCategory',
       'subcategories',
       'subcategoryData',
@@ -175,16 +180,17 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
-    ...get('customSearch', ['multiCriteriaResults', 'multiCriteriaApiUrl']),
-    ...sync('results', ['activeTab']),
-    ...sync('search', ['selectedSubcategory']),
-    ...sync('limitations', [
+    ...mapState('customSearch', ['multiCriteriaResults']),
+    ...mapGetters('customSearch', ['multiCriteriaApiUrl']),
+    ...mapStatesToComputed('results', ['activeTab']),
+    ...mapStatesToComputed('search', ['selectedSubcategory']),
+    ...mapStatesToComputed('limitations', [
       'isFetching',
       'selectedTreatmentTrain',
       'selectedTreatmentCategory',
       'selectedTreatmentPollutant',
     ]),
-    ...sync('customSearch', ['filterPointSourceCategoryCode', 'filterPollutantId', 'filterTreatmentId']),
+    ...mapStatesToComputed('customSearch', ['filterPointSourceCategoryCode', 'filterPollutantId', 'filterTreatmentId']),
   },
   data() {
     return {
@@ -251,7 +257,7 @@ export default {
     async tableProvider(ctx) {
       try {
         const response = await this.$http.get(
-          `${ctx.apiUrl}&offset=${ctx.currentPage * ctx.perPage - 100}&sortCol=${ctx.sortBy}&sortDir=${
+          `${ctx.apiUrl}&offset=${ctx.currentPage * 100 - 100}&sortCol=${ctx.sortBy ?? ''}&sortDir=${
             ctx.sortDesc ? 'desc' : 'asc'
           }`
         );
@@ -268,7 +274,7 @@ export default {
 <style lang="scss" scoped>
 @import '../../../static/variables';
 
-.button {
+.usa-button {
   width: 100%;
   margin-top: 0.5rem;
 
@@ -295,7 +301,7 @@ a .fa {
 }
 
 section p {
-  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .info-box-container {

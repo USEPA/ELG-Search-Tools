@@ -4,7 +4,7 @@
     <div class="app-container">
       <main class="main-section">
         <header class="header">
-          <div class="container">
+          <div class="l-constrain position-relative">
             <h1>Effluent Limitations Guidelines and Standards (ELG) Database</h1>
             <div class="help-links">
               <a class="has-text-weight-bold js-glossary-toggle">
@@ -18,7 +18,7 @@
             </div>
           </div>
         </header>
-        <div class="container">
+        <div class="l-constrain">
           <router-view />
         </div>
       </main>
@@ -27,14 +27,14 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Glossary from './components/shared/Glossary.vue';
 
 export default {
   name: 'App',
   components: { Glossary },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'selectedCategory',
       'selectedSubcategory',
       'selectedPollutant',
@@ -43,7 +43,7 @@ export default {
       'selectedTreatmentTechnologyCategory',
       'subcategoryData',
     ]),
-    ...get('customSearch', ['keyword']),
+    ...mapState('customSearch', ['keyword']),
     helpLink() {
       const basePath = `${this.$http.defaults.baseURL}/api/help`;
       const currentPath = this.$route.path.replace('/elg', '');
@@ -100,7 +100,7 @@ export default {
 
 .help-links {
   position: absolute;
-  right: 0;
+  right: 2rem;
   margin-top: 1rem;
   margin-right: 1.5rem;
   font-size: 0.93rem;
@@ -112,8 +112,10 @@ export default {
     font-weight: normal !important;
 
     &:hover {
+      cursor: pointer;
       box-shadow: 0 0 2px 1px white;
       background-color: rgba(0, 0, 0, 0.3);
+      text-decoration: none;
     }
 
     .fas {

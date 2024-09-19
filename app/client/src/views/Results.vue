@@ -1,7 +1,7 @@
 <template>
   <section class="section">
-    <div class="columns elg-breadcrumbs-container">
-      <div class="column is-8">
+    <div class="elg-breadcrumbs-container">
+      <div>
         <Breadcrumbs
           :pages="[
             { title: 'Search', path: '/' },
@@ -9,15 +9,15 @@
           ]"
         />
       </div>
-      <div class="column">
-        <router-link to="/" class="button has-text-white is-pulled-right">
+      <div>
+        <router-link to="/" class="usa-button usa-button--unstyled">
           <span class="fa fa-reply has-text-white"></span>Back to Search
         </router-link>
       </div>
     </div>
-    <div class="elg-header-container columns">
-      <div :class="`page-heading ${selectedCategory ? 'column is-8' : ''}`">
-        <h2 class="is-size-4 has-text-weight-bold">
+    <div class="elg-header-container grid-row grid-gap">
+      <div :class="`page-heading ${selectedCategory ? 'grid-col-8' : ''}`">
+        <h2>
           <span v-if="selectedCategory">
             Point Source Category
             {{ selectedCategory.pointSourceCategoryCode }}: {{ selectedCategory.pointSourceCategoryName }}
@@ -34,12 +34,8 @@
             {{ selectedTreatmentTechnologyCategory + ' Treatment Category' }}
             Limitation Results
           </span>
-          <span v-else-if="keyword && keyword.length">
-            Keyword Search Results
-          </span>
-          <span v-else-if="searchType === 'multiCriteria'">
-            Multi-Criteria Search Results
-          </span>
+          <span v-else-if="keyword && keyword.length"> Keyword Search Results </span>
+          <span v-else-if="searchType === 'multiCriteria'"> Multi-Criteria Search Results </span>
         </h2>
         <div class="cfr-link about-40" v-if="selectedCategory">
           <router-link :to="{ path: '/results/about-cfr', query: { psc: selectedCategory.pointSourceCategoryCode } }">
@@ -49,12 +45,10 @@
           </router-link>
         </div>
       </div>
-      <div v-if="selectedCategory" class="column is-4">
-        <div class="message related-links">
-          <div class="message-header">
-            <p>Related Links</p>
-          </div>
-          <div class="message-body content">
+      <div v-if="selectedCategory" class="grid-col-4">
+        <div class="box box--multipurpose">
+          <h3 class="box__title">Related Links</h3>
+          <div class="box__content">
             <ul>
               <li>
                 <div class="cfr-link">
@@ -73,9 +67,7 @@
                 <div class="cfr-link">
                   <a
                     title="Electronic Code of Federal Regulations"
-                    :href="
-                      `https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.${selectedCategory.pointSourceCategoryCode}`
-                    "
+                    :href="`https://www.ecfr.gov/cgi-bin/text-idx?node=pt40.31.${selectedCategory.pointSourceCategoryCode}`"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -102,13 +94,14 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import PointSourceResults from '@/components/results/PointSourceResults.vue';
 import PollutantResults from '@/components/results/PollutantResults.vue';
 import TreatmentTechResults from '@/components/results/TreatmentTechResults.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
 import MultiCriteriaResults from '@/components/results/MultiCriteriaResults.vue';
 import KeywordResults from '@/components/results/KeywordResults.vue';
+import { mapStatesToComputed } from '../store';
 
 export default {
   components: {
@@ -120,7 +113,7 @@ export default {
     KeywordResults,
   },
   computed: {
-    ...get('search', [
+    ...mapState('search', [
       'searchType',
       'selectedCategory',
       'selectedPollutant',
@@ -129,7 +122,7 @@ export default {
       'selectedTreatmentTechnologyCategory',
       'categoryData',
     ]),
-    ...get('customSearch', ['multiCriteriaResults', 'keyword']),
+    ...mapStatesToComputed('customSearch', ['multiCriteriaResults', 'keyword']),
   },
 };
 </script>
@@ -170,11 +163,15 @@ export default {
 
 .page-heading {
   margin-bottom: 0.5rem;
+
+  h2 {
+    font-size: 1.5rem;
+  }
 }
 button {
   background: $blue;
 }
-a.button {
+a.usa-button {
   margin: 0;
 }
 .is-link.more {
@@ -187,10 +184,7 @@ label {
   margin-bottom: 1rem;
 }
 section p {
-  padding-bottom: 0 !important;
-}
-.is-checkradio[type='checkbox'] + label {
-  cursor: auto;
+  margin-bottom: 0 !important;
 }
 .psc-icon {
   position: absolute;
@@ -221,5 +215,9 @@ select {
 }
 .is-gray-background {
   background-color: $gray;
+}
+.box__title,
+.box__content {
+  padding: 0.75rem;
 }
 </style>

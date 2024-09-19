@@ -1,5 +1,4 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import Search from '@/views/Search.vue';
 import Results from '@/views/Results.vue';
 import Limitations from '@/views/Limitations.vue';
@@ -8,9 +7,8 @@ import AboutCFR from '@/views/AboutCFR.vue';
 import CitationHistory from '@/views/CitationHistory.vue';
 import NotFound from '@/views/NotFound.vue';
 
-Vue.use(Router);
-
-const router = new Router({
+const router = new createRouter({
+  history: createWebHistory('/'),
   routes: [
     {
       path: '/',
@@ -43,12 +41,11 @@ const router = new Router({
       component: CitationHistory,
     },
     {
-      path: '*',
+      path: '/:pathMatch(.*)*',
       name: 'notFound',
       component: NotFound,
     },
   ],
-  mode: 'history',
   base: import.meta.env.MODE === 'prod' ? '/elg' : '/',
   scrollBehavior(to, from, savedPosition) {
     // Logic to scroll to hash links when route changes
@@ -61,7 +58,7 @@ const router = new Router({
     const mainContent = document.querySelector('#app');
     const mainYOffset = mainContent.getBoundingClientRect().top;
     if (mainYOffset < 0) {
-      return { x: 0, y: window.pageYOffset + mainYOffset };
+      return { left: 0, top: window.pageYOffset + mainYOffset };
     }
     return savedPosition;
   },

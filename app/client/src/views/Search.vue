@@ -6,14 +6,14 @@
       citation history (links the dates and federal register notices (FRN) to the corresponding CFR section); and
       readily available technology bases/pollutant long-term averages associated with the promulgated regulations.
     </p>
-    <div class="columns">
-      <div class="column">
-        <button class="button is-hyperlink" @click="shouldShowDisclaimers = true">
+    <div class="display-flex flex-justify">
+      <div>
+        <button class="usa-button is-hyperlink" @click="shouldShowDisclaimers = true">
           <span class="fa fa-exclamation-triangle"></span> Click Here to View Disclaimers
         </button>
       </div>
-      <div class="column">
-        <div class="cfr-link is-pulled-right">
+      <div>
+        <div class="cfr-link">
           <a href="https://www.epa.gov/eg" target="_blank" rel="noopener noreferrer">
             Effluent Guidelines home page<span class="fa fa-external-link-alt" />
           </a>
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Modal from '@/components/shared/Modal.vue';
 import SearchBar from '@/components/shared/SearchBar.vue';
@@ -59,7 +59,7 @@ export default {
     SearchBar,
   },
   computed: {
-    ...get('search', ['contactInfo']),
+    ...mapState('search', ['contactInfo']),
   },
   created() {
     this.$store.dispatch('search/getContactInfo');

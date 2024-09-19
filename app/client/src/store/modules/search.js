@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { make } from 'vuex-pathify';
 
 const state = {
   // lookups to feed dropdown lists
@@ -31,14 +30,9 @@ const state = {
   contactInfo: '',
 };
 
-const getters = {
-  ...make.getters(state),
-};
+const getters = {};
 
-const mutations = {
-  // "make" helper automatically creates mutations for each property within the state object, e.g. "SET_CATEGORIES"
-  ...make.mutations(state),
-};
+const mutations = {};
 
 const actions = {
   async getContactInfo({ commit }) {

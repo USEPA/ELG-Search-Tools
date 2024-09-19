@@ -9,8 +9,8 @@
       Pollutant Category, or Treatment Technology Category. Click the “x” next to a criterion to remove it from the
       search results. Multi-Criteria Search results present the pollutant limitations associated with the criteria.
     </Alert>
-    <form class="columns" @submit="getResults">
-      <div class="column is-4">
+    <form class="grid-row grid-gap-2" @submit="getResults">
+      <div class="grid-col-4">
         <label for="pointSourceCategory">Point Source Categories</label>
 
         <VueSelect
@@ -30,7 +30,7 @@
           </template>
         </VueSelect>
         <div class="message message-box">
-          <p>OR</p>
+          <p class="margin-bottom-0">OR</p>
           <label>
             Search by Industry Code
             <HoverText hoverId="keywordIndustryInfo" :icon="true">
@@ -59,12 +59,12 @@
           />
         </div>
       </div>
-      <div class="column is-4">
+      <div class="grid-col-4">
         <label for="pollutant">
           Pollutants
           <button
             type="button"
-            class="button is-text icon-btn"
+            class="usa-button is-text icon-btn"
             title="Click to view Pollutant Category descriptions"
             @click="shouldDisplayPollCatDescriptions = true"
           >
@@ -91,7 +91,7 @@
           :reduce="(o) => o.id"
         />
         <div class="message message-box limitation-range">
-          <p>
+          <p class="margin-bottom-0">
             Only include Pollutants with limitation range (concentration basis only):
             <HoverText hoverId="unitsInfo" :icon="true">
               Units of measurement as presented in CFR. The units applicable to a pollutant limitation may differ
@@ -150,7 +150,7 @@
           </Modal>
         </div>
       </div>
-      <div class="column is-4">
+      <div class="grid-col-4">
         <label for="treatmentTech">Treatment Technology</label>
         <VueSelect
           id="treatmentTech"
@@ -172,7 +172,7 @@
           :reduce="(o) => o.category"
         />
         <div class="has-text-right">
-          <button type="submit" class="button is-dark is-medium">
+          <button type="submit" class="usa-button is-dark is-medium">
             <span :class="`fa has-text-white ${isFetching ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
             Search
           </button>
@@ -183,9 +183,10 @@
 </template>
 
 <script>
-import { get, sync } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import VueSelect from 'vue-select';
 import LoadingIndicator from '@/components/shared/LoadingIndicator.vue';
+import { mapStatesToComputed } from '../../store';
 
 export default {
   components: { VueSelect, LoadingIndicator },
@@ -194,20 +195,18 @@ export default {
       isFetching: false,
       shouldDisplayPollCatDescriptions: false,
       pollCatDescriptions: {
-        '1': 'All 126 pollutants that EPA currently defines as priority pollutants.',
-        '2':
-          'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
-        '3': 'Parameters include phosphorus and phosphate.',
-        '4': 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, pH, and oil & grease.',
-        '5': 'Suspended and settable solids.',
-        '6':
-          'All metals parameters, including hexavalent or trivalent metals and metals in ionic form (e.g., hexavalent chromium and aluminum, ion) and metals on the CWA priority pollutant list. Excludes metal compounds (e.g., calcium chloride).',
+        1: 'All 126 pollutants that EPA currently defines as priority pollutants.',
+        2: 'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
+        3: 'Parameters include phosphorus and phosphate.',
+        4: 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, pH, and oil & grease.',
+        5: 'Suspended and settable solids.',
+        6: 'All metals parameters, including hexavalent or trivalent metals and metals in ionic form (e.g., hexavalent chromium and aluminum, ion) and metals on the CWA priority pollutant list. Excludes metal compounds (e.g., calcium chloride).',
       },
     };
   },
   computed: {
-    ...get('customSearch', ['multiCriteriaLookups']),
-    ...sync('customSearch', [
+    ...mapState('customSearch', ['multiCriteriaLookups']),
+    ...mapStatesToComputed('customSearch', [
       'pointSourceCategoryCode',
       'sicCode',
       'naicsCode',
@@ -250,9 +249,12 @@ label {
 }
 
 .message-box {
+  background-color: #f5f5f5;
   padding: 0.5rem;
+  border-radius: 5px;
 
   p {
+    font-size: 1rem;
     padding-bottom: 0.75rem;
   }
 }
@@ -274,10 +276,5 @@ label {
     background-color: #fbfbfb;
     cursor: not-allowed;
   }
-}
-
-.content ul {
-  margin-top: 0;
-  padding-left: 0;
 }
 </style>

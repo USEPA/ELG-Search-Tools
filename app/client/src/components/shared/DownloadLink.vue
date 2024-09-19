@@ -20,7 +20,7 @@ export default {
   },
   data() {
     return {
-      apiBaseUrl: import.meta.env.MODE === 'prod' ? '/elg' : import.meta.env.VITE_APP_API_URL,
+      apiBaseUrl: import.meta.env.MODE === 'prod' ? '/elg' : '',
     };
   },
 };
@@ -34,7 +34,8 @@ export default {
   width: fit-content;
   margin-left: auto;
   margin-bottom: 0.5rem;
-  font-size: 0.8rem;
+  font-weight: bold;
+  font-size: 0.87rem;
   color: $blue;
 
   &:hover {

@@ -36,16 +36,8 @@ section.main-content {
   vertical-align: middle !important;
 }
 
-.table td.align-top {
+.usa-table td.align-top {
   vertical-align: top !important;
-}
-
-.table td {
-  text-align: center !important;
-}
-
-.table td.text-left {
-  text-align: left !important;
 }
 
 .section {
@@ -68,11 +60,16 @@ section.main-content {
   margin-right: 0.2em;
 }
 
-.button.is-text {
+.usa-button {
+  font-size: 1rem;
+  border: unset !important;
+}
+
+.usa-button.is-text {
   text-decoration: none !important;
 }
 
-.button.is-hyperlink {
+.usa-button.is-hyperlink {
   background: none;
   padding: 0;
   margin: 0;
@@ -89,9 +86,9 @@ section.main-content {
   padding-left: 1px !important;
 }
 
-// h1.title {
-//   font-size: 28px !important;
-// }
+.menu__link .icon {
+  fill: #ffffff;
+}
 
 .is-link {
   text-decoration: underline;
@@ -114,42 +111,8 @@ section.main-content {
   }
 }
 
-// Import bulma and plugins
-@import '../node_modules/bulma/bulma';
-@import '../node_modules/bulma-checkradio/dist/css/bulma-checkradio.min.css';
-
-// Override bulma checkradio plugin styles
-.is-checkradio[type='radio'].is-info:checked + label::after {
-  border-color: $lightBlue !important;
-  background-color: $lightBlue !important;
-}
-
-.is-checkradio[type='checkbox'].is-info.has-background-color + label::before,
-.is-checkradio[type='checkbox'].is-info.has-background-color + label:before {
-  background-color: white !important;
-  border: solid 1px black !important;
-}
-
-.is-checkradio[type='checkbox'].is-info:hover:not([disabled]) + label::before,
-.is-checkradio[type='checkbox'].is-info:hover:not([disabled]) + label:before {
-  border-color: black !important;
-}
-
-.is-checkradio[type='checkbox'].is-info:checked + label::after {
-  border-width: 3px;
-}
-
-// Makes sure that when checkboxes are in overflowed divs, whitespace won't appear at bottom of page
-.is-checkradio[type='checkbox'],
-.is-checkradio[type='radio'] {
-  opacity: 0;
-  width: 0;
-  position: fixed;
-}
-
-.is-checkradio[type='checkbox'].is-block,
-.is-checkradio[type='radio'].is-block {
-  display: block !important;
+.l-constrain {
+  max-width: 86rem;
 }
 
 button,
@@ -169,11 +132,20 @@ input,
   padding-bottom: 0.5rem;
 }
 
-.columns.elg-breadcrumbs-container,
-.columns.elg-header-container {
+.elg-breadcrumbs-container {
+  display: flex;
+  justify-content: space-between;
+
+  .usa-button--unstyled {
+    font-weight: bold;
+  }
+}
+
+.elg-breadcrumbs-container,
+.elg-header-container {
   margin-bottom: 0;
 
-  .button {
+  .usa-button {
     margin-bottom: 0;
   }
 }
@@ -260,6 +232,7 @@ input,
   }
 
   input.vs__search {
+    height: 100%;
     margin: 0;
     padding: 4px;
 
@@ -291,6 +264,76 @@ input,
 .sr-only {
   position: static;
   display: none;
+}
+
+.has-addons {
+  display: flex;
+
+  & div:first-child {
+    flex: 1 1 0%;
+  }
+
+  .vs__dropdown-toggle {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.data-glossary-term {
+  cursor: pointer;
+}
+
+a,
+button {
+  cursor: pointer;
+}
+
+.usa-button.is-dark {
+  background-color: #182e51;
+}
+
+.usa-button.is-text {
+  color: #0071bc;
+  background: none;
+}
+
+.usa-button[disabled] {
+  cursor: not-allowed;
+}
+
+a,
+.usa-button--unstyled {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.usa-radio__label,
+.usa-checkbox__label {
+  margin-top: 0.25rem;
+  padding-left: 1.75rem;
+
+  &::before {
+    height: 1rem;
+    width: 1rem;
+    margin-top: 0.2rem;
+  }
+}
+
+.info-boxes {
+  margin-left: -1rem;
+  margin-right: -1rem;
+
+  .usa-alert {
+    margin: 0 1rem 1rem 1rem;
+  }
 }
 
 // Import font-awesome

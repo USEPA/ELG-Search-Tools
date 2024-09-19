@@ -3,8 +3,8 @@
     <LoadingIndicator v-if="isFetching" message="Loading..." />
     <Alert v-if="noPscPassed" type="error" message="No Point Source Category has been selected." />
     <div v-if="cfrCitationHistory">
-      <div class="columns elg-breadcrumbs-container">
-        <div class="column">
+      <div class="elg-breadcrumbs-container">
+        <div>
           <Breadcrumbs
             :pages="[
               { title: 'Search', path: '/' },
@@ -14,10 +14,10 @@
             ]"
           />
         </div>
-        <div class="column">
+        <div>
           <router-link
             :to="{ path: '/results/about-cfr', query: $route.query }"
-            class="button has-text-white is-pulled-right"
+            class="usa-button usa-button--unstyled"
           >
             <span class="fa fa-reply"></span>Back to About CFR
           </router-link>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { get } from 'vuex-pathify';
+import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
 import LoadingIndicator from '@/components/shared/LoadingIndicator.vue';
@@ -57,7 +57,7 @@ export default {
     };
   },
   computed: {
-    ...get('aboutCfr', ['isFetching', 'cfrResults', 'cfrCitationHistory']),
+    ...mapState('aboutCfr', ['isFetching', 'cfrResults', 'cfrCitationHistory']),
     rows() {
       return this.cfrCitationHistory.map((row) => ({
         ...row,

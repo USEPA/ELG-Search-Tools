@@ -1,11 +1,17 @@
 <template>
-  <nav class="breadcrumb" aria-label="breadcrumbs">
-    <ul>
-      <li v-for="page in pages" :key="page.path" :class="page.isCurrent ? 'is-active' : ''">
-        <a v-if="page.isCurrent" href="#" aria-current="page">{{ page.title }}</a>
-        <router-link v-else :to="page.path || page.pathObject">{{ page.title }}</router-link>
+  <nav class="usa-breadcrumb" aria-label="breadcrumbs">
+    <ol class="usa-breadcrumb__list">
+      <li
+        v-for="page in pages"
+        :key="page.path"
+        :class="`usa-breadcrumb__list-item ${page.isCurrent ? 'usa-current' : ''}`"
+      >
+        <span v-if="page.isCurrent" href="#" aria-current="page">{{ page.title }}</span>
+        <router-link v-else :to="page.path || page.pathObject" class="usa-breadcrumb__link">{{
+          page.title
+        }}</router-link>
       </li>
-    </ul>
+    </ol>
   </nav>
 </template>
 
@@ -21,8 +27,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.breadcrumb ul {
-  padding-bottom: 0.5rem;
-  padding-left: 0;
+.usa-breadcrumb {
+  padding-top: 0;
 }
 </style>
