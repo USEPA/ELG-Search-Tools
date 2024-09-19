@@ -91,7 +91,7 @@ export default {
 }
 .usa-modal__close {
   font-size: 1.2rem;
-  position: absolute;
+  position: absolute !important;
   right: 1rem;
   top: 3rem;
 

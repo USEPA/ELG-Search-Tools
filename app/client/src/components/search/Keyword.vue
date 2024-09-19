@@ -26,7 +26,7 @@
             </VueSelect>
           </div>
           <div class="control">
-            <button type="submit" class="usa-button is-dark is-medium">
+            <button type="submit" class="usa-button is-dark is-medium" :disabled="!keyword || !keyword.length">
               <span :class="`fa has-text-white ${false ? 'fa-circle-notch fa-spin' : 'fa-search'}`"></span>
               Search
             </button>
@@ -101,21 +101,16 @@ label {
   font-weight: bold;
 }
 
-.radios {
-  // display: flex;
-
-  // .usa-radio {
-  //   display: inline-block;
-  //   margin-right: 0.5rem;
-  // }
-}
-
 .radios label {
   font-weight: normal;
 }
 
 .usa-button {
   margin-bottom: 0;
+}
+
+.usa-button.is-dark:disabled {
+  background-color: #c9c9c9;
 }
 
 .input {

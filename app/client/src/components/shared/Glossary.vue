@@ -6,7 +6,7 @@
     </header>
     <div class="glossary-content">
       <Alert v-if="shouldDisplayError" type="error">Failed to fetch Glossary items.</Alert>
-      <div v-else-if="isFetchingTerms" style="text-align:center">
+      <div v-else-if="isFetchingTerms" style="text-align: center">
         Fetching glossary terms...
         <LoadingIndicator />
       </div>
@@ -122,6 +122,11 @@ export default {
   }
 }
 
+.js-glossary-close {
+  font-weight: bold;
+  color: #ffffff;
+}
+
 .js-glossary-list {
   margin-top: 0.375rem;
   padding: 0;
@@ -207,7 +212,10 @@ export default {
 
 .js-glossary-search {
   width: 100%;
+  margin-bottom: 0.5rem;
   padding: 0.375rem 0.75rem;
   font-size: 0.9375em;
+  border: 1px solid #919191;
+  border-radius: 0.25rem;
 }
 </style>

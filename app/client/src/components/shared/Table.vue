@@ -9,6 +9,7 @@
       :busy="isBusy"
       :emptyText="emptyText"
       :perPage="perPage"
+      :total="totalRows"
       :apiUrl="apiUrl"
       :defaultSort="sortBy"
       @sort-changed="sortChanged"
@@ -185,14 +186,6 @@
       </template>
     </UsTable>
 
-    <!-- <BPagination
-      v-if="perPage && totalRows > perPage"
-      v-model="currentPage"
-      :total-rows="totalRows"
-      :per-page="perPage"
-      :limit="11"
-    /> -->
-
     <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
       <p class="has-text-left">
         <span v-html="currentModalContent" />
@@ -269,7 +262,7 @@ export default {
     },
     filtered() {
       if (this.useServerData) {
-        return this.rows;
+        return null;
       }
       if (this.rows.length > 0) {
         const filtered = this.rows.filter((item) => {
@@ -476,6 +469,24 @@ export default {
 
       &[aria-busy='true'] {
         opacity: 0.6;
+      }
+    }
+
+    .usa-pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .usa-pagination {
+      &__item {
+        height: 2rem;
+        min-width: 2rem;
+        margin-bottom: 0;
+      }
+
+      .fa-chevron-right {
+        margin-left: 0.2em;
       }
     }
   }

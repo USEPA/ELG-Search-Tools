@@ -277,9 +277,4 @@ label {
     cursor: not-allowed;
   }
 }
-
-.content ul {
-  margin-top: 0;
-  padding-left: 0;
-}
 </style>
