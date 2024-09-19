@@ -23,10 +23,10 @@
 
     <Modal v-if="shouldShowDisclaimers" title="Disclaimers" @close="() => (shouldShowDisclaimers = false)">
       <Alert type="warning">
-        EPA intends for the ELG Database to be solely used to access information on the effluent guidelines program via
-        guided and customized searches. The ELG Database contains information on the requirements of this program, but
-        it does not replace the Code of Federal Regulations which is the codification of the general and permanent rules
-        published in the Federal Register. Therefore, this tool is not an official legal edition of the CFR.
+        The EPA intends for the ELG Database to be solely used to access information on the effluent guidelines program
+        via guided and customized searches. The ELG Database contains information on the requirements of this program,
+        but it does not replace the Code of Federal Regulations which is the codification of the general and permanent
+        rules published in the Federal Register. Therefore, this tool is not an official legal edition of the CFR.
       </Alert>
       <Alert type="warning">
         Treatment technologies are classified to the most discrete level possible according to the descriptions in the

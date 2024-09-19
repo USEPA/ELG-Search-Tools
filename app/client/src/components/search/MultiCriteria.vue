@@ -195,7 +195,7 @@ export default {
       isFetching: false,
       shouldDisplayPollCatDescriptions: false,
       pollCatDescriptions: {
-        1: 'All 126 pollutants that EPA currently defines as priority pollutants.',
+        1: 'All 126 pollutants that the EPA currently defines as priority pollutants.',
         2: 'Parameters include total nitrogen, organic nitrogen, total Kjeldahl nitrogen, nitrite, nitrate, and ammonia.',
         3: 'Parameters include phosphorus and phosphate.',
         4: 'Biochemical oxygen demand (BOD5), total suspended solids (TSS), fecal coliform, pH, and oil & grease.',

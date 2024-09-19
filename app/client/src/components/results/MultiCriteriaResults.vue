@@ -37,8 +37,9 @@
         selected search criteria. From the dropdown menus, select one or more criteria to view the search results,
         including Point Source Category(ies), Pollutant(s), and Treatment Train(s). The table below will automatically
         update after each criterion is selected. Click the “x” next to a criterion to remove it from the search results.
-        If EPA was able to readily identify the associated pollutant limitation’s long-term average (LTA) an arrow will
-        be displayed in the “Go to LTA” column. Click on this arrow to navigate to the long-term average information.
+        If the EPA was able to readily identify the associated pollutant limitation’s long-term average (LTA) an arrow
+        will be displayed in the “Go to LTA” column. Click on this arrow to navigate to the long-term average
+        information.
       </Alert>
       <div class="grid-row grid-gap-2">
         <div class="grid-col-4">

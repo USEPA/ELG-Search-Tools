@@ -21,7 +21,7 @@
       </div>
       <div class="elg-header-container">
         <div class="page-heading">
-          <h2 class="is-size-4 has-text-weight-bold">
+          <h2 class="text-bold">
             About 40 CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
           </h2>
           <h3 class="is-size-5 subtitle">Applicability, General Requirements, and Definitions</h3>
@@ -35,14 +35,14 @@
       </Alert>
       <div class="grid-row grid-gap-2">
         <div class="grid-col">
-          <div class="info-box-container message">
-            <div class="message-body">
+          <Alert type="" class="display-inline-block">
+            <div>
               <p>
-                <span class="has-text-weight-bold">Initial Promulgation:</span>
+                <span class="text-bold">Initial Promulgation:</span>
                 {{ cfrResults.initialPromulgationDate }}
               </p>
               <p>
-                <span class="has-text-weight-bold">Latest Promulgation:</span>
+                <span class="text-bold">Latest Promulgation:</span>
                 {{ cfrResults.mostRecentRevisionDate }}
               </p>
               <p>
@@ -56,7 +56,7 @@
                 </button>
               </p>
             </div>
-          </div>
+          </Alert>
         </div>
         <div class="cfr-link grid-col">
           <router-link
@@ -118,7 +118,7 @@
         </header>
         <div v-if="isActive(selectedProvisionTypes[subcategory.id], 'definitions')" class="card-content">
           <p v-for="definition in subcategory.definitions" :key="definition.term">
-            <span class="has-text-weight-bold">{{ definition.term }}: </span>
+            <span class="text-bold">{{ definition.term }}: </span>
             {{ definition.definition }}
             <span v-if="definition.typoFlagDefinition">
               <br />
@@ -138,7 +138,7 @@
             v-for="provision in subcategory[selectedProvisionTypes[subcategory.id] || 'applicabilityProvisions']"
             :key="provision.cfrSection"
           >
-            <span class="has-text-weight-bold">{{ provision.cfrSection }}: </span>
+            <span class="text-bold">{{ provision.cfrSection }}: </span>
             {{ provision.description }}
           </p>
         </div>
@@ -188,7 +188,7 @@ export default {
   },
   methods: {
     setProvisionType(subcategoryId, provisionType) {
-      this.$set(this.selectedProvisionTypes, subcategoryId, provisionType);
+      this.selectedProvisionTypes[subcategoryId] = provisionType;
     },
     availableProvisions(subcategory) {
       const provisionsWithData = this.provisions.filter((p) => subcategory[p.prop].length);
@@ -226,13 +226,23 @@ export default {
   margin-bottom: 1.5rem;
   border-radius: 4px;
   color: #212121;
+  box-shadow:
+    0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1),
+    0 0 0 1px rgba(10, 10, 10, 0.02);
+}
+
+.card-content {
+  padding: 1.5rem;
+  font-size: 1rem;
 }
 
 .card-content p:last-child {
-  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .card-header {
+  display: flex;
+  align-items: stretch;
   box-shadow: none;
   background-color: rgba(0, 113, 188, 0.05);
 }
@@ -240,23 +250,44 @@ export default {
 .card-header-title {
   border-bottom: 1px solid #dbdbdb;
   font-size: 1.1rem;
+  font-weight: bold;
+  padding: 0.75rem 1rem;
+  margin: 0;
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
 }
 
 // Card tab styles
 .tabs {
   width: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  overflow: hidden;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .tabs > ul {
+  list-style: none;
   padding: 0;
+  margin: auto 0 0 0;
+  display: flex;
   justify-content: flex-end;
+  flex-grow: 1;
+  flex-shrink: 0;
+  border-bottom: 1px solid #dbdbdb;
 
   li {
-    margin-top: auto;
-    margin-right: 0.5rem;
+    margin: auto 0.5rem 0 0;
   }
 
   li button {
+    font-weight: bold;
+    border-color: #e6e6e6;
+    border-right: none;
+    border-bottom: none;
     padding: 0.5rem 1rem;
   }
 
@@ -274,11 +305,6 @@ export default {
 .cfr-link {
   text-align: right;
   margin: auto 0 1rem 0;
-}
-
-.info-box-container,
-.cfr-link {
-  margin-bottom: 0;
 }
 
 // Mobile styles

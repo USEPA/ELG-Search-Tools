@@ -264,7 +264,7 @@ export default {
           'Best Management Practices are included in the effluent limitations guidelines and standards for this process operation/wastestream. See the information for the Process Operation/Wastestream for details.',
         alternativeRequirement:
           'Indicates that a facility has more than one option to meet the effluent limitations guidelines and standards.',
-        noLimitations: 'EPA did not promulgate numeric or narrative pollutant limitations.',
+        noLimitations: 'The EPA did not promulgate numeric or narrative pollutant limitations.',
       },
     };
   },
