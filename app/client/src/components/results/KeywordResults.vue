@@ -106,11 +106,7 @@
           The Keyword Results Table presents pollutant limitations associated with the criteria.
         </HoverText>
       </h3>
-      <DownloadLink
-        title="Limitations"
-        url="https://owapps-stage.app.cloud.gov/elg/api/keywordSearch?keyword=oil&operator=OR"
-        class="download-link"
-      />
+      <DownloadLink title="Limitations" :url="keywordApiUrl" class="download-link" />
       <Table
         class="keyword-table"
         :columns="limitationColumns"
@@ -119,7 +115,7 @@
         :perPage="100"
         :useServerPagination="true"
         :count="keywordResults ? keywordResults.count : 0"
-        apiUrl="https://owapps.epa.gov/elg/api/keywordSearch?keyword=oil&operator=OR"
+        :apiUrl="keywordApiUrl"
       >
         <template v-slot:cell(wastestreamProcessTitle)="{ index, item }">
           {{ item.wastestreamProcessTitle }}
@@ -285,6 +281,12 @@ h3 {
 
 .keyword-table {
   clear: both;
+
+  :deep() {
+    .usa-table {
+      width: unset !important;
+    }
+  }
 }
 
 .usa-button {

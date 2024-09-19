@@ -181,8 +181,8 @@ export default {
       'selectedTreatmentTechnology',
       'selectedTreatmentTechnologyCategory',
     ]),
-    ...mapState('customSearch', ['multiCriteriaResults', 'multiCriteriaApiUrl']),
-    ...mapGetters('customSearch', ['multiCriteriaResults', 'multiCriteriaApiUrl']),
+    ...mapState('customSearch', ['multiCriteriaResults']),
+    ...mapGetters('customSearch', ['multiCriteriaApiUrl']),
     ...mapStatesToComputed('results', ['activeTab']),
     ...mapStatesToComputed('search', ['selectedSubcategory']),
     ...mapStatesToComputed('limitations', [

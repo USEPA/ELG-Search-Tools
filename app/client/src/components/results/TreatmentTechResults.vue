@@ -110,7 +110,7 @@
           .join(';')}&pollutantId=${selectedTreatmentPollutant.map((t) => t.pollutantDescription).join(';')}`"
       />
     </div>
-    <div>
+    <div class="treatment-table">
       <Table
         :columns="limitationColumns"
         :rows="tableProvider"
@@ -306,6 +306,12 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../static/variables';
+
+.treatment-table :deep() {
+  .usa-table {
+    width: unset !important;
+  }
+}
 
 .usa-button {
   width: 100%;
