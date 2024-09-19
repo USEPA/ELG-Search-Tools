@@ -8,7 +8,7 @@ import CitationHistory from '@/views/CitationHistory.vue';
 import NotFound from '@/views/NotFound.vue';
 
 const router = new createRouter({
-  history: createWebHistory('/'),
+  history: createWebHistory(import.meta.env.MODE === 'prod' ? '/elg' : '/'),
   routes: [
     {
       path: '/',
@@ -46,7 +46,6 @@ const router = new createRouter({
       component: NotFound,
     },
   ],
-  base: import.meta.env.MODE === 'prod' ? '/elg' : '/',
   scrollBehavior(to, from, savedPosition) {
     // Logic to scroll to hash links when route changes
     if (to.hash) {
