@@ -54,13 +54,5 @@ export default defineConfig(({ mode }) => {
     },
   };
 
-  // Point to minified vue for production builds
-  if (mode === 'prod') {
-    config.resolve.alias.push({
-      find: 'vue',
-      replacement: path.resolve(__dirname, './node_modules/vue/dist/vue.min.js'),
-    });
-  }
-
   return config;
 });
