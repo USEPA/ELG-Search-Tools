@@ -696,7 +696,7 @@ module.exports = {
                                 {
                                   label: 'Treatment Trains',
                                   value: (params.treatmentIds.length > 0
-                                    ? [...new Set(limitations.map((lim) => lim.treatmentNames))]
+                                    ? [...new Set(limitations.rows.map((lim) => lim.treatmentNames))]
                                     : []
                                   ).join(', '),
                                 },
