@@ -30,9 +30,10 @@ if (isLocal) {
       user: vcap_services['aws-rds'][0].credentials.username,
       password: vcap_services['aws-rds'][0].credentials.password,
       options: {
-        dialect: 'postgres',
+        ...db.options,
         host: vcap_services['aws-rds'][0].credentials.host,
         port: vcap_services['aws-rds'][0].credentials.port,
+        ssl: { rejectUnauthorized: false },
       },
     };
   } else {
