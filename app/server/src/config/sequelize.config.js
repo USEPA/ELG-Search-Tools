@@ -21,7 +21,6 @@ module.exports = {
     dialect: config.db.options.dialect,
     dialectOptions: {
       client_encoding: config.db.options.encoding,
-      ssl: config.db.options.ssl,
     },
   },
   staging: {
@@ -33,7 +32,6 @@ module.exports = {
     dialect: config.db.options.dialect,
     dialectOptions: {
       client_encoding: config.db.options.encoding,
-      ssl: config.db.options.ssl,
     },
   },
   production: {
@@ -45,7 +43,6 @@ module.exports = {
     dialect: config.db.options.dialect,
     dialectOptions: {
       client_encoding: config.db.options.encoding,
-      ssl: config.db.options.ssl,
     },
   },
 };
