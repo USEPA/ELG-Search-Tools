@@ -3,46 +3,20 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const sequelizeStream = require('node-sequelize-stream');
 const basename = path.basename(__filename);
+const config = require('../config/config');
 const db = {};
 const logger = require('../../utilities/logger.js');
 const log = logger.logger;
 
-let isLocal = false;
-
-let database_host = '';
-let database_user = '';
-let database_pwd = '';
-let database_port = '';
-let database_name = '';
-
-if (process.env.NODE_ENV) {
-  isLocal = 'local' === process.env.NODE_ENV.toLowerCase();
-}
-
-if (isLocal) {
-  log.info('Since local, using a localhost Postgres database.');
-  database_host = process.env.DB_HOST ?? 'localhost';
-  database_user = process.env.DB_USER ?? 'postgres';
-  database_pwd = process.env.DB_PASS ?? 'postgres';
-  database_port = process.env.DB_PORT ?? 5432;
-  database_name = process.env.DB_NAME ?? 'elg_search';
-} else {
-  if (!process.env.VCAP_SERVICES) {
-    log.error('Database information not set.');
-    return;
-  }
-
-  let vcap_services = JSON.parse(process.env.VCAP_SERVICES);
-  database_host = vcap_services['aws-rds'][0].credentials.host;
-  database_user = vcap_services['aws-rds'][0].credentials.username;
-  database_pwd = vcap_services['aws-rds'][0].credentials.password;
-  database_port = vcap_services['aws-rds'][0].credentials.port;
-  database_name = 'postgres';
-}
-const sequelize = new Sequelize(database_name, database_user, database_pwd, {
-  host: database_host,
-  post: database_port,
-  dialect: 'postgres',
+const { database, user, password, host, port, options } = config.db;
+const sequelize = new Sequelize(database, user, password, {
+  host,
+  port,
+  dialect: options.dialect,
+  dialectOptions: {
+    client_encoding: options.encoding,
+    ssl: options.ssl,
+  },
   pool: {
     max: 20,
     min: 5,

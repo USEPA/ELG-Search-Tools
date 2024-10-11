@@ -7,11 +7,11 @@ let db = {
   database: process.env.DB_NAME ?? 'elg_search',
   user: process.env.DB_USER ?? 'postgres',
   password: process.env.DB_PASS ?? 'postgres',
+  host: process.env.DB_HOST ?? 'localhost',
+  port: process.env.DB_PORT ?? '5432',
   options: {
     dialect: 'postgres',
     encoding: 'UTF8',
-    host: process.env.DB_HOST ?? 'localhost',
-    port: process.env.DB_PORT ?? '5432',
   },
 };
 
@@ -29,10 +29,10 @@ if (isLocal) {
       database: 'postgres',
       user: vcap_services['aws-rds'][0].credentials.username,
       password: vcap_services['aws-rds'][0].credentials.password,
+      host: vcap_services['aws-rds'][0].credentials.host,
+      port: vcap_services['aws-rds'][0].credentials.port,
       options: {
         ...db.options,
-        host: vcap_services['aws-rds'][0].credentials.host,
-        port: vcap_services['aws-rds'][0].credentials.port,
         ssl: { rejectUnauthorized: false },
       },
     };
