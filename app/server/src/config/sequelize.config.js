@@ -5,8 +5,8 @@ module.exports = {
     username: config.db.user,
     password: config.db.password,
     database: config.db.database,
-    host: config.db.options.host,
-    port: config.db.options.port,
+    host: config.db.host,
+    port: config.db.port,
     dialect: config.db.options.dialect,
     dialectOptions: {
       client_encoding: config.db.options.encoding,
@@ -16,8 +16,8 @@ module.exports = {
     username: config.db.user,
     password: config.db.password,
     database: config.db.database,
-    host: config.db.options.host,
-    port: config.db.options.port,
+    host: config.db.host,
+    port: config.db.port,
     dialect: config.db.options.dialect,
     dialectOptions: {
       client_encoding: config.db.options.encoding,
@@ -28,8 +28,8 @@ module.exports = {
     username: config.db.user,
     password: config.db.password,
     database: config.db.database,
-    host: config.db.options.host,
-    port: config.db.options.port,
+    host: config.db.host,
+    port: config.db.port,
     dialect: config.db.options.dialect,
     dialectOptions: {
       client_encoding: config.db.options.encoding,
@@ -40,8 +40,8 @@ module.exports = {
     username: config.db.user,
     password: config.db.password,
     database: config.db.database,
-    host: config.db.options.host,
-    port: config.db.options.port,
+    host: config.db.host,
+    port: config.db.port,
     dialect: config.db.options.dialect,
     dialectOptions: {
       client_encoding: config.db.options.encoding,
