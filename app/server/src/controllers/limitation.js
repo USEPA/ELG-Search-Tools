@@ -693,7 +693,9 @@ function getTechnologyCodeWhereClause(techCodes) {
     let technologyCodeOrList = [];
     techCodes.forEach((techCode) => {
       technologyCodeOrList.push(
-        "lower('" + techCode + "') IN (SELECT codes FROM regexp_split_to_table(lower(treatment_codes), '; ') AS codes)"
+        "lower('" +
+          techCode +
+          "') IN (SELECT codes FROM regexp_split_to_table(lower(trim(treatment_codes)), '; ') AS codes)"
       );
     });
 
