@@ -14,7 +14,7 @@
     "@vitejs/plugin-vue": "5.1.2",
     "axios": "^1.7.5",
     "glossary-panel": "github:Eastern-Research-Group/glossary",
-    "hsrp-components": "^1.1.1",
+    "hsrp-components": "^1.1.5",
     "lodash": "^4.17.21",
     "vue": "3.4.38",
     "vue-router": "4.4.3",
@@ -37,7 +37,7 @@
     "rollup-plugin-visualizer": "^5.8.0",
     "sass": "~1.69.5",
     "sass-loader": "^13.3.2",
-    "vite": "5.3.5"
+    "vite": "^5.4.9"
   },
   "engines": {
     "node": "20.x"
