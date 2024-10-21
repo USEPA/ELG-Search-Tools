@@ -266,7 +266,6 @@ export default {
       this.$router.push('/results/limitations/long-term-average');
     },
     async tableProvider(ctx) {
-      console.log(ctx);
       try {
         const response = await this.$http.get(
           `${ctx.apiUrl}&offset=${ctx.currentPage * 100 - 100}&sortCol=${ctx.sortBy ?? ''}&sortDir=${
