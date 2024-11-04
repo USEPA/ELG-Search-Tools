@@ -28,7 +28,7 @@ function setColumnAlignment(worksheet, column) {
 }
 
 function getCellValue(dataRow, column) {
-  let cellValue = dataRow[column.key];
+  let cellValue = column.formatter ? column.formatter(dataRow) : dataRow[column.key];
   if (typeof cellValue === 'string') {
     cellValue = cellValue.replace(/<strong><u>and<\/u><\/strong>/gi, 'AND');
     if (cellValue.length > 32000) {
