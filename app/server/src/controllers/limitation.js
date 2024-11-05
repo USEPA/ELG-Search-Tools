@@ -1510,13 +1510,7 @@ module.exports = {
                             { key: 'pollutantDescription', label: 'Pollutant' },
                             { key: 'longTermAverageValue', label: 'LTA Value' },
                             { key: 'longTermAverageUnitCode', label: 'LTA Units', width: 90 },
-                            {
-                              key: 'limitationValue',
-                              label: 'Limitation Value',
-                              formatter: (row) =>
-                                row.limitationValue ??
-                                `${row.minimumValue}${row.maximumValue ? ' - ' + row.maximumValue : ''}`,
-                            },
+                            { key: 'limitationValue', label: 'Limitation Value' },
                             { key: 'alternateLimitFlag', label: 'Limitation Flag' },
                             { key: 'limitationUnitCode', label: 'Limitation Units', width: 90 },
                             { key: 'limitationUnitBasis', label: 'Limitation Basis' },
@@ -1568,12 +1562,7 @@ module.exports = {
     { key: 'wastestreamProcessTitle', label: 'Process', width: 60 },
     { key: 'treatmentNames', label: 'Treatment Train', width: 100 },
     { key: 'wastestreamProcessTreatmentTechnologyNotes', label: 'Treatment Train Notes', width: 100, wrapText: true },
-    {
-      key: 'limitationValue',
-      label: 'Limitation Value',
-      formatter: (row) =>
-        row.limitationValue ?? `${row.minimumValue}${row.maximumValue ? ' - ' + row.maximumValue : ''}`,
-    },
+    { key: 'limitationValue', label: 'Limitation Value' },
     { key: 'alternateLimitFlag', label: 'Limitation Flag' },
     { key: 'limitationUnitCode', label: 'Units', width: 90 },
     { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 },
