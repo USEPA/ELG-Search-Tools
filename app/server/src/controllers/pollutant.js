@@ -662,7 +662,12 @@ module.exports = {
                   wrapText: 'true',
                 },
                 { key: 'limitationDurationTypeDisplay', label: 'Type of Limitation', width: 30 },
-                { key: 'limitationValue', label: 'Limitation Value' },
+                {
+                  key: 'limitationValue',
+                  label: 'Limitation Value',
+                  formatter: (row) =>
+                    row.limitationValue ?? `${row.minimumValue}${row.maximumValue ? ' - ' + row.maximumValue : ''}`,
+                },
                 { key: 'alternateLimitFlag', label: 'Limitation Flag' },
                 { key: 'limitationUnitCode', label: 'Units', width: 90 },
                 { key: 'limitationUnitBasis', label: 'Limitation Basis' },
