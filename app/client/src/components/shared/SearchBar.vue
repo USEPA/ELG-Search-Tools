@@ -12,7 +12,7 @@
         :key="option.id"
         :class="`grid-col ${searchType === option.id ? 'is-active' : ''}`"
       >
-        <button @click="toggleSearchType(option.id)">
+        <button class="height-full" @click="toggleSearchType(option.id)">
           {{ option.label }}
         </button>
       </li>
