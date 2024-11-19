@@ -60,7 +60,7 @@ const actions = {
     commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/wastestreamProcessLimitations`, {
+    const res = await axios.get(`/api/wastestreamProcessLimitations`, {
       params: {
         id,
       },
@@ -74,7 +74,7 @@ const actions = {
     commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get('api/pollutantLimitations', {
+    const res = await axios.get('/api/pollutantLimitations', {
       params: {
         pollutantId,
         pointSourceCategoryCode,
@@ -88,7 +88,7 @@ const actions = {
     commit('SET_COMPARE', true);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get('api/pollutantLimitations', {
+    const res = await axios.get('/api/pollutantLimitations', {
       params: {
         pollutantId: pollutantIds,
         pointSourceCategoryCode: pointSourceCategoryCodes,
@@ -102,7 +102,7 @@ const actions = {
     commit('SET_COMPARE', false);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get('api/technologyBasisLimitations', {
+    const res = await axios.get('/api/technologyBasisLimitations', {
       params: {
         treatmentId,
         pointSourceCategoryCode,
@@ -119,7 +119,7 @@ const actions = {
     commit('SET_LTA_DATA', null);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/limitation`, {
+    const res = await axios.get(`/api/limitation`, {
       params: {
         id,
       },
@@ -132,7 +132,7 @@ const actions = {
     commit('SET_LTA_DATA', null);
     commit('SET_IS_FETCHING', true);
 
-    const res = await axios.get(`api/limitation`, {
+    const res = await axios.get(`/api/limitation`, {
       params: {
         id,
       },
