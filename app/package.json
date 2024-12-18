@@ -1,0 +1,31 @@
+{
+  "name": "elg-search-tools",
+  "version": "1.0.0",
+  "description": "The ‘ELG Search Tools’ application is a publicly accessible EPA/OWM sponsored web app that allows end users to search, filter and download ELG data.",
+  "author": "Eastern Research Group (ERG)",
+  "scripts": {
+    "client": "cd client && npm start",
+    "server": "cd server && npm start",
+    "start": "concurrently --kill-others \"npm run server\" \"npm run client\"",
+    "lint": "cd client && npm run lint && cd ../server && npm run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.2"
+  },
+  "bugs": {
+    "url": "https://trello.com/b/P0wzFrwE/elg-database-web-app"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "homepage": "https://github.com/Eastern-Research-Group/ELG-Search-Tools#readme",
+  "keywords": [
+    "ELG",
+    "Search"
+  ],
+  "license": "CCO-1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eastern-Research-Group/ELG-Search-Tools.git"
+  }
+}

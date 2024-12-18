@@ -1,5 +1,0 @@
-.env
-.git
-.vscode
-node_modules
-npm-debug.log*

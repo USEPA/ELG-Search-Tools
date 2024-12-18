@@ -1,0 +1,45 @@
+{
+  "name": "elg-client",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --mode prod",
+    "test": "jest",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@uswds/uswds": "3.7.1",
+    "@vitejs/plugin-vue": "5.1.2",
+    "axios": "^1.7.5",
+    "glossary-panel": "github:Eastern-Research-Group/glossary",
+    "hsrp-components": "^1.1.5",
+    "lodash": "^4.17.21",
+    "vue": "3.4.38",
+    "vue-router": "4.4.3",
+    "vue-select": "4.0.0-beta.6",
+    "vuex": "4.0.2",
+    "vuex-persistedstate": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.18.2",
+    "@babel/preset-env": "^7.18.10",
+    "@vue/eslint-config-prettier": "^8.0.0",
+    "autoprefixer": "^10.4.8",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.17.0",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-vue": "^9.24.0",
+    "prettier": "^3.3.3",
+    "rollup-plugin-visualizer": "^5.8.0",
+    "sass": "~1.69.5",
+    "sass-loader": "^13.3.2",
+    "vite": "^5.4.9"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}

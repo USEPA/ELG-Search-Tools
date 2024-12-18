@@ -1,0 +1,21 @@
+---
+applications:
+  - name: elg-search-tools-prod
+    instances: 2
+    memory: 512M
+    disk_quota: 1GB
+    timeout: 180
+    buildpacks:
+      - nodejs_buildpack
+    command: npm run prod
+    env:
+      NODE_ENV: production
+      SUB_PATH: /elg
+      LOGGER_LEVEL: ERROR
+      OPTIMIZE_MEMORY: true
+    services:
+      - elg-db-service
+      - elg-s3-service
+      - log-drain
+    routes:
+      - route: owapps.epa.gov/elg
