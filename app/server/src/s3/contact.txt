@@ -5,4 +5,4 @@ For additional information regarding the ELG Database,
 please contact <a href=mailto:Rexhepi.Doruntine@epa.gov>Doruntinë Rexhepi</a> (<a href=mailto:Rexhepi.Doruntine@epa.gov>Rexhepi.Doruntine@epa.gov</a>)
 at 202-566-2532.
 <br/>
-The ELG Database includes information in Title 40 of the CFR as of September 1, 2024.
+The ELG Database includes information in Title 40 of the CFR as of March 1, 2024.
