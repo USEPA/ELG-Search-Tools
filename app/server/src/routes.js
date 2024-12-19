@@ -8,7 +8,7 @@ const router = express.Router();
 const basePath = process.env.SUB_PATH ? process.env.SUB_PATH : '';
 
 module.exports = (app, history) => {
-  router.get('/', (req, res) => res.status(200).sendFile(path.resolve(__dirname, '../api-docs/elg_swagger2.json')));
+  router.get('/', (req, res) => res.status(200).sendFile(path.resolve(__dirname, '../api-docs/elg_openapi.json')));
   router.get('/pointSourceCategories', controllers.pointSourceCategory.list);
   router.get('/pointSourceCategory/:id', controllers.pointSourceCategory.read);
   router.get('/pointSourceCategoryCfr/:id', controllers.pointSourceCategory.cfr);
