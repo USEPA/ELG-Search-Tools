@@ -696,7 +696,7 @@ module.exports = {
                                 {
                                   label: 'Treatment Trains',
                                   value: (params.treatmentIds.length > 0
-                                    ? [...new Set(limitations.rows.map((lim) => lim.treatmentNames))]
+                                    ? [...new Set(limitations.rows?.map((lim) => lim.treatmentNames))]
                                     : []
                                   ).join(', '),
                                 },
@@ -729,8 +729,8 @@ module.exports = {
                             'MB'
                         );
                         res.status(200).send({
-                          limitations: limitations.rows,
-                          count: limitations.count,
+                          limitations: limitations?.rows ?? [],
+                          count: limitations?.count ?? 0,
                         });
                       })
                       .catch((error) => res.status(400).send(utilities.sanitizeError(error)));
