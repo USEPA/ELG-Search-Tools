@@ -33,4 +33,4 @@ git push origin feature/your-branch-name
 ```
 
 - Then you can make a pull request by finding your branch on the
-  [ELG GitHub repository](https://github.com/USEPA/ELG-Search-Tools/branches)
+  [ELG GitHub repository](../../../branches)
