@@ -18,7 +18,7 @@
   "engines": {
     "node": "20.x"
   },
-  "homepage": "https://github.com/Eastern-Research-Group/ELG-Search-Tools#readme",
+  "homepage": "https://github.com/USEPA/ELG-Search-Tools#readme",
   "keywords": [
     "ELG",
     "Search"
@@ -26,6 +26,6 @@
   "license": "CCO-1.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Eastern-Research-Group/ELG-Search-Tools.git"
+    "url": "git+https://github.com/USEPA/ELG-Search-Tools.git"
   }
 }
