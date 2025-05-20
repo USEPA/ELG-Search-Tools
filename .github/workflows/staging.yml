@@ -44,7 +44,7 @@ jobs:
 
       # Run front-end processes (install, lint, test, bundle)
       - name: Cache node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/client/.npm
           key: v1-npm-client-deps-${{ hashFiles('**/client/package-lock.json') }}
