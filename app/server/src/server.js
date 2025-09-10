@@ -93,8 +93,10 @@ if (!isLocal) {
     //get latest version of help pdf from s3
     const usersGuideFilename = 'ELG Database Users Guide.pdf';
     try {
-      const usersGuide = await retrieveFileFromS3(usersGuideFilename);
-      fs.writeFileSync(path.join(__dirname, './s3/' + usersGuideFilename), usersGuide);
+      const usersGuide = await retrieveFileFromS3(usersGuideFilename, 'byteArray');
+      if (usersGuide) {
+        fs.writeFileSync(path.join(__dirname, './s3/' + usersGuideFilename), usersGuide);
+      }
     } catch (error) {
       log.error('Failed to download ' + usersGuideFilename + '; ' + error);
     }
@@ -103,7 +105,9 @@ if (!isLocal) {
     const contactFilename = 'contact.txt';
     try {
       const contact = await retrieveFileFromS3(contactFilename);
-      fs.writeFileSync(path.join(__dirname, './s3/' + contactFilename), contact);
+      if (contact) {
+        fs.writeFileSync(path.join(__dirname, './s3/' + contactFilename), contact);
+      }
     } catch (error) {
       log.error('Failed to download ' + contactFilename + '; ' + error);
     }
@@ -130,7 +134,9 @@ if (process.env.ELG_GLOSSARY_AUTH) {
     const glossaryFilename = 'glossary.json';
     try {
       const glossary = await retrieveFileFromS3(glossaryFilename);
-      fs.writeFileSync(path.join(__dirname, './s3/' + glossaryFilename), glossary);
+      if (glossary) {
+        fs.writeFileSync(path.join(__dirname, './s3/' + glossaryFilename), glossary);
+      }
     } catch (error) {
       log.error('Failed to download ' + glossaryFilename + '; ' + error);
     }
@@ -179,7 +185,9 @@ if (process.env.ELG_GLOSSARY_AUTH) {
           const glossaryFilename = 'glossary.json';
           try {
             const glossary = await retrieveFileFromS3(glossaryFilename);
-            fs.writeFileSync(path.join(__dirname, './s3/' + glossaryFilename), glossary);
+            if (glossary) {
+              fs.writeFileSync(path.join(__dirname, './s3/' + glossaryFilename), glossary);
+            }
           } catch (error) {
             log.error('Failed to download ' + glossaryFilename + '; ' + error);
           }

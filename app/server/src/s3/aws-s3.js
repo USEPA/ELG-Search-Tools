@@ -36,7 +36,7 @@ const getS3Client = () => {
   });
 };
 
-const retrieveFileFromS3 = async (filename) => {
+const retrieveFileFromS3 = async (filename, contentType = 'string') => {
   const { s3_bucket } = getS3Config();
   const command = new GetObjectCommand({
     Bucket: s3_bucket,
@@ -48,7 +48,7 @@ const retrieveFileFromS3 = async (filename) => {
     if (!response || !response.Body) {
       log.error('S3 file response body is empty');
     }
-    return await response?.Body;
+    return await response?.Body?.[contentType === 'string' ? 'transformToString' : 'transformToByteArray']();
   } catch (error) {
     log.error(`S3 error retrieving file: ${error}`);
     throw error;
