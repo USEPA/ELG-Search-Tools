@@ -20,6 +20,9 @@ const LimitationKeywordSearch = require('../models').LimitationKeywordSearch;
 const Op = require('sequelize').Op;
 const Sequelize = require('sequelize');
 
+const logger = require('../../utilities/logger.js');
+const log = logger.logger;
+
 const download = require('./download');
 
 let attributes = [
@@ -595,10 +598,17 @@ function fillLongTermAverage(longTermAverage) {
       .then((treatmentTechnologyCodes) => {
         let names = longTermAverage.treatmentTechnologyCodes
           .split('; ')
-          .map(
-            (code) =>
-              treatmentTechnologyCodes.filter((treatmentTechnologyCode) => treatmentTechnologyCode.id === code)[0].name
-          )
+          .map((code) => {
+            const match = treatmentTechnologyCodes.find(
+              (treatmentTechnologyCode) => treatmentTechnologyCode.id === code
+            );
+            if (!match) {
+              log.warn('No treatment technology name found for code: ' + code);
+              return null;
+            }
+            return match.name;
+          })
+          .filter((name) => name !== null)
           .join(' + ');
 
         resolve({
@@ -623,7 +633,7 @@ function fillLongTermAverage(longTermAverage) {
         });
       })
       .catch((err) => {
-        console.error('Failed to retrieve treatment technology names: ' + err);
+        log.error('Failed to retrieve treatment technology names: ' + err);
         resolve({
           treatmentTechnologyNames: longTermAverage.treatmentTechnologyCodes,
           pollutantDescription: longTermAverage.pollutantDescription,
