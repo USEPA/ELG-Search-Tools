@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
     base: mode === 'prod' ? '/elg/' : '/',
     build: {
       // Store bundled files in server so we only need to deploy server files to Cloud.gov
-      outDir: path.resolve(__dirname, '../server/public'), // To be served by Express server
+      outDir: path.resolve(import.meta.dirname, '../server/public'), // To be served by Express server
       emptyOutDir: true,
       rollupOptions: {
         output: {
@@ -40,15 +40,15 @@ export default defineConfig(({ mode }) => {
       alias: [
         {
           find: '~',
-          replacement: path.resolve(__dirname, 'node_modules'),
+          replacement: path.resolve(import.meta.dirname, 'node_modules'),
         },
         {
           find: '@',
-          replacement: path.resolve(__dirname, 'src'),
+          replacement: path.resolve(import.meta.dirname, 'src'),
         },
         {
           find: 'components',
-          replacement: path.resolve(__dirname, 'src/components'),
+          replacement: path.resolve(import.meta.dirname, 'src/components'),
         },
       ],
     },

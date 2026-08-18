@@ -67,7 +67,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../static/variables';
+@use 'sass:color';
+@use '../../../static/variables' as *;
 
 .control-tabs-container {
   border-bottom: 2px solid $blue;
@@ -117,7 +118,7 @@ export default {
       cursor: pointer;
 
       &:hover {
-        background-color: darken($gray, 10);
+        background-color: color.adjust($gray, $lightness: -10%);
       }
     }
 

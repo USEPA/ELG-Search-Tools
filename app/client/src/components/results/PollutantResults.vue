@@ -117,10 +117,12 @@
         <span v-if="value !== []">
           <table class="usa-table" style="font-size: 0.87rem">
             <thead class="sr-only">
-              <th>Min</th>
-              <th>Max</th>
-              <th>Units</th>
-              <th>Type of Limitation</th>
+              <tr>
+                <th>Min</th>
+                <th>Max</th>
+                <th>Units</th>
+                <th>Type of Limitation</th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="(range, index) in value" :key="index">
@@ -339,7 +341,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../static/variables';
+@use '../../../static/variables' as *;
 
 :deep() {
   th[aria-colindex='5'] {

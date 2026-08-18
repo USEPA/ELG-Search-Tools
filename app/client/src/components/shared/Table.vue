@@ -368,7 +368,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../static/variables';
+@use '../../../static/variables' as *;
 .table-container {
   :deep() {
     .usa-table-container--responsive {

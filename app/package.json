@@ -10,13 +10,13 @@
     "lint": "cd client && npm run lint && cd ../server && npm run lint"
   },
   "devDependencies": {
-    "concurrently": "^6.0.2"
+    "concurrently": "10.0.5"
   },
   "bugs": {
     "url": "https://trello.com/b/P0wzFrwE/elg-database-web-app"
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=24.x"
   },
   "homepage": "https://github.com/USEPA/ELG-Search-Tools#readme",
   "keywords": [

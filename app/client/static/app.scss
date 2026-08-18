@@ -1,4 +1,5 @@
-@import 'variables';
+@use "sass:color";
+@use 'variables';
 
 // set app content to take up full page height
 html,
@@ -73,12 +74,12 @@ section.main-content {
   background: none;
   padding: 0;
   margin: 0;
-  color: $blue;
+  color: variables.$blue;
   text-decoration: underline;
   height: inherit;
 
   &:hover {
-    color: darken($blue, 10);
+    color: color.adjust(variables.$blue, $lightness: -10%);
   }
 }
 
@@ -178,7 +179,7 @@ input,
 // Custom tab styles
 .tabs {
   li button {
-    background-color: $gray;
+    background-color: variables.$gray;
     color: #212121;
     justify-content: center;
     margin-right: 0.2rem;
@@ -192,7 +193,7 @@ input,
     line-height: inherit;
 
     &:hover {
-      background-color: darken($gray, 10);
+      background-color: color.adjust(variables.$gray, $lightness: -10%);
     }
   }
 }
@@ -257,7 +258,7 @@ input,
   width: inherit;
 
   .fa-info-circle {
-    color: $blue;
+    color: variables.$blue;
   }
 }
 

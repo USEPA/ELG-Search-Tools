@@ -327,7 +327,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../static/variables';
+@use '../../../static/variables' as *;
 
 .is-link.more {
   margin-left: 3px;
