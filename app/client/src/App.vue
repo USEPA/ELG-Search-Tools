@@ -82,7 +82,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../static/variables';
+@use '../static/variables' as *;
 
 .header {
   position: relative;

@@ -265,7 +265,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../static/variables';
+@use '../../../static/variables' as *;
 
 h3 {
   margin-bottom: 1rem;

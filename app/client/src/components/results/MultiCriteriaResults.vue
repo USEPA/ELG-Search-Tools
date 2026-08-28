@@ -273,7 +273,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../static/variables';
+@use '../../../static/variables' as *;
 
 .usa-button {
   width: 100%;

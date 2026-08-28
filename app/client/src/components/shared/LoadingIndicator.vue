@@ -6,7 +6,7 @@
 </template>
 
 <style lang="scss" scoped>
-@import '../../../static/variables';
+@use '../../../static/variables' as *;
 
 .loading-indicator {
   text-align: center;
