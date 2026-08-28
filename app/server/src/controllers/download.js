@@ -13,7 +13,7 @@ function addHeaderRow(worksheet, rowNum, headerRow) {
 }
 
 function setColumns(dataColumns) {
-  return dataColumns.map(function(column) {
+  return dataColumns.map(function (column) {
     return {
       key: column.key,
       width: column.width ? column.width : 20,
@@ -54,7 +54,7 @@ function initializeWorkbook(res, worksheetName, headerRows, dataColumns, fileNam
 
   let rowNum = 0;
   if (headerRows.length > 0) {
-    headerRows.forEach(function(headerRow) {
+    headerRows.forEach(function (headerRow) {
       rowNum++;
       addHeaderRow(worksheet, rowNum, headerRow);
     });
@@ -64,7 +64,7 @@ function initializeWorkbook(res, worksheetName, headerRows, dataColumns, fileNam
 
   rowNum++;
   let dataHeaderRow = worksheet.addRow(
-    dataColumns.map(function(column) {
+    dataColumns.map(function (column) {
       return column.label;
     })
   );
@@ -82,17 +82,17 @@ module.exports = {
       const workbook = initializeWorkbook(res, worksheetName, headerRows, dataColumns, fileName);
       const worksheet = workbook.getWorksheet(worksheetName);
 
-      data.forEach(function(dataRow) {
+      data.forEach(function (dataRow) {
         let row = worksheet.addRow(dataColumns.map((column) => getCellValue(dataRow, column)));
         row.commit();
       });
       worksheet.commit();
 
       workbook.commit().then(
-        function() {
+        function () {
           res.end();
         },
-        function(err) {
+        function (err) {
           res.status(400).send('Error! ' + utilities.sanitizeError(err));
         }
       );
@@ -108,7 +108,7 @@ module.exports = {
 
       if (dataStream !== null) {
         dataStream.on('data', (rows) => {
-          rows.forEach(function(dataRow) {
+          rows.forEach(function (dataRow) {
             let row = worksheet.addRow(dataColumns.map((column) => getCellValue(dataRow, column)));
             row.commit();
           });
@@ -117,10 +117,10 @@ module.exports = {
           worksheet.commit();
 
           workbook.commit().then(
-            function() {
+            function () {
               res.end();
             },
-            function(err) {
+            function (err) {
               res.status(400).send('Error! ' + utilities.sanitizeError(err));
             }
           );
@@ -129,10 +129,10 @@ module.exports = {
         worksheet.commit();
 
         workbook.commit().then(
-          function() {
+          function () {
             res.end();
           },
-          function(err) {
+          function (err) {
             res.status(400).send('Error! ' + utilities.sanitizeError(err));
           }
         );

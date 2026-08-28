@@ -15,7 +15,7 @@ const Op = require('sequelize').Op;
 const Sequelize = require('sequelize');
 
 function fillSubcategoryForCfr(subcategory) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     let sub = {
       id: subcategory.id,
       pointSourceCategoryCode: subcategory.pointSourceCategoryCode,
@@ -42,16 +42,16 @@ function fillSubcategoryForCfr(subcategory) {
       },
       order: ['cfrSection'],
     }).then((provisions) => {
-      sub.applicabilityProvisions = provisions.filter(function(provision) {
+      sub.applicabilityProvisions = provisions.filter(function (provision) {
         return provision.type === 'applicability';
       });
-      sub.monitoringRequirementProvisions = provisions.filter(function(provision) {
+      sub.monitoringRequirementProvisions = provisions.filter(function (provision) {
         return provision.type === 'monitoringRequirement';
       });
-      sub.bmpProvisions = provisions.filter(function(provision) {
+      sub.bmpProvisions = provisions.filter(function (provision) {
         return provision.type === 'bmp';
       });
-      sub.otherProvisions = provisions.filter(function(provision) {
+      sub.otherProvisions = provisions.filter(function (provision) {
         return provision.type === 'other';
       });
       resolve(sub);
@@ -60,7 +60,7 @@ function fillSubcategoryForCfr(subcategory) {
 }
 
 function fillSubcategoryForDefinitions(subcategory) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     let sub = {
       id: subcategory.id,
       pointSourceCategoryCode: subcategory.pointSourceCategoryCode,
@@ -166,7 +166,7 @@ module.exports = {
                         .join('; ')
                         .split('; ')
                         .sort()
-                        .filter(function(value, index, self) {
+                        .filter(function (value, index, self) {
                           return self.indexOf(value) === index;
                         })
                         .join('; ');
@@ -303,7 +303,7 @@ module.exports = {
                         let subcategoryPromises = [];
 
                         //get provisions for each subcategory, grouped by type
-                        subcategories.forEach(function(subcategory) {
+                        subcategories.forEach(function (subcategory) {
                           subcategoryPromises.push(fillSubcategoryForCfr(subcategory));
                         });
 
@@ -369,7 +369,7 @@ module.exports = {
                 let subcategoryPromises = [];
 
                 //get provisions for each subcategory, grouped by type
-                subcategories.forEach(function(subcategory) {
+                subcategories.forEach(function (subcategory) {
                   subcategoryPromises.push(fillSubcategoryForDefinitions(subcategory));
                 });
 

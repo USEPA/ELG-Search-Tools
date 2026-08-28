@@ -35,7 +35,7 @@ app.use(cors());
 /****************************************************************
  Instruct web browsers to disable caching
  ****************************************************************/
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.setHeader('Surrogate-Control', 'no-store');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');

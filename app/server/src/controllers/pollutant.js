@@ -26,15 +26,15 @@ const download = require('./download');
  * @returns {Promise<unknown>}
  */
 function buildRangeOfLimitations(limitValues) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     let rangeOfPollutantLimitationsAsTable = [];
     let rangeOfPollutantLimitationsForDownload = [];
 
     limitValues
-      .filter(function(limitValue) {
+      .filter(function (limitValue) {
         return limitValue.minimumLimitationValue !== null || limitValue.maximumLimitationValue !== null;
       })
-      .forEach(function(limitValue) {
+      .forEach(function (limitValue) {
         let rangeAsTableRow = new Map();
         rangeAsTableRow.minimumLimitationValue = limitValue.minimumLimitationValue
           ? limitValue.minimumLimitationValue
@@ -106,7 +106,7 @@ function getPollutantLimitationRanges(id) {
       raw: true,
     })
       .then((limitationRanges) => {
-        let ranges = limitationRanges.map(function(lr) {
+        let ranges = limitationRanges.map(function (lr) {
           let alternateLimitFlagDisplay = lr.alternateLimitFlag ? lr.alternateLimitFlag : '';
           let minimumDisplayValue = lr.minimumDisplayValue ? lr.minimumDisplayValue : '';
           let maximumDisplayValue = lr.maximumDisplayValue ? lr.maximumDisplayValue : '';
@@ -255,9 +255,9 @@ module.exports = {
               .then((pointSourceCategories) => {
                 let pscPromises = [];
 
-                pointSourceCategories.forEach(function(psc) {
+                pointSourceCategories.forEach(function (psc) {
                   pscPromises.push(
-                    new Promise(function(resolve) {
+                    new Promise(function (resolve) {
                       psc.rangeOfPollutantLimitations = [];
                       psc.rangeOfPollutantLimitationsForDownload = '';
 
@@ -463,9 +463,9 @@ module.exports = {
             .then((pointSourceCategories) => {
               let pscPromises = [];
 
-              pointSourceCategories.forEach(function(psc) {
+              pointSourceCategories.forEach(function (psc) {
                 pscPromises.push(
-                  new Promise(function(resolve) {
+                  new Promise(function (resolve) {
                     psc.rangeOfPollutantLimitations = [];
                     psc.rangeOfPollutantLimitationsForDownload = '';
 
@@ -619,8 +619,8 @@ module.exports = {
 
       //validate passed in values
       if (
-        pollutantIds === [] ||
-        pollutantIds.some(function(pollutantId) {
+        pollutantIds.length === 0 ||
+        pollutantIds.some(function (pollutantId) {
           return utilities.parseIdAsInteger(pollutantId) === null;
         })
       ) {
@@ -628,8 +628,8 @@ module.exports = {
       }
 
       if (
-        pointSourceCategoryCodes === [] ||
-        pointSourceCategoryCodes.some(function(psc) {
+        pointSourceCategoryCodes.length === 0 ||
+        pointSourceCategoryCodes.some(function (psc) {
           return utilities.parseIdAsInteger(psc) === null;
         })
       ) {

@@ -4,8 +4,8 @@ const ViewLimitation = require('../models').ViewLimitation;
 const ViewLongTermAverage = require('../models').ViewLongTermAverage;
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
-const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('../models')
-  .ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
+const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation =
+  require('../models').ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
 
 const PointSourceCategorySicCode = require('../models').PointSourceCategorySicCode;
 const PointSourceCategoryNaicsCode = require('../models').PointSourceCategoryNaicsCode;
@@ -88,7 +88,7 @@ let order = [
 ];
 
 function wastestreamProcessLimitations(wastestreamProcessId) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     ViewLimitation.findAll({
       attributes: attributes,
       where: {
@@ -122,7 +122,7 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
 }
 
 function pollutantLimitations(pollutantIds, pointSourceCategoryCodes) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     ViewLimitation.findAll({
       attributes: attributes,
       where: {
@@ -188,7 +188,7 @@ function technologyLimitations(
   sortDir,
   treatmentNamesOnly = false
 ) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     //determine list of relevant treatment ids;
     // either specific treatment trains selected OR all treatment trains for the selected treatment technology code
     ViewWastestreamProcessTreatmentTechnology.sequelize
@@ -258,7 +258,7 @@ function technologyLimitations(
 }
 
 function technologyLimitationsForDownload(id, treatmentIds, pointSourceCategoryCodes, pollutantIds, sortCol, sortDir) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     //determine list of relevant treatment ids;
     // either specific treatment trains selected OR all treatment trains for the selected treatment technology code
     ViewWastestreamProcessTreatmentTechnology.sequelize
@@ -333,7 +333,7 @@ function technologyCategoryLimitations(
   limit,
   treatmentNamesOnly = false
 ) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     TreatmentTechnologyCode.findAll({
       where: {
         category: { [Op.iLike]: '%' + id + '%' },
@@ -341,7 +341,7 @@ function technologyCategoryLimitations(
     })
       .then((treatmentTechnologyCodes) => {
         let whereClauseOrList = [];
-        treatmentTechnologyCodes.forEach(function(treatmentTechnologyCode) {
+        treatmentTechnologyCodes.forEach(function (treatmentTechnologyCode) {
           whereClauseOrList.push({
             [Op.and]: Sequelize.literal(
               "lower('" +
@@ -468,7 +468,7 @@ function technologyCategoryLimitationsForDownload(
   sortCol,
   sortDir
 ) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     TreatmentTechnologyCode.findAll({
       where: {
         category: { [Op.iLike]: '%' + id + '%' },
@@ -476,7 +476,7 @@ function technologyCategoryLimitationsForDownload(
     })
       .then((treatmentTechnologyCodes) => {
         let whereClauseOrList = [];
-        treatmentTechnologyCodes.forEach(function(treatmentTechnologyCode) {
+        treatmentTechnologyCodes.forEach(function (treatmentTechnologyCode) {
           whereClauseOrList.push({
             [Op.and]: Sequelize.literal(
               "lower('" +
@@ -557,7 +557,7 @@ function technologyCategoryLimitationsForDownload(
 }
 
 function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     ViewWastestreamProcessTreatmentTechnology.findAll({
       attributes: ['wastestreamProcessId'],
       where: {
@@ -585,7 +585,7 @@ function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
 }
 
 function fillLongTermAverage(longTermAverage) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     TreatmentTechnologyCode.findAll({
       where: {
         [Op.and]: Sequelize.literal(
@@ -660,10 +660,9 @@ function fillLongTermAverage(longTermAverage) {
 
 function parseSort(sortCol, sortDir, queryColumns) {
   let result = [];
-  let columnMatch = false;
 
   if (sortCol) {
-    columnMatch =
+    const columnMatch =
       queryColumns.filter((queryColumn) => {
         let columnName = Array.isArray(queryColumn) ? queryColumn[1] : queryColumn;
         return sortCol === columnName;
@@ -916,7 +915,7 @@ function multiCriteriaSearchLimitationsForDownload(
   sortCol,
   sortDir
 ) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (
       pointSourceCategoryCodes.length === 0 &&
       sicCodes.length === 0 &&
@@ -995,7 +994,7 @@ function multiCriteriaSearchLimitations(
   filterPollutantIds = [],
   filterValuesOnly = false
 ) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (
       pointSourceCategoryCodes.length === 0 &&
       sicCodes.length === 0 &&
@@ -1082,7 +1081,7 @@ function multiCriteriaSearchLimitations(
 }
 
 function getMatchingPointSourceCategories(keywords, limitationIds = []) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     LimitationKeywordSearch.sequelize
       .query(
         'SELECT psc_code as "pointSourceCategoryCode" ' +
@@ -1114,7 +1113,7 @@ function getMatchingPointSourceCategories(keywords, limitationIds = []) {
 }
 
 function getMatchingWastestreamProcesses(keywords, limitationIds = []) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     LimitationKeywordSearch.sequelize
       .query(
         'SELECT processop_id as "wastestreamProcessId" ' +
@@ -1160,7 +1159,7 @@ function getMatchingWastestreamProcesses(keywords, limitationIds = []) {
 }
 
 function getMatchingPollutants(keywords, limitationIds = []) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     LimitationKeywordSearch.sequelize
       .query(
         'SELECT pollutant_code as "pollutantId" ' +
@@ -1192,7 +1191,7 @@ function getMatchingPollutants(keywords, limitationIds = []) {
 }
 
 function getMatchingTreatmentTrains(keywords, limitationIds = []) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     LimitationKeywordSearch.sequelize
       .query(
         'SELECT treatment_id as "treatmentId" ' +
@@ -1224,7 +1223,7 @@ function getMatchingTreatmentTrains(keywords, limitationIds = []) {
 }
 
 function keywordSearchLimitations(keywords, operator, sortCol, sortDir, offset, limit) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let result = {
       limitations: [],
       pointSourceCategoryCodes: [],
@@ -1384,7 +1383,7 @@ function keywordSearchLimitationsForDownload(keywords, operator, sortCol, sortDi
 function sortLtas(ltas) {
   return new Promise((resolve, reject) => {
     try {
-      let result = ltas.sort(function(a, b) {
+      let result = ltas.sort(function (a, b) {
         if (a.treatmentTechnologyNames < b.treatmentTechnologyNames) {
           return -1;
         }
@@ -1504,7 +1503,7 @@ module.exports = {
               .then((longTermAverages) => {
                 let ltaPromises = [];
 
-                longTermAverages.forEach(function(lta) {
+                longTermAverages.forEach(function (lta) {
                   ltaPromises.push(fillLongTermAverage(lta));
                 });
 

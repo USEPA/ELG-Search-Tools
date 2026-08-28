@@ -4,10 +4,10 @@ const limitation = require('./limitation');
 const TreatmentTechnologyCode = require('../models').TreatmentTechnologyCode;
 const TreatmentTechnology = require('../models').TreatmentTechnology;
 const ViewWastestreamProcessTreatmentTechnology = require('../models').ViewWastestreamProcessTreatmentTechnology;
-const WastestreamProcessTreatmentTechnologyPollutant = require('../models')
-  .WastestreamProcessTreatmentTechnologyPollutant;
-const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation = require('../models')
-  .ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
+const WastestreamProcessTreatmentTechnologyPollutant =
+  require('../models').WastestreamProcessTreatmentTechnologyPollutant;
+const ViewWastestreamProcessTreatmentTechnologyPollutantLimitation =
+  require('../models').ViewWastestreamProcessTreatmentTechnologyPollutantLimitation;
 const PointSourceCategory = require('../models').PointSourceCategory;
 const Pollutant = require('../models').Pollutant;
 const Op = require('sequelize').Op;
@@ -26,7 +26,7 @@ const download = require('./download');
  * } pointSourceCategory
  */
 function fillPointSourceCategory(pointSourceCategory) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     let result = {
       treatmentId: pointSourceCategory.treatmentId,
       pointSourceCategoryCode: pointSourceCategory.pointSourceCategoryCode,
@@ -71,7 +71,7 @@ function fillPointSourceCategory(pointSourceCategory) {
 function sendCriteriaList(res, result, treatmentTechnologyCodes) {
   //get lists of pscs, pollutants, and treatment trains for these technology codes
   let whereClauseOrList = [];
-  treatmentTechnologyCodes.forEach(function(treatmentTechnologyCode) {
+  treatmentTechnologyCodes.forEach(function (treatmentTechnologyCode) {
     whereClauseOrList.push({
       [Op.and]: Sequelize.literal(
         "lower('" +
@@ -134,7 +134,7 @@ function sendCriteriaList(res, result, treatmentTechnologyCodes) {
                 },
               })
                 .then((treatmentTechnologies) => {
-                  result.treatmentTrains = treatmentTechnologies.sort(function(a, b) {
+                  result.treatmentTrains = treatmentTechnologies.sort(function (a, b) {
                     if (a.names < b.names) {
                       return -1;
                     }
@@ -483,7 +483,7 @@ module.exports = {
       .then((pointSourceCategories) => {
         let pscPromises = [];
 
-        pointSourceCategories.forEach(function(psc) {
+        pointSourceCategories.forEach(function (psc) {
           console.log(psc.pointSourceSubcategories);
           pscPromises.push(fillPointSourceCategory(psc));
         });

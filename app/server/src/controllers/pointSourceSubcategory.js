@@ -12,7 +12,7 @@ const Op = require('sequelize').Op;
 const Sequelize = require('sequelize');
 
 function fillControlTechnology(controlTechnology) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     let ct = {
       id: controlTechnology.id,
       controlTechnologyCode: controlTechnology.controlTechnologyCode,
@@ -103,7 +103,7 @@ function fillControlTechnology(controlTechnology) {
               .join('; ')
               .split('; ')
               .sort()
-              .filter(function(value, index, self) {
+              .filter(function (value, index, self) {
                 return self.indexOf(value) === index;
               })
               .join('; ');
@@ -205,7 +205,7 @@ module.exports = {
             .then((controlTechnologies) => {
               let ctPromises = [];
 
-              controlTechnologies.forEach(function(controlTechnology) {
+              controlTechnologies.forEach(function (controlTechnology) {
                 ctPromises.push(fillControlTechnology(controlTechnology));
               });
 
@@ -215,9 +215,9 @@ module.exports = {
                 //add record for each LOC that is not relevant for this subcategory
                 ctPromises = [];
 
-                ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'].forEach(function(ctCode, index) {
+                ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'].forEach(function (ctCode, index) {
                   if (
-                    cts.filter(function(ct) {
+                    cts.filter(function (ct) {
                       return ct.controlTechnologyCode === ctCode;
                     }).length === 0
                   ) {

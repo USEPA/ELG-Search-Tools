@@ -110,7 +110,7 @@
         </BRow> -->
       </template>
       <template v-slot:cell(rangeOfPollutantLimitations)="{ value, item }">
-        <span v-if="value !== []">
+        <span v-if="value && value.length > 0">
           <table class="usa-table" style="font-size: 0.87rem">
             <thead class="sr-only">
               <tr>
