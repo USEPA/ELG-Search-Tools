@@ -107,7 +107,7 @@
         </HoverText>
       </h3>
       <DownloadLink title="Limitations" :url="keywordApiUrl" class="download-link" />
-      <Table
+      <DataTable
         class="keyword-table"
         :columns="limitationColumns"
         :rows="tableProvider"
@@ -163,20 +163,20 @@
           </span>
           <span v-else>--</span>
         </template>
-      </Table>
+      </DataTable>
     </div>
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 import HoverText from '@/components/shared/HoverText.vue';
 
 export default {
-  components: { Table, Modal, DownloadLink, HoverText },
+  components: { DataTable, Modal, DownloadLink, HoverText },
   computed: {
     ...mapState('customSearch', ['keyword', 'keywordResults', 'isFetching']),
     ...mapGetters('customSearch', ['keywordApiUrl']),
@@ -251,7 +251,7 @@ export default {
         );
         this.$store.commit('customSearch/SET_KEYWORD_RESULTS', response.data);
         return response.data.limitations;
-      } catch (error) {
+      } catch {
         return [];
       }
     },

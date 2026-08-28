@@ -65,7 +65,7 @@
       title="Limitations"
       :url="`/api/wastestreamProcessLimitations?id=${selectedLimitationId}`"
     />
-    <Table v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
+    <DataTable v-if="subcategoryData" :columns="pscColumns" :rows="limitationData.limitations">
       <template v-slot:cell(goToLta)="{ item }">
         <span v-if="item.longTermAverageCount > 0">
           <a @click="shouldDisplayLongTermAvgData(item)">
@@ -74,18 +74,22 @@
         </span>
         <span v-else>--</span>
       </template>
-    </Table>
+    </DataTable>
     <Alert v-if="!subcategoryData && limitationData" type="info" style="margin-bottom: 1.5rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
       "No data available" will be noted. Filters can be used to limit the data displayed in the results. To remove the
       filter, select the criteria a second time.
     </Alert>
     <ControlTabs v-if="!subcategoryData && limitationData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
-      <template v-for="controlTechnologyCode in controlTechTabs" v-slot:[controlTechnologyCode]>
-        <div :key="controlTechnologyCode" class="tab-content poll-limit-tab-content">
+      <template
+        v-for="controlTechnologyCode in controlTechTabs"
+        :key="controlTechnologyCode"
+        v-slot:[controlTechnologyCode]
+      >
+        <div class="tab-content poll-limit-tab-content">
           <div class="poll-limitation-container">
             <DownloadLink title="Limitations" :url="pollDownloadUrl" />
-            <Table :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
+            <DataTable :columns="pollLimitationCols" :rows="getControlTechLimitations(controlTechnologyCode)">
               <template v-slot:cell(comboSubcategory)="{ item, value }">
                 <span v-if="isComparingPscs">{{ item.pointSourceCategoryCode }}</span> {{ value }}
               </template>
@@ -100,7 +104,7 @@
               <template v-slot:cell(wastestreamProcessSecondary)="{ value }">
                 <span v-html="value" />
               </template>
-            </Table>
+            </DataTable>
           </div>
         </div>
       </template>
@@ -150,14 +154,14 @@
 import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 import ControlTabs from '@/components/shared/ControlTabs.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 import { mapStatesToComputed } from '../store';
 
 export default {
-  components: { Alert, Breadcrumbs, Table, ControlTabs, Modal, DownloadLink },
+  components: { Alert, Breadcrumbs, DataTable, ControlTabs, Modal, DownloadLink },
   computed: {
     ...mapState('search', ['selectedCategory', 'subcategoryData', 'selectedPscs']),
     ...mapState('limitations', [

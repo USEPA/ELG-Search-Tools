@@ -39,9 +39,10 @@
     <ControlTabs v-if="subcategoryData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template
         v-for="controlTechnology in subcategoryData.controlTechnologies"
+        :key="controlTechnology.id"
         v-slot:[controlTechnology.controlTechnologyCode]
       >
-        <div :key="controlTechnology.id" class="tab-content">
+        <div class="tab-content">
           <div class="field is-grouped">
             <div class="control is-expanded">
               <h3 class="is-size-6 has-text-weight-semibold">
@@ -70,7 +71,7 @@
               </div>
             </Alert>
           </div>
-          <Table
+          <DataTable
             v-if="controlTechnology.wastestreamProcesses"
             :columns="pscColumns"
             :rows="controlTechnology.wastestreamProcesses"
@@ -78,13 +79,13 @@
             :perPage="100"
             :emptyText="tableEmptyText"
           >
-            <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`head(${fieldKey})`]="data">
+            <template
+              v-for="fieldKey in Object.keys(headerDescriptions)"
+              :key="fieldKey"
+              v-slot:[`head(${fieldKey})`]="data"
+            >
               {{ data.field.label }}
-              <button
-                :key="fieldKey"
-                class="usa-button is-text icon-btn"
-                @click="openModal(data.label, headerDescriptions[fieldKey])"
-              >
+              <button class="usa-button is-text icon-btn" @click="openModal(data.label, headerDescriptions[fieldKey])">
                 <span class="fa fa-info-circle"></span>
               </button>
             </template>
@@ -169,7 +170,7 @@
               </span>
               <span v-else>--</span>
             </template>
-          </Table>
+          </DataTable>
           <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
             <p class="has-text-left">
               <span v-html="currentModalContent" />
@@ -193,13 +194,13 @@
 import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import ControlTabs from '@/components/shared/ControlTabs.vue';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import HoverText from '@/components/shared/HoverText.vue';
 import { mapStatesToComputed } from '../../store';
 
 export default {
-  components: { Alert, ControlTabs, Table, Modal, HoverText },
+  components: { Alert, ControlTabs, DataTable, Modal, HoverText },
   computed: {
     ...mapState('search', ['selectedCategory', 'categoryData', 'subcategoryData']),
     ...mapStatesToComputed('results', ['activeTab']),

@@ -25,6 +25,8 @@ module.exports = [
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-unused-vars': ['error', { ignoreRestSiblings: true }],
       'vue/no-mutating-props': 'off',
+      // Views and single-purpose components are intentionally single-word (Search, Results, Modal)
+      'vue/multi-word-component-names': 'off',
     },
   },
   {

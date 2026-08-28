@@ -111,7 +111,7 @@
       />
     </div>
     <div class="treatment-table">
-      <Table
+      <DataTable
         :columns="limitationColumns"
         :rows="tableProvider"
         :busy="isFetching"
@@ -165,7 +165,7 @@
           </span>
           <span v-else>--</span>
         </template>
-      </Table>
+      </DataTable>
     </div>
   </div>
 </template>
@@ -175,13 +175,13 @@ import { mapState, mapGetters } from 'vuex';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert.vue';
 import HoverText from '@/components/shared/HoverText.vue';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 import { mapStatesToComputed } from '../../store';
 
 export default {
-  components: { Alert, HoverText, Table, Modal, DownloadLink },
+  components: { Alert, HoverText, DataTable, Modal, DownloadLink },
   computed: {
     ...mapState('search', [
       'selectedCategory',
@@ -292,7 +292,7 @@ export default {
             limitationValue: limitationValueDisplay,
           };
         });
-      } catch (error) {
+      } catch {
         return [];
       }
     },

@@ -55,14 +55,10 @@
       </div>
     </div>
 
-    <Table :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData.pscs">
-      <template v-for="fieldKey in Object.keys(headerDescriptions)" v-slot:[`head(${fieldKey})`]="data">
+    <DataTable :columns="selectedPollutantCategory ? pollCategoryColumns : pollColumns" :rows="pollutantData.pscs">
+      <template v-for="fieldKey in Object.keys(headerDescriptions)" :key="fieldKey" v-slot:[`head(${fieldKey})`]="data">
         {{ data.field.label }}
-        <button
-          :key="fieldKey"
-          class="usa-button is-text icon-btn"
-          @click="openModal(data.field.label, headerDescriptions[fieldKey])"
-        >
+        <button class="usa-button is-text icon-btn" @click="openModal(data.field.label, headerDescriptions[fieldKey])">
           <span class="fa fa-info-circle"></span>
         </button>
       </template>
@@ -191,7 +187,7 @@
           <span class="fas fa-share-square limitation-link"></span>
         </a>
       </template>
-    </Table>
+    </DataTable>
     <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
       <p class="has-text-left">
         <span v-html="currentModalContent" />
@@ -204,11 +200,11 @@
 import { mapState } from 'vuex';
 import HoverText from '@/components/shared/HoverText.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 import { mapStatesToComputed } from '../../store';
 
 export default {
-  components: { HoverText, DownloadLink, Table },
+  components: { HoverText, DownloadLink, DataTable },
   computed: {
     ...mapState('search', ['pollutantData', 'selectedPollutant', 'selectedPollutantCategory']),
     ...mapStatesToComputed('search', ['selectedPscs']),

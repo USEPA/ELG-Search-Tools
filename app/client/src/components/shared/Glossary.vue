@@ -48,7 +48,7 @@ export default {
               const term1 = item.Attributes.find((attr) => attr.Name === 'Def1');
               definition = editorialNote ? editorialNote.Value : term1.Value;
               return { term, definition };
-            } catch (error) {
+            } catch {
               return { term, definition };
             }
           });
@@ -66,10 +66,10 @@ export default {
         this.isFetchingTerms = false;
 
         // initialize Glossary component with fetched terms
-        new Glossary(terms); // eslint-disable-line
+        new Glossary(terms);
       })
       .catch((error) => {
-        console.error(error); // eslint-disable-line
+        console.error(error);
         this.shouldDisplayError = true;
         this.isFetchingTerms = false;
       });

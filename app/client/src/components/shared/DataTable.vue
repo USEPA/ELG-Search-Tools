@@ -14,15 +14,6 @@
       :defaultSort="sortBy"
       @sort-changed="sortChanged"
     >
-      <div slot="empty">
-        <div v-if="isBusy" class="text-center">
-          <LoadingIndicator />
-        </div>
-        <div v-else class="text-center">
-          {{ emptyText }}
-        </div>
-      </div>
-
       <!-- Hard-coded slots that are on multiple instances of table -->
       <template v-slot:head(limitationUnitBasis)="{ field }">
         {{ field.label }}
@@ -198,7 +189,6 @@
 import { UsTable } from 'hsrp-components';
 import HoverText from './HoverText.vue';
 import Modal from './Modal.vue';
-import LoadingIndicator from './LoadingIndicator.vue';
 
 export default {
   props: {
@@ -236,7 +226,7 @@ export default {
       type: String,
     },
   },
-  components: { UsTable, HoverText, Modal, LoadingIndicator },
+  components: { UsTable, HoverText, Modal },
   data() {
     return {
       sortBy: this.defaultSort || '',

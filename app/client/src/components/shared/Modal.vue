@@ -56,7 +56,7 @@ export default {
 
     // Set custom tab indices so that the close button is focused last, after modal content inputs
     this.focusableEls.forEach((el, index) => {
-      el.tabIndex = index + 1; // eslint-disable-line no-param-reassign
+      el.tabIndex = index + 1;
     });
     this.focusableEls[0].focus();
 

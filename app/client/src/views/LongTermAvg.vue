@@ -58,7 +58,7 @@
       title="Long Term Averages"
       :url="`/api/limitation?id=${selectedLimitationId}`"
     />
-    <Table v-if="longTermAvgData" :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
+    <DataTable v-if="longTermAvgData" :columns="longTermAvgCols" :rows="longTermAvgData.longTermAverages">
       <template v-slot:cell(treatmentTechnologyNames)="{ item }">
         {{ item.treatmentTechnologyNames }}
         <button
@@ -84,7 +84,7 @@
           {{ item.longTermAverageUnitDescription }}
         </HoverText>
       </template>
-    </Table>
+    </DataTable>
     <Modal v-if="shouldDisplayModal" :title="currentModalTitle" @close="shouldDisplayModal = false">
       <p class="has-text-left">
         <span v-html="currentModalContent" />
@@ -97,13 +97,13 @@
 import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import HoverText from '@/components/shared/HoverText.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 
 export default {
-  components: { Alert, Breadcrumbs, Table, Modal, HoverText, DownloadLink },
+  components: { Alert, Breadcrumbs, DataTable, Modal, HoverText, DownloadLink },
   computed: {
     ...mapState('search', ['selectedTreatmentTrain']),
     ...mapState('limitations', ['isFetching', 'longTermAvgData', 'selectedLimitationId']),

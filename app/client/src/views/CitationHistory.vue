@@ -29,7 +29,7 @@
         </h2>
         <h3 class="is-size-5 subtitle">CFR Citation History</h3>
       </div>
-      <Table :columns="columns" :rows="rows" />
+      <DataTable :columns="columns" :rows="rows" />
     </div>
   </section>
 </template>
@@ -39,10 +39,10 @@ import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
 import LoadingIndicator from '@/components/shared/LoadingIndicator.vue';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 
 export default {
-  components: { Alert, Breadcrumbs, LoadingIndicator, Table },
+  components: { Alert, Breadcrumbs, LoadingIndicator, DataTable },
   data() {
     return {
       noPscPassed: false,

@@ -100,7 +100,7 @@
       <DownloadLink v-else title="Limitations" :url="multiCriteriaApiUrl" />
     </div>
     <div>
-      <Table
+      <DataTable
         :columns="limitationColumns"
         :rows="tableProvider"
         :busy="isFetching"
@@ -154,7 +154,7 @@
           </div>
           <span v-else>--</span>
         </template>
-      </Table>
+      </DataTable>
     </div>
   </div>
 </template>
@@ -163,13 +163,13 @@
 import { mapState, mapGetters } from 'vuex';
 import sortBy from 'lodash/sortBy';
 import Alert from '@/components/shared/Alert.vue';
-import Table from '@/components/shared/Table.vue';
+import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 import { mapStatesToComputed } from '../../store';
 
 export default {
-  components: { Alert, Table, Modal, DownloadLink },
+  components: { Alert, DataTable, Modal, DownloadLink },
   computed: {
     ...mapState('search', [
       'selectedCategory',
@@ -264,7 +264,7 @@ export default {
         );
         this.$store.commit('customSearch/SET_MULTI_CRITERIA_RESULTS', response.data);
         return response.data.limitations;
-      } catch (error) {
+      } catch {
         return [];
       }
     },
