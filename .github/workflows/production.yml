@@ -58,7 +58,7 @@ jobs:
         working-directory: app/client
 
       - name: Remove unnecessary server app files
-        run: rm -rf .env.example .eslintignore .eslintrc.js .prettierrc
+        run: rm -rf .env.example eslint.config.js .prettierrc.json
         working-directory: app/server
 
       - name: Copy production manifest file to server app
