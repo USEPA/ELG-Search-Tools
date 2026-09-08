@@ -4,6 +4,8 @@ const state = {
   cfrResults: null,
   cfrDefinitions: null,
   cfrCitationHistory: null,
+  // Words in this category's CFR text that the search keywords matched by lexeme
+  keywordMatches: [],
   isFetching: false,
 };
 
@@ -27,6 +29,22 @@ const actions = {
     const res = await axios.get(`/api/pointSourceCategoryDefinitions/${pscId}`);
     commit('SET_CFR_DEFINITIONS', res.data);
     commit('SET_IS_FETCHING', false);
+  },
+  async getKeywordMatches({ commit }, { pscId, keywords }) {
+    commit('SET_KEYWORD_MATCHES', []);
+
+    if (!keywords.length) {
+      return;
+    }
+
+    // Repeated params - Express 5's 'simple' query parser would read axios's 'keyword[]' form as a
+    // differently named param
+    const params = new URLSearchParams();
+    keywords.forEach((keyword) => params.append('keyword', keyword));
+
+    // Left out of isFetching so the page renders without waiting on highlighting
+    const res = await axios.get(`/api/pointSourceCategoryKeywordMatches/${pscId}?${params.toString()}`);
+    commit('SET_KEYWORD_MATCHES', res.data);
   },
   async getCfrCitationHistory({ commit }, pscId) {
     commit('SET_CFR_CITATION_HISTORY', null);

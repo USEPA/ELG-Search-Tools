@@ -89,6 +89,19 @@ function fillSubcategoryForDefinitions(subcategory) {
   });
 }
 
+function parseKeywords(keyword) {
+  if (!keyword) {
+    return [];
+  }
+
+  // Accept repeated query params as well as the ';' delimited form used by the keyword search API
+  return []
+    .concat(keyword)
+    .flatMap((k) => String(k).split(';'))
+    .map((k) => k.trim())
+    .filter(Boolean);
+}
+
 module.exports = {
   list(req, res) {
     try {
@@ -322,6 +335,49 @@ module.exports = {
             res.status(200).send(result);
           }
         })
+        .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
+    } catch (err) {
+      return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));
+    }
+  },
+  /**
+   * Returns the words in this category's CFR text whose lexemes match the keywords. The search
+   * stems before matching, so a search for "precipitation" matches "precipitator" in the text.
+   *
+   * @param {
+   *          {id:number}
+   * } req.params
+   * @param {
+   *          {keyword:string|string[]}
+   * } req.query
+   */
+  keywordMatches(req, res) {
+    try {
+      let pointSourceCategoryCode = utilities.parseIdAsInteger(req.params.id);
+
+      if (pointSourceCategoryCode === null) {
+        return res.status(400).send('Invalid value passed for pointSourceCategoryCode');
+      }
+
+      let keywords = parseKeywords(req.query.keyword);
+
+      if (keywords.length === 0) {
+        return res.status(200).send([]);
+      }
+
+      // No config, so keywords stem with the same default_text_search_config as the vectors
+      return PointSourceCategory.sequelize
+        .query(
+          `SELECT DISTINCT t.token as "token"
+             FROM elg_search."PointSourceCategoryLexeme" pl, unnest(pl.tokens) t(token)
+            WHERE pl.psc_code = ?
+              AND pl.lexeme IN (SELECT lexeme FROM unnest(to_tsvector(?)))`,
+          {
+            replacements: [pointSourceCategoryCode, keywords.join(' ')],
+            type: Sequelize.QueryTypes.SELECT,
+          }
+        )
+        .then((matches) => res.status(200).send(matches.map((match) => match.token)))
         .catch((error) => res.status(400).send('Error! ' + utilities.sanitizeError(error)));
     } catch (err) {
       return res.status(400).send('Error !' + utilities.sanitizeError(err.toString()));

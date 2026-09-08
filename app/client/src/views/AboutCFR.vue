@@ -23,7 +23,7 @@
         <div class="page-heading">
           <h2 class="text-bold">
             About 40 CFR {{ cfrResults.pointSourceCategoryCode }}:
-            <HighlightedText :text="cfrResults.pointSourceCategoryName" :keywords="keywords" />
+            <HighlightedText :text="cfrResults.pointSourceCategoryName" :keywords="keywordMatches" />
           </h2>
           <h3 class="is-size-5 subtitle">Applicability, General Requirements, and Definitions</h3>
         </div>
@@ -111,7 +111,7 @@
           <div class="tabs is-boxed">
             <p class="card-header-title">
               <!-- Kept in one flex item so the space before the subcategory name is not discarded -->
-              <span>Subcategory: <HighlightedText :text="subcategory.comboSubcategory" :keywords="keywords" /></span>
+              <span>Subcategory: <HighlightedText :text="subcategory.comboSubcategory" :keywords="keywordMatches" /></span>
             </p>
             <ul>
               <li
@@ -128,8 +128,8 @@
         </header>
         <div v-if="isActive(selectedProvisionTypes[subcategory.id], 'definitions')" class="card-content">
           <p v-for="definition in subcategory.definitions" :key="definition.term">
-            <span class="text-bold"><HighlightedText :text="definition.term" :keywords="keywords" />: </span>
-            <HighlightedText :text="definition.definition" :keywords="keywords" />
+            <span class="text-bold">{{ definition.term }}: </span>
+            {{ definition.definition }}
             <span v-if="definition.typoFlagDefinition">
               <br />
               <span class="fa fa-exclamation-triangle"></span>
@@ -149,7 +149,7 @@
             :key="provision.cfrSection"
           >
             <span class="text-bold">{{ provision.cfrSection }}: </span>
-            <HighlightedText :text="provision.description" :keywords="keywords" />
+            <HighlightedText :text="provision.description" :keywords="keywordMatches" />
           </p>
         </div>
       </div>
@@ -183,8 +183,8 @@ export default {
     };
   },
   computed: {
-    ...mapState('aboutCfr', ['isFetching', 'cfrResults', 'cfrDefinitions']),
-    // Vue Router gives a bare string for a single occurrence and an array only for two or more
+    ...mapState('aboutCfr', ['isFetching', 'cfrResults', 'cfrDefinitions', 'keywordMatches']),
+    // Vue Router gives a string for one occurrence, an array for two or more
     keywords() {
       return [].concat(this.$route.query.keyword ?? []).filter(Boolean);
     },
@@ -225,6 +225,10 @@ export default {
     }
     this.$store.dispatch('aboutCfr/getCfrResults', this.$route.query.psc);
     this.$store.dispatch('aboutCfr/getCfrDefinitions', this.$route.query.psc);
+    this.$store.dispatch('aboutCfr/getKeywordMatches', {
+      pscId: this.$route.query.psc,
+      keywords: this.keywords,
+    });
   },
 };
 </script>
