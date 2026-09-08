@@ -111,7 +111,9 @@
           <div class="tabs is-boxed">
             <p class="card-header-title">
               <!-- Kept in one flex item so the space before the subcategory name is not discarded -->
-              <span>Subcategory: <HighlightedText :text="subcategory.comboSubcategory" :keywords="keywordMatches" /></span>
+              <span
+                >Subcategory: <HighlightedText :text="subcategory.comboSubcategory" :keywords="keywordMatches"
+              /></span>
             </p>
             <ul>
               <li
