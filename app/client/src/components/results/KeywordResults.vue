@@ -32,14 +32,12 @@
             </p>
             <ul>
               <li v-for="psc in keywordResults.pointSourceCategories" :key="psc.pointSourceCategoryCode">
-                <!-- <button
-                  class="usa-button is-hyperlink"
-                  title="View Point Source Category Results"
-                  @click="goToPscResults(psc)"
+                <router-link
+                  :to="{ path: '/results/about-cfr', query: { psc: psc.pointSourceCategoryCode, keyword } }"
+                  title="View About 40 CFR for this Point Source Category"
                 >
                   {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
-                </button> -->
-                {{ psc.pointSourceCategoryCode }}: {{ psc.pointSourceCategoryName }}
+                </router-link>
               </li>
             </ul>
           </Alert>
@@ -255,11 +253,6 @@ export default {
         return [];
       }
     },
-    // async goToPscResults(psc) {
-    //   this.$store.commit('search/SET_SELECTED_CATEGORY', psc);
-    //   await this.$store.dispatch('search/getPointSourceCategories');
-    //   this.$store.commit('customSearch/SET_KEYWORD_RESULTS', null);
-    // },
   },
 };
 </script>

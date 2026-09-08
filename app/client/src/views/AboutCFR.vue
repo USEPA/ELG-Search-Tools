@@ -22,10 +22,17 @@
       <div class="elg-header-container">
         <div class="page-heading">
           <h2 class="text-bold">
-            About 40 CFR {{ cfrResults.pointSourceCategoryCode }}: {{ cfrResults.pointSourceCategoryName }}
+            About 40 CFR {{ cfrResults.pointSourceCategoryCode }}:
+            <HighlightedText :text="cfrResults.pointSourceCategoryName" :keywords="keywords" />
           </h2>
           <h3 class="is-size-5 subtitle">Applicability, General Requirements, and Definitions</h3>
         </div>
+      </div>
+      <div v-if="keywords.length" class="info-boxes">
+        <Alert type="" :isSlim="true">
+          <strong>Keywords:</strong>
+          {{ keywords.join(', ') }}
+        </Alert>
       </div>
       <Alert type="info">
         This page presents applicability, definitions, best management practices, monitoring requirements, and other
@@ -102,7 +109,10 @@
       <div v-for="subcategory in results" class="card" :key="subcategory.id">
         <header class="card-header">
           <div class="tabs is-boxed">
-            <p class="card-header-title">Subcategory: {{ subcategory.comboSubcategory }}</p>
+            <p class="card-header-title">
+              <!-- Kept in one flex item so the space before the subcategory name is not discarded -->
+              <span>Subcategory: <HighlightedText :text="subcategory.comboSubcategory" :keywords="keywords" /></span>
+            </p>
             <ul>
               <li
                 v-for="provision in availableProvisions(subcategory)"
@@ -118,8 +128,8 @@
         </header>
         <div v-if="isActive(selectedProvisionTypes[subcategory.id], 'definitions')" class="card-content">
           <p v-for="definition in subcategory.definitions" :key="definition.term">
-            <span class="text-bold">{{ definition.term }}: </span>
-            {{ definition.definition }}
+            <span class="text-bold"><HighlightedText :text="definition.term" :keywords="keywords" />: </span>
+            <HighlightedText :text="definition.definition" :keywords="keywords" />
             <span v-if="definition.typoFlagDefinition">
               <br />
               <span class="fa fa-exclamation-triangle"></span>
@@ -139,7 +149,7 @@
             :key="provision.cfrSection"
           >
             <span class="text-bold">{{ provision.cfrSection }}: </span>
-            {{ provision.description }}
+            <HighlightedText :text="provision.description" :keywords="keywords" />
           </p>
         </div>
       </div>
@@ -151,11 +161,12 @@
 import { mapState } from 'vuex';
 import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
+import HighlightedText from '@/components/shared/HighlightedText.vue';
 import LoadingIndicator from '@/components/shared/LoadingIndicator.vue';
 import Modal from '@/components/shared/Modal.vue';
 
 export default {
-  components: { Alert, Breadcrumbs, LoadingIndicator, Modal },
+  components: { Alert, Breadcrumbs, HighlightedText, LoadingIndicator, Modal },
   data() {
     return {
       noPscPassed: false,
@@ -173,6 +184,10 @@ export default {
   },
   computed: {
     ...mapState('aboutCfr', ['isFetching', 'cfrResults', 'cfrDefinitions']),
+    // Vue Router gives a bare string for a single occurrence and an array only for two or more
+    keywords() {
+      return [].concat(this.$route.query.keyword ?? []).filter(Boolean);
+    },
     results() {
       return this.cfrResults
         ? this.cfrResults.subcategories.map((subcat) => {
@@ -219,6 +234,23 @@ export default {
 
 .subtitle {
   margin-bottom: 1rem;
+}
+
+// Matches the keyword banner on the Keyword Search results page
+.info-boxes {
+  .usa-alert--slim :deep(.usa-alert__body) {
+    padding-left: 0.5rem;
+  }
+
+  strong {
+    margin: 0 1rem;
+  }
+
+  .usa-alert {
+    font-size: 0.93rem;
+    max-height: 150px;
+    overflow: auto;
+  }
 }
 
 // Card styles
