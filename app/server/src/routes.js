@@ -14,6 +14,7 @@ module.exports = (app, history) => {
   router.get('/pointSourceCategoryCfr/:id', controllers.pointSourceCategory.cfr);
   router.get('/pointSourceCategoryDefinitions/:id', controllers.pointSourceCategory.definitions);
   router.get('/pointSourceCategoryCitationHistory/:id', controllers.pointSourceCategory.citationHistory);
+  router.get('/pointSourceCategoryKeywordMatches/:id', controllers.pointSourceCategory.keywordMatches);
 
   router.get('/pointSourceSubcategory/:id', controllers.pointSourceSubcategory.read);
 
