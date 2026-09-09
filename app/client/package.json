@@ -1,7 +1,7 @@
 {
   "name": "elg-client",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite",
     "build": "vite build --mode prod",
     "test": "jest",
     "lint": "eslint src",
