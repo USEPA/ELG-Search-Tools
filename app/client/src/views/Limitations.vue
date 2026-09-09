@@ -56,7 +56,15 @@
         <p><span class="has-text-weight-bold">Process Operation/Wastestream:</span> {{ limitationData.title }}</p>
         <p>
           <span class="has-text-weight-bold">Other Process/Wastestream Details: </span>
-          <span v-html="limitationData.secondary"></span>
+          <span>
+            <template v-for="(part, index) in limitationData.secondaryParts" :key="index">
+              <strong v-if="part.type === 'joiner'">
+                <u>{{ part.text }}</u>
+              </strong>
+              <template v-else>{{ part.text }}</template>
+              <template v-if="index < limitationData.secondaryParts.length - 1">{{ ' ' }}</template>
+            </template>
+          </span>
         </p>
       </div>
     </Alert>

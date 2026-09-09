@@ -159,7 +159,15 @@
               </Modal>
             </template>
             <template v-slot:cell(secondary)="{ item }">
-              <span v-if="item.secondary !== ''" v-html="item.secondary" />
+              <span v-if="item.secondaryParts.length">
+                <template v-for="(part, index) in item.secondaryParts" :key="index">
+                  <strong v-if="part.type === 'joiner'">
+                    <u>{{ part.text }}</u>
+                  </strong>
+                  <template v-else>{{ part.text }}</template>
+                  <template v-if="index < item.secondaryParts.length - 1">{{ ' ' }}</template>
+                </template>
+              </span>
               <span v-else>--</span>
             </template>
             <template v-slot:cell(goToLimitations)="{ item }">

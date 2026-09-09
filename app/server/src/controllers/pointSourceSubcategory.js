@@ -51,6 +51,7 @@ function fillControlTechnology(controlTechnology) {
           'cfrSection',
           'title',
           'secondary',
+          'secondaryParts',
           ['processop_description', 'description'],
           ['processop_notes', 'notes'],
           ['lim_calc_desc', 'limitCalculationDescription'],

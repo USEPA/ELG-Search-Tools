@@ -32,6 +32,12 @@ module.exports = {
             allowNull: true,
             field: 'secondary',
           },
+          // Ordered constraint/joiner segments, so the client formats them without markup in the data
+          secondaryParts: {
+            type: Sequelize.JSONB,
+            allowNull: false,
+            field: 'secondary_parts',
+          },
           description: {
             type: Sequelize.STRING(4000),
             allowNull: true,

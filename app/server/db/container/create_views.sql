@@ -37,7 +37,20 @@ SELECT
     ct_id,
     processop_title,
     cfr_sect,
-    TRIM(COALESCE(processop_constraint1, '') || ' ' || COALESCE('<strong><u>' || processop_andor1 || '</u></strong>', '') || ' ' || COALESCE(processop_constraint2, '') || ' ' || COALESCE('<strong><u>' || processop_andor2 || '</u></strong>', '') || ' ' || COALESCE(processop_constraint3, '') || ' ' || COALESCE('<strong><u>' || processop_andor3 || '</u></strong>', '') || ' ' || COALESCE(processop_constraint4, '')) AS secondary,
+    -- Plain text, used for sorting and the keyword search vector
+    TRIM(concat_ws(' ', nullif(TRIM(processop_constraint1), ''), nullif(TRIM(processop_andor1), ''),
+                        nullif(TRIM(processop_constraint2), ''), nullif(TRIM(processop_andor2), ''),
+                        nullif(TRIM(processop_constraint3), ''), nullif(TRIM(processop_andor3), ''),
+                        nullif(TRIM(processop_constraint4), ''))) AS secondary,
+    -- Ordered segments, so the client can emphasise the joiners without markup in the data
+    COALESCE((
+        SELECT jsonb_agg(jsonb_build_object('type', v.type, 'text', TRIM(v.text)) ORDER BY v.ord)
+          FROM (VALUES (1, 'constraint', processop_constraint1), (2, 'joiner', processop_andor1),
+                       (3, 'constraint', processop_constraint2), (4, 'joiner', processop_andor2),
+                       (5, 'constraint', processop_constraint3), (6, 'joiner', processop_andor3),
+                       (7, 'constraint', processop_constraint4)) AS v(ord, type, text)
+         WHERE nullif(TRIM(v.text), '') IS NOT NULL
+    ), '[]'::jsonb) AS secondary_parts,
     regexp_replace(regexp_replace(processop_description, chr(145), '''', 'g'), chr(146), '''', 'g') AS processop_description,
     CASE WHEN processop_id = 25055 THEN
         'Limitations for the parameters are the same as the corresponding limitation specified in \u00A7437.42(e)' --odd character in source data

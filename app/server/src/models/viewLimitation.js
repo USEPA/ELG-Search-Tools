@@ -68,6 +68,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'secondary',
       },
+      wastestreamProcessSecondaryParts: {
+        type: DataTypes.JSONB,
+        allowNull: false,
+        field: 'secondary_parts',
+      },
       wastestreamProcessDisplayOrder: {
         type: DataTypes.INTEGER,
         allowNull: false,

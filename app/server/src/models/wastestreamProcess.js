@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: 'secondary',
       },
+      secondaryParts: {
+        type: DataTypes.JSONB,
+        allowNull: false,
+        field: 'secondary_parts',
+      },
       description: {
         type: DataTypes.STRING(4000),
         allowNull: true,

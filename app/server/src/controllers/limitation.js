@@ -90,7 +90,9 @@ let order = [
 function wastestreamProcessLimitations(wastestreamProcessId) {
   return new Promise(function (resolve, reject) {
     ViewLimitation.findAll({
-      attributes: attributes,
+      // Only this page renders the segments, and the shared list is also used against views that
+      // do not expose them
+      attributes: attributes.concat(['wastestreamProcessSecondaryParts']),
       where: {
         wastestreamProcessId: { [Op.eq]: wastestreamProcessId },
       },
@@ -103,6 +105,7 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
         result.controlTechnologyCode = null;
         result.title = null;
         result.secondary = null;
+        result.secondaryParts = [];
         result.limitations = limitations;
 
         if (limitations.length > 0) {
@@ -113,6 +116,7 @@ function wastestreamProcessLimitations(wastestreamProcessId) {
           result.controlTechnologyCode = limitations[0].controlTechnologyCode;
           result.title = limitations[0].wastestreamProcessTitle;
           result.secondary = limitations[0].wastestreamProcessSecondary;
+          result.secondaryParts = limitations[0].wastestreamProcessSecondaryParts;
         }
 
         resolve(result);
@@ -1549,10 +1553,7 @@ module.exports = {
                             { label: 'Process Operation/Wastestream', value: result['wastestreamProcessTitle'] },
                             {
                               label: 'Other Process/Wastestream Details',
-                              value: result['wastestreamProcessSecondary'].replace(
-                                /<strong><u>and<\/u><\/strong>/gi,
-                                'AND'
-                              ),
+                              value: result['wastestreamProcessSecondary'],
                             },
                             { label: 'Pollutant', value: result['pollutantDescription'] },
                           ],
