@@ -23,6 +23,11 @@ const sequelize = new Sequelize(database, user, password, {
     acquire: 30000,
     idle: 10000,
   },
+  // pooled connections can be dropped out from under us; retry rather than failing the request
+  retry: {
+    match: [/ETIMEDOUT/, /ECONNRESET/, /ECONNREFUSED/, /EPIPE/, /EHOSTUNREACH/, /Connection terminated unexpectedly/],
+    max: 3,
+  },
   logging: log.debug.bind(log),
 });
 

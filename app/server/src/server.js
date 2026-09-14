@@ -200,6 +200,15 @@ if (process.env.ELG_GLOSSARY_AUTH) {
   if (!isLocal) process.exit();
 }
 
+/****************************************************************
+ Last resort net for promise rejections that escape a controller.
+ Node terminates the process on these by default, so a transient
+ database error would otherwise take down the whole app.
+ ****************************************************************/
+process.on('unhandledRejection', (reason) => {
+  log.error('Unhandled promise rejection: ' + (reason instanceof Error ? reason.stack : reason));
+});
+
 //app.use(history());
 require('./routes')(app, history());
 
