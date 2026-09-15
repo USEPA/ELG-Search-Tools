@@ -133,7 +133,7 @@
                   <p>{{ item.description }}</p>
                   <div v-if="item.limitCalculationDescription">
                     <hr />
-                    <h3 class="has-text-weight-bold">Limit Calculation Description</h3>
+                    <h3 class="has-text-weight-bold">Limitation Calculation Description</h3>
                     <p>
                       {{ item.limitCalculationDescription }}
                       <span v-if="item.typoFlagLimitCalculationDescription">

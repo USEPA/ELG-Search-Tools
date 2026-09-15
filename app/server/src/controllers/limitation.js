@@ -585,19 +585,18 @@ function technologyBasisLimitations(treatmentId, pointSourceCategoryCode) {
 }
 
 function fillLongTermAverage(longTermAverage) {
+  // treatment_codes values carry trailing whitespace, so normalize before matching
+  const codes = longTermAverage.treatmentTechnologyCodes
+    .split('; ')
+    .map((code) => code.trim())
+    .filter((code) => code);
+
   return new Promise(function (resolve) {
     TreatmentTechnologyCode.findAll({
-      where: {
-        [Op.and]: Sequelize.literal(
-          "code IN (SELECT codes FROM regexp_split_to_table('" +
-            longTermAverage.treatmentTechnologyCodes +
-            "', '; ') AS codes)"
-        ),
-      },
+      where: { id: { [Op.in]: codes } },
     })
       .then((treatmentTechnologyCodes) => {
-        let names = longTermAverage.treatmentTechnologyCodes
-          .split('; ')
+        let names = codes
           .map((code) => {
             const match = treatmentTechnologyCodes.find(
               (treatmentTechnologyCode) => treatmentTechnologyCode.id === code

@@ -1,3 +1,17 @@
+-- The Access source pads many text columns with whitespace, which breaks exact-match
+-- lookups downstream (e.g. 'EVAP ' never matching the 'EVAP' treatment technology code).
+-- Trim every string value on the way out; non-string values pass through untouched.
+CREATE OR REPLACE FUNCTION elg_database.trim_strings (row_json json) RETURNS json
+LANGUAGE sql IMMUTABLE
+AS $$
+    SELECT json_object_agg(key,
+        -- U+00A0 is a non-breaking space; the Access source pads with those as well as plain spaces
+        CASE WHEN json_typeof(value) = 'string'
+             THEN to_json(btrim(value #>> '{}', E' \t\n\r\u00A0'))
+             ELSE value END)
+    FROM json_each(row_json);
+$$;
+
 CREATE OR REPLACE PROCEDURE elg_database.generate_seed_file (from_item text, directory text, filename text)
 LANGUAGE plpgsql
 AS $$
@@ -5,7 +19,7 @@ DECLARE
     full_path text;
 BEGIN
     full_path := format('%s/%s', directory, filename);
-    EXECUTE format('COPY (SELECT json_agg(row_to_json(t)) FROM %s as t) TO %L', from_item, full_path);
+    EXECUTE format('COPY (SELECT json_agg(elg_database.trim_strings(row_to_json(t))) FROM %s as t) TO %L', from_item, full_path);
 END;
 $$;
 
@@ -16,7 +30,7 @@ DECLARE
     full_path text;
 BEGIN
     full_path := format('%s/%s', directory, filename);
-    EXECUTE format('COPY (SELECT json_agg(row_to_json(%s)) FROM %s) TO %L', record, from_item, full_path);
+    EXECUTE format('COPY (SELECT json_agg(elg_database.trim_strings(row_to_json(%s))) FROM %s) TO %L', record, from_item, full_path);
 END;
 $$;
 
