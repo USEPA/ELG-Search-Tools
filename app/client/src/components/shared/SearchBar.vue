@@ -44,6 +44,7 @@
                 :disabled="!searchType"
                 @update:modelValue="onSelectOption"
                 :label="searchTypeObject.labelField"
+                :filterBy="filterOption"
               >
                 <template #option="option">
                   <span v-if="searchTypeObject.shouldDisplayCode">
@@ -170,6 +171,7 @@
 import { mapState } from 'vuex';
 import MultiCriteria from '@/components/search/MultiCriteria.vue';
 import Keyword from '@/components/search/Keyword.vue';
+import { matchesCodeOrName } from '@/utils';
 import { mapStatesToComputed } from '../../store';
 
 export default {
@@ -287,6 +289,10 @@ export default {
     onSelectTreatmentCategory(value) {
       this.selectedTreatmentTechnology = null;
       this.selectedTreatmentTechnologyCategory = value;
+    },
+    filterOption(option, name, search) {
+      const code = this.searchTypeObject.shouldDisplayCode ? option[this.searchTypeObject.codeField] : null;
+      return matchesCodeOrName(code, name, search);
     },
     getOptionLabel(searchOption) {
       if (this.searchTypeObject.shouldDisplayCode) {

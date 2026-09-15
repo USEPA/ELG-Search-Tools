@@ -21,6 +21,7 @@
           placeholder="Select Category"
           label="pointSourceCategoryName"
           :reduce="(o) => o.pointSourceCategoryCode"
+          :filterBy="filterPointSourceCategory"
         >
           <template #option="option">
             {{ option.pointSourceCategoryCode }}: {{ option.pointSourceCategoryName }}
@@ -186,6 +187,7 @@
 import { mapState } from 'vuex';
 import VueSelect from 'vue-select';
 import LoadingIndicator from '@/components/shared/LoadingIndicator.vue';
+import { matchesCodeOrName } from '@/utils';
 import { mapStatesToComputed } from '../../store';
 
 export default {
@@ -232,6 +234,9 @@ export default {
     },
   },
   methods: {
+    filterPointSourceCategory(option, name, search) {
+      return matchesCodeOrName(option.pointSourceCategoryCode, name, search);
+    },
     getResults() {
       this.$router.push('/results');
     },

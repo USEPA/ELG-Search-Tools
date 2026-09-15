@@ -56,6 +56,7 @@
             placeholder="Select Category"
             label="pointSourceCategoryName"
             :reduce="(o) => o.pointSourceCategoryCode"
+            :filterBy="filterPointSourceCategory"
           >
             <template #option="option">
               {{ option.pointSourceCategoryCode }}: {{ option.pointSourceCategoryName }}
@@ -166,6 +167,7 @@ import Alert from '@/components/shared/Alert.vue';
 import DataTable from '@/components/shared/DataTable.vue';
 import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
+import { matchesCodeOrName } from '@/utils';
 import { mapStatesToComputed } from '../../store';
 
 export default {
@@ -251,6 +253,9 @@ export default {
   },
   methods: {
     sortBy,
+    filterPointSourceCategory(option, name, search) {
+      return matchesCodeOrName(option.pointSourceCategoryCode, name, search);
+    },
     onShouldDisplayLongTermAvgData(limitationId) {
       this.$store.dispatch('limitations/getLongTermAvgDataTechSearch', limitationId);
       this.$router.push('/results/limitations/long-term-average');
