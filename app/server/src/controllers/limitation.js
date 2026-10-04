@@ -53,7 +53,7 @@ let attributes = [
   'limitationUnitBasis',
   'alternateLimitFlag',
   'alternateLimitDescription',
-  ['alt_lim', 'limitRequirement'],
+  ['alt_lim', 'limitRequirementDescription'],
   ['lim_lim_calc_desc', 'limitationLimitCalculationDescription'],
   ['lim_pollutant_notes', 'limitationPollutantNotes'],
   [Sequelize.literal("case when stat_base_type = 'Average' then lta_count else 0 end"), 'longTermAverageCount'],

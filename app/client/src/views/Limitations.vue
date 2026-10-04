@@ -109,44 +109,6 @@
         </div>
       </template>
     </ControlTabs>
-    <Modal v-if="shouldDisplayCheckboxModal" @close="() => (shouldDisplayCheckboxModal = false)">
-      {{ currentCheckboxInfo }}
-    </Modal>
-    <Modal v-if="shouldDisplayUnitDescriptionModal" @close="() => (shouldDisplayUnitDescriptionModal = false)">
-      <div class="info-modal">
-        <h3 v-if="currentRow.limitationUnitDescription"><strong>Limitation Unit Description</strong></h3>
-        <p>{{ currentRow.limitationUnitDescription }}</p>
-      </div>
-    </Modal>
-    <Modal
-      v-if="shouldDisplayTypeOfLimitationModal"
-      :title="currentRow.limitationDurationDescription"
-      @close="() => (shouldDisplayTypeOfLimitationModal = false)"
-    >
-      <div class="info-modal">
-        <h3 v-if="currentRow.wastestreamProcessLimitCalculationDescription">
-          <strong>Limitation Calculation Description</strong>
-        </h3>
-        <p>
-          {{ currentRow.wastestreamProcessLimitCalculationDescription }}
-          <span v-if="item.wastestreamProcessTypoFlagLimitCalculationDescription">
-            <br />
-            <span class="fa fa-exclamation-triangle"></span>
-            <span style="font-style: italic">
-              {{ item.wastestreamProcessTypoFlagLimitCalculationDescription }}
-            </span>
-          </span>
-        </p>
-        <h3 v-if="currentRow.limitRequirementDescription">
-          <strong>Limitation Requirement Description</strong>
-        </h3>
-        <p>{{ currentRow.limitRequirementDescription }}</p>
-        <h3 v-if="currentRow.limitationPollutantNotes">
-          <strong>Notes</strong>
-        </h3>
-        <p>{{ currentRow.limitationPollutantNotes }}</p>
-      </div>
-    </Modal>
   </section>
 </template>
 
@@ -156,12 +118,11 @@ import Alert from '@/components/shared/Alert.vue';
 import Breadcrumbs from '@/components/shared/Breadcrumbs.vue';
 import DataTable from '@/components/shared/DataTable.vue';
 import ControlTabs from '@/components/shared/ControlTabs.vue';
-import Modal from '@/components/shared/Modal.vue';
 import DownloadLink from '@/components/shared/DownloadLink.vue';
 import { mapStatesToComputed } from '../store';
 
 export default {
-  components: { Alert, Breadcrumbs, DataTable, ControlTabs, Modal, DownloadLink },
+  components: { Alert, Breadcrumbs, DataTable, ControlTabs, DownloadLink },
   computed: {
     ...mapState('search', ['selectedCategory', 'subcategoryData', 'selectedPscs']),
     ...mapState('limitations', [
@@ -187,12 +148,7 @@ export default {
   },
   data() {
     return {
-      shouldDisplayUnitDescriptionModal: false,
-      shouldDisplayTypeOfLimitationModal: false,
-      currentCheckboxInfo: null,
-      shouldDisplayCheckboxModal: false,
       controlTechTabs: ['BPT', 'BAT', 'BCT', 'NSPS', 'PSES', 'PSNS'],
-      currentRow: null,
       pscColumns: [
         {
           key: 'pollutantDescription',
