@@ -423,11 +423,6 @@ export default {
 
       td {
         border: none;
-
-        & > span {
-          display: block;
-          // max-width: 300px;
-        }
       }
 
       & th[data-sortable] {

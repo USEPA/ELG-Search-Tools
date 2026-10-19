@@ -34,7 +34,7 @@
     </div>
     <Alert v-if="subcategoryData" type="info" style="margin-bottom: 1.25rem">
       Select the tabs below to view different levels of control. If there are no requirements for a level of control,
-      "No data available" will be noted.
+      "See the About CFR webpage" will be noted.
     </Alert>
     <ControlTabs v-if="subcategoryData" :activeTab="activeTab" @onTabClick="changeControlTechTab">
       <template
@@ -212,7 +212,7 @@ export default {
       ) {
         return 'Refer to Subcategories B through H for process operations and requirements.';
       }
-      return undefined;
+      return 'See the About CFR webpage.';
     },
   },
   data() {
